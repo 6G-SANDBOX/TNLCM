@@ -3,12 +3,13 @@ import time
 from logging.handlers import RotatingFileHandler
 from flask import Flask
 from os.path import exists, join
-from os import makedirs
+from .io import IO
 import traceback
 from typing import Union, Optional, List, Dict, Tuple
 import sys
 import re
 from enum import Enum, unique
+from os.path import abspath
 
 
 @unique
@@ -56,13 +57,18 @@ class Log:
     LOG_COUNT = 10
 
     initialized = False
+    outFolder = None
+    mainLogName = None
     logger: logging.Logger = None
 
     @classmethod
     def Initialize(cls, outFolder: str, logName: str, consoleLevel: int|str, fileLevel: int|str, app: Flask = None):
+        cls.outFolder = abspath(outFolder)
+        cls.mainLogName = logName
+
         # Use Flask's log if inside a Flask application, otherwise create a new one.
         if app is None:
-            cls.logger = logging.getLogger(logName)
+            cls.logger = logging.getLogger(cls.mainLogName)
             cls.logger.addHandler(logging.StreamHandler(stream=sys.stdout))
         else:
             cls.logger = app.logger
@@ -78,9 +84,9 @@ class Log:
         console_handler.setFormatter(ColoredFormatter(cls.CONSOLE_FORMAT))
 
         # Attach new file handler
-        if not exists(outFolder): makedirs(outFolder)
+        IO.EnsureFolder(cls.outFolder)
         file_handler = RotatingFileHandler(
-            join(outFolder, f'{logName}.log'), maxBytes=cls.LOG_SIZE, backupCount=cls.LOG_COUNT)
+            join(cls.outFolder, f'{cls.mainLogName}.log'), maxBytes=cls.LOG_SIZE, backupCount=cls.LOG_COUNT)
         file_handler.setFormatter(logging.Formatter(cls.FILE_FORMAT))
         file_handler.setLevel(fileLevel)
 
@@ -145,7 +151,7 @@ class Log:
 
     @classmethod
     def OpenLogFile(cls, identifier: str, filePath: Optional[str] = None) -> str:
-        filePath = join(Config().Logging.Folder, f'{identifier}.log') if filePath is None else filePath
+        filePath = join(cls.outFolder, f'{identifier}.log') if filePath is None else filePath
 
         logger = logging.getLogger(identifier)
         logger.setLevel(logging.DEBUG)
@@ -170,7 +176,7 @@ class Log:
     @classmethod
     def RetrieveLog(cls, file: str = None, tail: Optional[int] = None) -> List[str]:
         res = []
-        file = join(Config().Logging.Folder, 'Scheduler.log') if file is None else file
+        file = join(cls.outFolder, f'{cls.mainLogName}.log') if file is None else file
         with open(file, 'rb') as log:
             for line in log:
                 res.append(line.decode(encoding='utf-8', errors='replace'))
