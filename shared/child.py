@@ -27,6 +27,7 @@ class Child:
         Log.Log(level, f'[{self.name}{self.thread.ident}] {msg}')
 
     def Log(self, level: Level, msg: str):
+        print(f"{self.name}: {msg}")
         Log.Log(level, msg, logger=self.name)
 
     def Start(self):
