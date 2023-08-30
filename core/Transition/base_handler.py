@@ -1,4 +1,5 @@
-from shared import Child, TrialNetwork, Status, Level
+from shared import Child, Level
+from shared.data import TrialNetwork
 from datetime import datetime
 
 

@@ -1,4 +1,5 @@
-from shared import Child, TrialNetwork, Status, Level
+from shared import Child, Level
+from shared.data import TrialNetwork
 from .base_handler import BaseHandler
 from core.Tasks import SSH
 
@@ -8,13 +9,14 @@ class ToDestroyed(BaseHandler):
         super().__init__("ToDestroyed", trialNetwork)
 
     def Run(self):
-        tasks = self.tn.Descriptor["Actions"]["OnDestroy"]
+        from time import sleep
 
-        self.Log(Level.INFO, f"Tasks to run: {tasks}")
+        order = reversed(list(self.tn.Descriptor.DeploymentOrder))
 
-        for task in tasks:
-            if task['Type'] == "SSH":
-                SSH(self.tn, task).Start()
+        for name in order:
+            entity = self.tn.Entities[name]
+            print(f"Decommissioning {entity.Name}")
+            sleep(1)
 
         self.tn.CompleteTransition()
 

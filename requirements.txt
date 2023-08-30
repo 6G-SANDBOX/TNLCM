@@ -3,3 +3,5 @@ flask-restx~=1.1.0
 Flask-PyMongo~=2.3.0
 cson~=0.8
 paramiko~=3.2.0
+pyyaml
+dulwich  # With C bindings. Use 'dulwich --config-settings "--build-option=--pure"' for pure Python (performance loss)

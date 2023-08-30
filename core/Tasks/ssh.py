@@ -1,5 +1,5 @@
 from paramiko import SSHClient, AutoAddPolicy
-from shared import TrialNetwork
+from shared.data import TrialNetwork
 from .base_task import BaseTask
 
 

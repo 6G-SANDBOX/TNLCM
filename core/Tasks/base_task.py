@@ -1,4 +1,4 @@
-from shared import TrialNetwork
+from shared.data import TrialNetwork
 from re import finditer, match
 
 

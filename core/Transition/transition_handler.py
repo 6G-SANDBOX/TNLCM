@@ -1,4 +1,4 @@
-from shared import TrialNetwork, Status
+from shared.data import TrialNetwork
 from .to_started import ToStarted
 from .to_destroyed import ToDestroyed
 
@@ -8,9 +8,9 @@ class TransitionHandler:
     def Handle(cls, tn: TrialNetwork):
         f, t = tn.Transition
         match t:
-            case Status.Started:
+            case TrialNetwork.Status.Started:
                 handler = ToStarted(tn)
-            case Status.Destroyed:
+            case TrialNetwork.Status.Destroyed:
                 handler = ToDestroyed(tn)
             case _:
                 handler = None

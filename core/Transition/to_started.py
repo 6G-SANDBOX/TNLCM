@@ -1,6 +1,8 @@
-from shared import Child, TrialNetwork, Status, Level
+from shared import Child, Level
+from shared.data import TrialNetwork
 from .base_handler import BaseHandler
 from core.Tasks import SSH
+from shared import Library
 
 
 class ToStarted(BaseHandler):
@@ -8,13 +10,15 @@ class ToStarted(BaseHandler):
         super().__init__("ToStarted", trialNetwork)
 
     def Run(self):
-        tasks = self.tn.Descriptor["Actions"]["OnStart"]
+        from time import sleep
 
-        self.Log(Level.INFO, f"Tasks to run: {tasks}")
+        order = list(self.tn.Descriptor.DeploymentOrder)
 
-        for task in tasks:
-            if task['Type'] == "SSH":
-                SSH(self.tn, task).Start()
+        for name in order:
+            entity = self.tn.Entities[name]
+            playbook = Library.GetPlaybook(entity.Description.Type)  # TODO: Probably handle inside the entity instead
+            print(f"Instantiating {entity.Name} - Playbook: '{playbook}'")
+            sleep(1)
 
         self.tn.CompleteTransition()
 
