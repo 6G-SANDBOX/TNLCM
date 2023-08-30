@@ -71,10 +71,20 @@ class TrialNetworkDescriptor:
                     hasErrors = True
                     self.ValidationReport.append(f"Entity '{entity.Name}' depends on '{depends}', which does not exist.")
 
-        # Build dependency graph
-        sortedbydependent = sorted(self.requiredFor.keys(), key=lambda e: len(self.requiredFor[e]), reverse=True)
-        order = []
+        order, maybeError = self.calculateDeploymentOrder()
 
+        if maybeError is not None:
+            hasErrors = True
+            self.ValidationReport.append(maybeError)
+        else:
+            self.DeploymentOrder = order
+
+        # Additional validations go here
+
+        if not hasErrors:
+            self.Valid = True
+
+    def calculateDeploymentOrder(self) -> ([], str | None):
         def _checkDependencies(item: str) -> (str, None):
             for dependency in self.Entities[item].DependsOn:
                 if dependency not in order:
@@ -90,18 +100,18 @@ class TrialNetworkDescriptor:
                         return f"Detected a dependency cycle that includes elements '{item}' and '{dependency}'"
             return None  # No issues detected
 
+        # Build dependency graph
+        sortedbydependent = sorted(self.requiredFor.keys(), key=lambda e: len(self.requiredFor[e]), reverse=True)
+        order = []
+
         while len(sortedbydependent) > 0:
             item = sortedbydependent.pop(0)
             order.append(item)
             maybeError = _checkDependencies(item)
             if maybeError is not None:
-                hasErrors = True
-                break
+                return [], maybeError
 
-        self.DeploymentOrder = order
-
-        if not hasErrors:
-            self.Valid = True
+        return order, None
 
     def GetEntityIsRequiredFor(self, name: str) -> ([str], None):
         return self.requiredFor.get(name, None)
