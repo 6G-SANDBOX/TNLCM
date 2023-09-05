@@ -39,6 +39,17 @@ class EntityDescriptor:
                                f" but TND does not know if it's required for others")
         return res
 
+    @property
+    def Serialized(self):
+        return {
+            'name': self.Name,
+            'type': self.Type,
+            'parameters': self.Parameters,
+            'connections': self.Connections,
+            'monitors': self.Monitors,
+            'depends_on': self.DependsOn,
+            'is_required_for': self.IsRequiredFor
+        }
 
 class TrialNetworkDescriptor:
     """

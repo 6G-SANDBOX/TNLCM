@@ -2,7 +2,7 @@ from enum import Enum, unique
 from uuid import uuid4
 from shared.data.trial_network_descriptor import EntityDescriptor
 from shared import Library, Playbook
-from typing import Any
+from typing import Any, Tuple, Optional
 
 
 class Entity:
@@ -56,6 +56,19 @@ class Entity:
                 except KeyError: pass
         return None, Entity.ValueType.Null
 
+    @property
+    def Serialized(self):
+        values = {}
+        for k, v in self.Values.items():
+            values[k] = [v[0], v[1].name]
+
+        return {
+            'name': self.Name,
+            'status': self.Status.name,
+            'values': values,
+            'description': self.Description.Serialized
+        }
+
 
 class TrialNetwork:
     @unique
@@ -68,7 +81,7 @@ class TrialNetwork:
         self.Id = str(uuid4())
         self.Descriptor = descriptor
         self.Status = TrialNetwork.Status.Null
-        self.Transition = (None, None)
+        self.Transition: Tuple[Optional[TrialNetwork.Status], Optional[TrialNetwork.Status]] = (None, None)
         self.Handler = None
 
         self.Descriptor = Composer.Compose(descriptor)
@@ -90,3 +103,12 @@ class TrialNetwork:
         self.Handler = None
         self.Status = self.Transition[1]
         self.Transition = (None, None)
+
+    @property
+    def Serialized(self):
+        return {
+            'id': self.Id,
+            'status': self.Status.name,
+            'transition': [(t.name if t is not None else None) for t in self.Transition],
+            'entities': [e.Serialized for e in self.Entities.values()]
+        }
