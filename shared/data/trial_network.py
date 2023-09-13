@@ -77,12 +77,13 @@ class TrialNetwork:
 
     def __init__(self, descriptor: dict):
         from core.Composer import Composer
+        from core.Transition import BaseHandler
 
         self.Id = str(uuid4())
         self.Descriptor = descriptor
         self.Status = TrialNetwork.Status.Null
         self.Transition: Tuple[Optional[TrialNetwork.Status], Optional[TrialNetwork.Status]] = (None, None)
-        self.Handler = None
+        self.Handler: Optional[BaseHandler] = None
 
         self.Descriptor = Composer.Compose(descriptor)
         self.Valid = self.Descriptor.Valid
@@ -92,12 +93,17 @@ class TrialNetwork:
             for name, description in self.Descriptor.Entities.items():
                 self.Entities[name] = Entity(name, self)
 
-    def MarkForTransition(self, toStatus: Status) -> bool:
+    def MarkForTransition(self, toStatus: Status) -> (bool, Optional[str]):
         if self.Status != TrialNetwork.Status.Transitioning:
-            self.Transition = (self.Status, toStatus)
-            self.Status = TrialNetwork.Status.Transitioning
-            return True
-        return False
+            if self.Status == toStatus:
+                return f"Trial Network is already in status: '{toStatus.name}'. Request ignored."
+            else:
+                self.Transition = (self.Status, toStatus)
+                self.Status = TrialNetwork.Status.Transitioning
+                return None
+        else:
+            return f"Trial Network already pending a transition "\
+                   f"({self.Transition[0].name} -> {self.Transition[1].name}). Request ignored."
 
     def CompleteTransition(self):
         self.Handler = None

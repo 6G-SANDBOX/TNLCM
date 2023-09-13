@@ -10,13 +10,18 @@ class Testbed:
         cls.TrialNetworks[tn.Id] = tn
 
     @classmethod
+    def CreateAndAddTrialNetwork(cls, descriptor: {}) -> TrialNetwork:
+        tn = TrialNetwork(descriptor)
+        cls.AddTrialNetwork(tn)
+        return tn
+
+    @classmethod
     def RemoveTrialNetwork(cls, id: str):
         _ = cls.TrialNetworks.pop(id)
 
     @classmethod
     def ListTrialNetworks(cls):
         res = list(cls.TrialNetworks.keys())
-        print(f"{cls} -> {res}")
         return res
 
     @classmethod

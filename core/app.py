@@ -10,6 +10,7 @@ import cson
 from yaml import safe_load
 
 from flask import Flask
+from flask_cors import CORS
 
 from Testbed import Testbed
 
@@ -26,29 +27,10 @@ def addTn():
     return tn
 
 
-class Experimenter(Child):
-    def Run(self):
-        time.sleep(3)
-        print("ADD")
-        tn = addTn()
-        time.sleep(5)
-        print("START")
-        tn.MarkForTransition(TrialNetwork.Status.Started)
-
-        goOn = True
-        while goOn:
-            time.sleep(2)
-            goOn = not tn.MarkForTransition(TrialNetwork.Status.Destroyed)
-            if goOn:
-                print("BUSY")
-            else:
-                print("DELETE")
-
-
 class Scheduler(Child):
     def Run(self):
         while True:
-            Log.I(f"Testbed -> {[(q.Id, q.Status.name, q.Transition) for q in testbed]}")
+            Log.I(f"Testbed -> {Testbed.ListTrialNetworks()}")
             for id in Testbed.ListTrialNetworks():
                 tn = Testbed.GetTrialNetwork(id)
                 match tn.Status:
@@ -60,12 +42,9 @@ class Scheduler(Child):
                             Log.I(f"{tn.Id} already served")
                     case TrialNetwork.Status.Destroyed:
                         Log.I(f'Deleting {tn.Id}')
-                        # Testbed.RemoveTrialNetwork(tn.Id)
+                        Testbed.RemoveTrialNetwork(tn.Id)
             time.sleep(5)
 
-
-experimenter = Experimenter("experimenter")
-experimenter.Start()
 
 scheduler = Scheduler("scheduler")
 scheduler.Start()
@@ -74,6 +53,7 @@ from flask_restx import Api
 from Api import trial_network_api
 from Api import testbed_api
 app = Flask(__name__)
+CORS(app)
 
 api = Api(
     version='0.1'
@@ -84,4 +64,4 @@ api.add_namespace(testbed_api, path="/testbed")
 api.init_app(app)
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host='0.0.0.0', port=5000)

@@ -1,5 +1,5 @@
 from shared import Child, Level
-from shared.data import TrialNetwork
+from shared.data import TrialNetwork, Entity
 from .base_handler import BaseHandler
 from core.Tasks import SSH
 
@@ -17,6 +17,7 @@ class ToDestroyed(BaseHandler):
             entity = self.tn.Entities[name]
             print(f"Decommissioning {entity.Name}")
             sleep(1)
+            entity.Status = Entity.Status.Stopped
 
         self.tn.CompleteTransition()
 
