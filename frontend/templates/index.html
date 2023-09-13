@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>FrontEnd</h1>
+
+    <div>
+        <h2>Trial Networks:</h2>
+        <div id="trialNetworks">
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script src="{{ url_for('static', filename='jquery-3.7.1.min.js') }}"></script>
+
+    <script>
+        function update() {
+            $.get('http://localhost:5000/testbed/')
+                .done(function (response) {
+                let tns = response["trial_networks"];
+                let targetDiv = $("#trialNetworks")
+
+                for (const tn of tns) {
+                    console.log(tn);
+                    let maybeDiv = $("#" + tn + "_div");
+
+                    if (maybeDiv.length === 0) {
+                        targetDiv.append(
+                            "<div id='" + tn + "_div' class='tnDiv'>" +
+                            "<a href='/tn/" + tn + "'>" + tn + "</a>" +
+                            "</div>");
+                    }
+
+                    console.log(maybeDiv);
+                }
+
+
+
+                setTimeout(function() { update(); }, 500);
+            });
+        }
+
+        update();
+    </script>
+
+{% endblock %}

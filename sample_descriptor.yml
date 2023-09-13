@@ -1,0 +1,63 @@
+Infrastructure:
+
+  Phone:
+    Type: Android UE
+    Model: S20
+    Expose: [DeviceId, AdbServer]
+
+  RU:
+    Type: O-RU
+    Parameters:
+      Power: 0 dBm
+      CentralFrequency: 3700 MHz
+
+  DU:
+    Type: O-DU
+    Connections:
+      FrontEnd: RU
+
+  Analyser:
+    Type: O-RAN Analyser
+    Monitor: [RU.BackEnd, DU.FrontEnd]
+
+  CU:
+    Type: O-CU
+    Connections:
+      FrontEnd: DU
+
+  RIC:
+    Type: RIC
+    Connections:
+      O-DU: DU
+      O-RU: RU
+    Expose: [xAppsAPI]
+
+  NrtRIC:
+    Type: Non-RT RIC
+    Connections:
+      RIC: RIC
+
+  Core:
+    Type: Open5GS
+    Connections:
+      FrontEnd: CU
+
+  DN:
+    Type: Data Network
+    Connections:
+      Core: Core
+
+  Terminal:
+    Type: VM
+    Parameters:
+      Image: Ubuntu 20.04
+      Storage: 100 Gb
+      RAM: 8 Gb
+    Connections:
+      Interface: DN
+    Expose: [SSH]
+
+  DigitalTwin:
+    Type: Automata Generator
+    Monitor: [CU, Core, DN]
+    Store: [GeneratedAutomata]
