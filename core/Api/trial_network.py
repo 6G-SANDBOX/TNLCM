@@ -41,7 +41,7 @@ class TrialNetworkResource(Resource):
             else:
                 return abort(409, maybeError)
 
-    @api.response(409, 'Trial Network is currently transitioning or already in the target status')
+    @api.response(409, 'Trial Network cannot currently be deleted (is transitioning or already marked for destruction)')
     def delete(self, tnId: UUID):
         tn = Testbed.GetTrialNetwork(tnId)
         if tn is None:

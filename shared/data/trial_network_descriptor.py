@@ -51,6 +51,7 @@ class EntityDescriptor:
             'is_required_for': self.IsRequiredFor
         }
 
+
 class TrialNetworkDescriptor:
     """
     Description of all the components and configurations. Does not include information about the status of the
