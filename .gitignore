@@ -100,3 +100,4 @@ ENV/
 
 *.log.*
 .flaskenv
+inventory/REPOSITORIES
