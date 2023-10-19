@@ -2,9 +2,10 @@ from threading import Lock
 from os.path import join, abspath, exists
 from os import makedirs
 from shutil import copytree
-from dulwich import porcelain, index
+from dulwich import porcelain
 from dulwich.repo import Repo
 from dulwich.client import HttpGitClient
+from dulwich.objects import Commit
 from yaml import safe_load, safe_dump
 from shared import Log, Level
 from shared import Cli
@@ -28,7 +29,7 @@ class Repository:
         folder = folder.replace('https://', '').replace('http://', '')
         self.LocalPath = join(baseFolder, *folder.split('/'))
 
-        self.remoteRepo = HttpGitClient(self.Address, self.user, self.password)
+        self.remoteRepo = HttpGitClient(self.Address, self.user, self.password)  # Unused, for checkouts with porcelain
         self.localRepo = None
         self.UpdateLocalRepository()
 
@@ -63,7 +64,13 @@ class Repository:
 
             porcelain.fetch(self.localRepo)
 
-    def CopyComponentToLocalFolder(self, target: str, componentFolder: str, branch: str, commit: str):
+    def CopyComponentToLocalFolder(self, target: str, componentFolder: str, branch: str, commit: str) -> str:
+        """
+        Makes a copy of a single component in a repository, in the specified folder. Then includes an extra
+        'metadata.yml' file with information about the repository 'Address', 'Commit' and 'Message' of the commit
+        :returns The folder where the component has been saved, as str
+        """
+
         with self.lock:
             head = commit if commit is not None else \
                 (branch if branch is not None else self.DefaultBranch)
@@ -79,6 +86,17 @@ class Repository:
             source = join(self.LocalPath, componentFolder)
             copytree(source, target)
 
+            commit: Commit = self.localRepo[b'HEAD']
+            metadata = {
+                'Repository': self.Address,
+                'Commit': commit.id.decode(),
+                'Message': commit.message.decode()
+            }
+            with open(join(target, 'metadata.yml'), 'w', encoding='utf-8') as file:
+                safe_dump(metadata, file)
+
+            return target
+
 
 class Component:
     def __init__(self, name: str, data: {}):
@@ -88,13 +106,15 @@ class Component:
         self.Branch = data.get('Branch', None)
         self.Commit = data.get('Commit', None)
 
-    def CopyToLocalFolder(self, target: str, branch: str = None, commit: str = None):
+    def CopyToLocalFolder(self, target: str, branch: str = None, commit: str = None) -> str:
+        """:returns The folder where the component has been stored (<target>/<component folder in library>)"""
+
         branch = branch if branch is not None else self.Branch
         commit = commit if commit is not None else self.Commit
 
         repository = Library.GetRepository(self.Repository)
         if repository is not None:
-            repository.CopyComponentToLocalFolder(target, self.Folder, branch, commit)
+            return repository.CopyComponentToLocalFolder(target, self.Folder, branch, commit)
         else:
             raise RuntimeError(f"Repository for component '{self.Name}' not found ('{self.Repository}')")
 
