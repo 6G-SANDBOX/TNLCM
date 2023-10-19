@@ -1,20 +1,20 @@
 import sys
 sys.path.append('..')
 
-
 import time
 from shared import Log, Child
 from shared.data import TrialNetwork
 from Transition import ToStarted, ToDestroyed, TransitionHandler
-import cson
 from yaml import safe_load
 
 from flask import Flask
 from flask_cors import CORS
 
 from Testbed import Testbed
+from Library import Library
 
 Log.Initialize(outFolder='.', logName='Core', consoleLevel='DEBUG', fileLevel='DEBUG', app=None)
+Library.Initialize()
 
 testbed: [TrialNetwork] = []
 
@@ -52,6 +52,8 @@ scheduler.Start()
 from flask_restx import Api
 from Api import trial_network_api
 from Api import testbed_api
+from Api import playbook_api
+
 app = Flask(__name__)
 CORS(app)
 
@@ -61,6 +63,7 @@ api = Api(
 
 api.add_namespace(trial_network_api, path="/trial_network")
 api.add_namespace(testbed_api, path="/testbed")
+api.add_namespace(playbook_api, path="/playbook")
 api.init_app(app)
 
 if __name__ == "__main__":

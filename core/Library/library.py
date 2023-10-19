@@ -11,7 +11,7 @@ from shared import Log, Level
 from shared import Cli
 
 
-baseFolder = abspath('./REPOSITORIES')
+baseFolder = abspath('../REPOSITORIES')
 
 
 class Repository:
