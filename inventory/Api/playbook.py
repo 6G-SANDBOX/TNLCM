@@ -12,5 +12,5 @@ api = Namespace('playbook', "Component's playbook and 6G-Library handling")
 @api.route("/<string:text>")
 class TestbedResource(Resource):
     def get(self, text: str):
-        Library.UpdateLocalRepository(text)
+        Library.UpdateLocalRepository()
         return jsonify({'text': text})
