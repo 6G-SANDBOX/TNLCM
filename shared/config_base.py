@@ -1,5 +1,5 @@
 import yaml
-from os.path import exists
+from os.path import exists, abspath, join
 from shutil import copy
 from typing import Dict, List, Tuple, Optional
 from .log import Level
@@ -93,21 +93,26 @@ class EnabledLoginRestApiConf(LoginRestApiConf):
 
 
 class ConfigBase:
-    def __init__(self, filename: str, defaultsFile: str):
+    basePath = abspath(join('..', 'SETTINGS'))
+    defaultsBasePath = join(basePath, 'samples')
+
+    def __init__(self, filename: str):
         self.filename = filename
-        self.defaultsFile = defaultsFile
 
     def Reload(self) -> Dict:
-        if not exists(self.filename):
-            copy(self.defaultsFile, self.filename)
+        config = join(self.basePath, f'{self.filename}.yml')
 
-        try:
-            with open(self.filename, 'r', encoding='utf-8') as file:
+        if not exists(config):
+            defaults = join(self.defaultsBasePath, f'{self.filename}.sample')
+            try:
+                copy(defaults, config)
+            except Exception as e:
+                raise RuntimeError(f'Unable to create default {self.filename}.yml: {e}') from e
+        with open(config, 'r', encoding='utf-8') as file:
+            try:
                 return yaml.safe_load(file)
-        except Exception as e:
-            from .log import Log
-            Log.C(f"Exception while loading {self.filename} file: {e}")
-            return {}
+            except Exception as e:
+                raise RuntimeError(f'Unable to read {self.filename}.yml: {e}') from e
 
     def Validate(self):
         raise NotImplementedError

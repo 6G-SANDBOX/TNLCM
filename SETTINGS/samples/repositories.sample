@@ -1,0 +1,7 @@
+#Repositories:  # Mandatory key, defines a dictionary
+#  <Unique repository ID>:
+#    Address:  # Address of the repository. Mandatory
+#    User:  # Optional, unnecessary for public repositories. Username.
+#    Password:  # Optional, unnecessary for public repositories. Password or access token
+
+Repositories: {}

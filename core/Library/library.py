@@ -1,7 +1,7 @@
 from threading import Lock
 from os.path import join, abspath, exists
 from os import makedirs
-from shutil import copytree
+from shutil import copytree, copy
 from dulwich import porcelain
 from dulwich.repo import Repo
 from dulwich.client import HttpGitClient
@@ -9,9 +9,10 @@ from dulwich.objects import Commit
 from yaml import safe_load, safe_dump
 from shared import Log, Level
 from shared import Cli
+from shared.settings import CoreSettings, ComponentsSettings, RepositoriesSettings
 
-
-baseFolder = abspath('../REPOSITORIES')
+settings = CoreSettings()
+baseFolder = abspath(settings.Folders.Repositories)
 
 
 class Repository:
@@ -135,10 +136,8 @@ class Library:
                 data = safe_load(file)
                 cls.defaultBranch = data.get('DefaultBranches', {})
 
-        with open('../repositories.yml', 'r', encoding='utf-8') as file:
-            data = safe_load(file)
-
-        for name, definition in data['Repositories'].items():
+        repositories = RepositoriesSettings().Repositories
+        for name, definition in repositories.items():
             repository = Repository(definition['Address'],
                                     definition.get('User', None),
                                     definition.get('Password', None),
@@ -146,10 +145,8 @@ class Library:
             cls.repositories[name] = repository
             cls.defaultBranch[name] = repository.DefaultBranch
 
-        with open('../components.yml', 'r', encoding='utf-8') as file:
-            data = safe_load(file)
-
-        for name, definition in data['Components'].items():
+        components = ComponentsSettings().Components
+        for name, definition in components.items():
             cls.components[name] = Component(name, definition)
 
         with open(upkeepPath, 'w', encoding='utf-8') as file:
