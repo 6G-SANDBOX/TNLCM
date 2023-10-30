@@ -2,7 +2,7 @@ import sys
 sys.path.append('..')
 
 import time
-from shared import Log, Child
+from shared import Log, Child, Library
 from shared.data import TrialNetwork
 from Transition import ToStarted, ToDestroyed, TransitionHandler
 from yaml import safe_load
@@ -11,7 +11,6 @@ from flask import Flask
 from flask_cors import CORS
 
 from Testbed import Testbed
-from Library import Library
 
 Log.Initialize(outFolder='.', logName='Core', consoleLevel='DEBUG', fileLevel='DEBUG', app=None)
 Library.Initialize()

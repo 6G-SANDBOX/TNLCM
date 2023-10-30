@@ -1,8 +1,57 @@
 from enum import Enum, unique
 from uuid import uuid4
 from shared.data.trial_network_descriptor import EntityDescriptor
-from shared import Library, Playbook
+from shared import Library, Component, IO
+from shared.settings import CoreSettings
 from typing import Any, Tuple, Optional
+from os.path import abspath, join, exists
+from yaml import safe_load
+
+
+class Playbook:
+    class PlaybookMetadata:
+        def __init__(self, data: {}):
+            self.Address = data.get('Address', None)
+            self.Commit = data.get('Commit', None)
+            self.Message = data.get('Message', None)
+
+    def __init__(self, component: Component, parent: 'TrialNetwork'):
+        self.folder = join(parent.Folder, 'Playbooks', component.Name)
+        if self.Metadata is None:  # There is no frozen copy of the component's playbook
+            component.CopyToLocalFolder(self.folder)
+
+        self.public_values = None
+        self.private_manifest = None
+
+    @property
+    def Metadata(self) -> PlaybookMetadata | None:
+        path = join(self.folder, 'metadata.yml')
+        if exists(path):
+            try:
+                with open(path, 'r', encoding='utf-8') as file:
+                    return Playbook.PlaybookMetadata(safe_load(file))
+            except Exception as e:
+                raise RuntimeError(f"Unable to load playbook metadata from '{path}'") from e
+        else:
+            return None
+
+    @property
+    def PublicValues(self):
+        # if self.public_values is None:
+        #     path = join(self.folder, 'skel', 'public', 'values.yaml')
+        #     with open(path, 'r', encoding='utf-8') as file:
+        #         self.public_values = safe_load(file)
+        # return self.public_values
+        return {}  # TODO: Update with new format
+
+    @property
+    def Flow(self) -> [str]:
+        # if self.private_manifest is None:
+        #     path = join(self.folder, 'skel', 'private', 'manifest.yaml')
+        #     with open(path, 'r', encoding='utf-8') as file:
+        #         self.private_manifest = safe_load(file)
+        # return self.private_manifest['flow']
+        return []  # TODO: Update with new format
 
 
 class Entity:
@@ -19,9 +68,9 @@ class Entity:
         self.Name = name
         self.Status = Entity.Status.Null
         self.ValueNames = list(self.Description.Parameters.keys())
-        if self.Playbook is not None:
-            self.ValueNames.extend(list(self.Playbook.PublicValues.keys()))
-
+        component = Library.GetComponent(self.Description.Type)
+        self.Playbook = Playbook(component, self.parent)
+        self.ValueNames.extend(list(self.Playbook.PublicValues.keys()))
 
     @property
     def Description(self) -> EntityDescriptor:
@@ -29,10 +78,6 @@ class Entity:
         if res is None:
             raise RuntimeError(f"Inconsistent TN: Entity {self.Name} exists in TN but is not defined in TND")
         return res
-
-    @property
-    def Playbook(self) -> Playbook | None:
-        return Library.GetPlaybook(self.Description.Type)
 
     @property
     def Values(self) -> {}:
@@ -71,6 +116,8 @@ class Entity:
 
 
 class TrialNetwork:
+    baseFolder = abspath(CoreSettings().Folders.TrialNetworks)
+
     @unique
     class Status(Enum):
         Null, Transitioning, Started, Destroyed = range(4)
@@ -80,6 +127,9 @@ class TrialNetwork:
         from core.Transition import BaseHandler
 
         self.Id = str(uuid4())
+        self.Folder = join(self.baseFolder, self.Id)
+        IO.EnsureFolder(self.Folder)
+
         self.Descriptor = descriptor
         self.Status = TrialNetwork.Status.Null
         self.Transition: Tuple[Optional[TrialNetwork.Status], Optional[TrialNetwork.Status]] = (None, None)
