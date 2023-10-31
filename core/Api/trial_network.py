@@ -9,13 +9,14 @@ from shared.data import TrialNetwork
 
 api = Namespace('trial_network', "Trial Network status and management")
 
+parser = reqparse.RequestParser()
+parser.add_argument('target', type=str, required=True,
+                    choices=tuple(c.name for c in TrialNetwork.Status if c not in [TrialNetwork.Status.Null,
+                                                                                   TrialNetwork.Status.Transitioning]))
 
-@api.route("/")
-class ListTrialNetworks(Resource):
-    def get(self):
-        return jsonify({'trial_networks': Testbed.ListTrialNetworks()})
 
-
+@api.response(200, 'Success')
+@api.response(404, 'Trial Network not found')
 @api.route("/<uuid:tnId>")
 class TrialNetworkResource(Resource):
     def get(self, tnId: UUID):
@@ -25,10 +26,9 @@ class TrialNetworkResource(Resource):
         else:
             return jsonify(tn.Serialized)
 
+    @api.expect(parser)
+    @api.response(409, 'Trial Network is currently transitioning or already in the target status')
     def put(self, tnId: UUID):
-        parser = reqparse.RequestParser()
-        parser.add_argument('target', type=str, choices=(c.name for c in TrialNetwork.Status), required=True,
-                            help="Invalid 'target': {error_msg}")
         arguments = parser.parse_args()
         target = arguments['target']
         tn = Testbed.GetTrialNetwork(tnId)
@@ -41,6 +41,7 @@ class TrialNetworkResource(Resource):
             else:
                 return abort(409, maybeError)
 
+    @api.response(409, 'Trial Network cannot currently be deleted (is transitioning or already marked for destruction)')
     def delete(self, tnId: UUID):
         tn = Testbed.GetTrialNetwork(tnId)
         if tn is None:
@@ -51,4 +52,3 @@ class TrialNetworkResource(Resource):
                 return jsonify({'message': 'Trial Network marked for destruction'})
             else:
                 return abort(409, maybeError)
-

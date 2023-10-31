@@ -49,6 +49,34 @@ virtual environment.
 2. Navigate to the `/frontend` folder
 3. Run `python app.py`. `/frontend` will start listening for connections on port 5001.
 
+## Settings
+
+Setting files for all components are stored in the `/SETTINGS` folder. Example files indicating the expected format
+and default configuration values are available in the `/SETTINGS/samples` folder. If the required settings file do
+not exist when starting a component, the component will automatically create a configuration file using the default
+values.
+
+> It is not advisable to delete or otherwise edit the files in `/SETTINGS/samples`. 
+
+### Configuration files
+
+The following configuration files exist. More information about the format and values of each file can be seen in
+their corresponding `.sample` file.
+
+#### - `components.yml`
+
+Used by `\core`. Contains the definition of all component types available in the platform, including references to
+the 6G-Library repository that contains their playbook, which are defined in `repositories.yml`.
+
+#### - `core.yml`
+
+Used by `\core`. Contains basic functionality settings for the `\core` component.
+
+#### - `repositories.yml`
+
+Used by `\core`. Contains the definition of all available 6G-Library repositories. Repositories defined in this
+file are referenced in `components.yml`.
+
 ## Trial Network Descriptor
 
 > The format of Trial Network Descriptors has not been finalized and is expected to change in the future.

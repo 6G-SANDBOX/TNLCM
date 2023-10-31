@@ -100,3 +100,6 @@ ENV/
 
 *.log.*
 .flaskenv
+REPOSITORIES
+SETTINGS/*.yml
+TRIAL_NETWORKS

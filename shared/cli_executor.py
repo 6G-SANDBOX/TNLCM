@@ -23,3 +23,6 @@ class Cli:
             except Exception as e: line = f"DECODING EXCEPTION: {e}"
 
             self.logger(Level.INFO, f"[CLI]{line}")
+
+    def __str__(self):
+        return f'CLI: {self.parameters} @ {self.cwd}'

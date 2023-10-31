@@ -17,7 +17,7 @@ class ToStarted(BaseHandler):
         for name in order:
             entity = self.tn.Entities[name]
             if entity.Playbook is not None:
-                print(f"Instantiating '{entity.Name}' - Playbook: '{entity.Playbook.Commit}'")
+                print(f"Instantiating '{entity.Name}' - Playbook: '{entity.Playbook.Metadata.Commit}'")
                 print(f"  Values: {entity.Values}")
                 for step in entity.Playbook.Flow:
                     print(f"    {step}")
