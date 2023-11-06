@@ -58,8 +58,6 @@ class Repository:
             else:
                 self.localRepo = Repo(self.LocalPath)
 
-            porcelain.fetch(self.localRepo)
-
     def CopyComponentToLocalFolder(self, target: str, componentFolder: str, branch: str, commit: str) -> str:
         """
         Makes a copy of a single component in a repository, in the specified folder. Then includes an extra
@@ -72,6 +70,9 @@ class Repository:
                 (branch if branch is not None else self.DefaultBranch)
 
             self.checkout(head)
+
+            if branch is not None or head == self.DefaultBranch:
+                porcelain.fetch(self.localRepo)
 
             target = abspath(target)
             IO.EnsureFolder(target)
