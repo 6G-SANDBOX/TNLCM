@@ -1,6 +1,6 @@
 from .log import Log, Level
 from .io import IO
-from os.path import realpath
+from os.path import realpath, join
 import threading
 from tempfile import TemporaryDirectory
 from typing import List
@@ -9,7 +9,7 @@ from typing import List
 class Child:
     TEMP_BASE = 'Temp'
 
-    def __init__(self, name: str, tempFolder: TemporaryDirectory = None):
+    def __init__(self, name: str, tempFolder: TemporaryDirectory | None = None, logFolder: str | None = None):
         self.name = name
         self.thread = threading.Thread(
             target=self._runWrapper,
@@ -22,6 +22,7 @@ class Child:
         self.TempFolder = None if tempFolder is None else tempFolder.name
         self.tempFolderIsExternal = (tempFolder is not None)
         self.LogFile = None
+        self.logFolder = logFolder
 
     def Broadcast(self, level: Level, msg: str):
         Log.Log(level, f'[{self.name}{self.thread.ident}] {msg}')
@@ -38,7 +39,8 @@ class Child:
 
     def _runWrapper(self):
         def _innerRun():
-            self.LogFile = Log.OpenLogFile(self.name)
+            self.LogFile = Log.OpenLogFile(self.name,
+                                           None if self.logFolder is None else join(self.logFolder, f'{self.name}.log'))
             self.Log(Level.DEBUG, f'[Using temporal folder: {self.TempFolder}]')
             self.hasStarted = True
             try:

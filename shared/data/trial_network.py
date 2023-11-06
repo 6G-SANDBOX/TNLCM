@@ -129,6 +129,7 @@ class TrialNetwork:
         self.Id = str(uuid4())
         self.Folder = join(self.baseFolder, self.Id)
         IO.EnsureFolder(self.Folder)
+        IO.EnsureFolder(self.LogFolder)
 
         self.Descriptor = descriptor
         self.Status = TrialNetwork.Status.Null
@@ -142,6 +143,10 @@ class TrialNetwork:
         if self.Valid:
             for name, description in self.Descriptor.Entities.items():
                 self.Entities[name] = Entity(name, self)
+
+    @property
+    def LogFolder(self):
+        return join(self.Folder, 'Logs')
 
     def MarkForTransition(self, toStatus: Status) -> (bool, Optional[str]):
         if self.Status != TrialNetwork.Status.Transitioning:
