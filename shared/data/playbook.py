@@ -8,6 +8,31 @@ class Playbook:
                               ('version', '0.0'), ('depends', []), ('short_description', 'No description'),
                               ('long_description', 'No description'), ('platforms', []), ('sites', [])]
 
+    class ComponentFlows:
+        class Step:
+            def __init__(self, data: {}, baseFolder: str):
+                self.Tool = data['tool']
+                self.File = data['file'].replace('./', '')
+                self.File = join(baseFolder, *self.File.split('/'))
+
+            def __str__(self):
+                return f"Step<{self.Tool}: '{self.File}'>"
+
+        def __init__(self, data: {}, baseFolder: str):
+            self.data = {}
+            for name, steps in [e for e in data.get('flow', {}).items()]:
+                name = name.lower()
+                self.data[name] = []
+                for step in steps:
+                    self.data[name].append(Playbook.ComponentFlows.Step(step, baseFolder))
+
+        def __getitem__(self, item: str) -> [Step]:
+            return self.data.get(item.lower(), [])
+
+        @property
+        def Available(self):
+            return self.data.keys()
+
     class ComponentMetadata:
         def __init__(self, data: {}):
             self.data = {}
@@ -23,13 +48,13 @@ class Playbook:
 
     def __init__(self, component: Component, parent: 'TrialNetwork'):
         self.folder = join(parent.Folder, 'Playbooks', component.Name)
-        if self.SnapshotMetadata is None:  # There is no frozen copy of the component's playbook
+        if self.Metadata is None:  # There is no frozen copy of the component's playbook
             component.CopyToLocalFolder(self.folder)
 
         self.snapshotMetadata: Playbook.SnapshotMetadata | None = None
         self.componentMetadata: Playbook.ComponentMetadata | None = None
         self.publicValues: {} = None
-        self.privateManifest: {} = None
+        self.flows: Playbook.ComponentFlows | None = None
 
     @property
     def Metadata(self) -> SnapshotMetadata | None:
@@ -58,23 +83,22 @@ class Playbook:
         self.publicValues = data
 
     @property
-    def PublicMetadata(self):
+    def PublicMetadata(self) -> ComponentMetadata:
         if self.componentMetadata is None:
             self.loadFromPublicDescription()
         return self.componentMetadata
 
     @property
-    def PublicValues(self):
+    def PublicValues(self) -> {}:
         if self.publicValues is None:
             self.loadFromPublicDescription()
         return self.publicValues
 
-
     @property
-    def Flow(self) -> [str]:
-        # if self.private_manifest is None:
-        #     path = join(self.folder, 'skel', 'private', 'manifest.yaml')
-        #     with open(path, 'r', encoding='utf-8') as file:
-        #         self.private_manifest = safe_load(file)
-        # return self.private_manifest['flow']
-        return []  # TODO: Update with new format
+    def Flow(self) -> ComponentFlows:
+        if self.flows is None:
+            path = join(self.folder, 'private', 'manifest.yaml')
+            with open(path, 'r', encoding='utf-8') as file:
+                data = safe_load(file)
+                self.flows = Playbook.ComponentFlows(data, self.folder)
+        return self.flows

@@ -19,7 +19,7 @@ class ToStarted(BaseHandler):
             if entity.Playbook is not None:
                 print(f"Instantiating '{entity.Name}' - Playbook: '{entity.Playbook.Metadata.Commit}'")
                 print(f"  Values: {entity.Values}")
-                for step in entity.Playbook.Flow:
+                for step in entity.Playbook.Flow['Install']:
                     print(f"    {step}")
             else:
                 print(f"Unable to instantiate '{entity.Name}': Unknown type '{entity.Description.Type}'")
