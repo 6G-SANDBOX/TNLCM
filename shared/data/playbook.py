@@ -4,7 +4,18 @@ from yaml import safe_load
 
 
 class Playbook:
-    class PlaybookMetadata:
+    PUBLIC_METADATA_FIELDS = [('component_name', 'Unnamed component'), ('family', 'general'), ('maintainers', []),
+                              ('version', '0.0'), ('depends', []), ('short_description', 'No description'),
+                              ('long_description', 'No description'), ('platforms', []), ('sites', [])]
+
+    class ComponentMetadata:
+        def __init__(self, data: {}):
+            self.data = {}
+            for field in Playbook.PUBLIC_METADATA_FIELDS:
+                name, default = field
+                self.data[name] = data.get(name, default)
+
+    class SnapshotMetadata:
         def __init__(self, data: {}):
             self.Address = data.get('Address', None)
             self.Commit = data.get('Commit', None)
@@ -12,32 +23,52 @@ class Playbook:
 
     def __init__(self, component: Component, parent: 'TrialNetwork'):
         self.folder = join(parent.Folder, 'Playbooks', component.Name)
-        if self.Metadata is None:  # There is no frozen copy of the component's playbook
+        if self.SnapshotMetadata is None:  # There is no frozen copy of the component's playbook
             component.CopyToLocalFolder(self.folder)
 
-        self.public_values = None
-        self.private_manifest = None
+        self.snapshotMetadata: Playbook.SnapshotMetadata | None = None
+        self.componentMetadata: Playbook.ComponentMetadata | None = None
+        self.publicValues: {} = None
+        self.privateManifest: {} = None
 
     @property
-    def Metadata(self) -> PlaybookMetadata | None:
+    def Metadata(self) -> SnapshotMetadata | None:
         path = join(self.folder, 'metadata.yml')
         if exists(path):
             try:
                 with open(path, 'r', encoding='utf-8') as file:
-                    return Playbook.PlaybookMetadata(safe_load(file))
+                    return Playbook.SnapshotMetadata(safe_load(file))
             except Exception as e:
                 raise RuntimeError(f"Unable to load playbook metadata from '{path}'") from e
         else:
             return None
 
+    def loadFromPublicDescription(self):
+        path = join(self.folder, 'public', 'description.yml')
+        try:
+            with open(path, 'r', encoding='utf-8') as file:
+                data: {} = safe_load(file)
+        except Exception as e:
+            raise RuntimeError(f"Unable to read playbook description '{path}': {e}") from e
+
+        self.componentMetadata = Playbook.ComponentMetadata(data)
+        for field in self.PUBLIC_METADATA_FIELDS:
+            _ = data.pop(field[0])  # Remove all known metadata fields, the rest are variables
+
+        self.publicValues = data
+
+    @property
+    def PublicMetadata(self):
+        if self.componentMetadata is None:
+            self.loadFromPublicDescription()
+        return self.componentMetadata
+
     @property
     def PublicValues(self):
-        # if self.public_values is None:
-        #     path = join(self.folder, 'skel', 'public', 'values.yaml')
-        #     with open(path, 'r', encoding='utf-8') as file:
-        #         self.public_values = safe_load(file)
-        # return self.public_values
-        return {}  # TODO: Update with new format
+        if self.publicValues is None:
+            self.loadFromPublicDescription()
+        return self.publicValues
+
 
     @property
     def Flow(self) -> [str]:
