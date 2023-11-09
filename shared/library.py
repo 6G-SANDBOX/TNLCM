@@ -8,6 +8,7 @@ from dulwich.objects import Commit
 from yaml import safe_load, safe_dump
 from shared import Log, Level
 from shared import Cli, IO
+from datetime import datetime
 
 
 class Repository:
@@ -84,7 +85,8 @@ class Repository:
             metadata = {
                 'Address': self.Address,
                 'Commit': commit.id.decode(),
-                'Message': commit.message.decode()
+                'Message': commit.message.decode(),
+                'Date': datetime.fromtimestamp(commit.commit_time).isoformat(timespec='seconds')
             }
             with open(join(target, 'metadata.yml'), 'w', encoding='utf-8') as file:
                 safe_dump(metadata, file)

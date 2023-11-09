@@ -66,7 +66,8 @@ class Entity:
             'name': self.Name,
             'status': self.Status.name,
             'values': values,
-            'description': self.Description.Serialized
+            'description': self.Description.Serialized,
+            'playbook': self.Playbook.Serialized
         }
 
 
