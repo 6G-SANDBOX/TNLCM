@@ -33,14 +33,8 @@ class Repository:
     def _recordLastCliCommand(self, level: Level | str, msg: str, logger: str | None = None):
         self.lastCliCommand.append(msg)
 
-    def checkout(self, target: str):
-        # TODO: It's a bit silly to use a library for handling git, then having to fall back to the CLI for /this/.
-        #  https://stackoverflow.com/a/69909226 describes a correct way of doing checkouts with porcelain, but
-        #  fails for branches that are rooted before the default branch.
-        # TODO: This won't work for private repositories.
-
+    def _runCliCommand(self, cli: Cli) -> int:
         self.lastCliCommand = []
-        cli = Cli(['git', 'checkout', target], self.LocalPath, self._recordLastCliCommand)
 
         Log.I(f'Running {cli} ...')
         code = cli.Execute()
@@ -48,6 +42,23 @@ class Repository:
         Log.Log(level, f'Command finished with return code: {code}')
         for line in self.lastCliCommand:
             Log.D(line)
+        return code
+
+    def checkout(self, target: str):
+        # It's a bit silly to use a library for handling git, then having to fall back to the CLI for /this/.
+        # https://stackoverflow.com/a/69909226 describes a correct way of doing checkouts with porcelain, but
+        # fails for branches that are rooted before the default branch.
+        # TODO: This and pull() won't work for private repositories.
+
+        cli = Cli(['git', 'checkout', target], self.LocalPath, self._recordLastCliCommand)
+        self._runCliCommand(cli)
+
+    def pull(self):
+        # When pulling any new commits from a branch with a local counterpart, porcelain finds 'divergent branches'
+        # When doing it through the command line it finds that the branch can be fast-forwarded and works just fine
+
+        cli = Cli(['git', 'pull'], self.LocalPath, self._recordLastCliCommand)
+        self._runCliCommand(cli)
 
     def UpdateLocalRepository(self):
         with self.lock:
@@ -73,7 +84,7 @@ class Repository:
             self.checkout(head)
 
             if branch is not None or head == self.DefaultBranch:
-                porcelain.fetch(self.localRepo)
+                self.pull()
 
             target = abspath(target)
             IO.EnsureFolder(target)
