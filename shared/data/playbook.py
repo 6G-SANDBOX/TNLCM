@@ -28,12 +28,14 @@ class Playbook:
                 return {'tool': self.Tool, 'file': self.FileRelative}
 
         def __init__(self, data: {}, baseFolder: str):
-            self.data = {}
-            for name, steps in [e for e in data.get('flow', {}).items()]:
-                name = name.lower()
-                self.data[name] = []
-                for step in steps:
-                    self.data[name].append(Playbook.ComponentFlows.Step(step, baseFolder))
+            # self.data = {}
+            # for name, steps in [e for e in data.get('flow', {}).items()]:
+            #     name = name.lower()
+            #     self.data[name] = []
+            #     for step in steps:
+            #         self.data[name].append(Playbook.ComponentFlows.Step(step, baseFolder))
+            # TODO: For now, store only a 'install' flow, as a raw list of dictionaries (affects self.Serialized)
+            self.data = {'install': data}
 
         def __getitem__(self, item: str) -> [Step]:
             return self.data.get(item.lower(), [])
@@ -44,10 +46,11 @@ class Playbook:
 
         @property
         def Serialized(self):
-            res = {}
-            for flow, steps in self.data.items():
-                res[flow] = [s.RedactedSerialized for s in steps]
-            return res
+            # res = {}
+            # for flow, steps in self.data.items():
+            #     res[flow] = [s.RedactedSerialized for s in steps]
+            # return res
+            return self.data
 
     class ComponentMetadataType:
         def __init__(self, data: {}):
@@ -104,7 +107,7 @@ class Playbook:
 
         self.componentMetadata = Playbook.ComponentMetadataType(data)
         for field in self.PUBLIC_METADATA_FIELDS:
-            _ = data.pop(field[0])  # Remove all known metadata fields, the rest are variables
+            _ = data.pop(field[0], None)  # Remove all known metadata fields, the rest are variables
 
         self.publicValues = data
 
