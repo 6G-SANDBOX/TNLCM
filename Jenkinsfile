@@ -7,9 +7,9 @@ pipeline {
         timeout(time: 30, unit: 'MINUTES')
     }
     
-    environment {
-        //REPO_URL = 'https://github.com/alvarocurt/TNLCM'
-    }
+    //environment {
+    //    REPO_URL = 'https://github.com/alvarocurt/TNLCM'
+    //}
 
     stages {
 
