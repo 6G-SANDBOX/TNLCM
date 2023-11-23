@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+  core:
+    image: core
+    networks:
+      - tnlcm-network
+    ports:
+      - 5000:5000
+    hostname: dummy
+    container_name: core
+    build:
+      context: ./
+      dockerfile: ./core/Dockerfile
+    volumes:
+      - .:/usr/src/app
+
+  frontend:
+    image: frontend
+    networks:
+      - tnlcm-network
+    ports: 
+      - 5001:5001
+    hostname: dummy
+    container_name: frontend
+    build:
+      context: ./
+      dockerfile: ./frontend/Dockerfile
+    volumes:
+      - .:/usr/src/app
+
+networks:
+  tnlcm-network:
