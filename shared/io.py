@@ -2,6 +2,7 @@ from os.path import abspath, join, isdir, isfile, exists
 from os import listdir, makedirs
 from shutil import copytree, copy
 from typing import List
+from yaml import safe_load
 
 
 class IO:
@@ -54,3 +55,25 @@ class IO:
             src = join(source, file)
             tgt = join(target, file)
             copy(src, tgt)
+
+    @staticmethod
+    def ParseYaml(path: str):
+        """Expects a path ended in .yml or .yaml, if not found tries the alternative"""
+        if not exists(path):
+            pieces = path.split('.')
+            extension = pieces[-1]
+            pathNoExt = '.'.join(pieces[:-1])
+            if extension == 'yml':
+                path = f'{pathNoExt}.yaml'
+            else:
+                path = f'{pathNoExt}.yml'
+            if not exists(path):
+                raise FileNotFoundError(f"Unable to find file '{pathNoExt}.[yml|yaml]'")
+
+        try:
+            with open(path, 'r', encoding='utf-8') as file:
+                data = safe_load(file)
+        except Exception as e:
+            raise RuntimeError(f"Unable to parse YAML file '{path}': {e}") from e
+
+        return data

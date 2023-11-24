@@ -25,7 +25,7 @@ class EntityDescriptor:
     def DependsOn(self) -> [str]:
         res = set()
         for _, entity in self.Connections.items():
-            res.add(entity)
+            res.add(entity.split('.')[0])
         for entity in self.Monitors:
             res.add(entity.split('.')[0])
         return list(res)

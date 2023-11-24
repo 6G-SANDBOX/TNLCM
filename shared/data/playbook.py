@@ -1,4 +1,4 @@
-from shared import Component
+from shared import Component, IO
 from os.path import abspath, join, exists
 from yaml import safe_load
 
@@ -83,6 +83,7 @@ class Playbook:
         self.snapshotMetadata: Playbook.SnapshotMetadata | None = None
         self.componentMetadata: Playbook.ComponentMetadata | None = None
         self.publicValues: {} = None
+        self.privateValues: {} = None
         self.flows: Playbook.ComponentFlows | None = None
 
     @property
@@ -98,12 +99,7 @@ class Playbook:
             return None
 
     def loadFromPublicDescription(self):
-        path = join(self.folder, 'public', 'description.yml')
-        try:
-            with open(path, 'r', encoding='utf-8') as file:
-                data: {} = safe_load(file)
-        except Exception as e:
-            raise RuntimeError(f"Unable to read playbook description '{path}': {e}") from e
+        data: {} = IO.ParseYaml(join(self.folder, 'public', 'description.yml'))
 
         self.componentMetadata = Playbook.ComponentMetadataType(data)
         for field in self.PUBLIC_METADATA_FIELDS:
@@ -123,13 +119,15 @@ class Playbook:
             self.loadFromPublicDescription()
         return self.publicValues
 
+    def PrivateValues(self):
+        data = IO.ParseYaml(join(self.folder, 'private', 'values.yml'))
+        return data
+
     @property
     def Flow(self) -> ComponentFlows:
         if self.flows is None:
-            path = join(self.folder, 'private', 'manifest.yaml')
-            with open(path, 'r', encoding='utf-8') as file:
-                data = safe_load(file)
-                self.flows = Playbook.ComponentFlows(data, self.folder)
+            data = IO.ParseYaml(join(self.folder, 'private', 'manifest.yaml'))
+            self.flows = Playbook.ComponentFlows(data, self.folder)
         return self.flows
 
     @property
