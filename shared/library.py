@@ -53,11 +53,12 @@ class Repository:
         cli = Cli(['git', 'checkout', target], self.LocalPath, self._recordLastCliCommand)
         self._runCliCommand(cli)
 
-    def pull(self):
+    def pull(self, branch: str):
         # When pulling any new commits from a branch with a local counterpart, porcelain finds 'divergent branches'
         # When doing it through the command line it finds that the branch can be fast-forwarded and works just fine
+        # Must explicitly specify the branch because we may not have tracking information
 
-        cli = Cli(['git', 'pull'], self.LocalPath, self._recordLastCliCommand)
+        cli = Cli(['git', 'pull', 'origin', branch], self.LocalPath, self._recordLastCliCommand)
         self._runCliCommand(cli)
 
     def UpdateLocalRepository(self):
@@ -84,7 +85,7 @@ class Repository:
             self.checkout(head)
 
             if branch is not None or head == self.DefaultBranch:
-                self.pull()
+                self.pull(branch=head)
 
             target = abspath(target)
             IO.EnsureFolder(target)

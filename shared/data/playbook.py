@@ -63,6 +63,9 @@ class Playbook:
         def Serialized(self):
             return self.data
 
+        def __getitem__(self, item):
+            return self.data[item]
+
     class SnapshotMetadataType:
         def __init__(self, data: {}):
             self.Address = data.get('Address', None)
@@ -122,6 +125,10 @@ class Playbook:
     def PrivateValues(self):
         data = IO.ParseYaml(join(self.folder, 'private', 'values.yml'))
         return data
+
+    def PreRequisites(self) -> [str]:
+        # TODO: At TN descriptor level we'll need a check for automatically adding the dependencies if they dont exist
+        return self.ComponentMetadata['depends']  # By construction, 'depends' should exist
 
     @property
     def Flow(self) -> ComponentFlows:
