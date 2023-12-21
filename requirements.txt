@@ -6,3 +6,5 @@ requests~=2.31.0
 paramiko~=3.2.0
 pyyaml
 dulwich  # With C bindings. Use 'dulwich --config-settings "--build-option=--pure"' for pure Python (performance loss)
+python-jenkins~=1.8.2
+python-dotenv~=1.0.0
