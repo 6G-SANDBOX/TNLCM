@@ -52,6 +52,7 @@ from flask_restx import Api
 from Api import trial_network_api
 from Api import testbed_api
 from Api import playbook_api
+from Api import callback_api
 
 app = Flask(__name__)
 CORS(app)
@@ -63,6 +64,7 @@ api = Api(
 api.add_namespace(trial_network_api, path="/trial_network")
 api.add_namespace(testbed_api, path="/testbed")
 api.add_namespace(playbook_api, path="/playbook")
+api.add_namespace(callback_api, path="/callback")
 api.init_app(app)
 
 if __name__ == "__main__":
