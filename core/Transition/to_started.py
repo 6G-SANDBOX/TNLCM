@@ -67,7 +67,13 @@ class ToStarted(BaseHandler):
                         # TODO: 4 retrieve the values generated during the pipeline:
                         # - Either parse the logs (not so easily scalable)
                         # - Use the callback endpoint (if/when available) to retrieve all values as a dictionary
-
+                        callback_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback')
+                        callback_response_jenkins = str(tn_id) + '.json'
+                        callback_full_route = os.path.join(callback_directory, callback_response_jenkins)
+                        if os.path.isfile(callback_full_route):
+                            print("File found")
+                        else:
+                            print("File not found")
                     else:
                         print("Error")
                 else:
