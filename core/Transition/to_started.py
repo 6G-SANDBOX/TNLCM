@@ -60,7 +60,7 @@ class ToStarted(BaseHandler):
                     # job_info = server.get_job_info(name=job_name)
                     last_build_number = jenkins_client.get_job_info(name=job_name)["nextBuildNumber"]
                     while last_build_number != jenkins_client.get_job_info(name=job_name)["lastCompletedBuild"]["number"]:
-                        pass
+                        sleep(10)
 
                     if jenkins_client.get_job_info(name=job_name)["lastSuccessfulBuild"]["number"] == last_build_number:
                         print("Work")
