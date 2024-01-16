@@ -34,19 +34,20 @@ virtual environment.
 
 3. Activate the virtual environment.
 4. Install the requirements in the virtual environment.
+5. Create `.env` file adding the variables that appear in the .env.template file in string format.
 
 `pip install -r requirements.txt`
 
 ### Starting `/core`
 
 1. Activate the virtual environment.
-2. Navigate to the `/core` folder
+2. Navigate to the `/core` folder.
 3. Run `python app.py`. `/core` will start listening for connections on port 5000.
 
 ### Starting `/frontend`
 
 1. Activate the virtual environment.
-2. Navigate to the `/frontend` folder
+2. Navigate to the `/frontend` folder.
 3. Run `python app.py`. `/frontend` will start listening for connections on port 5001.
 
 ## Settings
