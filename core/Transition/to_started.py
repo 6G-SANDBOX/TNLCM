@@ -64,9 +64,7 @@ class ToStarted(BaseHandler):
 
                     if jenkins_client.get_job_info(name=job_name)["lastSuccessfulBuild"]["number"] == last_build_number:
                         print("Work")
-                        # TODO: 4 retrieve the values generated during the pipeline:
-                        # - Either parse the logs (not so easily scalable)
-                        # - Use the callback endpoint (if/when available) to retrieve all values as a dictionary
+                        sleep(15)
                         callback_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback')
                         callback_response_jenkins = str(tn_id) + '.json'
                         callback_full_route = os.path.join(callback_directory, callback_response_jenkins)
