@@ -23,7 +23,7 @@ class Entity:
         self.Name = name
         self.Status = Entity.Status.Null
         self.ValueNames = list(self.Description.Parameters.keys())
-        component = Library.GetComponent(self.Description.Type)
+        component = Library.GetComponent(self.Description.Name)
         self.Playbook = Playbook(component, self.parent)
         self.ValueNames.extend(list(self.Playbook.PublicValues.keys()))
 
