@@ -6,32 +6,29 @@ class EntityDescriptor:
         self.parent = parent
 
     @property
-    def Type(self) -> str:
-        return self.raw.get('Type', str)
-
-    @property
     def Parameters(self) -> {}:
-        return self.raw.get('Parameters', {})
+        return self.raw.get('parameters', {})
 
     @property
     def Public(self) -> {}:
-        return self.raw.get('Public', {})
+        return self.raw.get('public', {})
 
     @property
     def Depends_on(self) -> {}:
-        return self.raw.get('Depends_on', {})
+        return self.raw.get('depends_on', {})
 
     @property
     def Metadata(self):
-        return self.raw.get('Metadata', {})
+        return self.raw.get('metadata', {})
 
     @property
     def Serialized(self):
         return {
             'name': self.Name,
-            'type': self.Type,
             'parameters': self.Parameters,
+            'public': self.Public,
             'depends_on': self.Depends_on,
+            'metadata': self.Metadata
         }
 
 class TrialNetworkDescriptor:
@@ -49,7 +46,7 @@ class TrialNetworkDescriptor:
 
         hasErrors = False
 
-        entities = rawDescriptor.get('Infrastructure', {})
+        entities = rawDescriptor.get('trial_network', {})
         for name, definition in entities.items():
             instance = EntityDescriptor(name, definition, self)
             self.Entities[name] = instance
