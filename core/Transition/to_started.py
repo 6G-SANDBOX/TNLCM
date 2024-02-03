@@ -1,3 +1,5 @@
+import tempfile
+
 from shared import Child, Level
 from shared.data import TrialNetwork, Entity
 from .base_handler import BaseHandler
@@ -18,7 +20,8 @@ class ToStarted(BaseHandler):
 
         order = list(self.tn.Descriptor.DeploymentOrder)
 
-        for name in order:
+        for o in order:
+            name = o.Name
             entity = self.tn.Entities[name]
             if entity.Playbook is not None:
                 print(f"Instantiating '{entity.Name}' - Playbook: '{entity.Playbook.SnapshotMetadata.Commit}'")
@@ -32,16 +35,10 @@ class ToStarted(BaseHandler):
             # Connecting to the jenkins server using python-jenkins API
             jenkins_client = Jenkins(os.getenv("JENKINS_SERVER"), username=os.getenv("JENKINS_USER"), password=os.getenv("JENKINS_PASSWORD"))
             job_name = "02_Trial_Network_Component"
-            route_file = None
-            if name == "VXLAN":
-                route_file = os.path.join("..", "..", "TNLCM", "DEMO", "file_vxlan.yaml")
-            elif name == "BASTION":
-                route_file = os.path.join("..", "..", "TNLCM", "DEMO", "file_bastion.yaml")
-            else:
-                print("Error")
-            if route_file is not None:
-                file_path = os.path.abspath(route_file)
-                with open(file_path, "rb") as file:
+            path_temp_file = self._create_temp_file(entity)
+            sleep(1)
+            if os.path.isfile(path_temp_file):
+                with open(path_temp_file, 'r') as file:
                     content = yaml.safe_load(file)
                     tn_id = content.get("tn_id")
                     component_name = content.get("component_name")
@@ -53,7 +50,7 @@ class ToStarted(BaseHandler):
                     }
                     job_url = jenkins_client.build_job_url(name=job_name, parameters=parameters)
                     file.seek(0)
-                    files = {"FILE": (file_path, file)}
+                    files = {"FILE": (path_temp_file, file)}
                     response = post(job_url, auth=(os.getenv("JENKINS_USER"), os.getenv("JENKINS_TOKEN")), files=files)
 
                 if response.status_code == 201:
@@ -76,7 +73,20 @@ class ToStarted(BaseHandler):
                         print("Error")
                 else:
                     print("Error")
-
+            else:
+                print("File not found")
             entity.Status = Entity.Status.Running
 
         self.tn.CompleteTransition()
+
+    def _create_temp_file(self, entity):
+        with tempfile.NamedTemporaryFile(delete=False, dir=self.TempFolder, suffix=".yaml", mode='w') as tempFile:
+            public = entity.Description.Public
+            data = {
+                'tn_id': entity.Description.Metadata['tn_id'],
+                'component_name': entity.Description.Metadata['component_name'],
+                'tnlcm_callback': os.getenv("CALLBACK_URL") + "/callback",
+                **public
+            }
+            yaml.dump(data, tempFile, default_flow_style=False)
+            return tempFile.name
