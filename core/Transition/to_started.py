@@ -38,7 +38,7 @@ class ToStarted(BaseHandler):
             path_temp_file = self._create_temp_file(entity)
             sleep(1)
             if os.path.isfile(path_temp_file):
-                with open(path_temp_file, 'r') as file:
+                with open(path_temp_file, 'rb') as file:
                     content = yaml.safe_load(file)
                     tn_id = content.get("tn_id")
                     component_name = content.get("component_name")
