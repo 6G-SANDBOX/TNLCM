@@ -6,7 +6,7 @@ trial_network:
     public:
   tn_vxlan:
     public:
-      one_vxlan_name: "TEST_ABCDEZC"
+      one_vxlan_name: "TEST_ABCDEZE"
   vm_kvm_very_small:
     depends_on:
       - tn_vxlan
