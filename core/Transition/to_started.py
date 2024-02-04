@@ -10,6 +10,7 @@ from jenkins import Jenkins
 
 import os
 import yaml
+import json
 
 class ToStarted(BaseHandler):
     def __init__(self, trialNetwork: TrialNetwork):
@@ -21,8 +22,8 @@ class ToStarted(BaseHandler):
         order = list(self.tn.Descriptor.DeploymentOrder)
 
         for o in order:
-            name_entity = o.Name
-            entity = self.tn.Entities[name_entity]
+            entity_name = o.Name
+            entity = self.tn.Entities[entity_name]
             if entity.Playbook is not None:
                 print(f"Instantiating '{entity.Name}' - Playbook: '{entity.Playbook.SnapshotMetadata.Commit}'")
                 print(f"  Values: {entity.Values}")
@@ -35,14 +36,14 @@ class ToStarted(BaseHandler):
             # Connecting to the jenkins server using python-jenkins API
             jenkins_client = Jenkins(os.getenv("JENKINS_SERVER"), username=os.getenv("JENKINS_USER"), password=os.getenv("JENKINS_PASSWORD"))
             job_name = "02_Trial_Network_Component"
-            path_temp_file = self._create_temp_file(entity)
+            tn_id = "ABCDEZF"
+            path_temp_file = self._create_temp_file(entity, tn_id)
             sleep(1)
-            if os.path.isfile(path_temp_file):
+            try:
                 with open(path_temp_file, 'rb') as file:
-                    tn_id = "ABCDEZE"
                     parameters = {
                         "TN_ID": tn_id,
-                        "LIBRARY_COMPONENT_NAME": name_entity,
+                        "LIBRARY_COMPONENT_NAME": entity_name,
                         "LIBRARY_BRANCH": "update_bastion",
                         "DEPLOYMENT_SITE": "uma",
                     }
@@ -50,46 +51,64 @@ class ToStarted(BaseHandler):
                     files = {"FILE": (path_temp_file, file)}
                     response = post(job_url, auth=(os.getenv("JENKINS_USER"), os.getenv("JENKINS_TOKEN")), files=files)
 
-                if response.status_code == 201:
-                    # job_info = server.get_job_info(name=job_name)
-                    last_build_number = jenkins_client.get_job_info(name=job_name)["nextBuildNumber"]
-                    while last_build_number != jenkins_client.get_job_info(name=job_name)["lastCompletedBuild"]["number"]:
-                        sleep(10)
+                    if response.status_code == 201:
+                        # job_info = server.get_job_info(name=job_name)
+                        last_build_number = jenkins_client.get_job_info(name=job_name)["nextBuildNumber"]
+                        while last_build_number != jenkins_client.get_job_info(name=job_name)["lastCompletedBuild"]["number"]:
+                            sleep(10)
 
-                    if jenkins_client.get_job_info(name=job_name)["lastSuccessfulBuild"]["number"] == last_build_number:
-                        print("Work")
-                        sleep(15)
-                        callback_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback', 'data.json')
-                        new_callback_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback', str(tn_id) + '.json')
-                        os.rename(callback_directory, new_callback_directory)
-                        if os.path.isfile(new_callback_directory):
-                            print("File found")
+                        if jenkins_client.get_job_info(name=job_name)["lastSuccessfulBuild"]["number"] == last_build_number:
+                            print("Work")
+                            sleep(15)
+                            callback_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..',
+                                                              'Callback', 'data.json')
+                            new_callback_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..',
+                                                                  'Callback', str(tn_id) + '.json')
+                            os.rename(callback_directory, new_callback_directory)
+                            if os.path.isfile(new_callback_directory):
+                                print("File found")
+                            else:
+                                print("File not found")
                         else:
-                            print("File not found")
+                            print("Error")
                     else:
                         print("Error")
-                else:
-                    print("Error")
-            else:
-                print("File not found")
+            except FileNotFoundError:
+                print(f'File {callback_directory} not found.')
+            except json.JSONDecodeError:
+                print(f'Error decoding JSON in the file {callback_directory}.')
+            except Exception as e:
+                print(f'Error: {str(e)}')
+
             entity.Status = Entity.Status.Running
 
         self.tn.CompleteTransition()
 
-    def _create_temp_file(self, entity):
+    def _create_temp_file(self, entity, tn_id):
         with tempfile.NamedTemporaryFile(delete=False, dir=self.TempFolder, suffix=".yaml", mode='w') as tempFile:
             public = entity.Description.Public or {}
             data = {
                 'tnlcm_callback': os.getenv("CALLBACK_URL") + "/callback",
                 **public
             }
-
-            if entity.Name == "tn_bastion":
-                data = {
-                    **data,
-                    "one_component_networks": [0, 111],
-                    "one_bastion_wireguard_allowed_networks": "192.168.199.0/24"
-                }
+            entity_name = entity.Description.Name
+            if entity_name == "tn_bastion":
+                callback_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback', "tn_vxlan" + str(tn_id) + '.json')
+                try:
+                    with open(callback_directory, 'r') as file:
+                        json_data = json.load(file)
+                        tn_vxlan_id = json_data.get('tn_vxlan_id')
+                        data = {
+                            **data,
+                            "one_component_networks": [0, int(tn_vxlan_id)],
+                            "one_bastion_wireguard_allowed_networks": "192.168.199.0/24"
+                        }
+                except FileNotFoundError:
+                    print(f'File {callback_directory} not found.')
+                except json.JSONDecodeError:
+                    print(f'Error decoding JSON in the file {callback_directory}.')
+                except Exception as e:
+                    print(f'Error: {str(e)}')
 
             yaml.dump(data, tempFile, default_flow_style=False)
             return tempFile.name
