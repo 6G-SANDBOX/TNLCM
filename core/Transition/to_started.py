@@ -21,8 +21,8 @@ class ToStarted(BaseHandler):
         order = list(self.tn.Descriptor.DeploymentOrder)
 
         for o in order:
-            name = o.Name
-            entity = self.tn.Entities[name]
+            name_entity = o.Name
+            entity = self.tn.Entities[name_entity]
             if entity.Playbook is not None:
                 print(f"Instantiating '{entity.Name}' - Playbook: '{entity.Playbook.SnapshotMetadata.Commit}'")
                 print(f"  Values: {entity.Values}")
@@ -39,17 +39,14 @@ class ToStarted(BaseHandler):
             sleep(1)
             if os.path.isfile(path_temp_file):
                 with open(path_temp_file, 'rb') as file:
-                    content = yaml.safe_load(file)
-                    tn_id = content.get("tn_id")
-                    component_name = content.get("component_name")
+                    tn_id = "ABCDEZC"
                     parameters = {
                         "TN_ID": tn_id,
-                        "LIBRARY_COMPONENT_NAME": component_name,
-                        "LIBRARY_BRANCH": "first_tn_demo",
+                        "LIBRARY_COMPONENT_NAME": name_entity,
+                        "LIBRARY_BRANCH": "update_bastion",
                         "DEPLOYMENT_SITE": "uma",
                     }
                     job_url = jenkins_client.build_job_url(name=job_name, parameters=parameters)
-                    file.seek(0)
                     files = {"FILE": (path_temp_file, file)}
                     response = post(job_url, auth=(os.getenv("JENKINS_USER"), os.getenv("JENKINS_TOKEN")), files=files)
 
@@ -63,7 +60,7 @@ class ToStarted(BaseHandler):
                         print("Work")
                         sleep(15)
                         callback_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback')
-                        callback_response_jenkins = str(tn_id) + '.json'
+                        callback_response_jenkins = 'data.json' # Update
                         callback_full_route = os.path.join(callback_directory, callback_response_jenkins)
                         if os.path.isfile(callback_full_route):
                             print("File found")
@@ -83,10 +80,16 @@ class ToStarted(BaseHandler):
         with tempfile.NamedTemporaryFile(delete=False, dir=self.TempFolder, suffix=".yaml", mode='w') as tempFile:
             public = entity.Description.Public
             data = {
-                'tn_id': entity.Description.Metadata['tn_id'],
-                'component_name': entity.Description.Metadata['component_name'],
                 'tnlcm_callback': os.getenv("CALLBACK_URL") + "/callback",
                 **public
             }
+
+            if entity.Name == "tn_bastion":
+                data = {
+                    **data,
+                    "one_component_networks": [0, 31],
+                    "one_bastion_wireguard_allowed_networks": "192.168.199.0/24"
+                }
+
             yaml.dump(data, tempFile, default_flow_style=False)
             return tempFile.name
