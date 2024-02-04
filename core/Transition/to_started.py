@@ -64,6 +64,7 @@ class ToStarted(BaseHandler):
                             new_callback_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback', str(entity_name) + str(tn_id) + '.json')
                             os.rename(callback_directory, new_callback_directory)
                             if os.path.isfile(new_callback_directory):
+                                # Decode content
                                 print("File found")
                             else:
                                 print("File not found")
@@ -72,9 +73,9 @@ class ToStarted(BaseHandler):
                     else:
                         print("Error")
             except FileNotFoundError:
-                print(f'File {callback_directory} not found.')
+                print(f'File {path_temp_file} not found.')
             except json.JSONDecodeError:
-                print(f'Error decoding JSON in the file {callback_directory}.')
+                print(f'Error decoding JSON in the file {path_temp_file}.')
             except Exception as e:
                 print(f'Error: {str(e)}')
 
@@ -90,23 +91,20 @@ class ToStarted(BaseHandler):
                 **public
             }
             entity_name = entity.Description.Name
-            if entity_name == "tn_bastion":
-                callback_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback', "tn_vxlan" + str(tn_id) + '.json')
+            if entity_name == "tn_bastion" or entity_name == "vm_kvm_very_small":
+                callback_directory_vxlan = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback', "tn_vxlan" + str(tn_id) + '.json')
                 try:
-                    with open(callback_directory, 'r') as file:
+                    with open(callback_directory_vxlan, 'r') as file:
                         json_data = json.load(file)
                         tn_vxlan_id = json_data.get('tn_vxlan_id')
-                        data = {
-                            **data,
-                            "one_component_networks": [0, int(tn_vxlan_id)],
-                            "one_bastion_wireguard_allowed_networks": "192.168.199.0/24"
-                        }
+                        data["one_component_networks"] = [0, int(tn_vxlan_id)]
+                        if entity_name == "tn_bastion":
+                            data["one_bastion_wireguard_allowed_networks"] = "192.168.199.0/24"
                 except FileNotFoundError:
-                    print(f'File {callback_directory} not found.')
+                    print(f'File {callback_directory_vxlan} not found.')
                 except json.JSONDecodeError:
-                    print(f'Error decoding JSON in the file {callback_directory}.')
+                    print(f'Error decoding JSON in the file {callback_directory_vxlan}.')
                 except Exception as e:
                     print(f'Error: {str(e)}')
-
             yaml.dump(data, tempFile, default_flow_style=False)
             return tempFile.name
