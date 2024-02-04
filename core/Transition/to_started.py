@@ -39,7 +39,7 @@ class ToStarted(BaseHandler):
             sleep(1)
             if os.path.isfile(path_temp_file):
                 with open(path_temp_file, 'rb') as file:
-                    tn_id = "ABCDEZC"
+                    tn_id = "ABCDEZE"
                     parameters = {
                         "TN_ID": tn_id,
                         "LIBRARY_COMPONENT_NAME": name_entity,
@@ -59,10 +59,10 @@ class ToStarted(BaseHandler):
                     if jenkins_client.get_job_info(name=job_name)["lastSuccessfulBuild"]["number"] == last_build_number:
                         print("Work")
                         sleep(15)
-                        callback_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback')
-                        callback_response_jenkins = 'data.json' # Update
-                        callback_full_route = os.path.join(callback_directory, callback_response_jenkins)
-                        if os.path.isfile(callback_full_route):
+                        callback_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback', 'data.json')
+                        new_callback_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback', str(tn_id) + '.json')
+                        os.rename(callback_directory, new_callback_directory)
+                        if os.path.isfile(new_callback_directory):
                             print("File found")
                         else:
                             print("File not found")
@@ -78,7 +78,7 @@ class ToStarted(BaseHandler):
 
     def _create_temp_file(self, entity):
         with tempfile.NamedTemporaryFile(delete=False, dir=self.TempFolder, suffix=".yaml", mode='w') as tempFile:
-            public = entity.Description.Public
+            public = entity.Description.Public or {}
             data = {
                 'tnlcm_callback': os.getenv("CALLBACK_URL") + "/callback",
                 **public
@@ -87,7 +87,7 @@ class ToStarted(BaseHandler):
             if entity.Name == "tn_bastion":
                 data = {
                     **data,
-                    "one_component_networks": [0, 31],
+                    "one_component_networks": [0, 111],
                     "one_bastion_wireguard_allowed_networks": "192.168.199.0/24"
                 }
 
