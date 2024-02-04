@@ -5,10 +5,8 @@ import json
 sys.path.append('..')
 
 from flask import request, jsonify
-from werkzeug.datastructures import FileStorage
-from werkzeug.utils import secure_filename
-from flask_restx import Namespace, Resource, reqparse, abort
-from json import JSONDecodeError, load, dump
+from flask_restx import Namespace, Resource, abort
+from json import JSONDecodeError
 
 api = Namespace('callback', "Handling the data returned by jenkins after deploying the components")
 
@@ -31,9 +29,7 @@ class CallbackResource(Resource):
                 json.dump(data, file, indent=2)
 
             return jsonify({'content': data, 'savedTo': file_path})
-
         except JSONDecodeError as e:
             return abort(400, 'Invalid JSON format')
-
         except Exception as e:
             return abort(422, 'Malformed or insecure callback received')
