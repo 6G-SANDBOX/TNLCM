@@ -1,5 +1,9 @@
 import tempfile
+import os
+import yaml
+import json
 
+from base64 import b64decode
 from shared import Child, Level
 from shared.data import TrialNetwork, Entity
 from .base_handler import BaseHandler
@@ -7,10 +11,6 @@ from core.Tasks import SSH
 from shared import Library
 from requests import post
 from jenkins import Jenkins
-
-import os
-import yaml
-import json
 
 class ToStarted(BaseHandler):
     def __init__(self, trialNetwork: TrialNetwork):
@@ -39,7 +39,7 @@ class ToStarted(BaseHandler):
             tn_id = "CARLOS"
             path_temp_file = self._create_temp_file(entity, tn_id)
             sleep(1)
-            try:
+            if os.path.isfile(path_temp_file):
                 with open(path_temp_file, 'rb') as file:
                     parameters = {
                         "TN_ID": tn_id,
@@ -58,26 +58,27 @@ class ToStarted(BaseHandler):
                             sleep(10)
 
                         if jenkins_client.get_job_info(name=job_name)["lastSuccessfulBuild"]["number"] == last_build_number:
-                            print("Work")
                             sleep(15)
                             callback_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback', 'data.json')
                             new_callback_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback', str(entity_name) + str(tn_id) + '.json')
+                            report_callback_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback', 'report.md')
                             os.rename(callback_directory, new_callback_directory)
                             if os.path.isfile(new_callback_directory):
-                                # Decode content
-                                print("File found")
+                                with open(new_callback_directory, 'r') as response_json:
+                                    json_data = json.load(response_json)
+                                    result_msg_encode = json_data.get('result_msg')
+                                    result_msg_decode = b64decode(result_msg_encode).decode('utf-8')
+
+                                    with open(report_callback_directory, 'a') as report:
+                                        report.write(result_msg_decode + '\n')
                             else:
-                                print("File not found")
+                                print(f'File {new_callback_directory} not found.')
                         else:
-                            print("Error")
+                            print("Error. Pipeline failed.")
                     else:
-                        print("Error")
-            except FileNotFoundError:
-                print(f'File {path_temp_file} not found.')
-            except json.JSONDecodeError:
-                print(f'Error decoding JSON in the file {path_temp_file}.')
-            except Exception as e:
-                print(f'Error: {str(e)}')
+                        print("Error. Bad request.")
+            else:
+                print(f'File {new_callback_directory} not found.')
 
             entity.Status = Entity.Status.Running
 
@@ -93,18 +94,14 @@ class ToStarted(BaseHandler):
             entity_name = entity.Description.Name
             if entity_name == "tn_bastion" or entity_name == "vm_kvm_very_small":
                 callback_directory_vxlan = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback', "tn_vxlan" + str(tn_id) + '.json')
-                try:
+                if os.path.isfile(callback_directory_vxlan):
                     with open(callback_directory_vxlan, 'r') as file:
                         json_data = json.load(file)
                         tn_vxlan_id = json_data.get('tn_vxlan_id')
                         data["one_component_networks"] = [0, int(tn_vxlan_id)]
                         if entity_name == "tn_bastion":
                             data["one_bastion_wireguard_allowed_networks"] = "192.168.199.0/24"
-                except FileNotFoundError:
+                else:
                     print(f'File {callback_directory_vxlan} not found.')
-                except json.JSONDecodeError:
-                    print(f'Error decoding JSON in the file {callback_directory_vxlan}.')
-                except Exception as e:
-                    print(f'Error: {str(e)}')
             yaml.dump(data, tempFile, default_flow_style=False)
             return tempFile.name
