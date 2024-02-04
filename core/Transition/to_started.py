@@ -36,7 +36,7 @@ class ToStarted(BaseHandler):
             # Connecting to the jenkins server using python-jenkins API
             jenkins_client = Jenkins(os.getenv("JENKINS_SERVER"), username=os.getenv("JENKINS_USER"), password=os.getenv("JENKINS_PASSWORD"))
             job_name = "02_Trial_Network_Component"
-            tn_id = "ABCDEZF"
+            tn_id = "CARLOS"
             path_temp_file = self._create_temp_file(entity, tn_id)
             sleep(1)
             try:
@@ -60,10 +60,8 @@ class ToStarted(BaseHandler):
                         if jenkins_client.get_job_info(name=job_name)["lastSuccessfulBuild"]["number"] == last_build_number:
                             print("Work")
                             sleep(15)
-                            callback_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..',
-                                                              'Callback', 'data.json')
-                            new_callback_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..',
-                                                                  'Callback', str(tn_id) + '.json')
+                            callback_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback', 'data.json')
+                            new_callback_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback', str(entity_name) + str(tn_id) + '.json')
                             os.rename(callback_directory, new_callback_directory)
                             if os.path.isfile(new_callback_directory):
                                 print("File found")
