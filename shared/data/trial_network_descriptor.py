@@ -14,12 +14,8 @@ class EntityDescriptor:
         return self.raw.get('public', {})
 
     @property
-    def Depends_on(self) -> {}:
-        return self.raw.get('depends_on', {})
-
-    @property
-    def Metadata(self):
-        return self.raw.get('metadata', {})
+    def Depends_on(self) -> []:
+        return self.raw.get('depends_on', [])
 
     @property
     def Serialized(self):
@@ -27,8 +23,7 @@ class EntityDescriptor:
             'name': self.Name,
             'parameters': self.Parameters,
             'public': self.Public,
-            'depends_on': self.Depends_on,
-            'metadata': self.Metadata
+            'depends_on': self.Depends_on
         }
 
 class TrialNetworkDescriptor:
@@ -74,7 +69,7 @@ class TrialNetworkDescriptor:
             visited.add(entity_name)
 
             entity = self.Entities[entity_name]
-            dependencies = entity.Depends_on.keys()
+            dependencies = entity.Depends_on
 
             for dep_name in dependencies:
                 visit(dep_name)
