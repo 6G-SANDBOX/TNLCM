@@ -1,6 +1,5 @@
 import sys
 import os
-import base64
 import json
 sys.path.append('..')
 
