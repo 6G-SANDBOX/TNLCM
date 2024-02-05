@@ -6,12 +6,12 @@ trial_network:
     public:
   tn_vxlan:
     public:
-      one_vxlan_name: "TEST_ABCDEZE"
+      one_vxlan_name: "demo_vxlan"
   vm_kvm_very_small:
     depends_on:
       - tn_vxlan
       - tn_bastion
     public:
-      one_component_name: "TEST_ABCDEZF"
+      one_component_name: "demo_bastion"
       one_vm_username: "carlos"
       one_vm_password: "carlos"
