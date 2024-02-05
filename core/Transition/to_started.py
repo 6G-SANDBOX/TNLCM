@@ -11,15 +11,17 @@ from core.Tasks import SSH
 from shared import Library
 from requests import post
 from jenkins import Jenkins
+from time import sleep
 
 class ToStarted(BaseHandler):
     def __init__(self, trialNetwork: TrialNetwork):
         super().__init__("ToStarted", trialNetwork)
 
     def Run(self):
-        from time import sleep
 
         order = list(self.tn.Descriptor.DeploymentOrder)
+
+        # Check if the report file was created
         report_callback_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback', 'report.md')
         if os.path.isfile(report_callback_directory):
             os.remove(report_callback_directory)
