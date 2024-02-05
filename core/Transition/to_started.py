@@ -20,6 +20,9 @@ class ToStarted(BaseHandler):
         from time import sleep
 
         order = list(self.tn.Descriptor.DeploymentOrder)
+        report_callback_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback', 'report.md')
+        if os.path.isfile(report_callback_directory):
+            os.remove(report_callback_directory)
 
         for o in order:
             entity_name = o.Name
@@ -62,7 +65,6 @@ class ToStarted(BaseHandler):
                             callback_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback', 'data.json')
                             new_callback_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback', str(entity_name) + str(tn_id) + '.json')
                             os.rename(callback_directory, new_callback_directory)
-                            report_callback_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback', 'report.md')
                             if os.path.isfile(new_callback_directory):
                                 with open(new_callback_directory, 'r') as response_json:
                                     json_data = json.load(response_json)
