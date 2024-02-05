@@ -22,7 +22,8 @@ class CallbackResource(Resource):
         """
         try:
             data = request.get_json()
-            os.makedirs(callback_directory, exist_ok=True)
+            if not os.path.exists(callback_directory):
+                os.makedirs(callback_directory)
             file_path = os.path.join(callback_directory, "data.json")
             with open(file_path, 'w') as file:
                 json.dump(data, file, indent=2)
