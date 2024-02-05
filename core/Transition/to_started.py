@@ -55,14 +55,14 @@ class ToStarted(BaseHandler):
                         # job_info = server.get_job_info(name=job_name)
                         last_build_number = jenkins_client.get_job_info(name=job_name)["nextBuildNumber"]
                         while last_build_number != jenkins_client.get_job_info(name=job_name)["lastCompletedBuild"]["number"]:
-                            sleep(10)
+                            sleep(15)
 
                         if jenkins_client.get_job_info(name=job_name)["lastSuccessfulBuild"]["number"] == last_build_number:
                             sleep(15)
                             callback_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback', 'data.json')
                             new_callback_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback', str(entity_name) + str(tn_id) + '.json')
-                            report_callback_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback', 'report.md')
                             os.rename(callback_directory, new_callback_directory)
+                            report_callback_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback', 'report.md')
                             if os.path.isfile(new_callback_directory):
                                 with open(new_callback_directory, 'r') as response_json:
                                     json_data = json.load(response_json)
