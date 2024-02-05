@@ -24,9 +24,10 @@ class CallbackResource(Resource):
             data = request.get_json()
             if not os.path.exists(callback_directory):
                 os.makedirs(callback_directory)
-            file_path = os.path.join(callback_directory, "data.json")
+            file_path = os.path.join(callback_directory, "jenkins_response.json")
             with open(file_path, 'w') as file:
                 json.dump(data, file, indent=2)
+                file.write('\n')
 
             return jsonify({'content': data, 'savedTo': file_path})
         except JSONDecodeError as e:
