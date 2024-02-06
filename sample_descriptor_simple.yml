@@ -15,3 +15,6 @@ trial_network:
       one_component_name: "vm_athens_demo"
       one_vm_username: "carlos"
       one_vm_password: "carlos"
+      one_component_networks:
+        - 0
+        - 1
