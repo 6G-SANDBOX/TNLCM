@@ -41,7 +41,7 @@ class ToStarted(BaseHandler):
             # Connecting to the jenkins server using python-jenkins API
             jenkins_client = Jenkins(os.getenv("JENKINS_SERVER"), username=os.getenv("JENKINS_USER"), password=os.getenv("JENKINS_PASSWORD"))
             job_name = "02_Trial_Network_Component"
-            tn_id = "CARLOS"
+            tn_id = "EXPERIMENTER"
             path_temp_file = self._create_temp_file(entity, tn_id)
             sleep(1)
             if os.path.isfile(path_temp_file):
