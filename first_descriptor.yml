@@ -13,8 +13,8 @@ trial_network:
       - tn_bastion
     public:
       one_component_name: "vm_athens_demo"
-      one_vm_username: "carlos"
-      one_vm_password: "carlos"
+      one_vm_username: "test"
+      one_vm_password: "test"
       one_component_networks:
         - 0
         - 1
