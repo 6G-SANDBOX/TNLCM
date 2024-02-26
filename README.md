@@ -34,15 +34,27 @@ virtual environment.
 
 3. Activate the virtual environment.
 4. Install the requirements in the virtual environment.
-5. Create `.env` file adding the variables that appear in the .env.template file in string format.
 
 `pip install -r requirements.txt`
+
+5. Create `.env` file adding the variables that appear in the .env.template file in string format.
+
+```.env
+JENKINS_SERVER=""
+JENKINS_USER=""
+JENKINS_PASSWORD=""
+JENKINS_TOKEN=""
+CALLBACK_URL="" # Need to deploy TNLCM on a virtual machine to which Jenkins has access
+```
 
 ### Starting `/core`
 
 1. Activate the virtual environment.
 2. Navigate to the `/core` folder.
 3. Run `python app.py`. `/core` will start listening for connections on port 5000.
+4. Enter Swagger UI: http://localhost:5000
+5. You have to execute the POST request found in the TESTBED section to which you have to insert the descriptor file. In this repository there is a descriptor file available called: "first_descriptor.yml". This request will return an id which is needed for the next section.
+6. Access the PUT endpoint in the trial_network section and indicate in the tnID field the id received in the previous step.
 
 ### Starting `/frontend`
 
@@ -69,48 +81,63 @@ their corresponding `.sample` file.
 Used by `\core`. Contains the definition of all component types available in the platform, including references to
 the 6G-Library repository that contains their playbook, which are defined in `repositories.yml`.
 
+```yaml
+Components:
+  tn_vxlan:
+    Repository: 6gLibrary
+    Branch: update_bastion
+    # Commit: 9bd5ff96530015c6f3863527da1d97ea2ecb0391
+    Folder: tn_vxlan
+  tn_bastion:
+    Repository: 6gLibrary
+    Branch: update_bastion
+    # Commit: 97c91f9c77765576ef0a6bb25f712e54fcfe216b
+    Folder: tn_bastion
+  vm_kvm_very_small:
+    Repository: 6gLibrary
+    Branch: update_bastion
+    Folder: vm_kvm_very_small
+```
+
 #### - `core.yml`
 
 Used by `\core`. Contains basic functionality settings for the `\core` component.
+
+```yaml
+Paths:
+  Repositories: '../REPOSITORIES'
+  TrialNetworks: '../TRIAL_NETWORKS'
+```
 
 #### - `repositories.yml`
 
 Used by `\core`. Contains the definition of all available 6G-Library repositories. Repositories defined in this
 file are referenced in `components.yml`.
 
+```yaml
+Repositories:
+  6gLibrary:
+    Address: "https://github.com/6G-SANDBOX/6G-Library"
+    User:
+    Password:
+```
+
 ## Trial Network Descriptor
 
 > The format of Trial Network Descriptors has not been finalized and is expected to change in the future.
 
-Trial Network Descriptors are yaml files with a set of expected fields and structure. This repository contains two
-examples of descriptors, both describing the same Trial Network:
-- `sample_descriptor.yml` describes the network as an additional component inside the infrastructure.
-- `sample_descriptor_2.yml` uses separate sections for networks and infrastructure.
-
-It is expected that the second example will be more representative of the final Trial Network Descriptor format,
-however, the current implementation expects the format on `sample_descriptor.yml`, which the following section
-will describe.
+Trial Network Descriptors are yaml files with a set of expected fields and structure. This repository contains an
+example of descriptor:
+- `first_descriptor.yml`
 
 ### Trial Network Descriptor schema:
 
 ```yaml
-Infrastructure:  # Mandatory, contains the description of all entities in the Trial Network
+trial_network:  # Mandatory, contains the description of all entities in the Trial Network
   <Entity1>:  # A unique identifier for each entity in the Trial Network
-    Type:  # Mandatory, reference to the corresponding component type in the 6G-Library
-    Model:  # Optional, reference to a specific physical device or subtype of component
-    Expose:  # Optional, list runtime values that should be provided to experimenters, such as ids, credentials or interfaces for accessing the entity
-    Parameters:  # Optional, dictionary of values that further customize the entity. The available values are specified as part of the component's entry in the 6G-Library
-      <Parameter1>: <Value1>
-      # ...
-    Connections:  # Optional, for each connection that the entity may have (as specified in the 6G-Library), to which <component>.<interface> it should be connected.
-      <Connection1>: <EntityN>.<Interface1>
-      # ...
-    Monitor:  # Optional, for probes, list of entities to monitor
-      - EntityN
-    Store:  # Optional, list of values to keep after deletion of the Trial Network
-
+    depends_on: # List of dependencies of the component with other components
+      - <EntityN>
+      - ...
+    public: # Necessary variables collected from the public part of the 6G-Library
+      ...
 ```
-
-## Authors
-
-* **[Bruno Garcia Garcia](https://github.com/NaniteBased)**
