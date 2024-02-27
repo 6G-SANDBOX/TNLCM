@@ -41,7 +41,7 @@ class ToStarted(BaseHandler):
             # Connecting to the jenkins server using python-jenkins API
             jenkins_client = Jenkins(os.getenv("JENKINS_SERVER"), username=os.getenv("JENKINS_USER"), password=os.getenv("JENKINS_PASSWORD"))
             job_name = "02_Trial_Network_Component"
-            tn_id = "EXPERIMENTER"
+            tn_id = os.getenv("JENKINS_TN_ID")
             path_temp_file = self._create_temp_file(entity, tn_id)
             sleep(1)
             if os.path.isfile(path_temp_file):
@@ -49,8 +49,8 @@ class ToStarted(BaseHandler):
                     parameters = {
                         "TN_ID": tn_id,
                         "LIBRARY_COMPONENT_NAME": entity_name,
-                        "LIBRARY_BRANCH": "update_bastion",
-                        "DEPLOYMENT_SITE": "uma",
+                        "LIBRARY_BRANCH": os.getenv("JENKINS_6GLIBRARY_BRANCH"),
+                        "DEPLOYMENT_SITE": os.getenv("JENKINS_DEPLOYMENT_SITE"),
                     }
                     job_url = jenkins_client.build_job_url(name=job_name, parameters=parameters)
                     files = {"FILE": (path_temp_file, file)}
