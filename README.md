@@ -27,42 +27,29 @@ status of a Trial Network.
 ### Installation procedure
 
 1. Ensure that Python 3.11 is installed in your system.
-2. Create a [Python virtual environment](https://virtualenv.pypa.io/en/stable/). All components can share the same
-virtual environment.
+2. Create a [Python virtual environment](https://virtualenv.pypa.io/en/stable/). All components can share the same virtual environment.
+* Windows:
 
-`python -m venv <virtualenv name>`
+  `python -m venv <virtualenv name>`
 
-3. Activate the virtual environment.
+* Ubuntu:
+
+  `python3 -m venv <virtualenv name>`
+
+1. Activate the virtual environment.
+* Windows:
+
+  `./<virtualenv name>/Scripts/activate`
+
+* Ubuntu:
+
+  `source <virtualenv name>/bin/activate`
+
 4. Install the requirements in the virtual environment.
 
 `pip install -r requirements.txt`
 
-5. Create `.env` file adding the variables that appear in the .env.template file in string format.
-
-```.env
-JENKINS_SERVER=""
-JENKINS_USER=""
-JENKINS_PASSWORD=""
-JENKINS_TOKEN=""
-CALLBACK_URL="" # Need to deploy TNLCM on a virtual machine to which Jenkins has access
-```
-
-### Starting `/core`
-
-1. Activate the virtual environment.
-2. Navigate to the `/core` folder.
-3. Run `python app.py`. `/core` will start listening for connections on port 5000.
-4. Enter Swagger UI: http://localhost:5000
-5. You have to execute the POST request found in the TESTBED section to which you have to insert the descriptor file. In this repository there is a descriptor file available called: "first_descriptor.yml". This request will return an id which is needed for the next section.
-6. Access the PUT endpoint in the trial_network section and indicate in the tnID field the id received in the previous step.
-
-### Starting `/frontend`
-
-1. Activate the virtual environment.
-2. Navigate to the `/frontend` folder.
-3. Run `python app.py`. `/frontend` will start listening for connections on port 5001.
-
-## Settings
+### Settings
 
 Setting files for all components are stored in the `/SETTINGS` folder. Example files indicating the expected format
 and default configuration values are available in the `/SETTINGS/samples` folder. If the required settings file do
@@ -71,12 +58,12 @@ values.
 
 > It is not advisable to delete or otherwise edit the files in `/SETTINGS/samples`. 
 
-### Configuration files
+#### Configuration files
 
 The following configuration files exist. More information about the format and values of each file can be seen in
 their corresponding `.sample` file.
 
-#### - `components.yml`
+##### - `components.yml`
 
 Used by `\core`. Contains the definition of all component types available in the platform, including references to
 the 6G-Library repository that contains their playbook, which are defined in `repositories.yml`.
@@ -99,7 +86,7 @@ Components:
     Folder: vm_kvm_very_small
 ```
 
-#### - `core.yml`
+##### - `core.yml`
 
 Used by `\core`. Contains basic functionality settings for the `\core` component.
 
@@ -109,7 +96,7 @@ Paths:
   TrialNetworks: '../TRIAL_NETWORKS'
 ```
 
-#### - `repositories.yml`
+##### - `repositories.yml`
 
 Used by `\core`. Contains the definition of all available 6G-Library repositories. Repositories defined in this
 file are referenced in `components.yml`.
@@ -121,6 +108,33 @@ Repositories:
     User:
     Password:
 ```
+
+Also at the same level where the .env.template file is located, you must create the .env file that must contain the information of the .env.template file but filled in.
+
+##### - `.env`
+
+```.env
+# Jenkins connection
+JENKINS_SERVER=""
+JENKINS_USER=""
+JENKINS_PASSWORD=""
+JENKINS_TOKEN=""
+# Jenkins parameters
+JENKINS_TN_ID=""
+JENKINS_6GLIBRARY_BRANCH=""
+JENKINS_DEPLOYMENT_SITE=""
+# URL for Jenkins answers
+CALLBACK_URL=""  # Need to deploy TNLCM on a virtual machine to which Jenkins has access
+```
+
+### Starting TNLCM
+
+1. Activate the virtual environment.
+2. Navigate to the `/core` folder.
+3. Run `python app.py`. `/core` will start listening for connections on port 5000.
+4. Enter Swagger UI: http://localhost:5000
+5. You have to execute the POST request found in the TESTBED section to which you have to insert the descriptor file. In this repository there is a descriptor file available called: "first_descriptor.yml". This request will return an id which is needed for the next section.
+6. Access the PUT endpoint in the trial_network section and indicate in the tnID field the id received in the previous step.
 
 ## Trial Network Descriptor
 
