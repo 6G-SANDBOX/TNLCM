@@ -58,7 +58,10 @@ app = Flask(__name__)
 CORS(app)
 
 api = Api(
-    version='0.1'
+    title="Trial Network Life Cycle Manager",
+    version="0.3",
+    description="Repository: https://github.com/6G-SANDBOX/TNLCM",
+    #doc=False
 )
 
 api.add_namespace(trial_network_api, path="/trial_network")
