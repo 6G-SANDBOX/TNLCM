@@ -124,7 +124,6 @@ JENKINS_PASSWORD=""
 JENKINS_TOKEN=""
 # Jenkins parameters
 JENKINS_TN_ID=""
-JENKINS_6GLIBRARY_BRANCH=""
 JENKINS_DEPLOYMENT_SITE=""
 # URL for Jenkins answers
 CALLBACK_URL=""  # Need to deploy TNLCM on a virtual machine to which Jenkins has access
