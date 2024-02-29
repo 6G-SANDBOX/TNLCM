@@ -118,15 +118,16 @@ Also at the same level where the .env.template file is located, you must create 
 
 ```.env
 # Jenkins connection
-JENKINS_SERVER=""
-JENKINS_USER=""
-JENKINS_PASSWORD=""
-JENKINS_TOKEN=""
+JENKINS_SERVER=
+JENKINS_USER=
+JENKINS_PASSWORD=
+JENKINS_TOKEN=
+JENKINS_JOB_NAME=
 # Jenkins parameters
-JENKINS_TN_ID=""
-JENKINS_DEPLOYMENT_SITE=""
+JENKINS_TN_ID=
+JENKINS_DEPLOYMENT_SITE=
 # URL for Jenkins answers
-CALLBACK_URL=""  # Need to deploy TNLCM on a virtual machine to which Jenkins has access
+CALLBACK_URL=  # Need to deploy TNLCM on a virtual machine to which Jenkins has access
 ```
 
 ### Starting TNLCM
