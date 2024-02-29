@@ -4,14 +4,10 @@ import yaml
 import json
 
 from base64 import b64decode
-from shared import Child, Level
 from shared import Library
 from shared.data import TrialNetwork, Entity
 from core.Transition.jenkins_handler import JenkinsHandler
 from .base_handler import BaseHandler
-from core.Tasks import SSH
-from requests import post
-from jenkins import Jenkins
 from time import sleep
 
 class ToStarted(BaseHandler):
@@ -22,6 +18,7 @@ class ToStarted(BaseHandler):
 
         order = list(self.tn.Descriptor.DeploymentOrder)
         library = Library()
+        jenkins_handler = JenkinsHandler()
         # Check if the report file was created
         report_callback_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback', 'report.md')
         if os.path.isfile(report_callback_directory):
@@ -40,7 +37,6 @@ class ToStarted(BaseHandler):
             sleep(1)
 
             # Connecting to the jenkins server using python-jenkins API
-            jenkins_handler = JenkinsHandler()
             jenkins_client = jenkins_handler.get_jenkins_client()
             job_name = os.getenv("JENKINS_JOB_NAME")
             tn_id = os.getenv("JENKINS_TN_ID")
