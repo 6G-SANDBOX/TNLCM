@@ -19,10 +19,11 @@ class ToStarted(BaseHandler):
         order = list(self.tn.Descriptor.DeploymentOrder)
         library = Library()
         jenkins_handler = JenkinsHandler()
+
         # Check if the report file was created
-        report_callback_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback', 'report.md')
-        if os.path.isfile(report_callback_directory):
-            os.remove(report_callback_directory)
+        path_report_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback', 'report.md')
+        if os.path.isfile(path_report_file):
+            os.remove(path_report_file)
 
         for o in order:
             entity_name = o.Name
@@ -38,23 +39,23 @@ class ToStarted(BaseHandler):
 
             # Connecting to the jenkins server using python-jenkins API
             jenkins_client = jenkins_handler.get_jenkins_client()
-            job_name = os.getenv("JENKINS_JOB_NAME")
+            job_name = jenkins_handler.get_job_name()
             tn_id = os.getenv("JENKINS_TN_ID")
             component_settings = library.GetComponent(entity_name)
-            library_branch = component_settings.Branch
+            component_library_branch = component_settings.Branch
             path_temp_file = self._create_temp_file(entity, tn_id)
             sleep(1)
             if os.path.isfile(path_temp_file):
-                with open(path_temp_file, 'rb') as file:
+                with open(path_temp_file, 'rb') as temp_file:
                     parameters = {
                         "TN_ID": tn_id,
                         "LIBRARY_COMPONENT_NAME": entity_name,
-                        "LIBRARY_BRANCH": library_branch,
+                        "LIBRARY_BRANCH": component_library_branch,
                         "DEPLOYMENT_SITE": os.getenv("JENKINS_DEPLOYMENT_SITE"),
                     }
                     job_url = jenkins_client.build_job_url(name=job_name, parameters=parameters)
-                    files = {"FILE": (path_temp_file, file)}
-                    response = jenkins_handler.deploy_components(job_url=job_url, files=files)
+                    file = {"FILE": (path_temp_file, temp_file)}
+                    response = jenkins_handler.deploy_component(job_url=job_url, file=file)
                     if response.status_code == 201:
                         # job_info = server.get_job_info(name=job_name)
                         last_build_number = jenkins_client.get_job_info(name=job_name)["nextBuildNumber"]
@@ -63,25 +64,25 @@ class ToStarted(BaseHandler):
 
                         if jenkins_client.get_job_info(name=job_name)["lastSuccessfulBuild"]["number"] == last_build_number:
                             sleep(15)
-                            callback_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback', 'jenkins_response.json')
-                            new_callback_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback', str(entity_name) + str(tn_id) + '.json')
-                            os.rename(callback_directory, new_callback_directory)
-                            if os.path.isfile(new_callback_directory):
-                                with open(new_callback_directory, 'r') as jenkins_response:
+                            path_jenkins_response_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback', 'jenkins_response.json')
+                            rename_jenkins_response_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback', str(entity_name) + "_" + str(tn_id) + '.json')
+                            if os.path.isfile(path_jenkins_response_file):
+                                os.rename(path_jenkins_response_file, rename_jenkins_response_file)
+                                with open(rename_jenkins_response_file, 'r') as jenkins_response:
                                     jenkins_data = json.load(jenkins_response)
                                     result_msg_encode = jenkins_data.get('result_msg')
                                     result_msg_decode = b64decode(result_msg_encode).decode('utf-8')
 
-                                    with open(report_callback_directory, 'a') as report:
+                                    with open(path_report_file, 'a') as report:
                                         report.write(result_msg_decode + '\n')
                             else:
-                                print(f'File {new_callback_directory} not found.')
+                                print(f"File {path_jenkins_response_file} not found.")
                         else:
                             print("Error. Pipeline failed.")
                     else:
-                        print("Error. Bad request.")
+                        print(f"Error. Bad request.")
             else:
-                print(f'File {new_callback_directory} not found.')
+                print(f"File {path_temp_file} not found.")
 
             entity.Status = Entity.Status.Running
 
@@ -96,7 +97,7 @@ class ToStarted(BaseHandler):
             }
             entity_name = entity.Description.Name
             if entity_name == "tn_bastion" or entity_name == "vm_kvm_very_small":
-                callback_directory_vxlan = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback', "tn_vxlan" + str(tn_id) + '.json')
+                callback_directory_vxlan = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback', "tn_vxlan" + "_" + str(tn_id) + '.json')
                 if os.path.isfile(callback_directory_vxlan):
                     with open(callback_directory_vxlan, 'r') as file:
                         json_data = json.load(file)
