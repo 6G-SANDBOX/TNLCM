@@ -5,10 +5,10 @@ import json
 
 from base64 import b64decode
 from shared import Child, Level
+from shared import Library
 from shared.data import TrialNetwork, Entity
 from .base_handler import BaseHandler
 from core.Tasks import SSH
-from shared import Library
 from requests import post
 from jenkins import Jenkins
 from time import sleep
@@ -20,7 +20,7 @@ class ToStarted(BaseHandler):
     def Run(self):
 
         order = list(self.tn.Descriptor.DeploymentOrder)
-
+        library = Library()
         # Check if the report file was created
         report_callback_directory = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'Callback', 'report.md')
         if os.path.isfile(report_callback_directory):
@@ -42,6 +42,8 @@ class ToStarted(BaseHandler):
             jenkins_client = Jenkins(os.getenv("JENKINS_SERVER"), username=os.getenv("JENKINS_USER"), password=os.getenv("JENKINS_PASSWORD"))
             job_name = "02_Trial_Network_Component"
             tn_id = os.getenv("JENKINS_TN_ID")
+            component_settings = library.GetComponent(entity_name)
+            library_branch = component_settings.Branch
             path_temp_file = self._create_temp_file(entity, tn_id)
             sleep(1)
             if os.path.isfile(path_temp_file):
@@ -49,7 +51,7 @@ class ToStarted(BaseHandler):
                     parameters = {
                         "TN_ID": tn_id,
                         "LIBRARY_COMPONENT_NAME": entity_name,
-                        "LIBRARY_BRANCH": os.getenv("JENKINS_6GLIBRARY_BRANCH"),
+                        "LIBRARY_BRANCH": library_branch,
                         "DEPLOYMENT_SITE": os.getenv("JENKINS_DEPLOYMENT_SITE"),
                     }
                     job_url = jenkins_client.build_job_url(name=job_name, parameters=parameters)
