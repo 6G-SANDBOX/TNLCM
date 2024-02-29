@@ -7,6 +7,7 @@ from base64 import b64decode
 from shared import Child, Level
 from shared import Library
 from shared.data import TrialNetwork, Entity
+from core.Transition.jenkins_handler import JenkinsHandler
 from .base_handler import BaseHandler
 from core.Tasks import SSH
 from requests import post
@@ -39,8 +40,9 @@ class ToStarted(BaseHandler):
             sleep(1)
 
             # Connecting to the jenkins server using python-jenkins API
-            jenkins_client = Jenkins(os.getenv("JENKINS_SERVER"), username=os.getenv("JENKINS_USER"), password=os.getenv("JENKINS_PASSWORD"))
-            job_name = "02_Trial_Network_Component"
+            jenkins_handler = JenkinsHandler()
+            jenkins_client = jenkins_handler.get_jenkins_client()
+            job_name = os.getenv("JENKINS_JOB_NAME")
             tn_id = os.getenv("JENKINS_TN_ID")
             component_settings = library.GetComponent(entity_name)
             library_branch = component_settings.Branch
@@ -56,8 +58,7 @@ class ToStarted(BaseHandler):
                     }
                     job_url = jenkins_client.build_job_url(name=job_name, parameters=parameters)
                     files = {"FILE": (path_temp_file, file)}
-                    response = post(job_url, auth=(os.getenv("JENKINS_USER"), os.getenv("JENKINS_TOKEN")), files=files)
-
+                    response = jenkins_handler.deploy_components(job_url=job_url, files=files)
                     if response.status_code == 201:
                         # job_info = server.get_job_info(name=job_name)
                         last_build_number = jenkins_client.get_job_info(name=job_name)["nextBuildNumber"]
