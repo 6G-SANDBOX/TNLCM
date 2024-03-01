@@ -39,7 +39,7 @@ class ToStarted(BaseHandler):
 
             # Connecting to the jenkins server using python-jenkins API
             jenkins_client = jenkins_handler.get_jenkins_client()
-            job_name = jenkins_handler.get_job_name()
+            job_name = jenkins_handler.get_jenkins_job_name()
             tn_id = os.getenv("JENKINS_TN_ID")
             component_settings = library.GetComponent(entity_name)
             component_library_branch = component_settings.Branch
@@ -55,7 +55,7 @@ class ToStarted(BaseHandler):
                     }
                     job_url = jenkins_client.build_job_url(name=job_name, parameters=parameters)
                     file = {"FILE": (path_temp_file, temp_file)}
-                    response = jenkins_handler.deploy_component(job_url=job_url, file=file)
+                    response = jenkins_handler.jenkins_deploy_component(job_url=job_url, file=file)
                     if response.status_code == 201:
                         # job_info = server.get_job_info(name=job_name)
                         last_build_number = jenkins_client.get_job_info(name=job_name)["nextBuildNumber"]

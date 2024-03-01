@@ -16,12 +16,12 @@ class JenkinsHandler:
     def get_jenkins_client(self):
         return self.jenkins_client
 
-    def get_job_name(self):
+    def get_jenkins_job_name(self):
         return self.jenkins_job_name
 
-    def deploy_component(self, job_url, file):
+    def jenkins_deploy_component(self, job_url, file):
         return post(job_url, auth=(self.jenkins_user, self.jenkins_token), files=file)
 
-    def update_marketplace(self):
+    def jenkins_update_marketplace(self):
         # TODO: pipeline to update the TNLCM version in marketplace
         pass
