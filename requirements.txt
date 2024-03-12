@@ -1,8 +1,0 @@
-Flask~=2.3.0  # TODO: Updating to flask 3 will require restx compatibility
-flask-restx~=1.1.0
-Flask-PyMongo~=2.3.0
-Flask-Cors~=4.0.0
-requests~=2.31.0
-paramiko~=3.2.0
-pyyaml
-dulwich  # With C bindings. Use 'dulwich --config-settings "--build-option=--pure"' for pure Python (performance loss)
