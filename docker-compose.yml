@@ -1,0 +1,20 @@
+version: "3.8"
+
+services:
+
+  tnlcm-database:
+    container_name: tnlcm-database
+    image: mysql:8.2
+    ports:
+      - "3305:3306"
+    expose:
+      - "3305"
+    volumes:
+      - data:/var/lib/mysql
+      - ./database/tnlcm-structure.sql:/docker-entrypoint-initdb.d/tnlcm-structure.sql
+    restart: unless-stopped
+    env_file:
+      - .env
+
+volumes:
+  data:
