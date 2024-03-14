@@ -3,9 +3,44 @@
 
 # TRIAL NETWORK LIFECYCLE MANAGER (TNLCM)
 
-## Start TNLCM
+## Deploy TNLCM
 
-Create python environment and install libraries. The environment must be created inside the TNLCM project
+> ⚠ It is recommended to do this deployment on a virtual machine since you must use a callback URL that Jenkins must have access to.
+
+### Download or clone repository
+
+Download the main branch from the TNLCM repository
+
+Clone repository:
+
+        git clone https://github.com/CarlosAndreo/TNLCM.git
+
+### Create .env using .env.template
+
+> ⚠ The following tools are required to be deployed on the platforms:
+
+* Jenkins (Mandatory)
+* OpenNebula (Mandatory)
+* MinIO (Optional)
+
+Create the .env file at the same level and with the contents of the .env.template file.
+
+### Create TNLCM database
+
+> ⚠ This step requires Docker to be installed on the machine.
+
+* [Windows](https://docs.docker.com/desktop/install/windows-install/)
+* [Linux](https://docs.docker.com/desktop/install/linux-install/)
+
+Once Docker is installed, open a terminal where the docker-compose.yml file is stored (usually inside the TNLCM project) and execute the commands:
+
+        docker compose build
+
+        docker compose up
+
+### Create python environment and install libraries. 
+
+The environment must be created inside the TNLCM project
 
 * Windows
 
@@ -18,7 +53,7 @@ Create python environment and install libraries. The environment must be created
         # Install libraries
         pip install -r requirements.txt
 
-* Ubuntu
+* Linux
 
         # Create environment
         python3 -m venv venv
@@ -28,6 +63,8 @@ Create python environment and install libraries. The environment must be created
         
         # Install libraries
         pip install -r requirements.txt
+
+### Start TNLCM
 
 With the environment activated, start TNLCM
 
