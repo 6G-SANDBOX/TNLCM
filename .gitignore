@@ -162,3 +162,4 @@ cython_debug/
 # TNLCM
 src/callback/reports/
 src/temp/files/
+logs/executions/

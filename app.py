@@ -7,6 +7,7 @@ from waitress import serve
 
 from config import Config
 from src.routes import trial_network_namespace, callback_namespace
+from logs.log_handler import LogHandler
 
 app = Flask(__name__)
 CORS(app)
@@ -24,6 +25,7 @@ api.add_namespace(trial_network_namespace, path="/api/trial_network")
 api.add_namespace(callback_namespace, path="/api/callback")
 
 if __name__ == "__main__":
+    LogHandler()
     flask_env = os.getenv("FLASK_ENV")
     if flask_env == "DEVELOPMENT":
         app.run(host="0.0.0.0", port=5000, debug=True)
