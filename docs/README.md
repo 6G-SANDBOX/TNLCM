@@ -69,3 +69,21 @@ The environment must be created inside the TNLCM project
 With the environment activated, start TNLCM
 
     python app.py
+
+## Trial Network Descriptor Schema
+
+> The format of Trial Network Descriptors has not been finalized and is expected to change in the future.
+
+Trial Network Descriptors are yaml files with a set of expected fields and structure. This repository contains an
+example of descriptor:
+- `first_descriptor.yml`
+
+```yaml
+trial_network:  # Mandatory, contains the description of all entities in the Trial Network
+  <Entity1>:  # A unique identifier for each entity in the Trial Network
+    depends_on: # List of dependencies of the component with other components
+      - <EntityN>
+      - ...
+    public: # Necessary variables collected from the public part of the 6G-Library
+      ...
+```
