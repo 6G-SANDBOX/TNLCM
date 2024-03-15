@@ -1,20 +1,31 @@
-version: "3.8"
+version: '3.7'
 
 services:
 
   tnlcm-database:
     container_name: tnlcm-database
-    image: mysql:8.2
+    image: mongo:latest
     ports:
-      - "3305:3306"
-    expose:
-      - "3305"
+      - "27017:27017"
     volumes:
-      - data:/var/lib/mysql
-      - ./database/tnlcm-structure.sql:/docker-entrypoint-initdb.d/tnlcm-structure.sql
+      - data:/var/lib/mongodb_data
+      - ./database/tnlcm-structure.js:/docker-entrypoint-initdb.d/tnlcm-structure.js
     restart: unless-stopped
-    env_file:
-      - .env
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+  
+  tnlcm-database-frontend:
+    container_name: tnlcm-database-frontend
+    image: mongo-express:latest
+    ports:
+      - 8081:8081
+    depends_on:
+      - tnlcm-database
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${ME_CONFIG_MONGODB_ADMINUSERNAME}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${ME_CONFIG_MONGODB_ADMINPASSWORD}
+      ME_CONFIG_MONGODB_URL: ${ME_CONFIG_MONGODB_URL}
 
 volumes:
   data:
