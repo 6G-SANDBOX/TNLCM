@@ -8,6 +8,11 @@ repository_directory = os.path.join(os.getcwd(), "src", "repository")
 
 class RepositoryHandler:
 
+    def __init__(self, git_url):
+        self.git_url = git_url
+        if not os.path.exists(repository_directory):
+            os.makedirs(repository_directory)
+
     @staticmethod
     def onerror(func, path, exc_info):
         """
@@ -25,11 +30,6 @@ class RepositoryHandler:
             func(path)
         else:
             raise
-
-    def __init__(self, git_url):
-        self.git_url = git_url
-        if not os.path.exists(repository_directory):
-            os.makedirs(repository_directory)
 
     def clone_repository(self, repository_name, branch):
         try:
