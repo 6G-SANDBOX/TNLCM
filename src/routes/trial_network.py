@@ -3,7 +3,7 @@ from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 from yaml import safe_load, YAMLError
 
-from src.trial_network.trial_network_queries import create_trial_network, get_descriptor_trial_network, get_all_trial_networks
+from src.trial_network.trial_network_queries import get_trial_networks, create_trial_network, get_descriptor_trial_network
 from src.callback.jenkins_functions import deploy_trial_network
 
 trial_network_namespace = Namespace(
@@ -69,8 +69,8 @@ class TrialNetworks(Resource):
         Returns all the Trial Networks stored
         """
         try:
-            all_trial_networks = get_all_trial_networks()
-            return {"trial_networks": all_trial_networks}, 200
+            trial_networks = get_trial_networks()
+            return {"tn_ids": trial_networks}, 200
         except ValueError as e:
             return abort(404, e)
         except Exception as e:
