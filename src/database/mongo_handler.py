@@ -5,10 +5,6 @@ from pymongo import MongoClient
 class MongoHandler:
 
     def __init__(self):
-        self.host = os.getenv("MONGO_HOST")
-        self.port = os.getenv("MONGO_PORT")
-        self.username = os.getenv("MONGO_INITDB_ROOT_USERNAME")
-        self.password = os.getenv("MONGO_INITDB_ROOT_PASSWORD")
         self.database = os.getenv("MONGO_DATABASE")
         self.uri = os.getenv("MONGO_URI")
         self.client = MongoClient(self.uri)
