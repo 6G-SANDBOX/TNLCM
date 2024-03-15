@@ -77,3 +77,4 @@ def deploy_trial_network(tn_id):
                     if jenkins_client.get_job_info(name=jenkins_job_name)["lastSuccessfulBuild"]["number"] == last_build_number:
                         sleep(5)
                         rename_decoded_information_file(component_name + "_" + jenkins_tn_id + ".json")
+    update_status_trial_network(tn_id, "finished")
