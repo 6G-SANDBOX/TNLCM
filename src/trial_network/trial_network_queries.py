@@ -1,63 +1,52 @@
 from uuid import uuid4
 from json import dumps, loads
 
-from src.database.mysql_handler import MysqlHandler
+from src.database.mongo_handler import MongoHandler
 from src.trial_network.trial_network_descriptor import sort_descriptor
 
 STATUS_TRIAL_NETWORK = ["pending", "deploying", "finished"]
 
-def create_mysql_client():
-    mysql_client = MysqlHandler()
-    return mysql_client
-
-def parse_get_results(data):
-    return [item[0] for item in data]
+def create_mongo_client():
+    mongo_client = MongoHandler()
+    return mongo_client
 
 def get_trial_networks():
-    mysql_client = create_mysql_client()
-    query = "SELECT tn_id FROM trial_network"
-    trial_networks = mysql_client.execute_query(query)
-    mysql_client.close()
-    return trial_networks
+    mongo_client = create_mongo_client()
+    projection = {"_id": 0, "tn_id": 1}
+    trial_networks = mongo_client.find_data(collection_name="trial_network", projection=projection)
+    mongo_client.disconnect()
+    if trial_networks:
+        return [tn["tn_id"] for tn in trial_networks]
 
 def create_trial_network(descriptor):
-    mysql_client = create_mysql_client()
+    mongo_client = create_mongo_client()
     tn_id = str(uuid4())
-    status = STATUS_TRIAL_NETWORK[0]
-    raw_descriptor_json = dumps(descriptor)
-    sorted_descriptor_json = dumps(sort_descriptor(descriptor))
-    query = "INSERT INTO trial_network (tn_id, status, raw_descriptor, sorted_descriptor) VALUES (%s, %s, %s, %s)"
-    params = (tn_id, status, raw_descriptor_json, sorted_descriptor_json)
-    mysql_client.execute_query(query, params)
-    mysql_client.commit()
-    mysql_client.close()
+    tn_status = STATUS_TRIAL_NETWORK[0]
+    tn_raw_descriptor_json = dumps(descriptor)
+    tn_sorted_descriptor_json = dumps(sort_descriptor(descriptor))
+    trial_network_doc = {
+        "tn_id": tn_id,
+        "tn_status": tn_status,
+        "tn_raw_descriptor": tn_raw_descriptor_json,
+        "tn_sorted_descriptor": tn_sorted_descriptor_json
+    }
+    mongo_client.insert_data("trial_network", trial_network_doc)
+    mongo_client.disconnect()
     return tn_id
 
 def get_descriptor_trial_network(tn_id):
-    mysql_client = create_mysql_client()
-    query = "SELECT sorted_descriptor FROM trial_network WHERE tn_id = %s"
-    params = (tn_id,)
-    sorted_descriptor = mysql_client.execute_query(query, params)
-    mysql_client.close()
-    if not sorted_descriptor:
-        raise ValueError("Trial Network not found")
-    else:
-        return loads(parse_get_results(sorted_descriptor)[0])
+    mongo_client = create_mongo_client()
+    query = {"tn_id": tn_id}
+    projection = {"_id": 0, "tn_sorted_descriptor": 1}
+    trial_network_descriptor = mongo_client.find_data(collection_name="trial_network", query=query, projection=projection)
+    mongo_client.disconnect()
+    if trial_network_descriptor:
+        return loads(trial_network_descriptor[0]["tn_sorted_descriptor"])
 
 def update_status_trial_network(tn_id, new_status):
-    mysql_client = create_mysql_client()
-    query = "UPDATE trial_network SET status = %s WHERE tn_id = %s"
-    params = (new_status, tn_id)
-    mysql_client.execute_query(query, params)
-    mysql_client.commit()
-    mysql_client.close()
-
-def get_all_trial_networks():
-    mysql_client = create_mysql_client()
-    query = "SELECT tn_id FROM trial_network"
-    all_trial_networks = mysql_client.execute_query(query)
-    mysql_client.close()
-    if not all_trial_networks:
-        raise Exception("No Trial Networks stored")
-    else:
-        return parse_get_results(all_trial_networks)
+    # check if new status is in STATUS_TRIAL_NETWORK
+    mongo_client = create_mongo_client()
+    query = {"tn_id": tn_id}
+    update = {"$set": {"tn_status": new_status}}
+    mongo_client.update_data("trial_network", query, update)
+    mongo_client.disconnect()
