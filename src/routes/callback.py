@@ -2,7 +2,7 @@ from flask import request
 from flask_restx import Namespace, Resource, abort
 from json import JSONDecodeError
 
-from src.callback.jenkins_functions import create_report_directory, save_decoded_information
+from src.callback.jenkins_functions import save_decoded_information
 
 callback_namespace = Namespace(
     name="callback",
