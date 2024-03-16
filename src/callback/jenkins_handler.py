@@ -11,7 +11,7 @@ from src.trial_network.trial_network_descriptor import get_component_public
 from src.trial_network.trial_network_queries import get_descriptor_trial_network, update_status_trial_network
 from src.sixglibrary.sixglibrary_handler import SixGLibraryHandler
 
-report_directory = os.path.join(os.getcwd(), "app", "callback", "reports")
+report_directory = os.path.join(os.getcwd(), "src", "callback", "reports")
 decoded_component_information_file_path = os.path.join(report_directory, "decoded_component_information.json")
 report_components_jenkins_file_path = os.path.join(report_directory, "report_components_jenkins.md")
 
