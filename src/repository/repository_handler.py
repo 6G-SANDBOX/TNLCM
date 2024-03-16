@@ -2,43 +2,72 @@ import os
 import stat
 
 from shutil import rmtree
-from git import Repo, exc
+from git import Repo
+from git.exc import GitError, GitCommandError, InvalidGitRepositoryError
 
 repository_directory = os.path.join(os.getcwd(), "src", "repository")
 
+def remove_readonly(func, path, _):
+    os.chmod(path, stat.S_IWRITE)
+    func(path)
+
 class RepositoryHandler:
 
-    def __init__(self, git_url):
+    def __init__(self, git_url=None, git_branch=None, git_commit_id=None, repository_name=None):
+        if not git_url or not repository_name:
+            raise GitError("Add the value of the variables git_url and repository_name")
+        if not git_branch and not git_commit_id:
+            raise GitError("Add the value of the variables git_branch or git_commit_id")
+        if git_branch and git_commit_id:
+            raise GitError("Only one field is required. Either git_branch or git_commit_id")
         self.git_url = git_url
-        if not os.path.exists(repository_directory):
-            os.makedirs(repository_directory)
-
-    @staticmethod
-    def onerror(func, path, exc_info):
-        """
-        Error handler for ``shutil.rmtree``.
-
-        If the error is due to an access error (read only file)
-        it attempts to add write permission and then retries.
-
-        If the error is for another reason it re-raises the error.
-        
-        Usage : ``shutil.rmtree(path, onerror=onerror)``
-        """
-        if not os.access(path, os.W_OK):
-            os.chmod(path, stat.S_IWUSR)
-            func(path)
+        self.git_branch = git_branch
+        self.git_commit_id = git_commit_id
+        self.local_directory = os.path.join(repository_directory, repository_name)
+        self.repo = None
+        if not os.path.exists(self.local_directory):
+            os.makedirs(self.local_directory)
         else:
-            raise
+            self.repo = Repo(self.local_directory)
+            if self.last_git_clone() == "commit" and self.git_branch:
+                rmtree(self.local_directory, onerror=remove_readonly)
+            elif self.last_git_clone() == "commit" and self.git_commit_id and not self.is_current_commit_id():
+                rmtree(self.local_directory, onerror=remove_readonly)
+            elif self.last_git_clone() == "branch" and self.git_commit_id:
+                rmtree(self.local_directory, onerror=remove_readonly)
+            elif self.last_git_clone() == "branch" and self.git_branch and not self.is_current_branch():
+                rmtree(self.local_directory, onerror=remove_readonly)
 
-    def clone_repository(self, repository_name, branch):
+    def is_current_branch(self):
+        return self.repo.active_branch.name == self.git_branch
+
+    def is_current_commit_id(self):
+        return self.repo.head.commit.hexsha == self.git_commit_id
+
+    def last_git_clone(self):
+        if self.repo.head.is_detached:
+            return "commit"
+        else:
+            return "branch"
+    
+    def git_clone_repository(self):
         try:
-            local_directory = os.path.join(repository_directory, repository_name)
-            if os.path.exists(local_directory):
-                rmtree(local_directory, onerror=self.onerror)
-            Repo.clone_from(self.git_url, local_directory, branch=branch)
-        except exc.GitCommandError as e:
-            print(e)
+            self.repo = Repo.clone_from(self.git_url, self.local_directory)
+        except InvalidGitRepositoryError as e:
+            raise InvalidGitRepositoryError(e)
+        except GitCommandError as e:
+            raise GitCommandError(e)
 
-    def extract_components(self):
-        pass
+    def git_checkout_repository(self):
+        if self.repo is not None:
+            try:
+                if self.git_branch:
+                    self.repo.git.checkout(self.git_branch)
+                else:
+                    self.repo.git.checkout(self.git_commit_id)
+            except InvalidGitRepositoryError as e:
+                raise InvalidGitRepositoryError(e)
+            except GitCommandError as e:
+                raise GitCommandError(e)
+        else:
+            raise GitCommandError("Clone repository first")
