@@ -90,7 +90,7 @@ class JenkinsHandler:
                     if os.path.isfile(component_path_temp_file):
                         with open(component_path_temp_file, 'rb') as component_temp_file:
                             file = {"FILE": (component_path_temp_file, component_temp_file)}
-                            jenkins_build_job_url = self.jenkins_client.build_job_url(name=self.jenkins_job_name, parameters=self.jenkins_parameters())
+                            jenkins_build_job_url = self.jenkins_client.build_job_url(name=self.jenkins_job_name, parameters=self.jenkins_parameters(component_name))
                             response = post(jenkins_build_job_url, auth=(self.jenkins_user, self.jenkins_token), files=file)
                             if response.status_code == 201:
                                 last_build_number = self.jenkins_client.get_job_info(name=self.jenkins_job_name)["nextBuildNumber"]
