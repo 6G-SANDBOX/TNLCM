@@ -1,16 +1,10 @@
 import os
-import stat
 import re
 
-from shutil import rmtree
-from git import Repo, RemoteReference, Commit
+from git import Repo
 from git.exc import GitCommandError, InvalidGitRepositoryError
 
 repository_directory = os.path.join(os.getcwd(), "src", "repository")
-
-def remove_readonly(func, path, _):
-    os.chmod(path, stat.S_IWRITE)
-    func(path)
 
 class RepositoryHandler:
 
@@ -27,28 +21,31 @@ class RepositoryHandler:
         self.git_repository_name = repository_name
         self.local_directory = os.path.join(repository_directory, self.git_repository_name)
         self.repo = None
+
+    def git_clone_repository(self):
         if os.path.exists(self.local_directory):
             if os.path.exists(os.path.join(self.local_directory, ".git")):
                 try:
+                    output = ""
                     self.repo = Repo(self.local_directory)
                     last_clone_type = self.last_git_clone()
-
-                    if (last_clone_type == "commit" and self.git_branch) or \
-                            (last_clone_type == "commit" and self.git_commit_id and not self.is_current_commit_id()) or \
-                            (last_clone_type == "branch" and self.git_commit_id) or \
-                            (last_clone_type == "branch" and self.git_branch and not self.is_current_branch()):
-                        rmtree(self.local_directory, onerror=remove_readonly)
-                        self.repo = None
+                    if self.check_and_checkout_repository(last_clone_type):
+                        output += "updated"
+                    else:
+                        output += "exists"
+                    if self.pull_if_necessary():
+                        output += "pull"
+                    return output
                 except InvalidGitRepositoryError:
                     raise InvalidGitRepositoryError(f"The {self.local_directory} directory is not a GitHub repository")
+            else:
+                self.clone_repository()
+                self.git_checkout_repository()
+                return "cloned"
         else:
-            os.makedirs(self.local_directory)
-
-    def is_current_branch(self):
-        return self.repo.active_branch.name == self.git_branch
-
-    def is_current_commit_id(self):
-        return self.repo.head.commit.hexsha == self.git_commit_id
+            self.create_and_clone_repository()
+            self.git_checkout_repository()
+            return "cloned"
 
     def last_git_clone(self):
         if self.repo.head.is_detached:
@@ -66,40 +63,61 @@ class RepositoryHandler:
             if re.match(pattern, url):
                 return True
         return False
+
+    def check_and_checkout_repository(self, last_clone_type):
+        if (last_clone_type == "commit" and self.git_branch) or \
+                (last_clone_type == "commit" and self.git_commit_id and not self.is_current_commit_id()) or \
+                (last_clone_type == "branch" and self.git_commit_id) or \
+                (last_clone_type == "branch" and self.git_branch and not self.is_current_branch()):
+            self.git_checkout_repository()
+            return True
+        return False
     
-    def git_clone_repository(self):
-        if self.repo is None:
-            if self.is_github_repo(self.git_url):
-                try:
-                    self.repo = Repo.clone_from(self.git_url, self.local_directory)
-                    return True
-                except InvalidGitRepositoryError:
-                    raise InvalidGitRepositoryError(f"Cannot clone because the '{self.git_url}' url is not a GitHub repository")
-            else:
-                raise InvalidGitRepositoryError(f"Repository url specified '{self.git_url}' is not correct")
+    def is_current_branch(self):
+        return self.repo.active_branch.name == self.git_branch
+
+    def is_current_commit_id(self):
+        return self.repo.head.commit.hexsha == self.git_commit_id
+
+    def pull_if_necessary(self):
+        if self.git_branch and not self.is_update_branch():
+            self.repo.remotes.origin.pull()
+            return True
+        return False
+
+    def clone_repository(self):
+        if self.is_github_repo(self.git_url):
+            try:
+                self.repo = Repo.clone_from(self.git_url, self.local_directory)
+            except InvalidGitRepositoryError:
+                raise InvalidGitRepositoryError(f"Cannot clone because the '{self.git_url}' url is not a GitHub repository")
+        else:
+            raise InvalidGitRepositoryError(f"Repository url specified '{self.git_url}' is not correct")
+
+    def create_and_clone_repository(self):
+        os.makedirs(self.local_directory)
+        self.clone_repository()
+
+    def is_update_branch(self):
+        if self.git_branch:
+            remote_ref = f"refs/remotes/origin/{self.git_branch}"
+            local_commit = self.repo.head.commit.hexsha
+            remote_commit = self.repo.commit(remote_ref).hexsha
+
+            return local_commit == remote_commit
         return False
 
     def git_checkout_repository(self):
         if self.repo is not None:
             if self.git_branch:
-                remote_branches_repository = []
-                for ref in self.repo.refs:
-                    if isinstance(ref, RemoteReference):
-                        ref_name_split = ref.name.split('/')[-1]
-                        if ref_name_split != "HEAD":
-                            remote_branches_repository.append(ref_name_split)
-                if self.git_branch in remote_branches_repository:
+                try:
                     self.repo.git.checkout(self.git_branch)
-                else:
+                except GitCommandError:
                     raise GitCommandError(f"Branch '{self.git_branch}' not in '{self.git_repository_name}' repository")
             else:
-                remote_commits_repository = []
-                for commit in self.repo.iter_commits():
-                    if isinstance(commit, Commit):
-                        remote_commits_repository.append(commit.hexsha)
-                if self.git_commit_id in remote_commits_repository:
+                try:
                     self.repo.git.checkout(self.git_commit_id)
-                else:
+                except GitCommandError:
                     raise GitCommandError(f"The commit with id '{self.git_commit_id}' not in '{self.git_repository_name}' repository")
         else:
             raise GitCommandError(f"Clone '{self.git_repository_name}' repository first")
