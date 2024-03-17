@@ -17,14 +17,26 @@ class Clone6GLibrary(Resource):
         """
         try:
             self.sixglibrary_handler = SixGLibraryHandler()
-            if self.sixglibrary_handler.git_clone_6glibrary():
-                self.sixglibrary_handler.git_checkout_6glibrary()
+            output = self.sixglibrary_handler.git_clone_6glibrary()
+            if output == "cloned":
                 if self.sixglibrary_handler.repository_handler.git_branch:
-                    return {"message": f"Cloned branch {self.sixglibrary_handler.repository_handler.git_branch} in 6G-Library repository"}, 200
+                    return {"message": f"Cloned branch '{self.sixglibrary_handler.repository_handler.git_branch}' in 6G-Library repository"}, 200
                 else:
-                    return {"message": f"Cloned commit with id {self.sixglibrary_handler.repository_handler.git_commit_id} in 6G-Library repository"}, 200
-            else:
+                    return {"message": f"Cloned commit with id '{self.sixglibrary_handler.repository_handler.git_commit_id}' in 6G-Library repository"}, 200
+            elif output == "exists":
                 return {"message": "6G-Library repository is already cloned"}, 400
+            elif output == "updated":
+                if self.sixglibrary_handler.repository_handler.git_branch:
+                    return {"message": f"Updated to branch '{self.sixglibrary_handler.repository_handler.git_branch}' in 6G-Library repository"}, 200
+                else:
+                    return {"message": f"Updated to commit with id '{self.sixglibrary_handler.repository_handler.git_commit_id}' in 6G-Library repository"}, 200
+            elif output == "updatedpull":
+                if self.sixglibrary_handler.repository_handler.git_branch:
+                    return {"message": f"Updated to branch '{self.sixglibrary_handler.repository_handler.git_branch}' and pull in 6G-Library repository"}, 200
+                else:
+                    return {"message": f"Updated to commit with id '{self.sixglibrary_handler.repository_handler.git_commit_id}' and pull in 6G-Library repository"}, 200
+            else:
+                return {"message": "6G-Library repository is cloned, but a git pull has been done"}, 200
         except ValueError as e:
             return abort(400, e)
         except GitCommandError as e:
