@@ -70,6 +70,8 @@ With the environment activated, start TNLCM
 
     python app.py
 
+A Swagger UI will be available in which API endpoints will be visible
+
 ## Trial Network Descriptor Schema
 
 > The format of Trial Network Descriptors has not been finalized and is expected to change in the future.
