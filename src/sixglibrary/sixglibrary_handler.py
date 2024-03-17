@@ -13,9 +13,6 @@ class SixGLibraryHandler:
     
     def git_clone_6glibrary(self):
         return self.repository_handler.git_clone_repository()
-    
-    def git_checkout_6glibrary(self):
-        self.repository_handler.git_checkout_repository()
 
     def extract_components_6glibrary(self):
         components = None
