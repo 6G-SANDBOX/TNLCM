@@ -31,32 +31,27 @@ class MongoHandler:
                 collection = self.db[collection_name]
                 collection.insert_one(doc)
             except ConnectionFailure:
-                raise ConnectionFailure("Unable to connect to database")
+                raise ConnectionFailure(f"Unable to connect to database '{self.database}'")
         else:
-            raise CollectionInvalid("Collection not found") 
+            raise CollectionInvalid(f"Collection '{collection_name}' not found in database '{self.database}'") 
     
     def find_data(self, collection_name, query=None, projection=None):
         if collection_name in COLLECTIONS:
-            result = None
             try:
                 collection = self.db[collection_name]
-                result = list(collection.find(query, projection))
+                return list(collection.find(query, projection))
             except ConnectionFailure:
-                raise ConnectionFailure("Unable to connect to database")
-            if result:
-                return result
-            else:
-                raise ValueError("No results found in the database")
+                raise ConnectionFailure(f"Unable to connect to database '{self.database}'")
         else:
-            raise CollectionInvalid("Collection not found")
+            raise CollectionInvalid(f"Collection '{collection_name}' not found in database '{self.database}'")
         
     
-    def update_data(self, collection_name, query, update):
+    def update_data(self, collection_name, query, projection):
         if collection_name in COLLECTIONS:
             try:
                 collection = self.db[collection_name]
-                collection.update_one(query, update)
+                collection.update_one(query, projection)
             except ConnectionFailure:
-                raise ConnectionFailure("Unable to connect to database")
+                raise ConnectionFailure(f"Unable to connect to database '{self.database}'")
         else:
-            raise CollectionInvalid("Collection not found")
+            raise CollectionInvalid(f"Collection '{collection_name}' not found in database '{self.database}'")

@@ -40,7 +40,7 @@ class RepositoryHandler:
                         rmtree(self.local_directory, onerror=remove_readonly)
                         self.repo = None
                 except InvalidGitRepositoryError:
-                    raise InvalidGitRepositoryError(f"The {self.local_directory} directory is not a repository. ")
+                    raise InvalidGitRepositoryError(f"The {self.local_directory} directory is not a GitHub repository")
         else:
             os.makedirs(self.local_directory)
 
@@ -74,7 +74,7 @@ class RepositoryHandler:
                     self.repo = Repo.clone_from(self.git_url, self.local_directory)
                     return True
                 except InvalidGitRepositoryError:
-                    raise InvalidGitRepositoryError(f"Cannot clone because the '{self.git_url}' url is not a GitHub repository.")
+                    raise InvalidGitRepositoryError(f"Cannot clone because the '{self.git_url}' url is not a GitHub repository")
             else:
                 raise InvalidGitRepositoryError(f"Repository url specified '{self.git_url}' is not correct")
         return False
