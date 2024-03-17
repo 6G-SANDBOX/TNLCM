@@ -1,8 +1,0 @@
-#Components:  # Mandatory key, defines a dictionary
-#  <Unique component name>:
-#    Repository:  # Repository ID, mandatory.
-#    Folder:  # Folder dedicated to the component inside the repository, mandatory.
-#    Branch:  # Optional. Branch to take the component information from (at latest commit). Uses the default repository branch if undefined.
-#    Commit:  # Commit hash to take the component information from. Latest commit if undefined.
-
-Components: {}
