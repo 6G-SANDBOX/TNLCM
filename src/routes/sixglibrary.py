@@ -12,6 +12,9 @@ sixglibrary_namespace = Namespace(
 class Clone6GLibrary(Resource):
 
     def post(self):
+        """
+        Clone 6G-Library repository
+        """
         try:
             self.sixglibrary_handler = SixGLibraryHandler()
             if self.sixglibrary_handler.git_clone_6glibrary():
@@ -37,6 +40,9 @@ class Clone6GLibrary(Resource):
 class Components6GLibrary(Resource):
 
     def get(self):
+        """
+        Returns the components stored in 6G-Library
+        """
         try:
             self.sixglibrary_handler = SixGLibraryHandler()
             components = self.sixglibrary_handler.extract_components_6glibrary()
