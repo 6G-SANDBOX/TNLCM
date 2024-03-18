@@ -2,7 +2,7 @@ from flask import request
 from flask_restx import Namespace, Resource, abort
 from json import JSONDecodeError
 
-from src.callback.jenkins_handler import save_decoded_information
+from src.callback.jenkins_handler import JenkinsHandler
 
 callback_namespace = Namespace(
     name="callback",
@@ -21,7 +21,8 @@ class Callback(Resource):
         """
         try:
             data = request.get_json()
-            save_decoded_information(data)
+            jenkins_handler = JenkinsHandler()
+            jenkins_handler.save_decoded_information(data)
             return {"message": "Stored coded information"}, 200
         except JSONDecodeError as e:
             return abort(400, 'Invalid JSON format')
