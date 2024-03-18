@@ -4,11 +4,11 @@ from flask import Flask
 from flask_restx import Api
 from flask_cors import CORS
 from waitress import serve
+from dotenv import load_dotenv
 
 from config import Config
 from src.routes import trial_network_namespace, callback_namespace, sixglibrary_namespace
 from logs.log_handler import LogHandler
-from dotenv import load_dotenv
 
 app = Flask(__name__)
 CORS(app)
