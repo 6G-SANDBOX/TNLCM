@@ -47,6 +47,10 @@ class CreateTrialNetwork(Resource):
 @trial_network_namespace.route("/<string:tn_id>")
 class TrialNetwork(Resource):
 
+    parser_put = reqparse.RequestParser()
+    parser_put.add_argument("branch", type=str, required=False)
+    parser_put.add_argument("commit_id", type=str, required=False)
+
     def get(self, tn_id):
         """
         Returns the descriptor of the Trial Network specified in tn_id
@@ -65,13 +69,17 @@ class TrialNetwork(Resource):
         except Exception as e:
             return abort(422, e)
 
+    @trial_network_namespace.expect(parser_put)
     def put(self, tn_id):
         """
         Trial Network component deployment begins
         """
         try:
+            branch = self.parser_put.parse_args()["branch"]
+            commit_id = self.parser_put.parse_args()["commit_id"]
+
             self.jenkins_handler = JenkinsHandler()
-            self.jenkins_handler.deploy_trial_network(tn_id)
+            self.jenkins_handler.deploy_trial_network(tn_id, branch=branch, commit_id=commit_id)
             return {"message": "Trial Network start deployment with jenkins"}, 200
         except ValueError as e:
             return abort(400, e)
