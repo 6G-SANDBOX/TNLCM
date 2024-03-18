@@ -1,5 +1,6 @@
-from uuid import uuid4
 from json import dumps, loads
+from string import ascii_lowercase, digits
+from random import choice
 
 from src.database.mongo_handler import MongoHandler
 from src.trial_network.trial_network_descriptor import sort_descriptor
@@ -20,9 +21,12 @@ def get_trial_networks():
     else:
         raise ValueError(f"No trial networks stored in 'trial_network' collection in the database '{mongo_client.database}'")
 
+def generate_random_string(size=6, chars=ascii_lowercase + digits):
+    return ''.join(choice(chars) for _ in range(size))
+
 def create_trial_network(descriptor):
     mongo_client = create_mongo_client()
-    tn_id = str(uuid4())
+    tn_id = str(generate_random_string(size=7))
     tn_status = STATUS_TRIAL_NETWORK[0]
     tn_raw_descriptor_json = dumps(descriptor)
     tn_sorted_descriptor_json = dumps(sort_descriptor(descriptor))
@@ -61,6 +65,7 @@ def get_status_trial_network(tn_id):
 def update_status_trial_network(tn_id, new_status):
     if new_status in STATUS_TRIAL_NETWORK:
         mongo_client = create_mongo_client()
+        get_status_trial_network(tn_id)
         query = {"tn_id": tn_id}
         projection = {"$set": {"tn_status": new_status}}
         mongo_client.update_data(collection_name="trial_network", query=query, projection=projection)
