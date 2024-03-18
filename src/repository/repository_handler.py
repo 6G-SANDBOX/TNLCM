@@ -4,7 +4,7 @@ import re
 from git import Repo
 from git.exc import GitCommandError, InvalidGitRepositoryError
 
-repository_directory = os.path.join(os.getcwd(), "src", "repository")
+REPOSITORY_DIRECTORY = os.path.join(os.getcwd(), "src", "repository")
 
 class RepositoryHandler:
 
@@ -19,7 +19,7 @@ class RepositoryHandler:
         self.git_branch = git_branch
         self.git_commit_id = git_commit_id
         self.git_repository_name = repository_name
-        self.local_directory = os.path.join(repository_directory, self.git_repository_name)
+        self.local_directory = os.path.join(REPOSITORY_DIRECTORY, self.git_repository_name)
         self.repo = None
 
     def git_clone_repository(self):
@@ -72,7 +72,7 @@ class RepositoryHandler:
             self.git_checkout_repository()
             return True
         return False
-    
+
     def is_current_branch(self):
         return self.repo.active_branch.name == self.git_branch
 
