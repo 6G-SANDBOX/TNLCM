@@ -30,19 +30,25 @@ class JenkinsHandler:
             raise ValueError("Add the value of the variables JENKINS_SERVER, JENKINS_USER and JENKINS_PASSWORD in the .env file")
         if not self.jenkins_token or not self.jenkins_job_name or not self.jenkins_deployment_site:
             raise ValueError("Add the value of the variables JENKINS_TOKEN, JENKINS_JOB_NAME and JENKINS_DEPLOYMENT_SITE in the .env file")
-        self.sixglibrary_handler = SixGLibraryHandler()
-        if self.sixglibrary_handler.git_6glibrary_branch:
-            self.jenkins_library_branch = self.sixglibrary_handler.git_6glibrary_branch
-        else:
-            self.jenkins_library_commit_id = self.sixglibrary_handler.git_6glibrary_commit_id
 
-    def jenkins_parameters(self, tn_id, component_name):
+    def jenkins_parameters(self, tn_id, component_name, branch=None, commit_id=None):
         return {
             "TN_ID": tn_id,
             "LIBRARY_COMPONENT_NAME": component_name,
-            "LIBRARY_BRANCH": self.jenkins_library_branch or self.jenkins_library_commit_id,
+            "LIBRARY_BRANCH": branch or commit_id,
             "DEPLOYMENT_SITE": self.jenkins_deployment_site,
         }
+    
+    def save_decoded_information(data):
+        if os.path.isfile(decoded_component_information_file_path):
+            os.remove(decoded_component_information_file_path)
+        decoded_data = b64decode(data).decode("utf-8") # TEST
+        decoded_dict = loads(decoded_data)
+        result_msg = decoded_dict.get("result_msg")
+        with open(decoded_component_information_file_path, "w") as decoded_information_file:
+            decoded_information_file.write(decoded_data)
+        with open(report_components_jenkins_file_path, "a") as result_msg_file:
+            result_msg_file.write(result_msg)
 
     def rename_decoded_information_file(self, name_file):
         new_name_path = os.path.join(report_directory, name_file)
@@ -58,9 +64,12 @@ class JenkinsHandler:
                 tn_vxlan_id = json_data.get("tn_vxlan_id")
                 return tn_vxlan_id
 
-    def deploy_trial_network(self, tn_id):
+    def deploy_trial_network(self, tn_id, branch=None, commit_id=None):
         # TODO: raise in case something not working
         # check status trial network, if pending or failed start deploy
+        sixglibrary_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id)
+        sixglibrary_handler.git_clone_6glibrary()
+        components_6glibrary = sixglibrary_handler.extract_components_6glibrary()
         if not os.path.exists(report_directory):
             os.makedirs(report_directory)
         if os.path.isfile(report_components_jenkins_file_path):
@@ -68,9 +77,8 @@ class JenkinsHandler:
         temp_file_handler = TempFileHandler()
         descriptor_trial_network = get_descriptor_trial_network(tn_id)["trial_network"]
         update_status_trial_network(tn_id, "deploying")
-        componets_6glibrary = self.sixglibrary_handler.extract_components_6glibrary()
         for component_name, component_data in descriptor_trial_network.items():
-            if component_name in componets_6glibrary:
+            if component_name in components_6glibrary:
                 if component_name == "tn_vxlan":
                     component_path_temp_file = temp_file_handler.create_component_temp_file(component_name, get_component_public(component_data))
                 else:
@@ -79,7 +87,7 @@ class JenkinsHandler:
                 if os.path.isfile(component_path_temp_file):
                     with open(component_path_temp_file, 'rb') as component_temp_file:
                         file = {"FILE": (component_path_temp_file, component_temp_file)}
-                        jenkins_build_job_url = self.jenkins_client.build_job_url(name=self.jenkins_job_name, parameters=self.jenkins_parameters(tn_id, component_name))
+                        jenkins_build_job_url = self.jenkins_client.build_job_url(name=self.jenkins_job_name, parameters=self.jenkins_parameters(tn_id, component_name, branch=branch, commit_id=commit_id))
                         response = post(jenkins_build_job_url, auth=(self.jenkins_user, self.jenkins_token), files=file)
                         if response.status_code == 201:
                             last_build_number = self.jenkins_client.get_job_info(name=self.jenkins_job_name)["nextBuildNumber"]
@@ -98,14 +106,3 @@ class JenkinsHandler:
     def jenkins_update_marketplace(self):
         # TODO: pipeline to update the TNLCM version in marketplace
         pass
-
-def save_decoded_information(data):
-    if os.path.isfile(decoded_component_information_file_path):
-        os.remove(decoded_component_information_file_path)
-    decoded_data = b64decode(data).decode("utf-8") # TEST
-    decoded_dict = loads(decoded_data)
-    result_msg = decoded_dict.get("result_msg")
-    with open(decoded_component_information_file_path, "w") as decoded_information_file:
-        decoded_information_file.write(decoded_data)
-    with open(report_components_jenkins_file_path, "a") as result_msg_file:
-        result_msg_file.write(result_msg)
