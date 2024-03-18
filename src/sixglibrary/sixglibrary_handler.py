@@ -4,13 +4,13 @@ from src.repository.repository_handler import RepositoryHandler
 
 class SixGLibraryHandler:
 
-    def __init__(self):
+    def __init__(self, branch=None, commit_id=None):
         self.git_6glibrary_https_url = os.getenv("GIT_6GLIBRARY_HTTPS_URL")
-        self.git_6glibrary_branch = os.getenv("GIT_6GLIBRARY_BRANCH")
-        self.git_6glibrary_commit_id = os.getenv("GIT_6GLIBRARY_COMMIT_ID")
         self.git_6glibrary_repository_name = os.getenv("GIT_6GLIBRARY_REPOSITORY_NAME")
+        self.git_6glibrary_branch = branch or os.getenv("GIT_6GLIBRARY_BRANCH")
+        self.git_6glibrary_commit_id = commit_id
         self.repository_handler = RepositoryHandler(self.git_6glibrary_https_url, self.git_6glibrary_branch, self.git_6glibrary_commit_id, self.git_6glibrary_repository_name)
-    
+
     def git_clone_6glibrary(self):
         return self.repository_handler.git_clone_repository()
 
