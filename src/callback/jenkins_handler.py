@@ -65,11 +65,12 @@ class JenkinsHandler:
             os.makedirs(report_directory)
         if os.path.isfile(report_components_jenkins_file_path):
             os.remove(report_components_jenkins_file_path)
+        temp_file_handler = TempFileHandler()
         descriptor_trial_network = get_descriptor_trial_network(tn_id)["trial_network"]
         update_status_trial_network(tn_id, "deploying")
-        temp_file_handler = TempFileHandler()
+        componets_6glibrary = self.sixglibrary_handler.extract_components_6glibrary()
         for component_name, component_data in descriptor_trial_network.items():
-            if component_name in self.sixglibrary_handler.extract_components_6glibrary():
+            if component_name in componets_6glibrary:
                 if component_name == "tn_vxlan":
                     component_path_temp_file = temp_file_handler.create_component_temp_file(component_name, get_component_public(component_data))
                 else:

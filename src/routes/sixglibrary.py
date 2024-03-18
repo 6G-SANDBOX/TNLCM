@@ -1,4 +1,4 @@
-from flask_restx import Namespace, Resource, abort
+from flask_restx import Namespace, Resource, abort, reqparse
 from git.exc import GitError, GitCommandError, InvalidGitRepositoryError
 
 from src.sixglibrary.sixglibrary_handler import SixGLibraryHandler
@@ -8,12 +8,12 @@ sixglibrary_namespace = Namespace(
     description="TNLCM integration with the 6G-Library"
 )
 
-@sixglibrary_namespace.route("/clone")
+@sixglibrary_namespace.route("/clone/main")
 class Clone6GLibrary(Resource):
 
     def post(self):
         """
-        Clone 6G-Library repository
+        Clone the main branch of the 6G-Library
         """
         try:
             self.sixglibrary_handler = SixGLibraryHandler()
