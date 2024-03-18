@@ -14,7 +14,7 @@ class TempFileHandler:
         with NamedTemporaryFile(delete=False, dir=TEMP_FILES_PATH, suffix=".yaml", mode='w') as component_temp_file:
             if component_public is None:
                 component_public = {}
-            component_public["tnlcm_callback"] = os.getenv("CALLBACK_URL") + "/callback"
+            component_public["tnlcm_callback"] = os.getenv("CALLBACK_URL")
             if tn_vxlan_id is not None:
                 component_public["one_component_networks"] = [0, int(tn_vxlan_id)]
                 if component_name == "tn_bastion":
