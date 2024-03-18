@@ -23,9 +23,9 @@ api = Api(
     # doc=False
 )
 
-api.add_namespace(trial_network_namespace, path="/api/trial_network")
-api.add_namespace(callback_namespace, path="/api/callback")
-api.add_namespace(sixglibrary_namespace, path="/api/6glibrary")
+api.add_namespace(trial_network_namespace, path="/tnlcm/trial_network")
+api.add_namespace(callback_namespace, path="/tnlcm/callback")
+api.add_namespace(sixglibrary_namespace, path="/tnlcm/6glibrary")
 
 LogHandler()
 
