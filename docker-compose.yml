@@ -9,7 +9,7 @@ services:
       - "27017:27017"
     volumes:
       - data:/var/lib/mongodb_data
-      - ./database/tnlcm-structure.js:/docker-entrypoint-initdb.d/tnlcm-structure.js
+      - ./src/database/tnlcm-structure.js:/docker-entrypoint-initdb.d/tnlcm-structure.js
     restart: unless-stopped
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
