@@ -22,7 +22,7 @@ class CreateTrialNetwork(Resource):
     @trial_network_namespace.expect(parser)
     def post(self):
         """
-        Create and add a Trial Network
+        Create and add a Trial Network to database
         """
         try:
             descriptor_file = self.parser.parse_args()["descriptor"]
@@ -73,6 +73,7 @@ class TrialNetwork(Resource):
     def put(self, tn_id):
         """
         Trial Network component deployment begins
+        Can specify a branch or a commit_id of the 6G-Library. If nothing is specified, the main branch will be used
         """
         try:
             branch = self.parser_put.parse_args()["branch"]
