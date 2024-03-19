@@ -83,7 +83,6 @@ class JenkinsHandler:
                     component_path_temp_file = temp_file_handler.create_component_temp_file(component_name, get_component_public(component_data))
                 else:
                     component_path_temp_file = temp_file_handler.create_component_temp_file(component_name, get_component_public(component_data), self.extract_tn_vxlan_id(tn_id))
-                sleep(1)
                 if os.path.isfile(component_path_temp_file):
                     with open(component_path_temp_file, 'rb') as component_temp_file:
                         file = {"FILE": (component_path_temp_file, component_temp_file)}

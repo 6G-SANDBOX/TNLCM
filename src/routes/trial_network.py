@@ -97,7 +97,7 @@ class TrialNetwork(Resource):
     
     def delete(self, tn_id):
         """
-        Remove a Trial Network
+        Remove a Trial Network specified in tn_id
         """
         # TODO: remove a TN
         pass
