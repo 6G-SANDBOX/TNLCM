@@ -55,7 +55,6 @@ class JenkinsHandler:
         new_name_path = os.path.join(report_directory, name_file)
         if os.path.isfile(decoded_component_information_file_path):
             os.rename(decoded_component_information_file_path, new_name_path)
-            return new_name_path
 
     def extract_tn_vxlan_id(self, tn_id):
         component_report_file = os.path.join(report_directory, "tn_vxlan_" + tn_id + ".json")
