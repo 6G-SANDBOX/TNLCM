@@ -1,6 +1,6 @@
 import os
 
-from jenkins import Jenkins
+from jenkins import Jenkins, JenkinsException
 from requests import post
 from json import load, dump
 from base64 import b64decode
@@ -65,7 +65,7 @@ class JenkinsHandler:
                 return tn_vxlan_id
 
     def deploy_trial_network(self, tn_id, branch=None, commit_id=None):
-        # TODO: raise in case something not working
+        # TODO: raise JenkinsException in case something not working
         # check status trial network, if pending or failed start deploy
         sixglibrary_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id)
         sixglibrary_handler.git_clone_6glibrary()

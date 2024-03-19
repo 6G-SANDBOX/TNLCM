@@ -10,7 +10,7 @@ from src.callback.jenkins_handler import JenkinsHandler
 
 trial_network_namespace = Namespace(
     name="trial_network",
-    description="Trial Network status and management"
+    description="Trial network status and management"
 )
 
 @trial_network_namespace.route("")
@@ -22,7 +22,7 @@ class CreateTrialNetwork(Resource):
     @trial_network_namespace.expect(parser)
     def post(self):
         """
-        Create and add a Trial Network to database
+        Create and add a trial network to database
         """
         try:
             descriptor_file = self.parser.parse_args()["descriptor"]
@@ -53,7 +53,7 @@ class TrialNetwork(Resource):
 
     def get(self, tn_id):
         """
-        Returns the descriptor of the Trial Network specified in tn_id
+        Returns the descriptor of the trial network specified in tn_id
         """
         try:
             sorted_descriptor = get_descriptor_trial_network(tn_id)
@@ -72,7 +72,7 @@ class TrialNetwork(Resource):
     @trial_network_namespace.expect(parser_put)
     def put(self, tn_id):
         """
-        Trial Network component deployment begins
+        Trial network component deployment begins
         Can specify a branch or a commit_id of the 6G-Library. If nothing is specified, the main branch will be used
         """
         try:
@@ -81,7 +81,7 @@ class TrialNetwork(Resource):
 
             self.jenkins_handler = JenkinsHandler()
             self.jenkins_handler.deploy_trial_network(tn_id, branch=branch, commit_id=commit_id)
-            return {"message": "Trial Network start deployment with jenkins"}, 200
+            return {"message": "Trial network start deployment with jenkins"}, 200
         except ValueError as e:
             return abort(400, e)
         except GitCommandError as e:
@@ -97,7 +97,7 @@ class TrialNetwork(Resource):
     
     def delete(self, tn_id):
         """
-        Delete a Trial Network specified in tn_id
+        Delete a trial network specified in tn_id
         """
         try:
             delete_trial_network(tn_id)
@@ -118,7 +118,7 @@ class TrialNetworks(Resource):
 
     def get(self):
         """
-        Returns all the Trial Networks stored in database
+        Returns all the trial networks stored in database
         """
         try:
             trial_networks = get_trial_networks()
@@ -139,7 +139,7 @@ class StatusTrialNetwork(Resource):
 
     def get(self, tn_id):
         """
-        Returns the status of the Trial Network specified in tn_id
+        Returns the status of the Trial network specified in tn_id
         """
         try:
             status_trial_network = get_status_trial_network(tn_id)
@@ -161,7 +161,7 @@ class StatusTrialNetwork(Resource):
     @trial_network_namespace.expect(parser_put)
     def put(self, tn_id):
         """
-        Update the status of the Trial Network specified in tn_id
+        Update the status of the Trial network specified in tn_id
         """
         try:
             new_status = self.parser_put.parse_args()['new_status']
