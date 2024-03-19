@@ -2,7 +2,7 @@ import os
 
 from jenkins import Jenkins
 from requests import post
-from json import load, loads
+from json import load, dump
 from base64 import b64decode
 from time import sleep
 
@@ -39,14 +39,15 @@ class JenkinsHandler:
             "DEPLOYMENT_SITE": self.jenkins_deployment_site,
         }
     
-    def save_decoded_information(data):
+    def save_decoded_information(self, data):
         if os.path.isfile(decoded_component_information_file_path):
             os.remove(decoded_component_information_file_path)
-        decoded_data = b64decode(data).decode("utf-8") # TEST
-        decoded_dict = loads(decoded_data)
-        result_msg = decoded_dict.get("result_msg")
+        decoded_data = {}
+        for key, value in data.items():
+            decoded_data[key] = b64decode(value).decode("utf-8")
         with open(decoded_component_information_file_path, "w") as decoded_information_file:
-            decoded_information_file.write(decoded_data)
+            dump(decoded_data, decoded_information_file)
+        result_msg = decoded_data["result_msg"]
         with open(report_components_jenkins_file_path, "a") as result_msg_file:
             result_msg_file.write(result_msg)
 
