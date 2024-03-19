@@ -3,7 +3,7 @@ from string import ascii_lowercase, digits
 from random import choice
 
 from src.database.mongo_handler import MongoHandler
-from src.trial_network.trial_network_descriptor import sort_descriptor
+from src.trial_network.trial_network_descriptor import sort_descriptor, add_component_tn_vxlan, add_component_tn_bastion
 
 STATUS_TRIAL_NETWORK = ["pending", "deploying", "finished", "failed"]
 
@@ -28,12 +28,15 @@ def create_trial_network(descriptor):
     mongo_client = create_mongo_client()
     tn_id = str(generate_random_string(size=7))
     tn_status = STATUS_TRIAL_NETWORK[0]
-    tn_raw_descriptor_json = dumps(descriptor)
-    tn_sorted_descriptor_json = dumps(sort_descriptor(descriptor))
+    descriptor_json = dumps(descriptor)
+    tn_raw_descriptor_json = loads(descriptor_json)
+    add_component_tn_vxlan(tn_raw_descriptor_json["trial_network"])
+    add_component_tn_bastion(tn_raw_descriptor_json["trial_network"])
+    tn_sorted_descriptor_json = dumps(sort_descriptor(tn_raw_descriptor_json))
     trial_network_doc = {
         "tn_id": tn_id,
         "tn_status": tn_status,
-        "tn_raw_descriptor": tn_raw_descriptor_json,
+        "tn_raw_descriptor": dumps(tn_raw_descriptor_json),
         "tn_sorted_descriptor": tn_sorted_descriptor_json
     }
     mongo_client.insert_data("trial_network", trial_network_doc)
