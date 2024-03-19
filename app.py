@@ -19,7 +19,7 @@ api = Api(
     app,
     title="Trial Network Lifecycle Manager",
     version="0.1.0",
-    description="Repository: https://github.com/CarlosAndreo/TNLCM",
+    description="Repository: https://github.com/6G-SANDBOX/TNLCM",
     # doc=False
 )
 
