@@ -6,6 +6,10 @@
 
 > ⚠ TNLCM is under development and is subject to continuous changes.
 
+## Structure
+
+![TNLCM](./images/TNLCM.png)
+
 ## Deploy TNLCM
 
 > ⚠ It is recommended to do this deployment on a virtual machine since you must use a callback URL that Jenkins must have access to.
