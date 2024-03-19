@@ -46,11 +46,21 @@ class MongoHandler:
             raise CollectionInvalid(f"Collection '{collection_name}' not found in database '{self.database}'")
         
     
-    def update_data(self, collection_name, query, projection):
+    def update_data(self, collection_name, query=None, projection=None):
         if collection_name in COLLECTIONS:
             try:
                 collection = self.db[collection_name]
                 collection.update_one(query, projection)
+            except ConnectionFailure:
+                raise ConnectionFailure(f"Unable to connect to database '{self.database}'")
+        else:
+            raise CollectionInvalid(f"Collection '{collection_name}' not found in database '{self.database}'")
+    
+    def delete_data(self, collection_name, query=None, projection=None):
+        if collection_name in COLLECTIONS:
+            try:
+                collection = self.db[collection_name]
+                collection.delete_one(query, projection)
             except ConnectionFailure:
                 raise ConnectionFailure(f"Unable to connect to database '{self.database}'")
         else:

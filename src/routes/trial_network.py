@@ -5,7 +5,7 @@ from yaml import safe_load, YAMLError
 from pymongo.errors import ConnectionFailure, CollectionInvalid, ConfigurationError
 from git.exc import GitCommandError
 
-from src.trial_network.trial_network_queries import get_trial_networks, create_trial_network, get_descriptor_trial_network, get_status_trial_network, update_status_trial_network
+from src.trial_network.trial_network_queries import get_trial_networks, create_trial_network, get_descriptor_trial_network, get_status_trial_network, update_status_trial_network, delete_trial_network
 from src.callback.jenkins_handler import JenkinsHandler
 
 trial_network_namespace = Namespace(
@@ -97,10 +97,21 @@ class TrialNetwork(Resource):
     
     def delete(self, tn_id):
         """
-        Remove a Trial Network specified in tn_id
+        Delete a Trial Network specified in tn_id
         """
-        # TODO: remove a TN
-        pass
+        try:
+            delete_trial_network(tn_id)
+            return {"message": f"The trial network with identifier {tn_id} has been removed from the database"}, 200
+        except ValueError as e:
+            return abort(400, e)
+        except CollectionInvalid as e:
+            return abort(404, e)
+        except ConfigurationError as e:
+            return abort(500, e)
+        except ConnectionFailure as e:
+            return abort(503, e)
+        except Exception as e:
+            return abort(422, e)
 
 @trial_network_namespace.route("s/") 
 class TrialNetworks(Resource):

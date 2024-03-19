@@ -43,35 +43,47 @@ def create_trial_network(descriptor):
     mongo_client.disconnect()
     return tn_id
 
+def get_trial_network(tn_id):
+    query = {"tn_id": tn_id}
+    projection = {"_id": 0}
+    mongo_client = create_mongo_client()
+    trial_network = mongo_client.find_data(collection_name="trial_network", query=query, projection=projection)
+    mongo_client.disconnect()
+    if not trial_network:
+        raise ValueError(f"No trial networks stored in 'trial_network' collection in the database '{mongo_client.database}' with tn_id '{tn_id}'")
+
 def get_descriptor_trial_network(tn_id):
+    get_trial_network(tn_id)
     mongo_client = create_mongo_client()
     query = {"tn_id": tn_id}
     projection = {"_id": 0, "tn_sorted_descriptor": 1}
     trial_network_descriptor = mongo_client.find_data(collection_name="trial_network", query=query, projection=projection)
     mongo_client.disconnect()
-    if trial_network_descriptor:
-        return loads(trial_network_descriptor[0]["tn_sorted_descriptor"])
-    else:
-        raise ValueError(f"No trial networks stored in 'trial_network' collection in the database '{mongo_client.database}' with tn_id '{tn_id}'")
+    return loads(trial_network_descriptor[0]["tn_sorted_descriptor"])
 
 def get_status_trial_network(tn_id):
+    get_trial_network(tn_id)
     mongo_client = create_mongo_client()
     query = {"tn_id": tn_id}
     projection = {"tn_status": 1, "_id": 0}
     trial_network_status = mongo_client.find_data(collection_name="trial_network", query=query, projection=projection)
     mongo_client.disconnect()
-    if trial_network_status:
-        return trial_network_status[0]
-    else:
-        raise ValueError(f"No trial networks stored in trial_network collection in the database '{mongo_client.database}' with tn_id '{tn_id}'")
+    return trial_network_status[0]
 
 def update_status_trial_network(tn_id, new_status):
     if new_status in STATUS_TRIAL_NETWORK:
+        get_trial_network(tn_id)
         mongo_client = create_mongo_client()
-        get_status_trial_network(tn_id)
         query = {"tn_id": tn_id}
         projection = {"$set": {"tn_status": new_status}}
         mongo_client.update_data(collection_name="trial_network", query=query, projection=projection)
         mongo_client.disconnect()
     else:
         raise ValueError(f"The status cannot be updated. The possible states are: {STATUS_TRIAL_NETWORK}")
+
+def delete_trial_network(tn_id):
+    get_trial_network(tn_id)
+    mongo_client = create_mongo_client()
+    query = {"tn_id": tn_id}
+    mongo_client.delete_data(collection_name="trial_network", query=query)
+    mongo_client.disconnect()
