@@ -79,6 +79,15 @@ With the environment activated, start TNLCM
 
 A Swagger UI will be available in which API endpoints will be visible
 
+## Report with the results of the Trial Network deployment
+
+The file with the report after deploying all the components in Jenkins is stored in the path **tnlcm/src/callback/reports**. By default, the reports folder is not created until the components are deployed. The file has a markdown extension and is named report_components_jenkins.md.
+
+Several tools can be used to open the file:
+
+* Extension vscode: [Markdown All in One](https://marketplace.visualstudio.com/items?itemName=yzhang.markdown-all-in-one)
+* [Obsidian](https://obsidian.md/)
+
 ## Trial Network Descriptor Schema
 
 > The format of Trial Network Descriptors has not been finalized and is expected to change in the future.
