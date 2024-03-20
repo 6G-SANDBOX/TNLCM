@@ -90,7 +90,7 @@ class CustomJenkinsError(CustomException):
     pass
 
 class JenkinsConnectionError(CustomJenkinsError):
-    """"""
+    """Error thrown when unable to establish connection to Jenkins"""
     pass
 
 class JenkinsComponentFileNotFoundError(CustomJenkinsError):
