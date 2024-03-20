@@ -1,9 +1,11 @@
 from json import dumps, loads
 from string import ascii_lowercase, digits
 from random import choice
+from yaml import YAMLError
 
 from src.database.mongo_handler import MongoHandler
-from src.trial_network.trial_network_descriptor import sort_descriptor, add_component_tn_vxlan, add_component_tn_bastion
+from src.trial_network.trial_network_descriptor import sort_descriptor, add_component_tn_vxlan, add_component_tn_bastion, check_descriptor_extension
+from src.exceptions.exceptions_handler import TrialNetworkInvalidStatusError, TrialNetworkNotFoundError, TrialNetworkDescriptorEmptyError, TrialNetworkDescriptorInvalidExtensionError, TrialNetworkDescriptorInvalidContentError
 
 STATUS_TRIAL_NETWORK = ["pending", "deploying", "finished", "failed"]
 
@@ -16,20 +18,25 @@ def get_trial_networks():
     projection = {"_id": 0, "tn_id": 1}
     trial_networks = mongo_client.find_data(collection_name="trial_network", projection=projection)
     mongo_client.disconnect()
-    if trial_networks:
-        return [tn["tn_id"] for tn in trial_networks]
-    else:
-        raise ValueError(f"No trial networks stored in 'trial_network' collection in the database '{mongo_client.database}'")
+    return [tn["tn_id"] for tn in trial_networks]
 
 def generate_random_string(size=6, chars=ascii_lowercase + digits):
     return ''.join(choice(chars) for _ in range(size))
 
-def create_trial_network(descriptor):
+def create_trial_network(descriptor_file):
+    try:
+        descriptor = check_descriptor_extension(descriptor_file)
+    except YAMLError:
+        raise TrialNetworkDescriptorInvalidContentError("The descriptor content is not parsed correctly", 422)
+    if descriptor is None:
+        raise TrialNetworkDescriptorInvalidExtensionError("Invalid descriptor format, only 'yml' or 'yaml' files will be further processed", 422)
     mongo_client = create_mongo_client()
     tn_id = str(generate_random_string(size=7))
     tn_status = STATUS_TRIAL_NETWORK[0]
     descriptor_json = dumps(descriptor)
     tn_raw_descriptor_json = loads(descriptor_json)
+    if tn_raw_descriptor_json["trial_network"] is None:
+        raise TrialNetworkDescriptorEmptyError("Trial network descriptor empty", 400)
     add_component_tn_vxlan(tn_raw_descriptor_json["trial_network"])
     add_component_tn_bastion(tn_raw_descriptor_json["trial_network"])
     tn_sorted_descriptor_json = dumps(sort_descriptor(tn_raw_descriptor_json))
@@ -50,7 +57,7 @@ def get_trial_network(tn_id):
     trial_network = mongo_client.find_data(collection_name="trial_network", query=query, projection=projection)
     mongo_client.disconnect()
     if not trial_network:
-        raise ValueError(f"No trial networks stored in 'trial_network' collection in the database '{mongo_client.database}' with tn_id '{tn_id}'")
+        raise TrialNetworkNotFoundError(f"No trial network stored in 'trial_network' collection in the database '{mongo_client.database}' with tn_id '{tn_id}'", 404)
 
 def get_descriptor_trial_network(tn_id):
     get_trial_network(tn_id)
@@ -79,7 +86,7 @@ def update_status_trial_network(tn_id, new_status):
         mongo_client.update_data(collection_name="trial_network", query=query, projection=projection)
         mongo_client.disconnect()
     else:
-        raise ValueError(f"The status cannot be updated. The possible states are: {STATUS_TRIAL_NETWORK}")
+        raise TrialNetworkInvalidStatusError(f"The status cannot be updated. The possible states are: {STATUS_TRIAL_NETWORK}", 404)
 
 def delete_trial_network(tn_id):
     get_trial_network(tn_id)

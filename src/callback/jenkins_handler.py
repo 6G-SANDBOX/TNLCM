@@ -10,6 +10,7 @@ from src.temp.temp_file_handler import TempFileHandler
 from src.trial_network.trial_network_descriptor import get_component_public
 from src.trial_network.trial_network_queries import get_descriptor_trial_network, update_status_trial_network, save_report_trial_network
 from src.sixglibrary.sixglibrary_handler import SixGLibraryHandler
+from src.exceptions.exceptions_handler import JenkinsConnectionError, VariablesNotDefinedInEnvError, KeyNotFoundError, CustomUnicodeDecodeError, SixGLibraryComponentNotFound, JenkinsComponentFileNotFoundError, JenkinsResponseError, JenkinsComponentPipelineError, JenkinsComponentReportNotFoundError, JenkinsDeploymentReportNotFoundError
 
 report_directory = os.path.join(os.getcwd(), "src", "callback", "reports")
 decoded_component_information_file_path = os.path.join(report_directory, "decoded_component_information.json")
@@ -25,11 +26,14 @@ class JenkinsHandler:
         self.jenkins_job_name = os.getenv("JENKINS_JOB_NAME")
         self.jenkins_deployment_site = os.getenv("JENKINS_DEPLOYMENT_SITE")
         if self.jenkins_server and self.jenkins_user and self.jenkins_password:
-            self.jenkins_client = Jenkins(self.jenkins_server, username=self.jenkins_user, password=self.jenkins_password)
+            try:
+                self.jenkins_client = Jenkins(self.jenkins_server, username=self.jenkins_user, password=self.jenkins_password)
+            except JenkinsException:
+                raise JenkinsConnectionError("Error establishing connection to Jenkins", 500)
         else:
-            raise ValueError("Add the value of the variables JENKINS_SERVER, JENKINS_USER and JENKINS_PASSWORD in the .env file")
+            raise VariablesNotDefinedInEnvError("Add the value of the variables JENKINS_SERVER, JENKINS_USER and JENKINS_PASSWORD in the .env file", 500)
         if not self.jenkins_token or not self.jenkins_job_name or not self.jenkins_deployment_site:
-            raise ValueError("Add the value of the variables JENKINS_TOKEN, JENKINS_JOB_NAME and JENKINS_DEPLOYMENT_SITE in the .env file")
+            raise VariablesNotDefinedInEnvError("Add the value of the variables JENKINS_TOKEN, JENKINS_JOB_NAME and JENKINS_DEPLOYMENT_SITE in the .env file", 500)
 
     def jenkins_parameters(self, tn_id, component_name, branch=None, commit_id=None):
         return {
@@ -40,31 +44,30 @@ class JenkinsHandler:
         }
     
     def save_decoded_information(self, data):
-        if os.path.isfile(decoded_component_information_file_path):
-            os.remove(decoded_component_information_file_path)
-        data["result_msg"] = b64decode(data["result_msg"]).decode("utf-8")
-        with open(decoded_component_information_file_path, "w") as decoded_information_file:
-            dump(data, decoded_information_file)
-        result_msg = data["result_msg"]
-        with open(report_components_jenkins_file_path, "a") as result_msg_file:
-            result_msg_file.write(result_msg)
-
-    def rename_decoded_information_file(self, name_file):
-        new_name_path = os.path.join(report_directory, name_file)
-        if os.path.isfile(decoded_component_information_file_path):
-            os.rename(decoded_component_information_file_path, new_name_path)
+        try:
+            if os.path.isfile(decoded_component_information_file_path):
+                os.remove(decoded_component_information_file_path)
+            if "result_msg" not in data:
+                raise KeyNotFoundError(f"The result_msg key has not been received by Jenkins", 400)
+            data["result_msg"] = b64decode(data["result_msg"]).decode("utf-8")
+            with open(decoded_component_information_file_path, "w") as decoded_information_file:
+                dump(data, decoded_information_file)
+            result_msg = data["result_msg"]
+            with open(report_components_jenkins_file_path, "a") as result_msg_file:
+                result_msg_file.write(result_msg)
+        except UnicodeDecodeError:
+            raise CustomUnicodeDecodeError("Unicode decoding error", 500)
 
     def extract_tn_vxlan_id(self, tn_id):
         component_report_file = os.path.join(report_directory, "tn_vxlan_" + tn_id + ".json")
         if os.path.isfile(component_report_file):
-            with open(component_report_file, 'r') as file:
+            with open(component_report_file, "r") as file:
                 json_data = load(file)
-                tn_vxlan_id = json_data.get("tn_vxlan_id")
+                tn_vxlan_id = json_data["tn_vxlan_id"]
                 return tn_vxlan_id
 
     def deploy_trial_network(self, tn_id, branch=None, commit_id=None):
-        # TODO: raise JenkinsException in case something not working
-        # check status trial network, if pending or failed start deploy
+        # Check status trial network, if pending or failed start deploy
         sixglibrary_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id)
         sixglibrary_handler.git_clone_6glibrary()
         components_6glibrary = sixglibrary_handler.extract_components_6glibrary()
@@ -92,16 +95,26 @@ class JenkinsHandler:
                                 sleep(15)
                             if self.jenkins_client.get_job_info(name=self.jenkins_job_name)["lastSuccessfulBuild"]["number"] == last_build_number:
                                 sleep(2)
-                                # TODO: Check if result is ok or not
-                                self.rename_decoded_information_file(component_name + "_" + tn_id + ".json")
+                                if os.path.isfile(decoded_component_information_file_path):
+                                    os.rename(decoded_component_information_file_path, os.path.join(report_directory, component_name + "_" + tn_id + ".json"))
+                                else:
+                                    raise JenkinsComponentReportNotFoundError(f"The {component_name} component deployment report file is not found", 500)
+                            else:
+                                raise JenkinsComponentPipelineError(f"The pipeline for the component {component_name} has failed", 500)
+                        else:
+                            raise JenkinsResponseError(f"Error in the response received by Jenkins when trying to deploy the {component_name} component", response.status_code)
+                else:
+                    raise JenkinsComponentFileNotFoundError("Component file not found", 404)
             else:
-                # Raise and save status trial network
-                print("Component not in 6G-Library")
+                if branch is not None:
+                    raise SixGLibraryComponentNotFound(f"The '{component_name}' component is not in '{branch}' branch of the 6G-Library", 404)
+                else:
+                    raise SixGLibraryComponentNotFound(f"The '{component_name}' component is not in commit_id '{commit_id}' of the 6G-Library", 404)
         update_status_trial_network(tn_id, "finished")
         if os.path.exists(report_components_jenkins_file_path):
             save_report_trial_network(tn_id, report_components_jenkins_file_path)
         else:
-            raise JenkinsException("")
+            raise JenkinsDeploymentReportNotFoundError("The trial network report file has not been found", 500)
 
     def jenkins_update_marketplace(self):
         # TODO: pipeline to update the TNLCM version in marketplace

@@ -1,7 +1,9 @@
 import os
 
 from pymongo import MongoClient
-from pymongo.errors import ConnectionFailure, CollectionInvalid, ConfigurationError, PyMongoError
+from pymongo.errors import ConnectionFailure
+
+from src.exceptions.exceptions_handler import VariablesNotDefinedInEnvError, MongoDBConnectionError, MongoDBCollectionError
 
 COLLECTIONS = ["trial_network"]
 
@@ -14,16 +16,13 @@ class MongoHandler:
             try:
                 self.client = MongoClient(self.uri)
                 self.db = self.client[self.database]
-            except PyMongoError as e:
-                raise PyMongoError(e)
+            except ConnectionFailure as e:
+                raise MongoDBConnectionError(f"Unable to establish connection to the '{self.database}' database", 500)
         else:
-            raise ConfigurationError("Add the value of the variables MONGO_DATABASE and MONGO_URI in the .env file")
+            raise VariablesNotDefinedInEnvError("Add the value of the variables MONGO_DATABASE and MONGO_URI in the .env file", 500)
 
     def disconnect(self):
-        try:
-            self.client.close()
-        except PyMongoError as e:
-            raise PyMongoError(e)
+        self.client.close()
     
     def insert_data(self, collection_name, doc):
         if collection_name in COLLECTIONS:
@@ -31,9 +30,9 @@ class MongoHandler:
                 collection = self.db[collection_name]
                 collection.insert_one(doc)
             except ConnectionFailure:
-                raise ConnectionFailure(f"Unable to connect to database '{self.database}'")
+                raise MongoDBConnectionError(f"Unable to connect to database '{self.database}'", 500)
         else:
-            raise CollectionInvalid(f"Collection '{collection_name}' not found in database '{self.database}'") 
+            raise MongoDBCollectionError(f"Collection '{collection_name}' not found in database '{self.database}'", 404)
     
     def find_data(self, collection_name, query=None, projection=None):
         if collection_name in COLLECTIONS:
@@ -41,20 +40,19 @@ class MongoHandler:
                 collection = self.db[collection_name]
                 return list(collection.find(query, projection))
             except ConnectionFailure:
-                raise ConnectionFailure(f"Unable to connect to database '{self.database}'")
+                raise MongoDBConnectionError(f"Unable to connect to database '{self.database}'", 500)
         else:
-            raise CollectionInvalid(f"Collection '{collection_name}' not found in database '{self.database}'")
-        
-    
+            raise MongoDBCollectionError(f"Collection '{collection_name}' not found in database '{self.database}'", 404) 
+
     def update_data(self, collection_name, query=None, projection=None):
         if collection_name in COLLECTIONS:
             try:
                 collection = self.db[collection_name]
                 collection.update_one(query, projection)
             except ConnectionFailure:
-                raise ConnectionFailure(f"Unable to connect to database '{self.database}'")
+                raise MongoDBConnectionError(f"Unable to connect to database '{self.database}'", 500)
         else:
-            raise CollectionInvalid(f"Collection '{collection_name}' not found in database '{self.database}'")
+            MongoDBCollectionError(f"Collection '{collection_name}' not found in database '{self.database}'", 404)
     
     def delete_data(self, collection_name, query=None, projection=None):
         if collection_name in COLLECTIONS:
@@ -62,6 +60,6 @@ class MongoHandler:
                 collection = self.db[collection_name]
                 collection.delete_one(query, projection)
             except ConnectionFailure:
-                raise ConnectionFailure(f"Unable to connect to database '{self.database}'")
+                raise MongoDBConnectionError(f"Unable to connect to database '{self.database}'", 500)
         else:
-            raise CollectionInvalid(f"Collection '{collection_name}' not found in database '{self.database}'")
+            MongoDBCollectionError(f"Collection '{collection_name}' not found in database '{self.database}'", 404)

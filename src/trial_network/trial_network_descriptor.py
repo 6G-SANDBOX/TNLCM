@@ -1,3 +1,6 @@
+from werkzeug.utils import secure_filename
+from yaml import safe_load
+
 def sort_descriptor(descriptor):
 
     components = descriptor["trial_network"]
@@ -15,6 +18,13 @@ def sort_descriptor(descriptor):
         dfs(component)
 
     return {"trial_network": ordered_components}
+
+def check_descriptor_extension(descriptor):
+    filename = secure_filename(descriptor.filename)
+    descriptor_file = None
+    if '.' in filename and filename.split('.')[-1].lower() in ['yml', 'yaml']:
+        descriptor_file = safe_load(descriptor.stream)
+    return descriptor_file
 
 def check_component_descriptor(descriptor, component):
     is_component = False

@@ -1,7 +1,7 @@
 from flask_restx import Namespace, Resource, abort, reqparse
-from git.exc import GitError, GitCommandError, InvalidGitRepositoryError
 
 from src.sixglibrary.sixglibrary_handler import SixGLibraryHandler
+from src.exceptions.exceptions_handler import CustomException
 
 sixglibrary_namespace = Namespace(
     name="6G-Library",
@@ -20,6 +20,7 @@ class Clone6GLibrary(Resource):
         """
         Clone a branch or commit_id from the 6G-Library
         **Clone the main branch of the default 6G-Library if no fields are specified**
+        **If a branch or commit is set that does not exist, the default main branch will be cloned**
         """
         try:
             branch = self.parser_post.parse_args()["branch"]
@@ -46,18 +47,10 @@ class Clone6GLibrary(Resource):
                     return {"message": f"Updated to commit id '{sixglibrary_handler.repository_handler.git_commit_id}' and pull the local 6G-Library repository"}, 200
             else:
                 return {"message": "6G-Library repository is cloned, but a git pull has been done"}, 200
-        except ValueError as e:
-            return abort(400, e)
-        except GitCommandError as e:
-            return abort(400, e.args[0])
-        except InvalidGitRepositoryError as e:
-            return abort(500, e)
-        except GitError as e:
-            return abort(500, e)
-        except Exception as e:
-            return abort(422, e)
+        except CustomException as e:
+            return abort(e.error_code, str(e))
 
-@sixglibrary_namespace.route("/components")
+@sixglibrary_namespace.route("/components/")
 class Components6GLibrary(Resource):
 
     parser_get = reqparse.RequestParser()
@@ -77,34 +70,20 @@ class Components6GLibrary(Resource):
             sixglibrary_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id)
             sixglibrary_handler.git_clone_6glibrary()
             components = sixglibrary_handler.extract_components_6glibrary()
-            if components:
-                if branch is not None:
-                    return {
-                        "branch": branch, 
-                        "components": components
-                        }, 200
-                elif commit_id is not None:
-                    return {
-                        "commit_id": commit_id, 
-                        "components": components
-                        }, 200
-                else:
-                    return {
-                        "branch": sixglibrary_handler.git_6glibrary_branch, 
-                        "components": components
-                        }, 200
+            if branch is not None:
+                return {
+                    "branch": branch, 
+                    "components": components
+                    }, 200
+            elif commit_id is not None:
+                return {
+                    "commit_id": commit_id, 
+                    "components": components
+                    }, 200
             else:
-                if branch is not None:
-                    return {"message": f"No components in the '{branch}' branch of 6G-Library"}, 404
-                elif commit_id is not None:
-                    return {"message": f"No components in the '{commit_id}' commit of 6G-Library"}, 404
-                else:
-                    return {"message": f"No components in the '{self.sixglibrary_handler.git_6glibrary_branch}' branch of 6G-Library"}, 404
-        except ValueError as e:
-            return abort(400, e)
-        except InvalidGitRepositoryError as e:
-            return abort(500, e)
-        except GitError as e:
-            return abort(500, e)
-        except Exception as e:
-            return abort(422, e)
+                return {
+                    "branch": sixglibrary_handler.git_6glibrary_branch, 
+                    "components": components
+                    }, 200
+        except CustomException as e:
+            return abort(e.error_code, str(e))

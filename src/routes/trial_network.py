@@ -1,12 +1,9 @@
 from flask_restx import Namespace, Resource, reqparse, abort
 from werkzeug.datastructures import FileStorage
-from werkzeug.utils import secure_filename
-from yaml import safe_load, YAMLError
-from pymongo.errors import ConnectionFailure, CollectionInvalid, ConfigurationError
-from git.exc import GitCommandError
 
 from src.trial_network.trial_network_queries import get_trial_networks, create_trial_network, get_descriptor_trial_network, get_status_trial_network, update_status_trial_network, delete_trial_network
 from src.callback.jenkins_handler import JenkinsHandler
+from src.exceptions.exceptions_handler import CustomException
 
 trial_network_namespace = Namespace(
     name="trial_network",
@@ -26,23 +23,10 @@ class CreateTrialNetwork(Resource):
         """
         try:
             descriptor_file = self.parser.parse_args()["descriptor"]
-            filename = secure_filename(descriptor_file.filename)
-            if '.' in filename and filename.split('.')[-1].lower() in ['yml', 'yaml']:
-                descriptor = safe_load(descriptor_file.stream)
-                tn_id = create_trial_network(descriptor)
-                return {"tn_id": tn_id}, 201
-            else:
-                return abort(400, "Invalid descriptor format, only 'yml' or 'yaml' files will be further processed.")
-        except CollectionInvalid as e:
-            return abort(404, e)
-        except YAMLError as e:
-            return abort(422, f"Malformed or insecure descriptor received: '{e}'.")
-        except ConfigurationError as e:
-            return abort(500, e)
-        except ConnectionFailure as e:
-            return abort(503, e)
-        except Exception as e:
-            return abort(422, e)
+            tn_id = create_trial_network(descriptor_file)
+            return {"tn_id": tn_id}, 201
+        except CustomException as e:
+            return abort(e.error_code, str(e))
 
 @trial_network_namespace.route("/<string:tn_id>")
 class TrialNetwork(Resource):
@@ -58,22 +42,14 @@ class TrialNetwork(Resource):
         try:
             sorted_descriptor = get_descriptor_trial_network(tn_id)
             return sorted_descriptor, 200
-        except ValueError as e:
-            return abort(400, e)
-        except CollectionInvalid as e:
-            return abort(404, e)
-        except ConfigurationError as e:
-            return abort(500, e)
-        except ConnectionFailure as e:
-            return abort(503, e)
-        except Exception as e:
-            return abort(422, e)
+        except CustomException as e:
+            return abort(e.error_code, str(e))
 
     @trial_network_namespace.expect(parser_put)
     def put(self, tn_id):
         """
         Trial network component deployment begins
-        Can specify a branch or a commit_id of the 6G-Library. If nothing is specified, the main branch will be used
+        **Can specify a branch or a commit_id of the 6G-Library. If nothing is specified, the main branch will be used**
         """
         try:
             branch = self.parser_put.parse_args()["branch"]
@@ -82,18 +58,8 @@ class TrialNetwork(Resource):
             self.jenkins_handler = JenkinsHandler()
             self.jenkins_handler.deploy_trial_network(tn_id, branch=branch, commit_id=commit_id)
             return {"message": "Trial network start deployment with jenkins"}, 200
-        except ValueError as e:
-            return abort(400, e)
-        except GitCommandError as e:
-            return abort(400, e.args[0])
-        except CollectionInvalid as e:
-            return abort(404, e)
-        except ConfigurationError as e:
-            return abort(500, e)
-        except ConnectionFailure as e:
-            return abort(503, e)
-        except Exception as e:
-            return abort(422, e)
+        except CustomException as e:
+            return abort(e.error_code, str(e))
     
     def delete(self, tn_id):
         """
@@ -101,17 +67,9 @@ class TrialNetwork(Resource):
         """
         try:
             delete_trial_network(tn_id)
-            return {"message": f"The trial network with identifier {tn_id} has been removed from the database"}, 200
-        except ValueError as e:
-            return abort(400, e)
-        except CollectionInvalid as e:
-            return abort(404, e)
-        except ConfigurationError as e:
-            return abort(500, e)
-        except ConnectionFailure as e:
-            return abort(503, e)
-        except Exception as e:
-            return abort(422, e)
+            return {"message": f"The trial network with identifier '{tn_id}' has been removed from the database"}, 200
+        except CustomException as e:
+            return abort(e.error_code, str(e))
 
 @trial_network_namespace.route("s/") 
 class TrialNetworks(Resource):
@@ -122,17 +80,12 @@ class TrialNetworks(Resource):
         """
         try:
             trial_networks = get_trial_networks()
-            return {"tn_ids": trial_networks}, 200
-        except ValueError as e:
-            return abort(400, e)
-        except CollectionInvalid as e:
-            return abort(404, e)
-        except ConfigurationError as e:
-            return abort(500, e)
-        except ConnectionFailure as e:
-            return abort(503, e)
-        except Exception as e:
-            return abort(422, e)
+            if trial_networks:
+                return {"tn_ids": trial_networks}, 200
+            else:
+                return abort(404, "No trial networks stored in 'trial_network' collection in the database tnlcm-database")
+        except CustomException as e:
+            return abort(e.error_code, str(e))
 
 @trial_network_namespace.route("/status/<string:tn_id>") 
 class StatusTrialNetwork(Resource):
@@ -144,16 +97,8 @@ class StatusTrialNetwork(Resource):
         try:
             status_trial_network = get_status_trial_network(tn_id)
             return status_trial_network, 200
-        except ValueError as e:
-            return abort(400, e)
-        except CollectionInvalid as e:
-            return abort(404, e)
-        except ConfigurationError as e:
-            return abort(500, e)
-        except ConnectionFailure as e:
-            return abort(503, e)
-        except Exception as e:
-            return abort(422, e)
+        except CustomException as e:
+            return abort(e.error_code, str(e))
     
     parser_put = reqparse.RequestParser()
     parser_put.add_argument("new_status", type=str, required=True)
@@ -166,14 +111,6 @@ class StatusTrialNetwork(Resource):
         try:
             new_status = self.parser_put.parse_args()["new_status"]
             update_status_trial_network(tn_id, new_status)
-            return {"message": f"The status of the trial network with identifier {tn_id} has been updated to {new_status}"}, 200
-        except ValueError as e:
-            return abort(400, e)
-        except CollectionInvalid as e:
-            return abort(404, e)
-        except ConfigurationError as e:
-            return abort(500, e)
-        except ConnectionFailure as e:
-            return abort(503, e)
-        except Exception as e:
-            return abort(422, e)
+            return {"message": f"The status of the trial network with identifier '{tn_id}' has been updated to '{new_status}'"}, 200
+        except CustomException as e:
+            return abort(e.error_code, str(e))
