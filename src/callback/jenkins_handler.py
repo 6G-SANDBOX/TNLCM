@@ -1,7 +1,8 @@
 import os
 
-from jenkins import Jenkins, JenkinsException
+from jenkins import Jenkins
 from requests import post
+from requests.exceptions import RequestException
 from json import load, dump
 from base64 import b64decode
 from time import sleep
@@ -28,7 +29,8 @@ class JenkinsHandler:
         if self.jenkins_server and self.jenkins_user and self.jenkins_password:
             try:
                 self.jenkins_client = Jenkins(self.jenkins_server, username=self.jenkins_user, password=self.jenkins_password)
-            except JenkinsException:
+                self.jenkins_client.get_whoami()
+            except RequestException:
                 raise JenkinsConnectionError("Error establishing connection to Jenkins", 500)
         else:
             raise VariablesNotDefinedInEnvError("Add the value of the variables JENKINS_SERVER, JENKINS_USER and JENKINS_PASSWORD in the .env file", 500)
