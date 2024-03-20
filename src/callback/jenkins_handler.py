@@ -42,12 +42,10 @@ class JenkinsHandler:
     def save_decoded_information(self, data):
         if os.path.isfile(decoded_component_information_file_path):
             os.remove(decoded_component_information_file_path)
-        decoded_data = {}
-        for key, value in data.items():
-            decoded_data[key] = b64decode(value).decode("utf-8")
+        data["result_msg"] = b64decode(data["result_msg"]).decode("utf-8")
         with open(decoded_component_information_file_path, "w") as decoded_information_file:
-            dump(decoded_data, decoded_information_file)
-        result_msg = decoded_data["result_msg"]
+            dump(data, decoded_information_file)
+        result_msg = data["result_msg"]
         with open(report_components_jenkins_file_path, "a") as result_msg_file:
             result_msg_file.write(result_msg)
 
@@ -96,6 +94,7 @@ class JenkinsHandler:
                             last_successful_build_number = self.jenkins_client.get_job_info(name=self.jenkins_job_name)["lastSuccessfulBuild"]["number"]
                             if last_successful_build_number == last_build_number:
                                 sleep(5)
+                                # TODO: Check if result is ok or not
                                 self.rename_decoded_information_file(component_name + "_" + tn_id + ".json")
             else:
                 # Raise and save status trial network
