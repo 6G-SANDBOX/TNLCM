@@ -1,5 +1,3 @@
-from json import loads
-
 def sort_descriptor(descriptor):
 
     components = descriptor["trial_network"]
@@ -19,9 +17,12 @@ def sort_descriptor(descriptor):
     return {"trial_network": ordered_components}
 
 def check_component_descriptor(descriptor, component):
+    is_component = False
     for component_name, component_data in descriptor.items():
-        return component_name == component and component_data is not None
-    return False
+        if component_name == component and component_data is not None:
+            is_component = True
+            break
+    return is_component
 
 def add_component_descriptor(descriptor, component_name, component_data):
     descriptor[component_name] = component_data
@@ -31,7 +32,7 @@ def add_component_tn_vxlan(descriptor):
     if not check_component_descriptor(descriptor, "tn_vxlan"):
         component_data = {
             "public": {
-                "one_vxlan_name": "tn_vxlan_review"
+                "one_vxlan_name": "tn_vxlan"
             }
         }
         return add_component_descriptor(descriptor, "tn_vxlan", component_data)
