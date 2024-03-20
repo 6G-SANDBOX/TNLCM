@@ -88,11 +88,9 @@ class JenkinsHandler:
                         response = post(jenkins_build_job_url, auth=(self.jenkins_user, self.jenkins_token), files=file)
                         if response.status_code == 201:
                             last_build_number = self.jenkins_client.get_job_info(name=self.jenkins_job_name)["nextBuildNumber"]
-                            last_completed_builder = self.jenkins_client.get_job_info(name=self.jenkins_job_name)["lastCompletedBuild"]["number"]
-                            while last_build_number != last_completed_builder:
+                            while last_build_number != self.jenkins_client.get_job_info(name=self.jenkins_job_name)["lastCompletedBuild"]["number"]:
                                 sleep(15)
-                            last_successful_build_number = self.jenkins_client.get_job_info(name=self.jenkins_job_name)["lastSuccessfulBuild"]["number"]
-                            if last_successful_build_number == last_build_number:
+                            if self.jenkins_client.get_job_info(name=self.jenkins_job_name)["lastSuccessfulBuild"]["number"] == last_build_number:
                                 sleep(5)
                                 # TODO: Check if result is ok or not
                                 self.rename_decoded_information_file(component_name + "_" + tn_id + ".json")
