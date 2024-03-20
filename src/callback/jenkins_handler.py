@@ -8,7 +8,7 @@ from time import sleep
 
 from src.temp.temp_file_handler import TempFileHandler
 from src.trial_network.trial_network_descriptor import get_component_public
-from src.trial_network.trial_network_queries import get_descriptor_trial_network, update_status_trial_network
+from src.trial_network.trial_network_queries import get_descriptor_trial_network, update_status_trial_network, save_report_trial_network
 from src.sixglibrary.sixglibrary_handler import SixGLibraryHandler
 
 report_directory = os.path.join(os.getcwd(), "src", "callback", "reports")
@@ -91,13 +91,17 @@ class JenkinsHandler:
                             while last_build_number != self.jenkins_client.get_job_info(name=self.jenkins_job_name)["lastCompletedBuild"]["number"]:
                                 sleep(15)
                             if self.jenkins_client.get_job_info(name=self.jenkins_job_name)["lastSuccessfulBuild"]["number"] == last_build_number:
-                                sleep(5)
+                                sleep(2)
                                 # TODO: Check if result is ok or not
                                 self.rename_decoded_information_file(component_name + "_" + tn_id + ".json")
             else:
                 # Raise and save status trial network
                 print("Component not in 6G-Library")
         update_status_trial_network(tn_id, "finished")
+        if os.path.exists(report_components_jenkins_file_path):
+            save_report_trial_network(tn_id, report_components_jenkins_file_path)
+        else:
+            raise JenkinsException("")
 
     def jenkins_update_marketplace(self):
         # TODO: pipeline to update the TNLCM version in marketplace

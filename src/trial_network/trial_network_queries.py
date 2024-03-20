@@ -87,3 +87,12 @@ def delete_trial_network(tn_id):
     query = {"tn_id": tn_id}
     mongo_client.delete_data(collection_name="trial_network", query=query)
     mongo_client.disconnect()
+
+def save_report_trial_network(tn_id, report_components_jenkins_content):
+    mongo_client = create_mongo_client()
+    with open(report_components_jenkins_content, "r") as file:
+        markdown_content = file.read()
+    query = {"tn_id": tn_id}
+    projection = {"$set": {"report_deploy_trial_network": markdown_content}}
+    mongo_client.update_data(collection_name="trial_network", query=query, projection=projection)
+    mongo_client.disconnect()
