@@ -93,6 +93,6 @@ def save_report_trial_network(tn_id, report_components_jenkins_content):
     with open(report_components_jenkins_content, "r") as file:
         markdown_content = file.read()
     query = {"tn_id": tn_id}
-    projection = {"$set": {"report_deploy_trial_network": markdown_content}}
+    projection = {"$set": {"tn_report_jenkins": markdown_content}}
     mongo_client.update_data(collection_name="trial_network", query=query, projection=projection)
     mongo_client.disconnect()
