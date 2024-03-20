@@ -164,7 +164,7 @@ class StatusTrialNetwork(Resource):
         Update the status of the Trial network specified in tn_id
         """
         try:
-            new_status = self.parser_put.parse_args()['new_status']
+            new_status = self.parser_put.parse_args()["new_status"]
             update_status_trial_network(tn_id, new_status)
             return {"message": f"The status of the trial network with identifier {tn_id} has been updated to {new_status}"}, 200
         except ValueError as e:
