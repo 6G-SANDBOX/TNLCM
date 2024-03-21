@@ -8,7 +8,7 @@ from waitress import serve
 from dotenv import load_dotenv
 
 from config import Config
-from src.routes import trial_network_namespace, callback_namespace, sixglibrary_namespace
+from src.routes import trial_network_namespace, callback_namespace, sixglibrary_namespace, users_namespace
 from logs.log_handler import LogHandler
 
 app = Flask(__name__)
@@ -29,6 +29,7 @@ api = Api(
 api.add_namespace(trial_network_namespace, path="/tnlcm/trial_network")
 api.add_namespace(callback_namespace, path="/tnlcm/callback")
 api.add_namespace(sixglibrary_namespace, path="/tnlcm/6glibrary")
+api.add_namespace(users_namespace, path="/tnlcm/user")
 
 LogHandler()
 
