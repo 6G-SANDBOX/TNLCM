@@ -51,9 +51,9 @@ def create_trial_network(descriptor_file):
     return tn_id
 
 def get_trial_network(tn_id):
+    mongo_client = create_mongo_client()
     query = {"tn_id": tn_id}
     projection = {"_id": 0}
-    mongo_client = create_mongo_client()
     trial_network = mongo_client.find_data(collection_name="trial_network", query=query, projection=projection)
     mongo_client.disconnect()
     if not trial_network:
