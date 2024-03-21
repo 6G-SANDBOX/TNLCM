@@ -2,6 +2,7 @@ import os
 
 from flask import Flask
 from flask_restx import Api
+from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from waitress import serve
 from dotenv import load_dotenv
@@ -12,6 +13,8 @@ from logs.log_handler import LogHandler
 
 app = Flask(__name__)
 CORS(app)
+JWTManager(app)
+
 app.config.from_object(Config)
 load_dotenv()
 
