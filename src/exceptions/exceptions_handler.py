@@ -84,6 +84,15 @@ class TrialNetworkDescriptorInvalidContentError(CustomTrialNetworkError):
     """Error thrown when the descriptor has semantic faults"""
     pass
 
+# User exceptions
+class CustomUserError(CustomException):
+    """Base class for user related errors"""
+    pass
+
+class UserEmailInvalidError(CustomUserError):
+    """Error thrown when invalid format email"""
+    pass
+
 # Jenkins exceptions
 class CustomJenkinsError(CustomException):
     """Base class for Jenkins related exceptions"""
