@@ -111,7 +111,7 @@ If the access token expires, it can be refreshed by using the refresh token. The
 
 ## Report with the results of the Trial Network deployment
 
-The file with the report after deploying all the components in Jenkins is stored in the path **tnlcm/src/callback/reports**. By default, the reports folder is not created until the components are deployed. The file has a markdown extension and is named report_components_jenkins.md.
+The file with the report after deploying all the components in Jenkins is stored in the path **tnlcm/src/callback/reports**. By default, the reports folder is not created until the components are deployed. The file has a markdown extension and is named "current_user" + "tn_id" + ".md".
 
 Several tools can be used to open the file:
 
