@@ -20,7 +20,7 @@ Download the main branch from the TNLCM repository
 
 Clone repository:
 
-        git clone https://github.com/CarlosAndreo/TNLCM.git
+        git clone https://github.com/6G-SANDBOX/TNLCM
 
 ### Create .env using .env.template
 
@@ -45,7 +45,7 @@ Once Docker is installed, open a terminal where the docker-compose.yml file is s
 
         docker compose up
 
-### Create python environment and install libraries. 
+### Create Python environment and install libraries
 
 The environment must be created inside the TNLCM project
 
@@ -77,7 +77,37 @@ With the environment activated, start TNLCM
 
     python app.py
 
-A Swagger UI will be available in which API endpoints will be visible
+A Swagger UI will be available at the url http://localhost:5000 where the API with the endpoints can be seen
+
+## How to use Swagger UI
+
+The API set forth in the TNLCM is as follows:
+
+![api](./images/api.png)
+
+If it is the first time using the API it is necessary to create a user:
+
+![createUser](./images/createUser.png)
+
+Once the user has been created or if it has been previously created, add the user and its password in the green **Authorize** box:
+
+![addUser](./images/addUser.png)
+
+Once the user has been added, an access token and its refresh token can be generated. This access token has a duration of 45 minutes (can be modified):
+
+![tokens](./images/obtainTokens.png)
+
+The next step is to add the token in the green **Authorize** box. It is required to put the word **Bearer**, a space and then the token. An example is shown:
+
+![accessToken](./images/accessToken.png)
+
+Now, requests that involve having an access token can be made
+
+If the access token expires, it can be refreshed by using the refresh token. The token in the green **Authorize** box must be updated with the refresh token and the post request must be made:
+
+![refreshToken](./images/refreshToken.png)
+
+![updateAccessToken](./images/updateAccessToken.png)
 
 ## Report with the results of the Trial Network deployment
 
