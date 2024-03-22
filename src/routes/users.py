@@ -36,7 +36,7 @@ class Users(Resource):
         """
         try:
             jwt_identity = get_jwt_identity()
-            auth_handler = AuthHandler(jwt_identity)
+            auth_handler = AuthHandler(jwt_identity=jwt_identity)
             current_user = auth_handler.get_current_user_from_jwt()
             return {"username": current_user}, 200
         except PyJWTError as e:
@@ -61,7 +61,7 @@ class Users(Resource):
             username = self.parser_post.parse_args()["username"]
             password = self.parser_post.parse_args()["password"]
 
-            auth_handler = AuthHandler(username, email, password)
+            auth_handler = AuthHandler(username=username, email=email, password=password)
             user = auth_handler.get_email()
             if user:
                 return abort(409, "Email already created in the database")
@@ -117,7 +117,7 @@ class UserTokenRefresh(Resource):
         Refresh tokens for user
         """
         jwt_identity = get_jwt_identity()
-        auth_handler = AuthHandler(jwt_identity)
+        auth_handler = AuthHandler(jwt_identity=jwt_identity)
         current_user = auth_handler.get_current_user_from_jwt()
         try:
             new_access_token = create_access_token(identity=current_user, expires_delta=timedelta(minutes=EXP_MINUTES_ACCESS_TOKEN))
