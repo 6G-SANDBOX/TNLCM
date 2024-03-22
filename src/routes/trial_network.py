@@ -42,7 +42,6 @@ class CreateTrialNetwork(Resource):
             trial_network_handler = TrialNetworkHandler(current_user, tn_id)
             if not trial_network_handler.get_trial_network():
                 trial_network_descriptor_handler.check_descriptor()
-                # trial_network_descriptor_handler.convert_descriptor_to_json()
                 trial_network_descriptor_handler.add_component_tn_vxlan()
                 trial_network_descriptor_handler.add_component_tn_bastion()
                 tn_raw_descriptor, tn_sorted_descriptor = trial_network_descriptor_handler.sort_descriptor()
