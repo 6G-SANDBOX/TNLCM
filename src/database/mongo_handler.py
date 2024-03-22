@@ -10,6 +10,7 @@ COLLECTIONS = ["trial_network", "trial_network_user"]
 class MongoHandler:
 
     def __init__(self):
+        """Constructor"""
         self.database = os.getenv("MONGO_DATABASE")
         self.uri = os.getenv("MONGO_URI")
         if self.database and self.uri:
@@ -22,9 +23,11 @@ class MongoHandler:
             raise VariablesNotDefinedInEnvError("Add the value of the variables MONGO_DATABASE and MONGO_URI in the .env file", 500)
 
     def disconnect(self):
+        """Delete connection"""
         self.client.close()
     
     def insert_data(self, collection_name, doc):
+        """Insert data into the database"""
         if collection_name in COLLECTIONS:
             try:
                 collection = self.db[collection_name]
@@ -35,6 +38,7 @@ class MongoHandler:
             raise MongoDBCollectionError(f"Collection '{collection_name}' not found in database '{self.database}'", 404)
     
     def find_data(self, collection_name, query=None, projection=None):
+        """Find data in the database"""
         if collection_name in COLLECTIONS:
             try:
                 collection = self.db[collection_name]
@@ -45,6 +49,7 @@ class MongoHandler:
             raise MongoDBCollectionError(f"Collection '{collection_name}' not found in database '{self.database}'", 404) 
 
     def update_data(self, collection_name, query=None, projection=None):
+        """Update data in the database"""
         if collection_name in COLLECTIONS:
             try:
                 collection = self.db[collection_name]
@@ -55,6 +60,7 @@ class MongoHandler:
             MongoDBCollectionError(f"Collection '{collection_name}' not found in database '{self.database}'", 404)
     
     def delete_data(self, collection_name, query=None, projection=None):
+        """Delete data in the database"""
         if collection_name in COLLECTIONS:
             try:
                 collection = self.db[collection_name]

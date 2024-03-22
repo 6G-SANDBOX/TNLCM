@@ -6,6 +6,7 @@ from src.exceptions.exceptions_handler import SixGLibraryComponentsNotFound
 class SixGLibraryHandler:
 
     def __init__(self, branch=None, commit_id=None):
+        """Constructor"""
         self.git_6glibrary_https_url = os.getenv("GIT_6GLIBRARY_HTTPS_URL")
         self.git_6glibrary_repository_name = os.getenv("GIT_6GLIBRARY_REPOSITORY_NAME")
         self.git_6glibrary_branch = None
@@ -22,9 +23,11 @@ class SixGLibraryHandler:
         self.repository_handler = RepositoryHandler(self.git_6glibrary_https_url, self.git_6glibrary_branch, self.git_6glibrary_commit_id, self.git_6glibrary_repository_name)
 
     def git_clone_6glibrary(self):
+        """Clone 6G-Library"""
         return self.repository_handler.git_clone_repository()
 
     def extract_components_6glibrary(self):
+        """6G-Library components are extracted"""
         components = None
         if os.path.exists(self.repository_handler.local_directory) and os.path.exists(os.path.join(self.repository_handler.local_directory, ".git")):
             components = [folder for folder in os.listdir(self.repository_handler.local_directory)

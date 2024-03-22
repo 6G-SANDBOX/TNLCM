@@ -8,9 +8,11 @@ TEMP_FILES_PATH = os.path.join(os.getcwd(), "src", "temp", "files")
 class TempFileHandler:
 
     def __init__(self):
+        """Constructor"""
         os.makedirs(TEMP_FILES_PATH, exist_ok=True)
     
     def create_component_temp_file(self, component_name, component_public, tn_vxlan_id=None):
+        """Create temporary files for each component that is deployed in the pipeline and returns the path to the file"""
         with NamedTemporaryFile(delete=False, dir=TEMP_FILES_PATH, suffix=".yaml", mode='w') as component_temp_file:
             if component_public is None:
                 component_public = {}
