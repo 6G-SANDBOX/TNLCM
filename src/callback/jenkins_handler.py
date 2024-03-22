@@ -55,10 +55,10 @@ class JenkinsHandler:
         except UnicodeDecodeError:
             raise CustomUnicodeDecodeError("Unicode decoding error", 500)
     
-    def jenkins_parameters(self, component_name, branch=None, commit_id=None):
+    def jenkins_parameters(self, component_id, component_name, branch=None, commit_id=None):
         """Returns a dictionary with the parameters for each component to be passed to the jenkins pipeline"""
         return {
-            "TN_ID": self.trial_network_handler.tn_id ,
+            "TN_ID": component_id,
             "LIBRARY_COMPONENT_NAME": component_name,
             "LIBRARY_BRANCH": branch or commit_id,
             "DEPLOYMENT_SITE": self.jenkins_deployment_site,
