@@ -46,13 +46,13 @@ class CreateTrialNetwork(Resource):
                 trial_network_descriptor_handler.add_component_tn_bastion()
                 tn_raw_descriptor, tn_sorted_descriptor = trial_network_descriptor_handler.sort_descriptor()
                 trial_network_handler.create_trial_network(tn_raw_descriptor, tn_sorted_descriptor)
-                trial_network_handler.mongo_client.disconnect()
                 return {"tn_id": tn_id}, 201
             else:
-                trial_network_handler.mongo_client.disconnect()
                 return abort(404, f"Trial network with the name '{tn_id}' created by the user '{current_user}' in the trial_network collection in the database '{trial_network_handler.mongo_client.database}'")
         except CustomException as e:
             return abort(e.error_code, str(e))
+        finally:
+            trial_network_handler.mongo_client.disconnect()
 
 @trial_network_namespace.route("/<string:tn_id>")
 class TrialNetwork(Resource):
@@ -72,13 +72,13 @@ class TrialNetwork(Resource):
             trial_network_handler = TrialNetworkHandler(current_user, tn_id)
             if trial_network_handler.get_trial_network():
                 sorted_descriptor = trial_network_handler.get_descriptor_trial_network()
-                trial_network_handler.mongo_client.disconnect()
                 return sorted_descriptor, 200
             else:
-                trial_network_handler.mongo_client.disconnect()
                 return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the trial_network collection in the database '{trial_network_handler.mongo_client.database}'")
         except CustomException as e:
             return abort(e.error_code, str(e))
+        finally:
+            trial_network_handler.mongo_client.disconnect()
 
     @trial_network_namespace.doc(security="Bearer Auth")
     @jwt_required()
@@ -97,13 +97,13 @@ class TrialNetwork(Resource):
             if trial_network_handler.get_trial_network():
                 self.jenkins_handler = JenkinsHandler(trial_network_handler)
                 self.jenkins_handler.deploy_trial_network(branch=branch, commit_id=commit_id)
-                trial_network_handler.mongo_client.disconnect()
                 return {"message": "Trial network start deployment with jenkins"}, 200
             else:
-                trial_network_handler.mongo_client.disconnect()
                 return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the trial_network collection in the database '{trial_network_handler.mongo_client.database}'")
         except CustomException as e:
             return abort(e.error_code, str(e))
+        finally:
+            trial_network_handler.mongo_client.disconnect()
     
     @trial_network_namespace.doc(security="Bearer Auth")
     @jwt_required()
@@ -116,13 +116,13 @@ class TrialNetwork(Resource):
             trial_network_handler = TrialNetworkHandler(current_user, tn_id)
             if trial_network_handler.get_trial_network():
                 trial_network_handler.delete_trial_network()
-                trial_network_handler.mongo_client.disconnect()
                 return {"message": f"The trial network with identifier '{tn_id}' has been removed from the database"}, 200
             else:
-                trial_network_handler.mongo_client.disconnect()
                 return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the trial_network collection in the database '{trial_network_handler.mongo_client.database}'")
         except CustomException as e:
             return abort(e.error_code, str(e))
+        finally:
+            trial_network_handler.mongo_client.disconnect()
 
 @trial_network_namespace.route("s/") 
 class TrialNetworks(Resource):
@@ -138,13 +138,13 @@ class TrialNetworks(Resource):
             trial_network_handler = TrialNetworkHandler(current_user)
             trial_networks = trial_network_handler.get_trial_networks()
             if trial_networks:
-                trial_network_handler.mongo_client.disconnect()
                 return {"tn_ids": trial_networks}, 200
             else:
-                trial_network_handler.mongo_client.disconnect()
                 return abort(404, "No trial networks stored in 'trial_network' collection for the current user")
         except CustomException as e:
             return abort(e.error_code, str(e))
+        finally:
+            trial_network_handler.mongo_client.disconnect()
 
 @trial_network_namespace.route("/status/<string:tn_id>") 
 class StatusTrialNetwork(Resource):
@@ -160,13 +160,13 @@ class StatusTrialNetwork(Resource):
             trial_network_handler = TrialNetworkHandler(current_user, tn_id)
             if trial_network_handler.get_trial_network():
                 status_trial_network = trial_network_handler.get_status_trial_network()
-                trial_network_handler.mongo_client.disconnect()
                 return {"tn_status": status_trial_network}, 200
             else:
-                trial_network_handler.mongo_client.disconnect()
                 return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the trial_network collection in the database '{trial_network_handler.mongo_client.database}'")
         except CustomException as e:
             return abort(e.error_code, str(e))
+        finally:
+            trial_network_handler.mongo_client.disconnect()
     
     parser_put = reqparse.RequestParser()
     parser_put.add_argument("new_status", type=str, required=True)
@@ -185,10 +185,10 @@ class StatusTrialNetwork(Resource):
             trial_network_handler = TrialNetworkHandler(current_user, tn_id)
             if trial_network_handler.get_trial_network():
                 trial_network_handler.update_status_trial_network(new_status)
-                trial_network_handler.mongo_client.disconnect()
                 return {"message": f"The status of the trial network with identifier '{tn_id}' has been updated to '{new_status}'"}, 200
             else:
-                trial_network_handler.mongo_client.disconnect()
                 return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the trial_network collection in the database '{trial_network_handler.mongo_client.database}'")
         except CustomException as e:
             return abort(e.error_code, str(e))
+        finally:
+            trial_network_handler.mongo_client.disconnect()

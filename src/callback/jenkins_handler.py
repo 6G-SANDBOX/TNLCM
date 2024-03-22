@@ -115,19 +115,14 @@ class JenkinsHandler:
                                 if os.path.isfile(DECODED_COMPONENT_INFORMATION_FILE_PATH):
                                     os.rename(DECODED_COMPONENT_INFORMATION_FILE_PATH, os.path.join(REPORT_DIRECTORY, component_name + "_" + component_id + ".json"))
                                 else:
-                                    self.trial_network_handler.mongo_client.disconnect()
                                     raise JenkinsComponentReportNotFoundError(f"The '{component_name}' component deployment report file is not found", 500)
                             else:
-                                self.trial_network_handler.mongo_client.disconnect()
                                 raise JenkinsComponentPipelineError(f"The pipeline for the component '{component_name}' has failed", 500)
                         else:
-                            self.trial_network_handler.mongo_client.disconnect()
                             raise JenkinsResponseError(f"Error in the response received by Jenkins when trying to deploy the '{component_name}' component", response.status_code)
                 else:
-                    self.trial_network_handler.mongo_client.disconnect()
                     raise JenkinsComponentFileNotFoundError("Component file not found", 404)
             else:
-                self.trial_network_handler.mongo_client.disconnect()
                 if branch is not None:
                     raise SixGLibraryComponentNotFound(f"The '{component_name}' component is not in '{branch}' branch of the 6G-Library", 404)
                 else:
@@ -136,9 +131,7 @@ class JenkinsHandler:
         self.trial_network_handler.update_component_id_trial_network(component_id)
         if os.path.exists(REPORT_COMPONENTS_JENKINS_FILE_PATH):
             self.trial_network_handler.save_report_trial_network(os.rename(REPORT_COMPONENTS_JENKINS_FILE_PATH, os.path.join(REPORT_DIRECTORY, current_user + tn_id + ".md")))
-            self.trial_network_handler.mongo_client.disconnect()
         else:
-            self.trial_network_handler.mongo_client.disconnect()
             raise JenkinsDeploymentReportNotFoundError("The trial network report file has not been found", 500)
 
     def jenkins_update_marketplace(self):
