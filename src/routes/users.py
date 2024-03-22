@@ -4,7 +4,7 @@ from flask_restx import Resource, Namespace, reqparse, abort
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, create_refresh_token
 from jwt.exceptions import PyJWTError
 
-from src.auth.auth_queries import get_current_user_from_jwt, get_username, get_email, create_user, check_password
+from src.auth.auth_handler import AuthHandler
 from src.exceptions.exceptions_handler import CustomException
 
 EXP_MINUTES_ACCESS_TOKEN = 45
@@ -35,12 +35,16 @@ class Users(Resource):
         Retrieve current user
         """
         try:
-            current_user = get_current_user_from_jwt(get_jwt_identity())
-            return {"username": current_user[0]["username"]}, 200
+            jwt_identity = get_jwt_identity()
+            auth_handler = AuthHandler(jwt_identity)
+            current_user = auth_handler.get_current_user_from_jwt()
+            return {"username": current_user}, 200
         except PyJWTError as e:
             return abort(404, str(e))
         except CustomException as e:
             return abort(e.error_code, str(e))
+        finally:
+            auth_handler.mongo_client.disconnect()
 
     parser_post = reqparse.RequestParser()
     parser_post.add_argument("email", type=str, required=True)
@@ -56,16 +60,20 @@ class Users(Resource):
             email = self.parser_post.parse_args()["email"]
             username = self.parser_post.parse_args()["username"]
             password = self.parser_post.parse_args()["password"]
-            user = get_email(email)
+
+            auth_handler = AuthHandler(username, email, password)
+            user = auth_handler.get_email()
             if user:
                 return abort(409, "Email already created in the database")
-            user = get_username(username)
+            user = auth_handler.get_username()
             if user:
                 return abort(409, "Username already created in the database")
-            create_user(email, username, password)
+            auth_handler.create_user()
             return {"message": "User added"}, 201
         except CustomException as e:
             return abort(e.error_code, str(e))
+        finally:
+            auth_handler.mongo_client.disconnect()
 
 @users_namespace.route("/login")
 class UserLogin(Resource):
@@ -81,11 +89,12 @@ class UserLogin(Resource):
             if not auth or not auth.username or not auth.password:
                 return abort(401, "Could not verify")
 
-            username = get_username(auth.username)
+            auth_handler = AuthHandler(username=auth.username, password=auth.password)
+            username = auth_handler.get_username()
             if not username:
                 return abort(404, "User not found")
             username = username[0]["username"]
-            if check_password(username, auth.password):
+            if auth_handler.check_password():
                 access_token = create_access_token(identity=username, expires_delta=timedelta(minutes=EXP_MINUTES_ACCESS_TOKEN))
                 refresh_token = create_refresh_token(identity=username, expires_delta=timedelta(days=EXP_DAYS_REFRESH_TOKEN))
                 return {
@@ -95,6 +104,8 @@ class UserLogin(Resource):
             return abort(401, "Could not verify")
         except CustomException as e:
             return abort(e.error_code, str(e))
+        finally:
+            auth_handler.mongo_client.disconnect()
 
 @users_namespace.route("/refresh")
 class UserTokenRefresh(Resource):
@@ -105,8 +116,9 @@ class UserTokenRefresh(Resource):
         """
         Refresh tokens for user
         """
-        current_user = get_current_user_from_jwt(get_jwt_identity())
-        current_user = current_user[0]["username"]
+        jwt_identity = get_jwt_identity()
+        auth_handler = AuthHandler(jwt_identity)
+        current_user = auth_handler.get_current_user_from_jwt()
         try:
             new_access_token = create_access_token(identity=current_user, expires_delta=timedelta(minutes=EXP_MINUTES_ACCESS_TOKEN))
             return {"access_token": new_access_token}, 201
@@ -114,3 +126,5 @@ class UserTokenRefresh(Resource):
             return abort(404, str(e))
         except CustomException as e:
             return abort(e.error_code, str(e))
+        finally:
+            auth_handler.mongo_client.disconnect()
