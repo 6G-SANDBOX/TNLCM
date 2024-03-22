@@ -7,7 +7,7 @@ from jwt.exceptions import PyJWTError
 from src.auth.auth_queries import get_current_user_from_jwt, get_username, get_email, create_user, check_password
 from src.exceptions.exceptions_handler import CustomException
 
-EXP_MINUTES_ACCESS_TOKEN = 15
+EXP_MINUTES_ACCESS_TOKEN = 45
 EXP_DAYS_REFRESH_TOKEN = 730
 
 users_namespace = Namespace(
@@ -36,7 +36,7 @@ class Users(Resource):
         """
         try:
             current_user = get_current_user_from_jwt(get_jwt_identity())
-            return current_user[0], 200
+            return {"username": current_user[0]["username"]}, 200
         except PyJWTError as e:
             return abort(404, str(e))
         except CustomException as e:
@@ -58,10 +58,10 @@ class Users(Resource):
             password = self.parser_post.parse_args()["password"]
             user = get_email(email)
             if user:
-                return abort(409, "Duplicated email")
+                return abort(409, "Email already created in the database")
             user = get_username(username)
             if user:
-                return abort(409, "Duplicated username")
+                return abort(409, "Username already created in the database")
             create_user(email, username, password)
             return {"message": "User added"}, 201
         except CustomException as e:
