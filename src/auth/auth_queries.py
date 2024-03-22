@@ -11,8 +11,7 @@ def create_mongo_client():
 def get_current_user_from_jwt(jwt_identity):
     mongo_client = create_mongo_client()
     query = {"username": jwt_identity}
-    projection = {"_id": 0, "username": 1}
-    user = mongo_client.find_data(collection_name="trial_network_user", query=query, projection=projection)
+    user = mongo_client.find_data(collection_name="trial_network_user", query=query)
     mongo_client.disconnect()
     return user
 
