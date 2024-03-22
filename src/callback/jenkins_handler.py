@@ -62,8 +62,8 @@ class JenkinsHandler:
         except UnicodeDecodeError:
             raise CustomUnicodeDecodeError("Unicode decoding error", 500)
 
-    def extract_tn_vxlan_id(self, tn_id):
-        component_report_file = os.path.join(REPORT_DIRECTORY, "tn_vxlan_" + tn_id + ".json")
+    def extract_tn_vxlan_id(self, component_id):
+        component_report_file = os.path.join(REPORT_DIRECTORY, "tn_vxlan_" + component_id + ".json")
         if os.path.isfile(component_report_file):
             with open(component_report_file, "r") as file:
                 json_data = load(file)
@@ -85,19 +85,19 @@ class JenkinsHandler:
         temp_file_handler = TempFileHandler()
         descriptor_trial_network = get_descriptor_trial_network(user_created, tn_id)["trial_network"]
         update_status_trial_network(user_created, tn_id, "deploying")
-        component_id = tn_id + "_" + self.generate_random_string(size=7)
+        component_id = user_created + "_" + tn_id + "_" + self.generate_random_string(size=3)
         while check_component_id(user_created, component_id):
-            component_id = tn_id + "_" + self.generate_random_string(size=7)
+            component_id = user_created + "_" + tn_id + "_" + self.generate_random_string(size=3)
         for component_name, component_data in descriptor_trial_network.items():
             if component_name in components_6glibrary:
                 if component_name == "tn_vxlan":
                     component_path_temp_file = temp_file_handler.create_component_temp_file(component_name, get_component_public(component_data))
                 else:
-                    component_path_temp_file = temp_file_handler.create_component_temp_file(component_name, get_component_public(component_data), self.extract_tn_vxlan_id(tn_id))
+                    component_path_temp_file = temp_file_handler.create_component_temp_file(component_name, get_component_public(component_data), self.extract_tn_vxlan_id(component_id))
                 if os.path.isfile(component_path_temp_file):
                     with open(component_path_temp_file, 'rb') as component_temp_file:
                         file = {"FILE": (component_path_temp_file, component_temp_file)}
-                        jenkins_build_job_url = self.jenkins_client.build_job_url(name=self.jenkins_job_name, parameters=self.jenkins_parameters(tn_id, component_name, branch=branch, commit_id=commit_id))
+                        jenkins_build_job_url = self.jenkins_client.build_job_url(name=self.jenkins_job_name, parameters=self.jenkins_parameters(component_id, component_name, branch=branch, commit_id=commit_id))
                         response = post(jenkins_build_job_url, auth=(self.jenkins_user, self.jenkins_token), files=file)
                         if response.status_code == 201:
                             last_build_number = self.jenkins_client.get_job_info(name=self.jenkins_job_name)["nextBuildNumber"]
@@ -106,7 +106,7 @@ class JenkinsHandler:
                             if self.jenkins_client.get_job_info(name=self.jenkins_job_name)["lastSuccessfulBuild"]["number"] == last_build_number:
                                 sleep(2)
                                 if os.path.isfile(DECODED_COMPONENT_INFORMATION_FILE_PATH):
-                                    os.rename(DECODED_COMPONENT_INFORMATION_FILE_PATH, os.path.join(REPORT_DIRECTORY, component_name + "_" + tn_id + ".json"))
+                                    os.rename(DECODED_COMPONENT_INFORMATION_FILE_PATH, os.path.join(REPORT_DIRECTORY, component_name + "_" + component_id + ".json"))
                                 else:
                                     raise JenkinsComponentReportNotFoundError(f"The '{component_name}' component deployment report file is not found", 500)
                             else:
@@ -121,7 +121,7 @@ class JenkinsHandler:
                 else:
                     raise SixGLibraryComponentNotFound(f"The '{component_name}' component is not in commit_id '{commit_id}' of the 6G-Library", 404)
         update_status_trial_network(user_created, tn_id, "finished")
-        update_component_id_trial_netword(user_created, tn_id, component_id)
+        update_component_id_trial_network(user_created, tn_id, component_id)
         if os.path.exists(REPORT_COMPONENTS_JENKINS_FILE_PATH):
             save_report_trial_network(tn_id, REPORT_COMPONENTS_JENKINS_FILE_PATH)
         else:
