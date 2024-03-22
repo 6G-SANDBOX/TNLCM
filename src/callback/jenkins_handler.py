@@ -86,7 +86,6 @@ class JenkinsHandler:
         descriptor_trial_network = get_descriptor_trial_network(user_created, tn_id)["trial_network"]
         update_status_trial_network(user_created, tn_id, "deploying")
         component_id = tn_id + "_" + self.generate_random_string(size=7)
-        update_component_id_trial_network(user_created, tn_id, component_id)
         while check_component_id(user_created, component_id):
             component_id = tn_id + "_" + self.generate_random_string(size=7)
         for component_name, component_data in descriptor_trial_network.items():
