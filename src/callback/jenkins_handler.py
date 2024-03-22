@@ -6,16 +6,18 @@ from requests.exceptions import RequestException
 from json import load, dump
 from base64 import b64decode
 from time import sleep
+from string import ascii_lowercase, digits
+from random import choice
 
 from src.temp.temp_file_handler import TempFileHandler
 from src.trial_network.trial_network_descriptor import get_component_public
-from src.trial_network.trial_network_queries import get_descriptor_trial_network, update_status_trial_network, save_report_trial_network
+from src.trial_network.trial_network_queries import get_descriptor_trial_network, update_status_trial_network, save_report_trial_network, check_component_id, update_component_id_trial_network
 from src.sixglibrary.sixglibrary_handler import SixGLibraryHandler
 from src.exceptions.exceptions_handler import JenkinsConnectionError, VariablesNotDefinedInEnvError, KeyNotFoundError, CustomUnicodeDecodeError, SixGLibraryComponentNotFound, JenkinsComponentFileNotFoundError, JenkinsResponseError, JenkinsComponentPipelineError, JenkinsComponentReportNotFoundError, JenkinsDeploymentReportNotFoundError
 
-report_directory = os.path.join(os.getcwd(), "src", "callback", "reports")
-decoded_component_information_file_path = os.path.join(report_directory, "decoded_component_information.json")
-report_components_jenkins_file_path = os.path.join(report_directory, "report_components_jenkins.md")
+REPORT_DIRECTORY = os.path.join(os.getcwd(), "src", "callback", "reports")
+DECODED_COMPONENT_INFORMATION_FILE_PATH = os.path.join(REPORT_DIRECTORY, "decoded_component_information.json")
+REPORT_COMPONENTS_JENKINS_FILE_PATH = os.path.join(REPORT_DIRECTORY, "report_components_jenkins.md")
 
 class JenkinsHandler:
 
@@ -47,39 +49,46 @@ class JenkinsHandler:
     
     def save_decoded_information(self, data):
         try:
-            if os.path.isfile(decoded_component_information_file_path):
-                os.remove(decoded_component_information_file_path)
+            if os.path.isfile(DECODED_COMPONENT_INFORMATION_FILE_PATH):
+                os.remove(DECODED_COMPONENT_INFORMATION_FILE_PATH)
             if "result_msg" not in data:
                 raise KeyNotFoundError(f"The result_msg key has not been received by Jenkins", 400)
             data["result_msg"] = b64decode(data["result_msg"]).decode("utf-8")
-            with open(decoded_component_information_file_path, "w") as decoded_information_file:
+            with open(DECODED_COMPONENT_INFORMATION_FILE_PATH, "w") as decoded_information_file:
                 dump(data, decoded_information_file)
             result_msg = data["result_msg"]
-            with open(report_components_jenkins_file_path, "a") as result_msg_file:
+            with open(REPORT_COMPONENTS_JENKINS_FILE_PATH, "a") as result_msg_file:
                 result_msg_file.write(result_msg)
         except UnicodeDecodeError:
             raise CustomUnicodeDecodeError("Unicode decoding error", 500)
 
     def extract_tn_vxlan_id(self, tn_id):
-        component_report_file = os.path.join(report_directory, "tn_vxlan_" + tn_id + ".json")
+        component_report_file = os.path.join(REPORT_DIRECTORY, "tn_vxlan_" + tn_id + ".json")
         if os.path.isfile(component_report_file):
             with open(component_report_file, "r") as file:
                 json_data = load(file)
                 tn_vxlan_id = json_data["tn_vxlan_id"]
                 return tn_vxlan_id
+    
+    def generate_random_string(self, size=6, chars=ascii_lowercase + digits):
+        return ''.join(choice(chars) for _ in range(size))
 
-    def deploy_trial_network(self, tn_id, branch=None, commit_id=None):
+    def deploy_trial_network(self, user_created, tn_id, branch=None, commit_id=None):
         # Check status trial network, if pending or failed start deploy
         sixglibrary_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id)
         sixglibrary_handler.git_clone_6glibrary()
         components_6glibrary = sixglibrary_handler.extract_components_6glibrary()
-        if not os.path.exists(report_directory):
-            os.makedirs(report_directory)
-        if os.path.isfile(report_components_jenkins_file_path):
-            os.remove(report_components_jenkins_file_path)
+        if not os.path.exists(REPORT_DIRECTORY):
+            os.makedirs(REPORT_DIRECTORY)
+        if os.path.isfile(REPORT_COMPONENTS_JENKINS_FILE_PATH):
+            os.remove(REPORT_COMPONENTS_JENKINS_FILE_PATH)
         temp_file_handler = TempFileHandler()
-        descriptor_trial_network = get_descriptor_trial_network(tn_id)["trial_network"]
-        update_status_trial_network(tn_id, "deploying")
+        descriptor_trial_network = get_descriptor_trial_network(user_created, tn_id)["trial_network"]
+        update_status_trial_network(user_created, tn_id, "deploying")
+        component_id = tn_id + "_" + self.generate_random_string(size=7)
+        update_component_id_trial_network(user_created, tn_id, component_id)
+        while check_component_id(user_created, component_id):
+            component_id = tn_id + "_" + self.generate_random_string(size=7)
         for component_name, component_data in descriptor_trial_network.items():
             if component_name in components_6glibrary:
                 if component_name == "tn_vxlan":
@@ -97,14 +106,14 @@ class JenkinsHandler:
                                 sleep(15)
                             if self.jenkins_client.get_job_info(name=self.jenkins_job_name)["lastSuccessfulBuild"]["number"] == last_build_number:
                                 sleep(2)
-                                if os.path.isfile(decoded_component_information_file_path):
-                                    os.rename(decoded_component_information_file_path, os.path.join(report_directory, component_name + "_" + tn_id + ".json"))
+                                if os.path.isfile(DECODED_COMPONENT_INFORMATION_FILE_PATH):
+                                    os.rename(DECODED_COMPONENT_INFORMATION_FILE_PATH, os.path.join(REPORT_DIRECTORY, component_name + "_" + tn_id + ".json"))
                                 else:
-                                    raise JenkinsComponentReportNotFoundError(f"The {component_name} component deployment report file is not found", 500)
+                                    raise JenkinsComponentReportNotFoundError(f"The '{component_name}' component deployment report file is not found", 500)
                             else:
-                                raise JenkinsComponentPipelineError(f"The pipeline for the component {component_name} has failed", 500)
+                                raise JenkinsComponentPipelineError(f"The pipeline for the component '{component_name}' has failed", 500)
                         else:
-                            raise JenkinsResponseError(f"Error in the response received by Jenkins when trying to deploy the {component_name} component", response.status_code)
+                            raise JenkinsResponseError(f"Error in the response received by Jenkins when trying to deploy the '{component_name}' component", response.status_code)
                 else:
                     raise JenkinsComponentFileNotFoundError("Component file not found", 404)
             else:
@@ -112,9 +121,10 @@ class JenkinsHandler:
                     raise SixGLibraryComponentNotFound(f"The '{component_name}' component is not in '{branch}' branch of the 6G-Library", 404)
                 else:
                     raise SixGLibraryComponentNotFound(f"The '{component_name}' component is not in commit_id '{commit_id}' of the 6G-Library", 404)
-        update_status_trial_network(tn_id, "finished")
-        if os.path.exists(report_components_jenkins_file_path):
-            save_report_trial_network(tn_id, report_components_jenkins_file_path)
+        update_status_trial_network(user_created, tn_id, "finished")
+        update_component_id_trial_netword(user_created, tn_id, component_id)
+        if os.path.exists(REPORT_COMPONENTS_JENKINS_FILE_PATH):
+            save_report_trial_network(tn_id, REPORT_COMPONENTS_JENKINS_FILE_PATH)
         else:
             raise JenkinsDeploymentReportNotFoundError("The trial network report file has not been found", 500)
 
