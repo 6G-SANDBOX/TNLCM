@@ -123,7 +123,7 @@ class JenkinsHandler:
         update_status_trial_network(user_created, tn_id, "finished")
         update_component_id_trial_network(user_created, tn_id, component_id)
         if os.path.exists(REPORT_COMPONENTS_JENKINS_FILE_PATH):
-            save_report_trial_network(tn_id, REPORT_COMPONENTS_JENKINS_FILE_PATH)
+            save_report_trial_network(user_created, tn_id, REPORT_COMPONENTS_JENKINS_FILE_PATH)
         else:
             raise JenkinsDeploymentReportNotFoundError("The trial network report file has not been found", 500)
 
