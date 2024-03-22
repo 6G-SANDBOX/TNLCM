@@ -2,8 +2,9 @@ from flask_restx import Namespace, Resource, reqparse, abort
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.datastructures import FileStorage
 
-from src.trial_network.trial_network_queries import get_trial_networks, get_trial_network, create_trial_network, get_descriptor_trial_network, get_status_trial_network, update_status_trial_network, delete_trial_network
 from src.callback.jenkins_handler import JenkinsHandler
+from src.trial_network.trial_network_descriptor import TrialNetworkDescriptorHandler
+from src.trial_network.trial_network_handler import TrialNetworkHandler
 from src.exceptions.exceptions_handler import CustomException
 
 trial_network_namespace = Namespace(
@@ -33,14 +34,24 @@ class CreateTrialNetwork(Resource):
         Create and add a trial network to database
         """
         try:
-            descriptor_file = self.parser_post.parse_args()["descriptor"]
+            descriptor = self.parser_post.parse_args()["descriptor"]
             tn_id = self.parser_post.parse_args()["tn_id"]
+
             current_user = get_jwt_identity()
-            if not get_trial_network(current_user, tn_id):
-                tn_id = create_trial_network(current_user, tn_id, descriptor_file)
+            trial_network_descriptor_handler = TrialNetworkDescriptorHandler(current_user, descriptor)
+            trial_network_handler = TrialNetworkHandler(current_user, tn_id)
+            if not trial_network_handler.get_trial_network():
+                trial_network_descriptor_handler.check_descriptor()
+                # trial_network_descriptor_handler.convert_descriptor_to_json()
+                trial_network_descriptor_handler.add_component_tn_vxlan()
+                trial_network_descriptor_handler.add_component_tn_bastion()
+                tn_raw_descriptor, tn_sorted_descriptor = trial_network_descriptor_handler.sort_descriptor()
+                trial_network_handler.create_trial_network(tn_raw_descriptor, tn_sorted_descriptor)
+                trial_network_handler.mongo_client.disconnect()
                 return {"tn_id": tn_id}, 201
             else:
-                return abort(404, f"Trial network with the name '{tn_id}' created by the user '{current_user}' in the trial_network collection in the database")
+                trial_network_handler.mongo_client.disconnect()
+                return abort(404, f"Trial network with the name '{tn_id}' created by the user '{current_user}' in the trial_network collection in the database '{trial_network_handler.mongo_client.database}'")
         except CustomException as e:
             return abort(e.error_code, str(e))
 
@@ -59,11 +70,14 @@ class TrialNetwork(Resource):
         """
         try:
             current_user = get_jwt_identity()
-            if get_trial_network(current_user, tn_id):
-                sorted_descriptor = get_descriptor_trial_network(current_user, tn_id)
+            trial_network_handler = TrialNetworkHandler(current_user, tn_id)
+            if trial_network_handler.get_trial_network():
+                sorted_descriptor = trial_network_handler.get_descriptor_trial_network()
+                trial_network_handler.mongo_client.disconnect()
                 return sorted_descriptor, 200
             else:
-                return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the trial_network collection in the database")
+                trial_network_handler.mongo_client.disconnect()
+                return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the trial_network collection in the database '{trial_network_handler.mongo_client.database}'")
         except CustomException as e:
             return abort(e.error_code, str(e))
 
@@ -79,13 +93,16 @@ class TrialNetwork(Resource):
             branch = self.parser_put.parse_args()["branch"]
             commit_id = self.parser_put.parse_args()["commit_id"]
             
-            self.jenkins_handler = JenkinsHandler()
             current_user = get_jwt_identity()
-            if get_trial_network(current_user, tn_id):
-                self.jenkins_handler.deploy_trial_network(current_user, tn_id, branch=branch, commit_id=commit_id)
+            trial_network_handler = TrialNetworkHandler(current_user, tn_id)
+            if trial_network_handler.get_trial_network():
+                self.jenkins_handler = JenkinsHandler(trial_network_handler)
+                self.jenkins_handler.deploy_trial_network(branch=branch, commit_id=commit_id)
+                trial_network_handler.mongo_client.disconnect()
                 return {"message": "Trial network start deployment with jenkins"}, 200
             else:
-                return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the trial_network collection in the database")
+                trial_network_handler.mongo_client.disconnect()
+                return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the trial_network collection in the database '{trial_network_handler.mongo_client.database}'")
         except CustomException as e:
             return abort(e.error_code, str(e))
     
@@ -97,11 +114,14 @@ class TrialNetwork(Resource):
         """
         try:
             current_user = get_jwt_identity()
-            if get_trial_network(current_user, tn_id):
-                delete_trial_network(current_user, tn_id)
+            trial_network_handler = TrialNetworkHandler(current_user, tn_id)
+            if trial_network_handler.get_trial_network():
+                trial_network_handler.delete_trial_network()
+                trial_network_handler.mongo_client.disconnect()
                 return {"message": f"The trial network with identifier '{tn_id}' has been removed from the database"}, 200
             else:
-                return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the trial_network collection in the database")
+                trial_network_handler.mongo_client.disconnect()
+                return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the trial_network collection in the database '{trial_network_handler.mongo_client.database}'")
         except CustomException as e:
             return abort(e.error_code, str(e))
 
@@ -116,10 +136,13 @@ class TrialNetworks(Resource):
         """
         try:
             current_user = get_jwt_identity()
-            trial_networks = get_trial_networks(user_created=current_user)
+            trial_network_handler = TrialNetworkHandler(current_user)
+            trial_networks = trial_network_handler.get_trial_networks()
             if trial_networks:
+                trial_network_handler.mongo_client.disconnect()
                 return {"tn_ids": trial_networks}, 200
             else:
+                trial_network_handler.mongo_client.disconnect()
                 return abort(404, "No trial networks stored in 'trial_network' collection for the current user")
         except CustomException as e:
             return abort(e.error_code, str(e))
@@ -135,11 +158,14 @@ class StatusTrialNetwork(Resource):
         """
         try:
             current_user = get_jwt_identity()
-            if get_trial_network(current_user, tn_id):
-                status_trial_network = get_status_trial_network(current_user, tn_id)
-                return status_trial_network, 200
+            trial_network_handler = TrialNetworkHandler(current_user, tn_id)
+            if trial_network_handler.get_trial_network():
+                status_trial_network = trial_network_handler.get_status_trial_network()
+                trial_network_handler.mongo_client.disconnect()
+                return {"tn_status": status_trial_network}, 200
             else:
-                return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the trial_network collection in the database")
+                trial_network_handler.mongo_client.disconnect()
+                return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the trial_network collection in the database '{trial_network_handler.mongo_client.database}'")
         except CustomException as e:
             return abort(e.error_code, str(e))
     
@@ -155,11 +181,15 @@ class StatusTrialNetwork(Resource):
         """
         try:
             new_status = self.parser_put.parse_args()["new_status"]
+
             current_user = get_jwt_identity()
-            if get_trial_network(current_user, tn_id):
-                update_status_trial_network(current_user, tn_id, new_status)
+            trial_network_handler = TrialNetworkHandler(current_user, tn_id)
+            if trial_network_handler.get_trial_network():
+                trial_network_handler.update_status_trial_network(new_status)
+                trial_network_handler.mongo_client.disconnect()
                 return {"message": f"The status of the trial network with identifier '{tn_id}' has been updated to '{new_status}'"}, 200
             else:
-                return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the trial_network collection in the database")
+                trial_network_handler.mongo_client.disconnect()
+                return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the trial_network collection in the database '{trial_network_handler.mongo_client.database}'")
         except CustomException as e:
             return abort(e.error_code, str(e))

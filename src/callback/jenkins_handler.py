@@ -10,8 +10,6 @@ from string import ascii_lowercase, digits
 from random import choice
 
 from src.temp.temp_file_handler import TempFileHandler
-from src.trial_network.trial_network_descriptor import get_component_public
-from src.trial_network.trial_network_queries import get_descriptor_trial_network, update_status_trial_network, save_report_trial_network, check_component_id, update_component_id_trial_network
 from src.sixglibrary.sixglibrary_handler import SixGLibraryHandler
 from src.exceptions.exceptions_handler import JenkinsConnectionError, VariablesNotDefinedInEnvError, KeyNotFoundError, CustomUnicodeDecodeError, SixGLibraryComponentNotFound, JenkinsComponentFileNotFoundError, JenkinsResponseError, JenkinsComponentPipelineError, JenkinsComponentReportNotFoundError, JenkinsDeploymentReportNotFoundError
 
@@ -21,7 +19,8 @@ REPORT_COMPONENTS_JENKINS_FILE_PATH = os.path.join(REPORT_DIRECTORY, "report_com
 
 class JenkinsHandler:
 
-    def __init__(self):
+    def __init__(self, trial_network_handler=None):
+        """Constructor"""
         self.jenkins_server = os.getenv("JENKINS_SERVER")
         self.jenkins_user = os.getenv("JENKINS_USER")
         self.jenkins_password = os.getenv("JENKINS_PASSWORD")
@@ -38,16 +37,10 @@ class JenkinsHandler:
             raise VariablesNotDefinedInEnvError("Add the value of the variables JENKINS_SERVER, JENKINS_USER and JENKINS_PASSWORD in the .env file", 500)
         if not self.jenkins_token or not self.jenkins_job_name or not self.jenkins_deployment_site:
             raise VariablesNotDefinedInEnvError("Add the value of the variables JENKINS_TOKEN, JENKINS_JOB_NAME and JENKINS_DEPLOYMENT_SITE in the .env file", 500)
-
-    def jenkins_parameters(self, tn_id, component_name, branch=None, commit_id=None):
-        return {
-            "TN_ID": tn_id,
-            "LIBRARY_COMPONENT_NAME": component_name,
-            "LIBRARY_BRANCH": branch or commit_id,
-            "DEPLOYMENT_SITE": self.jenkins_deployment_site,
-        }
+        self.trial_network_handler = trial_network_handler
     
     def save_decoded_information(self, data):
+        """Store decoded deployment information of each component received by jenkins"""
         try:
             if os.path.isfile(DECODED_COMPONENT_INFORMATION_FILE_PATH):
                 os.remove(DECODED_COMPONENT_INFORMATION_FILE_PATH)
@@ -61,8 +54,18 @@ class JenkinsHandler:
                 result_msg_file.write(result_msg)
         except UnicodeDecodeError:
             raise CustomUnicodeDecodeError("Unicode decoding error", 500)
+    
+    def jenkins_parameters(self, component_name, branch=None, commit_id=None):
+        """Returns a dictionary with the parameters for each component to be passed to the jenkins pipeline"""
+        return {
+            "TN_ID": self.trial_network_handler.tn_id ,
+            "LIBRARY_COMPONENT_NAME": component_name,
+            "LIBRARY_BRANCH": branch or commit_id,
+            "DEPLOYMENT_SITE": self.jenkins_deployment_site,
+        }
 
     def extract_tn_vxlan_id(self, component_id):
+        """Returns the id of the component tn_vxlan"""
         component_report_file = os.path.join(REPORT_DIRECTORY, "tn_vxlan_" + component_id + ".json")
         if os.path.isfile(component_report_file):
             with open(component_report_file, "r") as file:
@@ -71,9 +74,11 @@ class JenkinsHandler:
                 return tn_vxlan_id
     
     def generate_random_string(self, size=6, chars=ascii_lowercase + digits):
+        """Generate random string using [a-z][0-9]"""
         return ''.join(choice(chars) for _ in range(size))
 
-    def deploy_trial_network(self, user_created, tn_id, branch=None, commit_id=None):
+    def deploy_trial_network(self, branch=None, commit_id=None):
+        """Trial network deployment starts"""
         # Check status trial network, if pending or failed start deploy
         sixglibrary_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id)
         sixglibrary_handler.git_clone_6glibrary()
@@ -82,18 +87,20 @@ class JenkinsHandler:
             os.makedirs(REPORT_DIRECTORY)
         if os.path.isfile(REPORT_COMPONENTS_JENKINS_FILE_PATH):
             os.remove(REPORT_COMPONENTS_JENKINS_FILE_PATH)
+        self.trial_network_handler.update_status_trial_network("deploying")
+        current_user = self.trial_network_handler.current_user
+        tn_id = self.trial_network_handler.tn_id
+        component_id = current_user + "_" + tn_id + "_" + self.generate_random_string(size=3)
+        while self.trial_network_handler.find_component_id(component_id):
+            component_id = current_user + "_" + tn_id + "_" + self.generate_random_string(size=3)
         temp_file_handler = TempFileHandler()
-        descriptor_trial_network = get_descriptor_trial_network(user_created, tn_id)["trial_network"]
-        update_status_trial_network(user_created, tn_id, "deploying")
-        component_id = user_created + "_" + tn_id + "_" + self.generate_random_string(size=3)
-        while check_component_id(user_created, component_id):
-            component_id = user_created + "_" + tn_id + "_" + self.generate_random_string(size=3)
+        descriptor_trial_network = self.trial_network_handler.get_descriptor_trial_network()["trial_network"]
         for component_name, component_data in descriptor_trial_network.items():
             if component_name in components_6glibrary:
                 if component_name == "tn_vxlan":
-                    component_path_temp_file = temp_file_handler.create_component_temp_file(component_name, get_component_public(component_data))
+                    component_path_temp_file = temp_file_handler.create_component_temp_file(component_name, component_data["public"])
                 else:
-                    component_path_temp_file = temp_file_handler.create_component_temp_file(component_name, get_component_public(component_data), self.extract_tn_vxlan_id(component_id))
+                    component_path_temp_file = temp_file_handler.create_component_temp_file(component_name, component_data["public"], self.extract_tn_vxlan_id(component_id))
                 if os.path.isfile(component_path_temp_file):
                     with open(component_path_temp_file, 'rb') as component_temp_file:
                         file = {"FILE": (component_path_temp_file, component_temp_file)}
@@ -108,25 +115,33 @@ class JenkinsHandler:
                                 if os.path.isfile(DECODED_COMPONENT_INFORMATION_FILE_PATH):
                                     os.rename(DECODED_COMPONENT_INFORMATION_FILE_PATH, os.path.join(REPORT_DIRECTORY, component_name + "_" + component_id + ".json"))
                                 else:
+                                    self.trial_network_handler.mongo_client.disconnect()
                                     raise JenkinsComponentReportNotFoundError(f"The '{component_name}' component deployment report file is not found", 500)
                             else:
+                                self.trial_network_handler.mongo_client.disconnect()
                                 raise JenkinsComponentPipelineError(f"The pipeline for the component '{component_name}' has failed", 500)
                         else:
+                            self.trial_network_handler.mongo_client.disconnect()
                             raise JenkinsResponseError(f"Error in the response received by Jenkins when trying to deploy the '{component_name}' component", response.status_code)
                 else:
+                    self.trial_network_handler.mongo_client.disconnect()
                     raise JenkinsComponentFileNotFoundError("Component file not found", 404)
             else:
+                self.trial_network_handler.mongo_client.disconnect()
                 if branch is not None:
                     raise SixGLibraryComponentNotFound(f"The '{component_name}' component is not in '{branch}' branch of the 6G-Library", 404)
                 else:
                     raise SixGLibraryComponentNotFound(f"The '{component_name}' component is not in commit_id '{commit_id}' of the 6G-Library", 404)
-        update_status_trial_network(user_created, tn_id, "finished")
-        update_component_id_trial_network(user_created, tn_id, component_id)
+        self.trial_network_handler.update_status_trial_network("finished")
+        self.trial_network_handler.update_component_id_trial_network(component_id)
         if os.path.exists(REPORT_COMPONENTS_JENKINS_FILE_PATH):
-            save_report_trial_network(user_created, tn_id, REPORT_COMPONENTS_JENKINS_FILE_PATH)
+            self.trial_network_handler.save_report_trial_network(os.rename(REPORT_COMPONENTS_JENKINS_FILE_PATH, os.path.join(REPORT_DIRECTORY, current_user + tn_id + ".md")))
+            self.trial_network_handler.mongo_client.disconnect()
         else:
+            self.trial_network_handler.mongo_client.disconnect()
             raise JenkinsDeploymentReportNotFoundError("The trial network report file has not been found", 500)
 
     def jenkins_update_marketplace(self):
+        """Pipeline to update the TNLCM version in marketplace"""
         # TODO: pipeline to update the TNLCM version in marketplace
         pass
