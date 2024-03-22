@@ -68,10 +68,6 @@ class TrialNetworkInvalidStatusError(CustomTrialNetworkError):
     """Error thrown when an invalid status of trial network is provided"""
     pass
 
-class TrialNetworkNotFoundError(CustomTrialNetworkError):
-    """Error thrown when no trial networks are found in database"""
-    pass
-
 class TrialNetworkDescriptorEmptyError(CustomTrialNetworkError):
     """Error thrown when try to save an empty descriptor"""
     pass
