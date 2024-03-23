@@ -2,12 +2,11 @@ from flask import request
 from datetime import timedelta
 from flask_restx import Resource, Namespace, reqparse, abort
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, create_refresh_token
-from jwt.exceptions import PyJWTError
 
 from src.auth.auth_handler import AuthHandler
 from src.exceptions.exceptions_handler import CustomException
 
-EXP_MINUTES_ACCESS_TOKEN = 45
+EXP_MINUTES_ACCESS_TOKEN = 1
 EXP_DAYS_REFRESH_TOKEN = 730
 
 users_namespace = Namespace(
@@ -39,8 +38,6 @@ class Users(Resource):
             auth_handler = AuthHandler(jwt_identity=jwt_identity)
             current_user = auth_handler.get_current_user_from_jwt()
             return {"username": current_user}, 200
-        except PyJWTError as e:
-            return abort(404, str(e))
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
@@ -122,8 +119,6 @@ class UserTokenRefresh(Resource):
         try:
             new_access_token = create_access_token(identity=current_user, expires_delta=timedelta(minutes=EXP_MINUTES_ACCESS_TOKEN))
             return {"access_token": new_access_token}, 201
-        except PyJWTError as e:
-            return abort(404, str(e))
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
