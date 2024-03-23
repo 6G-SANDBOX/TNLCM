@@ -1,7 +1,7 @@
 from json import dumps, loads
 
 from src.database.mongo_handler import MongoHandler
-from src.exceptions.exceptions_handler import TrialNetworkInvalidStatusError
+from src.exceptions.exceptions_handler import TrialNetworkInvalidStatusError, TrialNetworkReportNotFoundError
 
 STATUS_TRIAL_NETWORK = ["pending", "deploying", "finished", "failed"]
 
@@ -56,7 +56,7 @@ class TrialNetworkHandler:
     def get_status_trial_network(self):
         """Return the status of a trial network"""
         query = {"tn_id": self.tn_id} if self.current_user == "admin" else {"user_created": self.current_user, "tn_id": self.tn_id}
-        projection = {"tn_status": 1, "_id": 0}
+        projection = {"_id": 0, "tn_status": 1}
         trial_network_status = self.mongo_client.find_data(collection_name="trial_network", query=query, projection=projection)
         return trial_network_status[0]["tn_status"]
 
@@ -85,11 +85,21 @@ class TrialNetworkHandler:
         query = {"user_created": self.current_user, "tn_id": self.tn_id}
         projection = {"$set": {"component_id": component_id}}
         self.mongo_client.update_data(collection_name="trial_network", query=query, projection=projection)
+    
+    def get_report_trial_network(self):
+        """Return the report associated with a trial network"""
+        query = {"tn_id": self.tn_id} if self.current_user == "admin" else {"user_created": self.current_user, "tn_id": self.tn_id}
+        projection = {"_id": 0, "tn_report": 1}
+        tn_report = self.mongo_client.find_data(collection_name="trial_network", query=query, projection=projection)[0]
+        if tn_report:
+            return tn_report
+        else:
+            raise TrialNetworkReportNotFoundError(f"Trial network '{self.tn_id}' has not been deployed yet", 404)
 
     def save_report_trial_network(self, report_components_jenkins_content):
         """Save the report of the components deployed in the trial network"""
         with open(report_components_jenkins_content, "r") as file:
             markdown_content = file.read()
         query = {"user_created": self.current_user, "tn_id": self.tn_id}
-        projection = {"$set": {"tn_report_jenkins": markdown_content}}
+        projection = {"$set": {"tn_report": markdown_content}}
         self.mongo_client.update_data(collection_name="trial_network", query=query, projection=projection)
