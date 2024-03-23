@@ -80,6 +80,10 @@ class TrialNetworkDescriptorInvalidContentError(CustomTrialNetworkError):
     """Error thrown when the descriptor has semantic faults"""
     pass
 
+class TrialNetworkReportNotFoundError(CustomTrialNetworkError):
+    """Error thrown when the trial network does not have a report file associated with it"""
+    pass
+
 # User exceptions
 class CustomUserError(CustomException):
     """Base class for user related errors"""
