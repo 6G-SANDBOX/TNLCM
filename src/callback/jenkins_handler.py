@@ -130,7 +130,9 @@ class JenkinsHandler:
         self.trial_network_handler.update_status_trial_network("finished")
         self.trial_network_handler.update_component_id_trial_network(component_id)
         if os.path.exists(REPORT_COMPONENTS_JENKINS_FILE_PATH):
-            self.trial_network_handler.save_report_trial_network(os.rename(REPORT_COMPONENTS_JENKINS_FILE_PATH, os.path.join(REPORT_DIRECTORY, current_user + tn_id + ".md")))
+            report_tn_path = os.path.join(REPORT_DIRECTORY, component_id + ".md")
+            os.rename(REPORT_COMPONENTS_JENKINS_FILE_PATH, report_tn_path)
+            self.trial_network_handler.save_report_trial_network(report_tn_path)
         else:
             raise JenkinsDeploymentReportNotFoundError("The trial network report file has not been found", 500)
 
