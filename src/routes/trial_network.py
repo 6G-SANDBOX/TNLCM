@@ -137,10 +137,7 @@ class TrialNetworks(Resource):
             current_user = get_jwt_identity()
             trial_network_handler = TrialNetworkHandler(current_user)
             trial_networks = trial_network_handler.get_trial_networks()
-            if trial_networks:
-                return {"tn_ids": trial_networks}, 200
-            else:
-                return abort(404, "No trial networks stored in 'trial_network' collection for the current user")
+            return {"tn_ids": trial_networks}, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
