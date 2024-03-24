@@ -6,7 +6,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_tok
 from src.auth.auth_handler import AuthHandler
 from src.exceptions.exceptions_handler import CustomException
 
-EXP_MINUTES_ACCESS_TOKEN = 1
+EXP_MINUTES_ACCESS_TOKEN = 45
 EXP_DAYS_REFRESH_TOKEN = 730
 
 users_namespace = Namespace(
