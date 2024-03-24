@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 
 class LogHandler:
-    def __init__(self, executions_folder='logs/executions'):
+    def __init__(self, executions_folder='src/logs/executions'):
         self.executions_folder = executions_folder
         self.log_file = None
         self.logger = None
