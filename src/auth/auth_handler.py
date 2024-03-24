@@ -6,12 +6,13 @@ from src.database.mongo_handler import MongoHandler
 
 class AuthHandler:
 
-    def __init__(self, jwt_identity=None, username=None, email=None, password=None):
+    def __init__(self, jwt_identity=None, username=None, email=None, password=None, org=None):
         """Constructor"""
         self.jwt_identity = jwt_identity
         self.username = username
         self.email = email
         self.password = password
+        self.org = org
         self.mongo_client = MongoHandler()
 
     def get_current_user_from_jwt(self):
@@ -47,7 +48,8 @@ class AuthHandler:
         user_doc = {
             "email": self.is_valid_email(),
             "username": self.username,
-            "password": generate_password_hash(self.password, method="pbkdf2")
+            "password": generate_password_hash(self.password, method="pbkdf2"),
+            "org": self.org
         }
         self.mongo_client.insert_data("trial_network_user", user_doc)
 

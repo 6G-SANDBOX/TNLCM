@@ -47,6 +47,7 @@ class Users(Resource):
     parser_post.add_argument("email", type=str, required=True)
     parser_post.add_argument("username", type=str, required=True)
     parser_post.add_argument("password", type=str, required=True)
+    parser_post.add_argument("org", type=str, required=True)
 
     @users_namespace.expect(parser_post)
     def post(self):
@@ -57,8 +58,9 @@ class Users(Resource):
             email = self.parser_post.parse_args()["email"]
             username = self.parser_post.parse_args()["username"]
             password = self.parser_post.parse_args()["password"]
+            org = self.parser_post.parse_args()["org"]
 
-            auth_handler = AuthHandler(username=username, email=email, password=password)
+            auth_handler = AuthHandler(username=username, email=email, password=password, org=org)
             user = auth_handler.get_email()
             if user:
                 return abort(409, "Email already created in the database")
@@ -84,12 +86,12 @@ class UserLogin(Resource):
             auth = request.authorization
 
             if not auth or not auth.username or not auth.password:
-                return abort(401, "Could not verify")
+                return abort(401, f"Could not verify the user {auth.username}")
 
             auth_handler = AuthHandler(username=auth.username, password=auth.password)
             username = auth_handler.get_username()
             if not username:
-                return abort(404, "User not found")
+                return abort(404, f"User {auth.username} not found")
             username = username[0]["username"]
             if auth_handler.check_password():
                 access_token = create_access_token(identity=username, expires_delta=timedelta(minutes=EXP_MINUTES_ACCESS_TOKEN))
@@ -98,7 +100,7 @@ class UserLogin(Resource):
                     "access_token": access_token,
                     "refresh_token": refresh_token
                 }, 200
-            return abort(401, "Could not verify")
+            return abort(401, f"Could not verify user {auth.username}")
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
