@@ -32,14 +32,30 @@ class SixGLibraryHandler:
         public_parts = {}
 
         for component in components:
-            description_file = os.path.join(self.repository_handler.local_directory, component, "public", "description.yml")
+            description_file_yml = os.path.join(self.repository_handler.local_directory, component, "public", "description.yml")
+            description_file_yaml = os.path.join(self.repository_handler.local_directory, component, "public", "description.yaml")
             
-            if os.path.exists(description_file):
+            if os.path.exists(description_file_yml) or os.path.exists(description_file_yaml):
+                description_file = description_file_yml if os.path.exists(description_file_yml) else description_file_yaml
                 with open(description_file, "r") as f:
                     description_data = safe_load(f)
                     public_parts[component] = description_data.get("public", {})
-
         return public_parts
+    
+    def extract_private_part_component_6glibrary(self, components):
+        """The private part of the components is extracted directly from the 6G-Library"""
+        private_parts = {}
+
+        for component in components:
+            description_file_yml = os.path.join(self.repository_handler.local_directory, component, "private", "values.yml")
+            description_file_yaml = os.path.join(self.repository_handler.local_directory, component, "private", "values.yaml")
+            
+            if os.path.exists(description_file_yml) or os.path.exists(description_file_yaml):
+                description_file = description_file_yml if os.path.exists(description_file_yml) else description_file_yaml
+                with open(description_file, "r") as f:
+                    description_data = safe_load(f)
+                    private_parts[component] = description_data.get("private", {})
+        return private_parts
 
     def extract_components_6glibrary(self):
         """6G-Library components are extracted"""
