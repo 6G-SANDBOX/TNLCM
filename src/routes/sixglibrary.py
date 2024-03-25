@@ -99,6 +99,7 @@ class PublicPartComponents6GLibrary(Resource):
     def get(self):
         """
         Return the public part of the components to be specified
+        **Only one of the two values has to be specified. If neither is specified, the main branch will be used**
         """
         try:
             branch = self.parser_get.parse_args()["branch"]
