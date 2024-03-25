@@ -1,5 +1,6 @@
 import os
 
+from yaml import safe_load
 from src.repository.repository_handler import RepositoryHandler
 from src.exceptions.exceptions_handler import SixGLibraryComponentsNotFound
 
@@ -25,6 +26,20 @@ class SixGLibraryHandler:
     def git_clone_6glibrary(self):
         """Clone 6G-Library"""
         return self.repository_handler.git_clone_repository()
+
+    def extract_public_part_component_6glibrary(self, components):
+        """The public part of the components is extracted directly from the 6G-Library"""
+        public_parts = {}
+
+        for component in components:
+            description_file = os.path.join(self.repository_handler.local_directory, component, "public", "description.yml")
+            
+            if os.path.exists(description_file):
+                with open(description_file, "r") as f:
+                    description_data = safe_load(f)
+                    public_parts[component] = description_data.get("public", {})
+
+        return public_parts
 
     def extract_components_6glibrary(self):
         """6G-Library components are extracted"""
