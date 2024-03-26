@@ -165,3 +165,42 @@ class PrivatePartComponents6GLibrary(Resource):
                     }, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
+        
+@sixglibrary_namespace.route("/components/depends")
+class DependsPartComponents6GLibrary(Resource):
+
+    parser_get = reqparse.RequestParser()
+    parser_get.add_argument("branch", type=str, required=False)
+    parser_get.add_argument("commit_id", type=str, required=False)
+
+    @sixglibrary_namespace.expect(parser_get)
+    def get(self):
+        """
+        Return the depends part of the components to be specified
+        **Only one of the two values has to be specified. If neither is specified, the main branch will be used**
+        """
+        try:
+            branch = self.parser_get.parse_args()["branch"]
+            commit_id = self.parser_get.parse_args()["commit_id"]
+
+            sixglibrary_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id)
+            sixglibrary_handler.git_clone_6glibrary()
+            components = sixglibrary_handler.extract_components_6glibrary()
+            depends_part_components = sixglibrary_handler.extract_depends_part_component_6glibrary(components)
+            if branch is not None:
+                return {
+                    "branch": branch,
+                    "depends_part_components": depends_part_components
+                    }, 200
+            elif commit_id is not None:
+                return {
+                    "commit_id": commit_id, 
+                    "depends_part_components": depends_part_components
+                    }, 200
+            else:
+                return {
+                    "branch": sixglibrary_handler.git_6glibrary_branch, 
+                    "depends_part_components": depends_part_components
+                    }, 200
+        except CustomException as e:
+            return abort(e.error_code, str(e))

@@ -39,7 +39,10 @@ class SixGLibraryHandler:
                 description_file = description_file_yml if os.path.exists(description_file_yml) else description_file_yaml
                 with open(description_file, "r") as f:
                     description_data = safe_load(f)
-                    public_parts[component] = description_data.get("public", {})
+                    if description_data.get("public") is not None:
+                        public_parts[component] = description_data.get("public", {})
+                    else:
+                        public_parts[component] = []
         return public_parts
     
     def extract_private_part_component_6glibrary(self, components):
@@ -54,20 +57,53 @@ class SixGLibraryHandler:
                 description_file = description_file_yml if os.path.exists(description_file_yml) else description_file_yaml
                 with open(description_file, "r") as f:
                     description_data = safe_load(f)
-                    private_parts[component] = description_data.get("private", {})
+                    if description_data is not None:
+                        private_parts[component] = description_data
+                    else:
+                        private_parts[component] = {}
         return private_parts
 
+    def extract_depends_part_component_6glibrary(self, components):
+        """The depends part of the components is extracted directly from the 6G-Library"""
+        depends_parts = {}
+
+        for component in components:
+            description_file_yml = os.path.join(self.repository_handler.local_directory, component, "public", "description.yml")
+            description_file_yaml = os.path.join(self.repository_handler.local_directory, component, "public", "description.yaml")
+            
+            if os.path.exists(description_file_yml) or os.path.exists(description_file_yaml):
+                description_file = description_file_yml if os.path.exists(description_file_yml) else description_file_yaml
+                with open(description_file, "r") as f:
+                    description_data = safe_load(f)
+                    metadata = description_data.get("metadata")
+                    if metadata is not None and "depends" in metadata:
+                        depends_parts[component] = metadata["depends"]
+                    else:
+                        depends_parts[component] = []
+        return depends_parts
+
     def extract_components_6glibrary(self):
-        """6G-Library components are extracted"""
+        """Extracts public, private, and depends parts of the components from the 6G-Library"""
         components = None
         if os.path.exists(self.repository_handler.local_directory) and os.path.exists(os.path.join(self.repository_handler.local_directory, ".git")):
             components = [folder for folder in os.listdir(self.repository_handler.local_directory)
-                        if os.path.isdir(os.path.join(self.repository_handler.local_directory, folder))
-                        and folder not in (".git", ".global")]
+                          if os.path.isdir(os.path.join(self.repository_handler.local_directory, folder))
+                          and folder not in (".git", ".global")]
         if not components:
             if self.git_6glibrary_branch:
                 raise SixGLibraryComponentsNotFound(f"No components in the '{self.git_6glibrary_branch}' branch of 6G-Library", 404)
             else:
                 raise SixGLibraryComponentsNotFound(f"No components in the '{self.git_6glibrary_commit_id}' commit of 6G-Library", 404)
         else:
-            return components
+            public_parts = self.extract_public_part_component_6glibrary(components)
+            private_parts = self.extract_private_part_component_6glibrary(components)
+            depends_parts = self.extract_depends_part_component_6glibrary(components)
+            
+            component_data = {}
+            for component in components:
+                component_data[component] = {
+                    "public": public_parts.get(component, {}),
+                    # "private": private_parts.get(component, {}),
+                    "depends": depends_parts.get(component, [])
+                }
+            return component_data
