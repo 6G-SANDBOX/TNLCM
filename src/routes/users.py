@@ -33,8 +33,8 @@ class Users(Resource):
         """
         Retrieve current user
         """
+        auth_handler = None
         try:
-            auth_handler = None
             jwt_identity = get_jwt_identity()
             auth_handler = AuthHandler(jwt_identity=jwt_identity)
             current_user = auth_handler.get_current_user_from_jwt()
@@ -56,8 +56,8 @@ class Users(Resource):
         """
         Add an user
         """
+        auth_handler = None
         try:
-            auth_handler = None
             email = self.parser_post.parse_args()["email"]
             username = self.parser_post.parse_args()["username"]
             password = self.parser_post.parse_args()["password"]
@@ -86,8 +86,8 @@ class UserLogin(Resource):
         """
         Login for user and return tokens
         """
+        auth_handler = None
         try:
-            auth_handler = None
             auth = request.authorization
 
             if not auth or not auth.username or not auth.password:
@@ -122,10 +122,10 @@ class UserTokenRefresh(Resource):
         Refresh tokens for user
         """
         auth_handler = None
-        jwt_identity = get_jwt_identity()
-        auth_handler = AuthHandler(jwt_identity=jwt_identity)
-        current_user = auth_handler.get_current_user_from_jwt()
         try:
+            jwt_identity = get_jwt_identity()
+            auth_handler = AuthHandler(jwt_identity=jwt_identity)
+            current_user = auth_handler.get_current_user_from_jwt()
             new_access_token = create_access_token(identity=current_user, expires_delta=timedelta(minutes=EXP_MINUTES_ACCESS_TOKEN))
             return {"access_token": new_access_token}, 201
         except CustomException as e:

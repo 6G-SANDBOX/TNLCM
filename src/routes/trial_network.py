@@ -33,8 +33,8 @@ class CreateTrialNetwork(Resource):
         """
         Create and add a trial network to database
         """
+        trial_network_handler = None
         try:
-            trial_network_handler = None
             descriptor = self.parser_post.parse_args()["descriptor"]
             tn_id = self.parser_post.parse_args()["tn_id"]
 
@@ -69,8 +69,8 @@ class TrialNetwork(Resource):
         """
         Return the descriptor of the trial network specified in tn_id
         """
+        trial_network_handler = None
         try:
-            trial_network_handler = None
             current_user = get_jwt_identity()
             trial_network_handler = TrialNetworkHandler(current_user, tn_id)
             if trial_network_handler.get_trial_network():
@@ -92,8 +92,8 @@ class TrialNetwork(Resource):
         Trial network entities deployment begins
         **Can specify a branch or a commit_id of the 6G-Library. If nothing is specified, the main branch will be used**
         """
+        trial_network_handler = None
         try:
-            trial_network_handler = None
             branch = self.parser_put.parse_args()["branch"]
             commit_id = self.parser_put.parse_args()["commit_id"]
             
@@ -117,8 +117,8 @@ class TrialNetwork(Resource):
         """
         Delete a trial network specified in tn_id
         """
+        trial_network_handler = None
         try:
-            trial_network_handler = None
             current_user = get_jwt_identity()
             trial_network_handler = TrialNetworkHandler(current_user, tn_id)
             if trial_network_handler.get_trial_network():
@@ -141,8 +141,8 @@ class TrialNetworks(Resource):
         """
         Return all the trial networks stored in database
         """
+        trial_network_handler = None
         try:
-            trial_network_handler = None
             current_user = get_jwt_identity()
             trial_network_handler = TrialNetworkHandler(current_user)
             trial_networks = trial_network_handler.get_trial_networks()
@@ -162,8 +162,8 @@ class StatusTrialNetwork(Resource):
         """
         Return the status of the Trial network specified in tn_id
         """
+        trial_network_handler = None
         try:
-            trial_network_handler = None
             current_user = get_jwt_identity()
             trial_network_handler = TrialNetworkHandler(current_user, tn_id)
             if trial_network_handler.get_trial_network():
@@ -187,8 +187,8 @@ class StatusTrialNetwork(Resource):
         """
         Update the status of the Trial network specified in tn_id
         """
+        trial_network_handler = None
         try:
-            trial_network_handler = None
             new_status = self.parser_put.parse_args()["new_status"]
 
             current_user = get_jwt_identity()
@@ -211,8 +211,8 @@ class ReportTrialNetwork(Resource):
     @jwt_required()
     def get(self, tn_id):
         """Return the report generated after the execution of the entities of a trial network"""
+        trial_network_handler = None
         try:
-            trial_network_handler = None
             current_user = get_jwt_identity()
             trial_network_handler = TrialNetworkHandler(current_user, tn_id)
             if trial_network_handler.get_trial_network():
