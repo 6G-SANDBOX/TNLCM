@@ -69,21 +69,21 @@ class TrialNetworkHandler:
         else:
             raise TrialNetworkInvalidStatusError(f"The status cannot be updated. The possible states of a trial network are: {STATUS_TRIAL_NETWORK}", 404)
 
-    def find_component_id(self, component_id):
-        """Find if the component_id has been used before because if so the pipeline will fail. OpenNebula detects that this component is already deployed and returns an error"""
-        query = {"user_created": self.current_user, "component_id": component_id}
-        projection = {"_id": 0, "component_id": 1}
-        component_ids = self.mongo_client.find_data(collection_name="trial_network", query=query, projection=projection)
-        if component_ids:
-            ids = [cid["component_id"] for cid in component_ids]
-            if component_id in ids:
+    def find_entity_name(self, entity_name):
+        """Find if the entity_name has been used before because if so the pipeline will fail. OpenNebula detects that this component is already deployed and returns an error"""
+        query = {"user_created": self.current_user, "entity_name": entity_name}
+        projection = {"_id": 0, "entity_name": 1}
+        entities_name = self.mongo_client.find_data(collection_name="trial_network", query=query, projection=projection)
+        if entities_name:
+            ids = [cid["entity_name"] for cid in entities_name]
+            if entity_name in ids:
                 return True
         return False
 
-    def update_component_id_trial_network(self, component_id):
-        """Add the component_id used for the components of the trial network"""
+    def update_entity_name_trial_network(self, entity_name):
+        """Add the entity_name used for deploy trial network"""
         query = {"user_created": self.current_user, "tn_id": self.tn_id}
-        projection = {"$set": {"component_id": component_id}}
+        projection = {"$set": {"entity_name": entity_name}}
         self.mongo_client.update_data(collection_name="trial_network", query=query, projection=projection)
     
     def get_report_trial_network(self):
