@@ -34,6 +34,7 @@ class Users(Resource):
         Retrieve current user
         """
         try:
+            auth_handler = None
             jwt_identity = get_jwt_identity()
             auth_handler = AuthHandler(jwt_identity=jwt_identity)
             current_user = auth_handler.get_current_user_from_jwt()
@@ -41,7 +42,8 @@ class Users(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
-            auth_handler.mongo_client.disconnect()
+            if auth_handler is not None:
+                auth_handler.mongo_client.disconnect()
 
     parser_post = reqparse.RequestParser()
     parser_post.add_argument("email", type=str, required=True)
@@ -55,6 +57,7 @@ class Users(Resource):
         Add an user
         """
         try:
+            auth_handler = None
             email = self.parser_post.parse_args()["email"]
             username = self.parser_post.parse_args()["username"]
             password = self.parser_post.parse_args()["password"]
@@ -72,7 +75,8 @@ class Users(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
-            auth_handler.mongo_client.disconnect()
+            if auth_handler is not None:
+                auth_handler.mongo_client.disconnect()
 
 @users_namespace.route("/login")
 class UserLogin(Resource):
@@ -83,6 +87,7 @@ class UserLogin(Resource):
         Login for user and return tokens
         """
         try:
+            auth_handler = None
             auth = request.authorization
 
             if not auth or not auth.username or not auth.password:
@@ -104,7 +109,8 @@ class UserLogin(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
-            auth_handler.mongo_client.disconnect()
+            if auth_handler is not None:
+                auth_handler.mongo_client.disconnect()
 
 @users_namespace.route("/refresh")
 class UserTokenRefresh(Resource):
@@ -115,6 +121,7 @@ class UserTokenRefresh(Resource):
         """
         Refresh tokens for user
         """
+        auth_handler = None
         jwt_identity = get_jwt_identity()
         auth_handler = AuthHandler(jwt_identity=jwt_identity)
         current_user = auth_handler.get_current_user_from_jwt()
@@ -124,4 +131,5 @@ class UserTokenRefresh(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
-            auth_handler.mongo_client.disconnect()
+            if auth_handler is not None:
+                auth_handler.mongo_client.disconnect()
