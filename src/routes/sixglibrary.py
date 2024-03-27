@@ -69,7 +69,7 @@ class Components6GLibrary(Resource):
 
             sixglibrary_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id)
             sixglibrary_handler.git_clone_6glibrary()
-            components = sixglibrary_handler.extract_components_6glibrary()
+            components = sixglibrary_handler.extract_info_components_6glibrary()
             if branch is not None:
                 return {
                     "branch": branch, 
