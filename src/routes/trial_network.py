@@ -49,7 +49,7 @@ class CreateTrialNetwork(Resource):
                 trial_network_handler.create_trial_network(tn_raw_descriptor, tn_sorted_descriptor)
                 return {"tn_id": tn_id}, 201
             else:
-                return abort(404, f"Trial network with the name '{tn_id}' created earlier by user '{current_user}' in the trial_network collection in the database '{trial_network_handler.mongo_client.database}'")
+                return abort(409, f"Trial network with the name '{tn_id}' created earlier by user '{current_user}' in the trial_network collection in the database '{trial_network_handler.mongo_client.database}'")
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:

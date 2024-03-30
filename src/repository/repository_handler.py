@@ -72,12 +72,12 @@ class RepositoryHandler:
                     try:
                         self.repo.git.checkout(self.git_branch)
                     except GitCommandError:
-                        raise GitCheckoutError(f"Branch '{self.git_branch}' not in '{self.git_repository_name}' repository", 500)
+                        raise GitCheckoutError(f"Branch '{self.git_branch}' not in '{self.git_repository_name}' repository", 404)
                 else:
                     try:
                         self.repo.git.checkout(self.git_commit_id)
                     except GitCommandError:
-                        raise GitCheckoutError(f"The commit with id '{self.git_commit_id}' not in '{self.git_repository_name}' repository", 500)
+                        raise GitCheckoutError(f"The commit with id '{self.git_commit_id}' not in '{self.git_repository_name}' repository", 404)
                 return True
             return False
         else:

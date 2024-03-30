@@ -104,7 +104,7 @@ class UserLogin(Resource):
                 return {
                     "access_token": access_token,
                     "refresh_token": refresh_token
-                }, 200
+                }, 201
             return abort(401, f"Could not verify user {auth.username}")
         except CustomException as e:
             return abort(e.error_code, str(e))
