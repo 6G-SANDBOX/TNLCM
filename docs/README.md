@@ -1,9 +1,9 @@
+# TRIAL NETWORK LIFECYCLE MANAGER (TNLCM)
+
 [![Python](https://img.shields.io/badge/Python-3.12+-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB)](https://www.python.org/downloads/release/python-3122/)
 [![Flask](https://img.shields.io/badge/Flask-3.0.2+-brightgreen?style=for-the-badge&logo=flask&logoColor=white&labelColor=000000)](https://flask.palletsprojects.com/en/3.0.x/)
 [![Docker](https://img.shields.io/badge/Docker-latest-2496ED?style=for-the-badge&logo=docker&logoColor=white&labelColor=2496ED)](https://www.docker.com)
 [![MongoDB](https://img.shields.io/badge/MongoDB-latest-green?style=for-the-badge&logo=mongodb&logoColor=white&labelColor=47A248)](https://www.mongodb.com/)
-
-# TRIAL NETWORK LIFECYCLE MANAGER (TNLCM)
 
 > ⚠ TNLCM is under development and is subject to continuous changes.
 
@@ -123,9 +123,8 @@ Several tools can be used to open the file:
 
 > The format of Trial Network Descriptors has not been finalized and is expected to change in the future.
 
-Trial Network Descriptors are yaml files with a set of expected fields and structure. This repository contains an
-example of descriptor:
-- `first_descriptor.yml`
+Trial Network Descriptors are yaml files with a set of expected fields and structure. This repository contains an example of descriptor:
+- [`first_descriptor.yml`](../first_descriptor.yml)
 
 ```yaml
 trial_network:  # Mandatory, contains the description of all entities in the Trial Network
