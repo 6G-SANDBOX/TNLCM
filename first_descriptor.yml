@@ -1,4 +1,5 @@
 trial_network:
+
   first_tn_bastion:
     type: tn_bastion
     depends_on:

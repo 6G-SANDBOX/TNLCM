@@ -89,6 +89,14 @@ class RepositoryHandler:
             return "commit"
         else:
             return "branch"
+    
+    def is_current_branch(self):
+        """Return the current branch"""
+        return self.repo.active_branch.name == self.git_branch
+
+    def is_current_commit_id(self):
+        """Return the current commit_id"""
+        return self.repo.head.commit.hexsha == self.git_commit_id
         
     def is_github_repo(self, url):
         """Check if the repository url is a git repository"""
@@ -100,14 +108,6 @@ class RepositoryHandler:
             if re.match(pattern, url):
                 return True
         return False
-
-    def is_current_branch(self):
-        """Return the current branch"""
-        return self.repo.active_branch.name == self.git_branch
-
-    def is_current_commit_id(self):
-        """Return the current commit_id"""
-        return self.repo.head.commit.hexsha == self.git_commit_id
 
     def pull_if_necessary(self):
         """Check if the repository has been updated and applies a git pull in case of changes"""

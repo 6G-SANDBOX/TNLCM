@@ -14,7 +14,7 @@ class TrialNetworkHandler:
         self.mongo_client = MongoHandler()
 
     def get_trial_networks(self):
-        """Return all the trial networks created by a user. If the user is an administrator, it returns all the trial networks created by the user"""
+        """Return all the trial networks created by a user. If user is an administrator, it returns all the trial networks created by the users"""
         projection = {"_id": 0, "tn_id": 1}
         query = None if self.current_user == "admin" else {"user_created": self.current_user}
         trial_networks = self.mongo_client.find_data(collection_name="trial_network", query=query, projection=projection)
@@ -42,7 +42,7 @@ class TrialNetworkHandler:
         self.mongo_client.insert_data("trial_network", trial_network_doc)
 
     def get_descriptor_trial_network(self):
-        """Return the descriptor associated with a trial network"""
+        """Return the descriptor associated to a trial network"""
         query = {"tn_id": self.tn_id} if self.current_user == "admin" else {"user_created": self.current_user, "tn_id": self.tn_id}
         projection = {"_id": 0, "tn_sorted_descriptor": 1}
         trial_network_descriptor = self.mongo_client.find_data(collection_name="trial_network", query=query, projection=projection)

@@ -24,12 +24,9 @@ class TrialNetworkDescriptorHandler:
         except YAMLError:
             raise TrialNetworkDescriptorInvalidContentError("The descriptor content is not parsed correctly", 422)
 
-    def add_component_descriptor(self, component_name, component_data):
-        """Return a new descriptor containing the newly added component"""
-        self.descriptor["trial_network"][component_name] = component_data
-
     def add_component_tn_vxlan(self):
         """Add the component tn_vxlan to the descriptor (mandatory)"""
+        # TODO: fix if update descriptor
         if not self.is_component_descriptor("tn_vxlan"):
             component_data = {
                 "public": {
@@ -37,9 +34,20 @@ class TrialNetworkDescriptorHandler:
                 }
             }
             self.add_component_descriptor("tn_vxlan", component_data)
-  
+
+    def add_component_tn_bastion(self):
+        """Add the component tn_bastion to the descriptor (mandatory)"""
+        # TODO: fix if update descriptor
+        if not self.is_component_descriptor("tn_bastion"):
+            component_data = {
+                "depends_on": ["tn_vxlan"],
+                "public": None
+            }
+            self.add_component_descriptor("tn_bastion", component_data)
+    
     def is_component_descriptor(self, component):
         """Return true if a component is in descriptor"""
+        # TODO: fix if update descriptor
         is_component = False
         for component_name, component_data in self.descriptor["trial_network"].items():
             if component_name == component and component_data is not None:
@@ -47,14 +55,10 @@ class TrialNetworkDescriptorHandler:
                 break
         return is_component
 
-    def add_component_tn_bastion(self):
-        """Add the component tn_bastion to the descriptor (mandatory)"""
-        if not self.is_component_descriptor("tn_bastion"):
-            component_data = {
-                "depends_on": ["tn_vxlan"],
-                "public": None
-            }
-            self.add_component_descriptor("tn_bastion", component_data)
+    def add_component_descriptor(self, component_name, component_data):
+        """Return a new descriptor containing the newly added component"""
+        # TODO: fix if update descriptor
+        self.descriptor["trial_network"][component_name] = component_data
 
     def sort_descriptor(self):
         """Recursive function that returns the raw descriptor and a new descriptor sorted according to dependencies"""
