@@ -27,7 +27,9 @@ Download the main branch from the TNLCM repository
 
 Clone repository:
 
-        git clone https://github.com/6G-SANDBOX/TNLCM
+```
+git clone https://github.com/6G-SANDBOX/TNLCM
+```
 
 ### Create .env using .env.template
 
@@ -42,9 +44,11 @@ Create the .env file at the same level and with the contents of the [.env.templa
 
 Once Docker is installed, open a terminal where the docker-compose.yml file is stored (usually inside the TNLCM project) and execute the commands:
 
-        docker compose build
+```
+docker compose build
 
-        docker compose up
+docker compose up
+```
 
 ### Create Python environment and install libraries
 
@@ -76,7 +80,9 @@ The environment must be created inside the TNLCM project
 
 With the environment activated, start TNLCM
 
-    python app.py
+```
+python app.py
+```
 
 A Swagger UI will be available at the url http://localhost:5000 where the API with the endpoints can be seen
 
