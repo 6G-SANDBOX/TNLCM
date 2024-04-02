@@ -1,15 +1,15 @@
 trial_network:
 
-  first_tn_bastion:
+  mandatory_tn_bastion:
     type: tn_bastion
     depends_on:
-      - first_tn_vxlan
+      - mandatory_tn_vxlan
     public: {}
-  first_tn_vxlan:
+  mandatory_tn_vxlan:
     type: tn_vxlan
     depends_on: []
     public:
-      one_vxlan_name: one_vxlan
+      one_vxlan_name: mandatory_tn_vxlan
   first_vm_kvm_very_small:
     type: vm_kvm_very_small
     depends_on:
