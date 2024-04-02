@@ -135,6 +135,7 @@ Trial Network Descriptors are yaml files with a set of expected fields and struc
 ```yaml
 trial_network:  # Mandatory, contains the description of all entities in the Trial Network
   <Entity1>:  # A unique identifier for each entity in the Trial Network
+    type:  # A type of component
     depends_on: # List of dependencies of the component with other components
       - <EntityN>
       - ...
