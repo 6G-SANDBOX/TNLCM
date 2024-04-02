@@ -2,7 +2,7 @@ from werkzeug.utils import secure_filename
 from json import dumps
 from yaml import safe_load, YAMLError
 
-from src.exceptions.exceptions_handler import TrialNetworkDescriptorInvalidExtensionError, TrialNetworkDescriptorEmptyError, TrialNetworkDescriptorInvalidContentError
+from src.exceptions.exceptions_handler import TrialNetworkDescriptorInvalidExtensionError, TrialNetworkDescriptorEmptyError, TrialNetworkDescriptorInvalidContentError, TrialNetworkEntityNotInDescriptorError
 
 class TrialNetworkDescriptorHandler:
 
@@ -22,58 +22,56 @@ class TrialNetworkDescriptorHandler:
             if self.descriptor["trial_network"] is None:
                 raise TrialNetworkDescriptorEmptyError("Trial network descriptor empty", 400)
         except YAMLError:
-            raise TrialNetworkDescriptorInvalidContentError("The descriptor content is not parsed correctly", 422)
+            raise TrialNetworkDescriptorInvalidContentError("Descriptor content not properly parsed", 422)
 
-    def add_component_tn_vxlan(self):
-        """Add the component tn_vxlan to the descriptor (mandatory)"""
-        # TODO: fix if update descriptor
-        if not self.is_component_descriptor("tn_vxlan"):
-            component_data = {
+    def add_entity_mandatory_tn_vxlan(self):
+        """Add the entity vxlan to the descriptor (mandatory)"""
+        if not self.is_entity_descriptor("mandatory_tn_vxlan"):
+            entity_data = {
                 "public": {
-                    "one_vxlan_name": "tn_vxlan"
+                    "one_vxlan_name": "mandatory_tn_vxlan"
                 }
             }
-            self.add_component_descriptor("tn_vxlan", component_data)
+            self.add_entity_descriptor("mandatory_tn_vxlan", entity_data)
 
-    def add_component_tn_bastion(self):
-        """Add the component tn_bastion to the descriptor (mandatory)"""
-        # TODO: fix if update descriptor
-        if not self.is_component_descriptor("tn_bastion"):
-            component_data = {
-                "depends_on": ["tn_vxlan"],
+    def add_entity_mandatory_tn_bastion(self):
+        """Add the entity bastion to the descriptor (mandatory)"""
+        if not self.is_entity_descriptor("mandatory_tn_bastion"):
+            entity_data = {
+                "depends_on": ["mandatory_tn_vxlan"],
                 "public": None
             }
-            self.add_component_descriptor("tn_bastion", component_data)
+            self.add_entity_descriptor("mandatory_tn_bastion", entity_data)
     
-    def is_component_descriptor(self, component):
-        """Return true if a component is in descriptor"""
-        # TODO: fix if update descriptor
-        is_component = False
-        for component_name, component_data in self.descriptor["trial_network"].items():
-            if component_name == component and component_data is not None:
-                is_component = True
+    def is_entity_descriptor(self, entity):
+        """Return true if an entity is in descriptor"""
+        is_entity = False
+        for entity_name, entity_data in self.descriptor["trial_network"].items():
+            if entity_name == entity and entity_data is not None:
+                is_entity = True
                 break
-        return is_component
+        return is_entity
 
-    def add_component_descriptor(self, component_name, component_data):
-        """Return a new descriptor containing the newly added component"""
-        # TODO: fix if update descriptor
-        self.descriptor["trial_network"][component_name] = component_data
+    def add_entity_descriptor(self, entity_name, entity_data):
+        """Return a new descriptor containing the newly added entity"""
+        self.descriptor["trial_network"][entity_name] = entity_data
 
     def sort_descriptor(self):
         """Recursive function that returns the raw descriptor and a new descriptor sorted according to dependencies"""
-        components = self.descriptor["trial_network"]
-        ordered_components = {}
+        entities = self.descriptor["trial_network"]
+        ordered_entities = {}
 
-        def dfs(component):
-            if component in ordered_components:
+        def dfs(entity):
+            if entity not in entities.keys():
+                raise TrialNetworkEntityNotInDescriptorError("Name of the dependency does not match the name of some entity defined in the descriptor", 404)
+            if entity in ordered_entities:
                 return
-            if "depends_on" in components[component]:
-                for dependency in components[component]["depends_on"]:
+            if "depends_on" in entities[entity]:
+                for dependency in entities[entity]["depends_on"]:
                     dfs(dependency)
-            ordered_components[component] = components[component]
+            ordered_entities[entity] = entities[entity]
 
-        for component in components:
-            dfs(component)
+        for entity in entities:
+            dfs(entity)
 
-        return dumps(self.descriptor), dumps({"trial_network": ordered_components})
+        return dumps(self.descriptor), dumps({"trial_network": ordered_entities})
