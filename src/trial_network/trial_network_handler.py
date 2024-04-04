@@ -1,9 +1,9 @@
-from json import dumps, loads
+from json import loads
 
 from src.database.mongo_handler import MongoHandler
 from src.exceptions.exceptions_handler import TrialNetworkInvalidStatusError, TrialNetworkReportNotFoundError
 
-STATUS_TRIAL_NETWORK = ["pending", "deploying", "finished", "failed"]
+STATUS_TRIAL_NETWORK = ["pending", "deploying", "finished", "failed", "started"]
 
 class TrialNetworkHandler:
 
@@ -69,21 +69,21 @@ class TrialNetworkHandler:
         else:
             raise TrialNetworkInvalidStatusError(f"The status cannot be updated. The possible states of a trial network are: {STATUS_TRIAL_NETWORK}", 404)
 
-    def find_entity_name(self, entity_name):
-        """Find if the entity_name has been used before because if so the pipeline will fail. OpenNebula detects that this component is already deployed and returns an error"""
-        query = {"user_created": self.current_user, "entity_name": entity_name}
-        projection = {"_id": 0, "entity_name": 1}
+    def find_random_string(self, random_string):
+        """Find if the random string has been used before because if so the pipeline will fail. OpenNebula detects that this component is already deployed and returns an error"""
+        query = {"user_created": self.current_user, "random_string": random_string}
+        projection = {"_id": 0, "random_string": 1}
         entities_name = self.mongo_client.find_data(collection_name="trial_network", query=query, projection=projection)
         if entities_name:
-            ids = [cid["entity_name"] for cid in entities_name]
-            if entity_name in ids:
+            ids = [cid["random_string"] for cid in entities_name]
+            if random_string in ids:
                 return True
         return False
 
-    def update_entity_name_trial_network(self, entity_name):
-        """Add the entity_name used for deploy trial network"""
+    def add_random_string_trial_network(self, random_string):
+        """Add random string used for deploy trial network"""
         query = {"user_created": self.current_user, "tn_id": self.tn_id}
-        projection = {"$set": {"entity_name": entity_name}}
+        projection = {"$set": {"random_string": random_string}}
         self.mongo_client.update_data(collection_name="trial_network", query=query, projection=projection)
     
     def get_report_trial_network(self):
