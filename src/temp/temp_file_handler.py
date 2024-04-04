@@ -25,7 +25,7 @@ class TempFileHandler:
                             with open(descriptor_entity_report_file, "r") as file:
                                 json_data = load(file)
                                 tn_vxlan_id = json_data["tn_vxlan_id"]
-                                tn_vxlan_ids.append(tn_vxlan_id)
+                                tn_vxlan_ids.append(int(tn_vxlan_id))
         return tn_vxlan_ids
 
     def create_entity_temp_file(self, entity_data, descriptor_trial_network, report_directory, random_string):
