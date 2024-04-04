@@ -160,7 +160,7 @@ class StatusTrialNetwork(Resource):
     @jwt_required()
     def get(self, tn_id):
         """
-        Return the status of the Trial network specified in tn_id
+        Return the status of the trial network specified in tn_id
         """
         trial_network_handler = None
         try:
@@ -185,7 +185,7 @@ class StatusTrialNetwork(Resource):
     @trial_network_namespace.expect(parser_put)
     def put(self, tn_id):
         """
-        Update the status of the Trial network specified in tn_id
+        Update the status of the trial network specified in tn_id
         """
         trial_network_handler = None
         try:
