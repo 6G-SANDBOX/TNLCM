@@ -14,7 +14,7 @@ trial_network:
     type: vm_kvm_very_small
     depends_on:
       - mandatory_tn_vxlan
-      - mandatory_tn_vxlan
+      - mandatory_tn_bastion
     public:
       one_component_name: one_vm_kvm_very_small
       one_vm_username: test
