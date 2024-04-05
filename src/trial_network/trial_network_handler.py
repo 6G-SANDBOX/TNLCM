@@ -93,12 +93,6 @@ class TrialNetworkHandler:
             if random_string in ids:
                 return True
         return False
-
-    def add_tn_id(self):
-        """Add random string used for deploy trial network"""
-        query = {"user_created": self.current_user, "tn_id": self.tn_id}
-        projection = {"$set": {"tn_id": self.tn_id}}
-        self.mongo_client.update_data(collection_name="trial_network", query=query, projection=projection)
     
     def get_report_trial_network(self):
         """Return the report associated with a trial network"""

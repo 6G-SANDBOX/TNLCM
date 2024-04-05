@@ -107,7 +107,6 @@ class JenkinsHandler:
                 else:
                     raise SixGLibraryComponentNotFound(f"The '{component_name}' component is not in commit_id '{commit_id}' of the 6G-Library", 404)
         self.trial_network_handler.update_status_trial_network("started")
-        self.trial_network_handler.add_tn_id()
         if os.path.exists(REPORT_COMPONENTS_JENKINS_FILE_PATH):
             report_tn_path = os.path.join(REPORT_DIRECTORY, self.trial_network_handler.current_user + self.trial_network_handler.tn_id + ".md")
             os.rename(REPORT_COMPONENTS_JENKINS_FILE_PATH, report_tn_path)
