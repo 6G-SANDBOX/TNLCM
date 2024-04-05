@@ -6,8 +6,6 @@ from requests.exceptions import RequestException
 from json import dump
 from base64 import b64decode
 from time import sleep
-from string import ascii_lowercase, digits
-from random import choice
 
 from src.temp.temp_file_handler import TempFileHandler
 from src.sixglibrary.sixglibrary_handler import SixGLibraryHandler
@@ -45,7 +43,7 @@ class JenkinsHandler:
             if os.path.isfile(DECODED_COMPONENT_INFORMATION_FILE_PATH):
                 os.remove(DECODED_COMPONENT_INFORMATION_FILE_PATH)
             if "result_msg" not in data:
-                raise KeyNotFoundError(f"The result_msg key has not been received by Jenkins", 400)
+                raise KeyNotFoundError(f"The 'result_msg' key has not been received by Jenkins", 400)
             data["result_msg"] = b64decode(data["result_msg"]).decode("utf-8")
             with open(DECODED_COMPONENT_INFORMATION_FILE_PATH, "w") as decoded_information_file:
                 dump(data, decoded_information_file)
@@ -55,18 +53,14 @@ class JenkinsHandler:
         except UnicodeDecodeError:
             raise CustomUnicodeDecodeError("Unicode decoding error", 500)
     
-    def jenkins_parameters(self, entity_name, component_name, branch=None, commit_id=None):
+    def jenkins_parameters(self, tn_id, component_name, branch=None, commit_id=None):
         """Return a dictionary with the parameters for each component to be passed to the jenkins pipeline"""
         return {
-            "TN_ID": entity_name,
+            "TN_ID": tn_id,
             "LIBRARY_COMPONENT_NAME": component_name,
             "LIBRARY_BRANCH": branch or commit_id,
             "DEPLOYMENT_SITE": self.jenkins_deployment_site,
         }
-
-    def generate_random_string(self, size=6, chars=ascii_lowercase + digits):
-        """Generate random string using [a-z][0-9]"""
-        return ''.join(choice(chars) for _ in range(size))
 
     def deploy_trial_network(self, branch=None, commit_id=None):
         """Trial network deployment starts"""
@@ -80,16 +74,16 @@ class JenkinsHandler:
         self.trial_network_handler.update_status_trial_network("deploying")
         temp_file_handler = TempFileHandler()
         descriptor_trial_network = self.trial_network_handler.get_descriptor_trial_network()["trial_network"]
-        random_string = self.generate_random_string(size=3)
+        tn_id = self.trial_network_handler.tn_id
         for entity_name, entity_data in descriptor_trial_network.items():
-            entity_name = entity_name + "_" + random_string
+            entity_name = entity_name + "_" + tn_id
             component_name = entity_data["type"]
             if component_name in components_6glibrary:
-                component_path_temp_file = temp_file_handler.create_entity_temp_file(entity_data, descriptor_trial_network, REPORT_DIRECTORY, random_string)
+                component_path_temp_file = temp_file_handler.create_entity_temp_file(entity_data, descriptor_trial_network, REPORT_DIRECTORY, tn_id)
                 if os.path.isfile(component_path_temp_file):
                     with open(component_path_temp_file, 'rb') as component_temp_file:
                         file = {"FILE": (component_path_temp_file, component_temp_file)}
-                        jenkins_build_job_url = self.jenkins_client.build_job_url(name=self.jenkins_job_name, parameters=self.jenkins_parameters(entity_name, component_name, branch=branch, commit_id=commit_id))
+                        jenkins_build_job_url = self.jenkins_client.build_job_url(name=self.jenkins_job_name, parameters=self.jenkins_parameters(tn_id, component_name, branch=branch, commit_id=commit_id))
                         response = post(jenkins_build_job_url, auth=(self.jenkins_user, self.jenkins_token), files=file)
                         if response.status_code == 201:
                             last_build_number = self.jenkins_client.get_job_info(name=self.jenkins_job_name)["nextBuildNumber"]
@@ -113,7 +107,7 @@ class JenkinsHandler:
                 else:
                     raise SixGLibraryComponentNotFound(f"The '{component_name}' component is not in commit_id '{commit_id}' of the 6G-Library", 404)
         self.trial_network_handler.update_status_trial_network("started")
-        self.trial_network_handler.add_random_string_trial_network(random_string)
+        self.trial_network_handler.add_tn_id()
         if os.path.exists(REPORT_COMPONENTS_JENKINS_FILE_PATH):
             report_tn_path = os.path.join(REPORT_DIRECTORY, self.trial_network_handler.current_user + self.trial_network_handler.tn_id + ".md")
             os.rename(REPORT_COMPONENTS_JENKINS_FILE_PATH, report_tn_path)

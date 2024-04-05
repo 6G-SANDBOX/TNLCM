@@ -1,4 +1,6 @@
 from json import loads
+from string import ascii_lowercase, digits
+from random import choice
 
 from src.database.mongo_handler import MongoHandler
 from src.exceptions.exceptions_handler import TrialNetworkInvalidStatusError, TrialNetworkReportNotFoundError
@@ -12,6 +14,10 @@ class TrialNetworkHandler:
         self.current_user = current_user
         self.tn_id = tn_id
         self.mongo_client = MongoHandler()
+
+    def generate_tn_id(self, size=6, chars=ascii_lowercase + digits):
+        """Generate random string using [a-z][0-9]"""
+        return ''.join(choice(chars) for _ in range(size))
 
     def get_trial_networks(self):
         """Return all the trial networks created by a user. If user is an administrator, it returns all the trial networks created by the users"""
@@ -32,6 +38,7 @@ class TrialNetworkHandler:
     def create_trial_network(self, tn_raw_descriptor, tn_sorted_descriptor):
         """Add trial network to database"""
         tn_status = STATUS_TRIAL_NETWORK[0]
+        self.tn_id = self.generate_tn_id(size=3)
         trial_network_doc = {
             "user_created": self.current_user,
             "tn_id": self.tn_id,
@@ -87,10 +94,10 @@ class TrialNetworkHandler:
                 return True
         return False
 
-    def add_random_string_trial_network(self, random_string):
+    def add_tn_id(self):
         """Add random string used for deploy trial network"""
         query = {"user_created": self.current_user, "tn_id": self.tn_id}
-        projection = {"$set": {"random_string": random_string}}
+        projection = {"$set": {"tn_id": self.tn_id}}
         self.mongo_client.update_data(collection_name="trial_network", query=query, projection=projection)
     
     def get_report_trial_network(self):
@@ -104,7 +111,7 @@ class TrialNetworkHandler:
             raise TrialNetworkReportNotFoundError(f"Trial network '{self.tn_id}' has not been deployed yet", 404)
 
     def save_report_trial_network(self, report_components_jenkins_content):
-        """Save the report of the components deployed in the trial network"""
+        """Save the report of the trial network"""
         with open(report_components_jenkins_content, "r") as file:
             markdown_content = file.read()
         query = {"user_created": self.current_user, "tn_id": self.tn_id}

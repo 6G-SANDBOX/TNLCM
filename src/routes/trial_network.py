@@ -23,7 +23,6 @@ trial_network_namespace = Namespace(
 class CreateTrialNetwork(Resource):
 
     parser_post = reqparse.RequestParser()
-    parser_post.add_argument("tn_id", type=str, required=True)
     parser_post.add_argument("descriptor", location="files", type=FileStorage, required=True)
 
     @trial_network_namespace.doc(security="Bearer Auth")
@@ -36,17 +35,17 @@ class CreateTrialNetwork(Resource):
         trial_network_handler = None
         try:
             descriptor = self.parser_post.parse_args()["descriptor"]
-            tn_id = self.parser_post.parse_args()["tn_id"]
 
             current_user = get_jwt_identity()
             trial_network_descriptor_handler = TrialNetworkDescriptorHandler(current_user, descriptor)
-            trial_network_handler = TrialNetworkHandler(current_user, tn_id)
+            trial_network_handler = TrialNetworkHandler(current_user)
             if not trial_network_handler.get_trial_network():
                 trial_network_descriptor_handler.check_descriptor()
-                # trial_network_descriptor_handler.add_entity_mandatory_tn_vxlan()
-                # trial_network_descriptor_handler.add_entity_mandatory_tn_bastion()
+                trial_network_descriptor_handler.add_entity_mandatory_tn_vxlan()
+                trial_network_descriptor_handler.add_entity_mandatory_tn_bastion()
                 tn_raw_descriptor, tn_sorted_descriptor = trial_network_descriptor_handler.sort_descriptor()
                 trial_network_handler.create_trial_network(tn_raw_descriptor, tn_sorted_descriptor)
+                tn_id = trial_network_handler.tn_id
                 return {"tn_id": tn_id}, 201
             else:
                 return abort(409, f"Trial network with the name '{tn_id}' created earlier by user '{current_user}' in the trial_network collection in the database '{trial_network_handler.mongo_client.database}'")
