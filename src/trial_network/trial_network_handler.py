@@ -1,9 +1,9 @@
-from json import dumps, loads
+from json import loads
 
 from src.database.mongo_handler import MongoHandler
 from src.exceptions.exceptions_handler import TrialNetworkInvalidStatusError, TrialNetworkReportNotFoundError
 
-STATUS_TRIAL_NETWORK = ["pending", "deploying", "finished", "failed"]
+STATUS_TRIAL_NETWORK = ["pending", "deploying", "finished", "failed", "started"]
 
 class TrialNetworkHandler:
 
@@ -14,9 +14,9 @@ class TrialNetworkHandler:
         self.mongo_client = MongoHandler()
 
     def get_trial_networks(self):
-        """Return all the trial networks created by a user. If the user is an administrator, it returns all the trial networks created by the user"""
-        projection = {"_id": 0, "tn_id": 1}
+        """Return all the trial networks created by a user. If user is an administrator, it returns all the trial networks created by the users"""
         query = None if self.current_user == "admin" else {"user_created": self.current_user}
+        projection = {"_id": 0, "tn_id": 1}
         trial_networks = self.mongo_client.find_data(collection_name="trial_network", query=query, projection=projection)
         return [tn["tn_id"] for tn in trial_networks]
 
@@ -42,7 +42,7 @@ class TrialNetworkHandler:
         self.mongo_client.insert_data("trial_network", trial_network_doc)
 
     def get_descriptor_trial_network(self):
-        """Return the descriptor associated with a trial network"""
+        """Return the descriptor associated to a trial network"""
         query = {"tn_id": self.tn_id} if self.current_user == "admin" else {"user_created": self.current_user, "tn_id": self.tn_id}
         projection = {"_id": 0, "tn_sorted_descriptor": 1}
         trial_network_descriptor = self.mongo_client.find_data(collection_name="trial_network", query=query, projection=projection)
@@ -59,31 +59,38 @@ class TrialNetworkHandler:
         projection = {"_id": 0, "tn_status": 1}
         trial_network_status = self.mongo_client.find_data(collection_name="trial_network", query=query, projection=projection)
         return trial_network_status[0]["tn_status"]
+    
+    def get_status_trial_networks(self):
+        """Return the status of the trial networks"""
+        query = None if self.current_user == "admin" else {"user_created": self.current_user}
+        projection = {"_id": 0, "tn_id": 1, "tn_status": 1}
+        trial_network_status = self.mongo_client.find_data(collection_name="trial_network", query=query, projection=projection)
+        return trial_network_status
 
     def update_status_trial_network(self, new_status):
         """Update the status of a trial network"""
         if new_status in STATUS_TRIAL_NETWORK:
-            query = {"tn_id": self.tn_id} if self.current_user == "admin" else {"user_created": self.current_user, "tn_id": self.tn_id}
+            query = {"tn_id": self.tn_id} if self.current_user == "admin" else {"user_created": self.current_user}
             projection = {"$set": {"tn_status": new_status}}
             self.mongo_client.update_data(collection_name="trial_network", query=query, projection=projection)
         else:
             raise TrialNetworkInvalidStatusError(f"The status cannot be updated. The possible states of a trial network are: {STATUS_TRIAL_NETWORK}", 404)
 
-    def find_component_id(self, component_id):
-        """Find if the component_id has been used before because if so the pipeline will fail. OpenNebula detects that this component is already deployed and returns an error"""
-        query = {"user_created": self.current_user, "component_id": component_id}
-        projection = {"_id": 0, "component_id": 1}
-        component_ids = self.mongo_client.find_data(collection_name="trial_network", query=query, projection=projection)
-        if component_ids:
-            ids = [cid["component_id"] for cid in component_ids]
-            if component_id in ids:
+    def find_random_string(self, random_string):
+        """Find if the random string has been used before because if so the pipeline will fail. OpenNebula detects that this component is already deployed and returns an error"""
+        query = {"user_created": self.current_user, "random_string": random_string}
+        projection = {"_id": 0, "random_string": 1}
+        entities_name = self.mongo_client.find_data(collection_name="trial_network", query=query, projection=projection)
+        if entities_name:
+            ids = [cid["random_string"] for cid in entities_name]
+            if random_string in ids:
                 return True
         return False
 
-    def update_component_id_trial_network(self, component_id):
-        """Add the component_id used for the components of the trial network"""
+    def add_random_string_trial_network(self, random_string):
+        """Add random string used for deploy trial network"""
         query = {"user_created": self.current_user, "tn_id": self.tn_id}
-        projection = {"$set": {"component_id": component_id}}
+        projection = {"$set": {"random_string": random_string}}
         self.mongo_client.update_data(collection_name="trial_network", query=query, projection=projection)
     
     def get_report_trial_network(self):

@@ -1,6 +1,7 @@
 import os
 
 from tempfile import NamedTemporaryFile
+from json import load
 from yaml import dump
 
 TEMP_FILES_PATH = os.path.join(os.getcwd(), "src", "temp", "files")
@@ -11,15 +12,31 @@ class TempFileHandler:
         """Constructor"""
         os.makedirs(TEMP_FILES_PATH, exist_ok=True)
     
-    def create_component_temp_file(self, component_name, component_public, tn_vxlan_id=None):
-        """Create temporary files for each component that is deployed in the pipeline and returns the path to the file"""
-        with NamedTemporaryFile(delete=False, dir=TEMP_FILES_PATH, suffix=".yaml", mode='w') as component_temp_file:
-            if component_public is None:
-                component_public = {}
-            component_public["tnlcm_callback"] = os.getenv("CALLBACK_URL")
-            if tn_vxlan_id is not None:
-                component_public["one_component_networks"] = [0, int(tn_vxlan_id)]
-                if component_name == "tn_bastion":
-                    component_public["one_bastion_wireguard_allowed_networks"] = "192.168.199.0/24"
-            dump(component_public, component_temp_file, default_flow_style=False)
-        return component_temp_file.name
+    def extract_tn_vxlan_ids(self, entity_data, descriptor_trial_network, report_directory, random_string):
+        """Extract vxlan ids for the dependencies"""
+        tn_vxlan_ids = []
+        entity_depends_on = entity_data["depends_on"]
+        if entity_depends_on:
+            for entity_dependency in entity_depends_on:
+                for descriptor_entities_name, descriptor_entities_data in descriptor_trial_network.items():
+                    if descriptor_entities_name == entity_dependency and descriptor_entities_data["type"] == "tn_vxlan":
+                        descriptor_entity_report_file = os.path.join(report_directory, descriptor_entities_name + "_" + random_string + ".json")
+                        if os.path.isfile(descriptor_entity_report_file):
+                            with open(descriptor_entity_report_file, "r") as file:
+                                json_data = load(file)
+                                tn_vxlan_id = json_data["tn_vxlan_id"]
+                                tn_vxlan_ids.append(int(tn_vxlan_id))
+        return tn_vxlan_ids
+
+    def create_entity_temp_file(self, entity_data, descriptor_trial_network, report_directory, random_string):
+        """Create temporary files for each entity that is deployed in the pipeline and returns the path to the file"""
+        entity_public = entity_data["public"]
+        entity_type = entity_data["type"]
+        with NamedTemporaryFile(delete=False, dir=TEMP_FILES_PATH, suffix=".yaml", mode='w') as entity_temp_file:
+            entity_public["tnlcm_callback"] = os.getenv("CALLBACK_URL")
+            if entity_type != "tn_vxlan":
+                entity_public["one_component_networks"] = [0] + self.extract_tn_vxlan_ids(entity_data, descriptor_trial_network, report_directory, random_string)
+                if entity_type == "tn_bastion":
+                    entity_public["one_bastion_wireguard_allowed_networks"] = "192.168.199.0/24"
+            dump(entity_public, entity_temp_file, default_flow_style=False)
+        return entity_temp_file.name

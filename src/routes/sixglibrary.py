@@ -30,23 +30,23 @@ class Clone6GLibrary(Resource):
             output = sixglibrary_handler.git_clone_6glibrary()
             if output == "cloned":
                 if sixglibrary_handler.repository_handler.git_branch:
-                    return {"message": f"Cloned the '{sixglibrary_handler.repository_handler.git_branch}' branch of 6G-Library repository"}, 200
+                    return {"message": f"Cloned the '{sixglibrary_handler.repository_handler.git_branch}' branch of 6G-Library repository"}, 201
                 else:
-                    return {"message": f"Cloned commit id '{sixglibrary_handler.repository_handler.git_commit_id}' from 6G-Library repository"}, 200
+                    return {"message": f"Cloned commit id '{sixglibrary_handler.repository_handler.git_commit_id}' from 6G-Library repository"}, 201
             elif output == "exists":
-                return {"message": "6G-Library repository is already cloned"}, 400
+                return {"message": "6G-Library repository is already cloned"}, 200
             elif output == "updated":
                 if sixglibrary_handler.repository_handler.git_branch:
-                    return {"message": f"Updated to '{sixglibrary_handler.repository_handler.git_branch}' branch in the local 6G-Library repository"}, 200
+                    return {"message": f"Updated to '{sixglibrary_handler.repository_handler.git_branch}' branch in the local 6G-Library repository"}, 201
                 else:
-                    return {"message": f"Updated to commit id '{sixglibrary_handler.repository_handler.git_commit_id}' the local 6G-Library repository"}, 200
+                    return {"message": f"Updated to commit id '{sixglibrary_handler.repository_handler.git_commit_id}' the local 6G-Library repository"}, 201
             elif output == "updatedpull":
                 if sixglibrary_handler.repository_handler.git_branch:
-                    return {"message": f"Updated to '{sixglibrary_handler.repository_handler.git_branch}' branch and pull the local 6G-Library repository"}, 200
+                    return {"message": f"Updated to '{sixglibrary_handler.repository_handler.git_branch}' branch and pull the local 6G-Library repository"}, 201
                 else:
-                    return {"message": f"Updated to commit id '{sixglibrary_handler.repository_handler.git_commit_id}' and pull the local 6G-Library repository"}, 200
+                    return {"message": f"Updated to commit id '{sixglibrary_handler.repository_handler.git_commit_id}' and pull the local 6G-Library repository"}, 201
             else:
-                return {"message": "6G-Library repository is cloned, but a git pull has been done"}, 200
+                return {"message": "6G-Library repository is cloned, but a git pull has been done"}, 201
         except CustomException as e:
             return abort(e.error_code, str(e))
 
@@ -69,7 +69,7 @@ class Components6GLibrary(Resource):
 
             sixglibrary_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id)
             sixglibrary_handler.git_clone_6glibrary()
-            components = sixglibrary_handler.extract_components_6glibrary()
+            components = sixglibrary_handler.extract_info_components_6glibrary()
             if branch is not None:
                 return {
                     "branch": branch, 

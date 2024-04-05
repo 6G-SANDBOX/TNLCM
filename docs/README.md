@@ -1,9 +1,9 @@
+# TRIAL NETWORK LIFECYCLE MANAGER (TNLCM)
+
 [![Python](https://img.shields.io/badge/Python-3.12+-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB)](https://www.python.org/downloads/release/python-3122/)
 [![Flask](https://img.shields.io/badge/Flask-3.0.2+-brightgreen?style=for-the-badge&logo=flask&logoColor=white&labelColor=000000)](https://flask.palletsprojects.com/en/3.0.x/)
 [![Docker](https://img.shields.io/badge/Docker-latest-2496ED?style=for-the-badge&logo=docker&logoColor=white&labelColor=2496ED)](https://www.docker.com)
 [![MongoDB](https://img.shields.io/badge/MongoDB-latest-green?style=for-the-badge&logo=mongodb&logoColor=white&labelColor=47A248)](https://www.mongodb.com/)
-
-# TRIAL NETWORK LIFECYCLE MANAGER (TNLCM)
 
 > ⚠ TNLCM is under development and is subject to continuous changes.
 
@@ -13,9 +13,15 @@
 * OpenNebula (Mandatory)
 * MinIO (Optional)
 
-## Structure
+## Lifecycle
 
 ![TNLCM](./images/TNLCM.png)
+
+## Current Architecture
+
+TNLCM is currently capable of deploying three types of components which are **tn_vxlan**, **tn_bastion** and **vm_kvm**.
+
+![CurrentArchitecture](./images/currentArchitecture.png)
 
 ## Deploy TNLCM
 
@@ -27,7 +33,9 @@ Download the main branch from the TNLCM repository
 
 Clone repository:
 
-        git clone https://github.com/6G-SANDBOX/TNLCM
+```
+git clone https://github.com/6G-SANDBOX/TNLCM
+```
 
 ### Create .env using .env.template
 
@@ -42,9 +50,11 @@ Create the .env file at the same level and with the contents of the [.env.templa
 
 Once Docker is installed, open a terminal where the docker-compose.yml file is stored (usually inside the TNLCM project) and execute the commands:
 
-        docker compose build
+```
+docker compose build
 
-        docker compose up
+docker compose up
+```
 
 ### Create Python environment and install libraries
 
@@ -76,7 +86,9 @@ The environment must be created inside the TNLCM project
 
 With the environment activated, start TNLCM
 
-    python app.py
+```
+python app.py
+```
 
 A Swagger UI will be available at the url http://localhost:5000 where the API with the endpoints can be seen
 
@@ -123,13 +135,13 @@ Several tools can be used to open the file:
 
 > The format of Trial Network Descriptors has not been finalized and is expected to change in the future.
 
-Trial Network Descriptors are yaml files with a set of expected fields and structure. This repository contains an
-example of descriptor:
-- `first_descriptor.yml`
+Trial Network Descriptors are yaml files with a set of expected fields and structure. This repository contains an example of descriptor:
+- [`first_descriptor.yml`](../first_descriptor.yml)
 
 ```yaml
 trial_network:  # Mandatory, contains the description of all entities in the Trial Network
   <Entity1>:  # A unique identifier for each entity in the Trial Network
+    type:  # A type of component
     depends_on: # List of dependencies of the component with other components
       - <EntityN>
       - ...

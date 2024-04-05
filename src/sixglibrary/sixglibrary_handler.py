@@ -42,7 +42,7 @@ class SixGLibraryHandler:
                     if description_data.get("public") is not None:
                         public_parts[component] = description_data.get("public", {})
                     else:
-                        public_parts[component] = []
+                        public_parts[component] = {}
         return public_parts
     
     def extract_private_part_component_6glibrary(self, components):
@@ -82,7 +82,7 @@ class SixGLibraryHandler:
                         depends_parts[component] = []
         return depends_parts
 
-    def extract_components_6glibrary(self):
+    def extract_info_components_6glibrary(self):
         """Extracts public, private, and depends parts of the components from the 6G-Library"""
         components = None
         if os.path.exists(self.repository_handler.local_directory) and os.path.exists(os.path.join(self.repository_handler.local_directory, ".git")):
@@ -107,3 +107,18 @@ class SixGLibraryHandler:
                     "depends": depends_parts.get(component, [])
                 }
             return component_data
+
+    def extract_components_6glibrary(self):
+        """6G-Library components are extracted"""
+        components = None
+        if os.path.exists(self.repository_handler.local_directory) and os.path.exists(os.path.join(self.repository_handler.local_directory, ".git")):
+            components = [folder for folder in os.listdir(self.repository_handler.local_directory)
+                        if os.path.isdir(os.path.join(self.repository_handler.local_directory, folder))
+                        and folder not in (".git", ".global")]
+        if not components:
+            if self.git_6glibrary_branch:
+                raise SixGLibraryComponentsNotFound(f"No components in the '{self.git_6glibrary_branch}' branch of 6G-Library", 404)
+            else:
+                raise SixGLibraryComponentsNotFound(f"No components in the '{self.git_6glibrary_commit_id}' commit of 6G-Library", 404)
+        else:
+            return components

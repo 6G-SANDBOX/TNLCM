@@ -3,7 +3,7 @@ import os
 from jenkins import Jenkins
 from requests import post
 from requests.exceptions import RequestException
-from json import load, dump
+from json import dump
 from base64 import b64decode
 from time import sleep
 from string import ascii_lowercase, digits
@@ -38,7 +38,7 @@ class JenkinsHandler:
         if not self.jenkins_token or not self.jenkins_job_name or not self.jenkins_deployment_site:
             raise VariablesNotDefinedInEnvError("Add the value of the variables JENKINS_TOKEN, JENKINS_JOB_NAME and JENKINS_DEPLOYMENT_SITE in the .env file", 500)
         self.trial_network_handler = trial_network_handler
-    
+
     def save_decoded_information(self, data):
         """Store decoded deployment information of each component received by jenkins"""
         try:
@@ -55,31 +55,21 @@ class JenkinsHandler:
         except UnicodeDecodeError:
             raise CustomUnicodeDecodeError("Unicode decoding error", 500)
     
-    def jenkins_parameters(self, component_id, component_name, branch=None, commit_id=None):
-        """Returns a dictionary with the parameters for each component to be passed to the jenkins pipeline"""
+    def jenkins_parameters(self, entity_name, component_name, branch=None, commit_id=None):
+        """Return a dictionary with the parameters for each component to be passed to the jenkins pipeline"""
         return {
-            "TN_ID": component_id,
+            "TN_ID": entity_name,
             "LIBRARY_COMPONENT_NAME": component_name,
             "LIBRARY_BRANCH": branch or commit_id,
             "DEPLOYMENT_SITE": self.jenkins_deployment_site,
         }
 
-    def extract_tn_vxlan_id(self, component_id):
-        """Returns the id of the component tn_vxlan"""
-        component_report_file = os.path.join(REPORT_DIRECTORY, "tn_vxlan_" + component_id + ".json")
-        if os.path.isfile(component_report_file):
-            with open(component_report_file, "r") as file:
-                json_data = load(file)
-                tn_vxlan_id = json_data["tn_vxlan_id"]
-                return tn_vxlan_id
-    
     def generate_random_string(self, size=6, chars=ascii_lowercase + digits):
         """Generate random string using [a-z][0-9]"""
         return ''.join(choice(chars) for _ in range(size))
 
     def deploy_trial_network(self, branch=None, commit_id=None):
         """Trial network deployment starts"""
-        # Check status trial network, if pending or failed start deploy
         sixglibrary_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id)
         sixglibrary_handler.git_clone_6glibrary()
         components_6glibrary = sixglibrary_handler.extract_components_6glibrary()
@@ -88,23 +78,18 @@ class JenkinsHandler:
         if os.path.isfile(REPORT_COMPONENTS_JENKINS_FILE_PATH):
             os.remove(REPORT_COMPONENTS_JENKINS_FILE_PATH)
         self.trial_network_handler.update_status_trial_network("deploying")
-        current_user = self.trial_network_handler.current_user
-        tn_id = self.trial_network_handler.tn_id
-        component_id = current_user + "_" + tn_id + "_" + self.generate_random_string(size=3)
-        while self.trial_network_handler.find_component_id(component_id):
-            component_id = current_user + "_" + tn_id + "_" + self.generate_random_string(size=3)
         temp_file_handler = TempFileHandler()
         descriptor_trial_network = self.trial_network_handler.get_descriptor_trial_network()["trial_network"]
-        for component_name, component_data in descriptor_trial_network.items():
+        random_string = self.generate_random_string(size=3)
+        for entity_name, entity_data in descriptor_trial_network.items():
+            entity_name = entity_name + "_" + random_string
+            component_name = entity_data["type"]
             if component_name in components_6glibrary:
-                if component_name == "tn_vxlan":
-                    component_path_temp_file = temp_file_handler.create_component_temp_file(component_name, component_data["public"])
-                else:
-                    component_path_temp_file = temp_file_handler.create_component_temp_file(component_name, component_data["public"], self.extract_tn_vxlan_id(component_id))
+                component_path_temp_file = temp_file_handler.create_entity_temp_file(entity_data, descriptor_trial_network, REPORT_DIRECTORY, random_string)
                 if os.path.isfile(component_path_temp_file):
                     with open(component_path_temp_file, 'rb') as component_temp_file:
                         file = {"FILE": (component_path_temp_file, component_temp_file)}
-                        jenkins_build_job_url = self.jenkins_client.build_job_url(name=self.jenkins_job_name, parameters=self.jenkins_parameters(component_id, component_name, branch=branch, commit_id=commit_id))
+                        jenkins_build_job_url = self.jenkins_client.build_job_url(name=self.jenkins_job_name, parameters=self.jenkins_parameters(entity_name, component_name, branch=branch, commit_id=commit_id))
                         response = post(jenkins_build_job_url, auth=(self.jenkins_user, self.jenkins_token), files=file)
                         if response.status_code == 201:
                             last_build_number = self.jenkins_client.get_job_info(name=self.jenkins_job_name)["nextBuildNumber"]
@@ -113,7 +98,7 @@ class JenkinsHandler:
                             if self.jenkins_client.get_job_info(name=self.jenkins_job_name)["lastSuccessfulBuild"]["number"] == last_build_number:
                                 sleep(2)
                                 if os.path.isfile(DECODED_COMPONENT_INFORMATION_FILE_PATH):
-                                    os.rename(DECODED_COMPONENT_INFORMATION_FILE_PATH, os.path.join(REPORT_DIRECTORY, component_name + "_" + component_id + ".json"))
+                                    os.rename(DECODED_COMPONENT_INFORMATION_FILE_PATH, os.path.join(REPORT_DIRECTORY, entity_name + ".json"))
                                 else:
                                     raise JenkinsComponentReportNotFoundError(f"The '{component_name}' component deployment report file is not found", 500)
                             else:
@@ -127,10 +112,10 @@ class JenkinsHandler:
                     raise SixGLibraryComponentNotFound(f"The '{component_name}' component is not in '{branch}' branch of the 6G-Library", 404)
                 else:
                     raise SixGLibraryComponentNotFound(f"The '{component_name}' component is not in commit_id '{commit_id}' of the 6G-Library", 404)
-        self.trial_network_handler.update_status_trial_network("finished")
-        self.trial_network_handler.update_component_id_trial_network(component_id)
+        self.trial_network_handler.update_status_trial_network("started")
+        self.trial_network_handler.add_random_string_trial_network(random_string)
         if os.path.exists(REPORT_COMPONENTS_JENKINS_FILE_PATH):
-            report_tn_path = os.path.join(REPORT_DIRECTORY, component_id + ".md")
+            report_tn_path = os.path.join(REPORT_DIRECTORY, self.trial_network_handler.current_user + self.trial_network_handler.tn_id + ".md")
             os.rename(REPORT_COMPONENTS_JENKINS_FILE_PATH, report_tn_path)
             self.trial_network_handler.save_report_trial_network(report_tn_path)
         else:

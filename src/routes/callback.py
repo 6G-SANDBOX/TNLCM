@@ -14,7 +14,7 @@ class Callback(Resource):
     
     def post(self):
         """
-        Get jenkins results from deploying components
+        Save jenkins results from deploying components
         """
         try:
             data = request.get_json()
