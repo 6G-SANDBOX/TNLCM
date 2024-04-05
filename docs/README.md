@@ -1,4 +1,4 @@
-# TRIAL NETWORK LIFECYCLE MANAGER (TNLCM)
+# TRIAL NETWORK LIFECYCLE MANAGER (TNLCM) <!-- omit in toc -->
 
 [![Python](https://img.shields.io/badge/Python-3.12+-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB)](https://www.python.org/downloads/release/python-3122/)
 [![Flask](https://img.shields.io/badge/Flask-3.0.2+-brightgreen?style=for-the-badge&logo=flask&logoColor=white&labelColor=000000)](https://flask.palletsprojects.com/en/3.0.x/)
@@ -13,6 +13,19 @@
 * OpenNebula (Mandatory)
 * MinIO (Optional)
 
+## Table of contents <!-- omit in toc -->
+- [Lifecycle](#lifecycle)
+- [Current Architecture](#current-architecture)
+- [Deploy TNLCM](#deploy-tnlcm)
+  - [Download or clone repository](#download-or-clone-repository)
+  - [Create .env using .env.template](#create-env-using-envtemplate)
+  - [Create TNLCM database](#create-tnlcm-database)
+  - [Create Python environment and install libraries](#create-python-environment-and-install-libraries)
+  - [Start TNLCM](#start-tnlcm)
+- [How to use Swagger UI](#how-to-use-swagger-ui)
+- [Report with the results of the Trial Network deployment](#report-with-the-results-of-the-trial-network-deployment)
+- [Trial Network Descriptor Schema](#trial-network-descriptor-schema)
+  
 ## Lifecycle
 
 ![TNLCM](./images/TNLCM.png)
