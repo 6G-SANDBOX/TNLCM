@@ -7,13 +7,8 @@
 
 > ⚠ TNLCM is under development and is subject to continuous changes.
 
-> ⚠ The following tools are required to be deployed on platforms:
-
-* Jenkins (Mandatory)
-* OpenNebula (Mandatory)
-* MinIO (Optional)
-
 ## Table of contents <!-- omit in toc -->
+- [Code structure](#code-structure)
 - [Lifecycle](#lifecycle)
 - [Current Architecture](#current-architecture)
 - [Deploy TNLCM](#deploy-tnlcm)
@@ -25,7 +20,30 @@
 - [How to use Swagger UI](#how-to-use-swagger-ui)
 - [Report with the results of the Trial Network deployment](#report-with-the-results-of-the-trial-network-deployment)
 - [Trial Network Descriptor Schema](#trial-network-descriptor-schema)
-  
+
+## Code structure
+
+TNLCM code is structured as follows:
+
+* **docs**: folder in which all documentation is stored.
+* **src**: folder in which the developed code is stored.
+  * **auth**: folder in which the authentication of users who have access is handled.
+  * **callback**: folder that handle the connection with Jenkins for component deployment.
+  * **database**: folder that handle the creation and connection to the MongoDB database.
+  * **exceptions**: folder that handle the creation of custom exceptions.
+  * **logs**: folder that handle log creation.
+  * **repository**: folder that handle the connection to any repository.
+  * **routes**: folder that handle the API that is exposed.
+  * **sixglibrary**: folder that handle the connection to the 6G-Library.
+  * **temp**: folder that handle the creation of temporary files.
+  * **trial_network**: folder that handle the trial networks.
+
+* **app.py**: main file that starts TNLCM.
+* **CHANGELOG.md**: file containing the changes made in each release.
+* **config.py**: configuration file.
+* **docker-compose.yml**: file for database creation.
+* **requirements.txt**: file containing the libraries and their versions.
+
 ## Lifecycle
 
 ![TNLCM](./images/TNLCM.png)
@@ -39,6 +57,12 @@ TNLCM is currently capable of deploying three types of components which are **tn
 ## Deploy TNLCM
 
 > ⚠ It is recommended to do this deployment on a virtual machine since you must use a callback URL that Jenkins must have access to.
+
+> ⚠ The following tools are required to be deployed on platforms:
+
+* Jenkins (Mandatory)
+* OpenNebula (Mandatory)
+* MinIO (Optional)
 
 ### Download or clone repository
 
@@ -56,7 +80,7 @@ Create the .env file at the same level and with the contents of the [.env.templa
 
 ### Create TNLCM database
 
-> ⚠ This step requires Docker to be installed on the machine.
+> This step requires Docker to be installed on the machine.
 
 * [Windows](https://docs.docker.com/desktop/install/windows-install/)
 * [Linux](https://docs.docker.com/desktop/install/linux-install/)
