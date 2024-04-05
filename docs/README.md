@@ -13,9 +13,15 @@
 * OpenNebula (Mandatory)
 * MinIO (Optional)
 
-## Structure
+## Lifecycle
 
 ![TNLCM](./images/TNLCM.png)
+
+## Current Architecture
+
+TNLCM is currently capable of deploying three types of components which are **tn_vxlan**, **tn_bastion** and **vm_kvm**.
+
+![CurrentArchitecture](./images/currentArchitecture.png)
 
 ## Deploy TNLCM
 
