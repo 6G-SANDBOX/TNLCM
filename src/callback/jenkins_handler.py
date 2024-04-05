@@ -72,9 +72,9 @@ class JenkinsHandler:
         if os.path.isfile(REPORT_COMPONENTS_JENKINS_FILE_PATH):
             os.remove(REPORT_COMPONENTS_JENKINS_FILE_PATH)
         self.trial_network_handler.update_status_trial_network("deploying")
-        temp_file_handler = TempFileHandler()
         descriptor_trial_network = self.trial_network_handler.get_descriptor_trial_network()["trial_network"]
         tn_id = self.trial_network_handler.tn_id
+        temp_file_handler = TempFileHandler()
         for entity_name, entity_data in descriptor_trial_network.items():
             entity_name = entity_name + "_" + tn_id
             component_name = entity_data["type"]
