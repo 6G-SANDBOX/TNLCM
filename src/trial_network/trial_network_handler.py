@@ -15,8 +15,8 @@ class TrialNetworkHandler:
 
     def get_trial_networks(self):
         """Return all the trial networks created by a user. If user is an administrator, it returns all the trial networks created by the users"""
-        projection = {"_id": 0, "tn_id": 1}
         query = None if self.current_user == "admin" else {"user_created": self.current_user}
+        projection = {"_id": 0, "tn_id": 1}
         trial_networks = self.mongo_client.find_data(collection_name="trial_network", query=query, projection=projection)
         return [tn["tn_id"] for tn in trial_networks]
 
@@ -59,11 +59,18 @@ class TrialNetworkHandler:
         projection = {"_id": 0, "tn_status": 1}
         trial_network_status = self.mongo_client.find_data(collection_name="trial_network", query=query, projection=projection)
         return trial_network_status[0]["tn_status"]
+    
+    def get_status_trial_networks(self):
+        """Return the status of the trial networks"""
+        query = None if self.current_user == "admin" else {"user_created": self.current_user}
+        projection = {"_id": 0, "tn_id": 1, "tn_status": 1}
+        trial_network_status = self.mongo_client.find_data(collection_name="trial_network", query=query, projection=projection)
+        return trial_network_status
 
     def update_status_trial_network(self, new_status):
         """Update the status of a trial network"""
         if new_status in STATUS_TRIAL_NETWORK:
-            query = {"tn_id": self.tn_id} if self.current_user == "admin" else {"user_created": self.current_user, "tn_id": self.tn_id}
+            query = {"tn_id": self.tn_id} if self.current_user == "admin" else {"user_created": self.current_user}
             projection = {"$set": {"tn_status": new_status}}
             self.mongo_client.update_data(collection_name="trial_network", query=query, projection=projection)
         else:
