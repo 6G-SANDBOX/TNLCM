@@ -66,10 +66,10 @@ class Users(Resource):
             auth_handler = AuthHandler(username=username, email=email, password=password, org=org)
             user = auth_handler.get_email()
             if user:
-                return abort(409, "Email already created in the database")
+                return abort(409, "Email already exist in the database")
             user = auth_handler.get_username()
             if user:
-                return abort(409, "Username already created in the database")
+                return abort(409, "Username already exist in the database")
             auth_handler.create_user()
             return {"message": "User added"}, 201
         except CustomException as e:
