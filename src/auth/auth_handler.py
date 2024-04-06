@@ -18,21 +18,21 @@ class AuthHandler:
     def get_current_user_from_jwt(self):
         """Return the user that is associated with the token entered"""
         query = {"username": self.jwt_identity}
-        user = self.mongo_client.find_data(collection_name="trial_network_user", query=query)
+        user = self.mongo_client.find_data(collection_name="users", query=query)
         return user[0]["username"]
 
     def get_username(self):
         """Return the username associated with a user"""
         query = {"username": self.username}
         projection = {"_id": 0, "username": 1}
-        user = self.mongo_client.find_data(collection_name="trial_network_user", query=query, projection=projection)
+        user = self.mongo_client.find_data(collection_name="users", query=query, projection=projection)
         return user
 
     def get_email(self):
         """Return the email associated with a user"""
         query = {"email": self.email}
         projection = {"_id": 0, "email": 1}
-        email = self.mongo_client.find_data(collection_name="trial_network_user", query=query, projection=projection)
+        email = self.mongo_client.find_data(collection_name="users", query=query, projection=projection)
         return email
 
     def is_valid_email(self):
@@ -51,13 +51,13 @@ class AuthHandler:
             "password": generate_password_hash(self.password, method="pbkdf2"),
             "org": self.org
         }
-        self.mongo_client.insert_data("trial_network_user", user_doc)
+        self.mongo_client.insert_data("users", user_doc)
 
     def get_password(self):
         """Return the password associated with a user"""
         query = {"username": self.username}
         projection = {"_id": 0, "password": 1}
-        password = self.mongo_client.find_data(collection_name="trial_network_user", query=query, projection=projection)
+        password = self.mongo_client.find_data(collection_name="users", query=query, projection=projection)
         return password
 
     def check_password(self):
