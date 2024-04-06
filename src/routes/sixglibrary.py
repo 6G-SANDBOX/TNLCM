@@ -50,8 +50,8 @@ class Clone6GLibrary(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
 
-@sixglibrary_namespace.route("/components/")
-class Components6GLibrary(Resource):
+@sixglibrary_namespace.route("/components/all")
+class AllPartsComponents6GLibrary(Resource):
 
     parser_get = reqparse.RequestParser()
     parser_get.add_argument("branch", type=str, required=False)
