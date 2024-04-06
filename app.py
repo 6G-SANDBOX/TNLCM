@@ -7,9 +7,8 @@ from flask_cors import CORS
 from waitress import serve
 from dotenv import load_dotenv
 
-from src.verification.mail import init_mail
 from src.logs.log_handler import LogHandler
-from src.routes import trial_network_namespace, callback_namespace, sixglibrary_namespace, users_namespace, verification_namespace
+from src.routes import trial_network_namespace, callback_namespace, sixglibrary_namespace, users_namespace
 
 app = Flask(__name__)
 CORS(app)
@@ -17,7 +16,6 @@ JWTManager(app)
 
 load_dotenv()
 app.config.from_object("config.Config")
-init_mail(app)
 
 api = Api(
     app,
@@ -28,7 +26,6 @@ api = Api(
 )
 
 api.add_namespace(users_namespace, path="/tnlcm/user")
-api.add_namespace(verification_namespace, path="/tnlcm/verification")
 api.add_namespace(trial_network_namespace, path="/tnlcm/trial_network")
 api.add_namespace(sixglibrary_namespace, path="/tnlcm/6glibrary")
 api.add_namespace(callback_namespace, path="/tnlcm/callback")
