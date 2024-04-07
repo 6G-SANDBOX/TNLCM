@@ -8,6 +8,7 @@
 > ⚠ TNLCM is under development and is subject to continuous changes.
 
 ## Table of contents <!-- omit in toc -->
+- [Distribution of branches](#distribution-of-branches)
 - [Code structure](#code-structure)
 - [Lifecycle](#lifecycle)
 - [Current Architecture](#current-architecture)
@@ -20,6 +21,14 @@
 - [How to use Swagger UI](#how-to-use-swagger-ui)
 - [Report with the results of the Trial Network deployment](#report-with-the-results-of-the-trial-network-deployment)
 - [Trial Network Descriptor Schema](#trial-network-descriptor-schema)
+
+## Distribution of branches
+
+The **main** branch will be updated every time there is a plenary meeting. Releases will be created from this branch.
+
+The **staging** branch will be updated every time there is a plenary meeting or a demo.
+
+The **dev** branch will be used for development. This branch will feed the staging and main branches.
 
 ## Code structure
 
