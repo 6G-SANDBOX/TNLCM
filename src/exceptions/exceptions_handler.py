@@ -80,10 +80,6 @@ class TrialNetworkDescriptorInvalidContentError(CustomTrialNetworkError):
     """Error thrown when the descriptor has semantic faults"""
     pass
 
-class TrialNetworkReportNotFoundError(CustomTrialNetworkError):
-    """Error thrown when the trial network does not have a report file associated with it"""
-    pass
-
 class TrialNetworkEntityNotInDescriptorError(CustomTrialNetworkError):
     """Error thrown when the name of the dependency does not match the name of some entity defined in the descriptor"""
     pass
