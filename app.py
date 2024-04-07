@@ -15,7 +15,13 @@ CORS(app)
 JWTManager(app)
 
 load_dotenv()
-app.config.from_object("config.Config")
+flask_env = os.getenv("FLASK_ENV")
+if flask_env == "DEVELOPMENT":
+    app.config.from_object("config.DevelopmentConfig")
+elif flask_env == "PRODUCTION":
+    app.config.from_object("config.ProductionConfig")
+else:
+    app.config.from_object("config.TestingConfig")
 
 api = Api(
     app,
@@ -33,7 +39,6 @@ api.add_namespace(callback_namespace, path="/tnlcm/callback")
 LogHandler()
 
 if __name__ == "__main__":
-    flask_env = os.getenv("FLASK_ENV")
     if flask_env == "DEVELOPMENT":
         app.run(host="0.0.0.0", port=5000)
     elif flask_env == "PRODUCTION":
