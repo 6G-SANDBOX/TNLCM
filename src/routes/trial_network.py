@@ -74,7 +74,7 @@ class TrialNetwork(Resource):
             trial_network_handler = TrialNetworkHandler(current_user, tn_id)
             if trial_network_handler.get_trial_network():
                 sorted_descriptor = trial_network_handler.get_descriptor_trial_network()
-                return sorted_descriptor, 200
+                return {"tn_descriptor": sorted_descriptor}, 200
             else:
                 return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the trial_network collection in the database '{trial_network_handler.mongo_client.database}'")
         except CustomException as e:
@@ -125,27 +125,6 @@ class TrialNetwork(Resource):
                 return {"message": f"The trial network with identifier '{tn_id}' has been removed from the database"}, 200
             else:
                 return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the trial_network collection in the database '{trial_network_handler.mongo_client.database}'")
-        except CustomException as e:
-            return abort(e.error_code, str(e))
-        finally:
-            if trial_network_handler is not None:
-                trial_network_handler.mongo_client.disconnect()
-
-@trial_network_namespace.route("s/") 
-class TrialNetworks(Resource):
-
-    @trial_network_namespace.doc(security="Bearer Auth")
-    @jwt_required()
-    def get(self):
-        """
-        Return all the trial networks stored in database
-        """
-        trial_network_handler = None
-        try:
-            current_user = get_jwt_identity()
-            trial_network_handler = TrialNetworkHandler(current_user)
-            trial_networks = trial_network_handler.get_trial_networks()
-            return {"tn_ids": trial_networks}, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
@@ -216,9 +195,33 @@ class ReportTrialNetwork(Resource):
             trial_network_handler = TrialNetworkHandler(current_user, tn_id)
             if trial_network_handler.get_trial_network():
                 tn_report = trial_network_handler.get_report_trial_network()
-                return tn_report, 200
+                if tn_report:
+                    return {"tn_report": tn_report}, 200
+                else:
+                    abort(404, f"Trial network '{tn_id}' has not been deployed yet")
             else:
                 return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the trial_network collection in the database '{trial_network_handler.mongo_client.database}'")
+        except CustomException as e:
+            return abort(e.error_code, str(e))
+        finally:
+            if trial_network_handler is not None:
+                trial_network_handler.mongo_client.disconnect()
+
+@trial_network_namespace.route("s/") 
+class TrialNetworks(Resource):
+
+    @trial_network_namespace.doc(security="Bearer Auth")
+    @jwt_required()
+    def get(self):
+        """
+        Return all the trial networks stored in database
+        """
+        trial_network_handler = None
+        try:
+            current_user = get_jwt_identity()
+            trial_network_handler = TrialNetworkHandler(current_user)
+            trial_networks = trial_network_handler.get_trial_networks()
+            return {"tn_ids": trial_networks}, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
@@ -239,7 +242,59 @@ class StatusTrialNetwork(Resource):
             current_user = get_jwt_identity()
             trial_network_handler = TrialNetworkHandler(current_user)
             status_trial_networks = trial_network_handler.get_status_trial_networks()
-            return status_trial_networks, 200
+            return {"trial_networks_status": status_trial_networks}, 200
+        except CustomException as e:
+            return abort(e.error_code, str(e))
+        finally:
+            if trial_network_handler is not None:
+                trial_network_handler.mongo_client.disconnect()
+
+@trial_network_namespace.route("s/templates/")
+class TemplatesTrialNetworks(Resource):
+
+    @trial_network_namespace.doc(security="Bearer Auth")
+    @jwt_required()
+    def get(self):
+        """
+        Return trial networks templates
+        """
+        trial_network_handler = None
+        try:
+            current_user = get_jwt_identity()
+            trial_network_handler = TrialNetworkHandler(current_user)
+            trial_networks_templates = trial_network_handler.get_trial_networks_templates()
+            return {"trial_networks_templates": trial_networks_templates}, 200
+        except CustomException as e:
+            return abort(e.error_code, str(e))
+        finally:
+            if trial_network_handler is not None:
+                trial_network_handler.mongo_client.disconnect()
+    
+    parser_post = reqparse.RequestParser()
+    parser_post.add_argument("tn_id", type=str, required=True)
+    parser_post.add_argument("descriptor", location="files", type=FileStorage, required=True)
+
+    @trial_network_namespace.doc(security="Bearer Auth")
+    @jwt_required()
+    @trial_network_namespace.expect(parser_post)
+    def post(self):
+        """
+        Create and add a trial network template to database
+        """
+        trial_network_handler = None
+        try:
+            tn_id = self.parser_post.parse_args()["tn_id"]
+            descriptor = self.parser_post.parse_args()["descriptor"]
+
+            current_user = get_jwt_identity()
+            trial_network_descriptor_handler = TrialNetworkDescriptorHandler(current_user, descriptor)
+            trial_network_handler = TrialNetworkHandler(current_user, tn_id)
+            trial_network_descriptor_handler.check_descriptor()
+            trial_network_descriptor_handler.add_entity_mandatory_tn_vxlan()
+            trial_network_descriptor_handler.add_entity_mandatory_tn_bastion()
+            tn_raw_descriptor, tn_sorted_descriptor = trial_network_descriptor_handler.sort_descriptor()
+            trial_network_handler.create_trial_network_template(tn_raw_descriptor, tn_sorted_descriptor)
+            return {"tn_id": tn_id}, 201
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
