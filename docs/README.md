@@ -89,8 +89,11 @@ Once Docker is installed, open a terminal where the docker-compose.yml file is s
 
 ```
 docker compose build
+```
 
-docker compose up
+Flag **-d** can be added to raise the container in background:
+```
+docker compose up -d
 ```
 
 ### Create Python environment and install libraries
