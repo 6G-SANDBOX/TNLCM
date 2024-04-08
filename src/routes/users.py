@@ -58,10 +58,10 @@ class Users(Resource):
         """
         auth_handler = None
         try:
-            email = self.parser_post.parse_args()["email"].lower()
-            username = self.parser_post.parse_args()["username"].lower()
-            password = self.parser_post.parse_args()["password"].lower()
-            org = self.parser_post.parse_args()["org"].upper()
+            email = self.parser_post.parse_args()["email"]
+            username = self.parser_post.parse_args()["username"]
+            password = self.parser_post.parse_args()["password"]
+            org = self.parser_post.parse_args()["org"]
 
             auth_handler = AuthHandler(username=username, email=email, password=password, org=org)
             user = auth_handler.get_email()
