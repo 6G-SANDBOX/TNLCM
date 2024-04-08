@@ -76,11 +76,11 @@ class NewUserVerification(Resource):
         verification_handler = None
         auth_handler = None
         try:
-            email = self.parser_post.parse_args()["email"].lower()
+            email = self.parser_post.parse_args()["email"]
             verification_token = self.parser_post.parse_args()["verification_token"]
-            username = self.parser_post.parse_args()["username"].lower()
-            password = self.parser_post.parse_args()["password"].lower()
-            org = self.parser_post.parse_args()["org"].upper()
+            username = self.parser_post.parse_args()["username"]
+            password = self.parser_post.parse_args()["password"]
+            org = self.parser_post.parse_args()["org"]
 
             auth_handler = AuthHandler(username=username, email=email, password=password, org=org)
             user = auth_handler.get_email()
@@ -141,7 +141,7 @@ class RequestResetToken(Resource):
             verification_handler = VerificationHandler(receiver_email, _six_digit_random)
             verification_handler.update_verification_token()
 
-            return {"message": "Reset Token sent by email successfully"}, 200
+            return {"message": "Reset token sent by email successfully"}, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
@@ -149,3 +149,55 @@ class RequestResetToken(Resource):
                 auth_handler.mongo_client.disconnect()
             if verification_handler != None:
                 verification_handler.mongo_client.disconnect()
+
+@verification_namespace.route('/change-password')
+class ChangePassword(Resource):
+
+    parser_post = reqparse.RequestParser()
+    parser_post.add_argument("email", type=str, location="json", required=True)
+    parser_post.add_argument("password", type=str, location="json", required=True)
+    parser_post.add_argument("reset_token", type=int, location="json", required=True)
+
+    @verification_namespace.expect(parser_post)
+    def post(self):
+        """
+        Change an user password with a reset token
+        """
+        verification_handler = None
+        auth_handler = None
+        try:
+            sender_email = os.getenv("MAIL_USERNAME")
+            receiver_email = self.parser_post.parse_args()["email"]
+            password = self.parser_post.parse_args()["password"]
+            reset_token = self.parser_post.parse_args()["reset_token"]
+            
+            auth_handler = AuthHandler(email=receiver_email, password=password)
+            user = auth_handler.get_email()
+            if not user:
+                return abort(404, "User not found")
+            
+            verification_handler = VerificationHandler(receiver_email, reset_token)
+            latest_verification_token = verification_handler.get_verification_token()
+
+            if not latest_verification_token:
+                return abort(401, "Token provided not correct")
+            
+            auth_handler.update_password()
+
+            with mail.connect() as conn:
+                msg = Message(
+                    subject="[6G-SANDBOX] TNLCM: Password change.",
+                    sender=sender_email,
+                    recipients=[receiver_email]
+                )
+                msg.body = "Your account password has been successfully changed."
+                conn.send(msg)
+
+            return {"message": "Password change confirmation sent by email successfully"}, 200
+        except CustomException as e:
+            return abort(e.error_code, str(e))
+        finally:
+            if auth_handler != None:
+                auth_handler.mongo_client.disconnect()
+            if auth_handler != None:
+                auth_handler.mongo_client.disconnect()
