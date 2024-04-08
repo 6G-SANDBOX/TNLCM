@@ -8,6 +8,7 @@ from waitress import serve
 from dotenv import load_dotenv
 
 from src.logs.log_handler import LogHandler
+from src.verification.mail import init_mail
 from src.routes import trial_network_namespace, callback_namespace, sixglibrary_namespace, users_namespace, verification_namespace
 
 app = Flask(__name__)
@@ -22,6 +23,8 @@ elif flask_env == "PRODUCTION":
     app.config.from_object("config.ProductionConfig")
 else:
     app.config.from_object("config.TestingConfig")
+
+init_mail(app)
 
 api = Api(
     app,
