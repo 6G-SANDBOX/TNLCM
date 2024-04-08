@@ -19,7 +19,7 @@ class AuthHandler:
         """Return the user that is associated with the token entered"""
         query = {"username": self.jwt_identity}
         user = self.mongo_client.find_data(collection_name="users", query=query)
-        return user[0]["username"]
+        return user
 
     def get_username(self):
         """Return the username associated with a user"""

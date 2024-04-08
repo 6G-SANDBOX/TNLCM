@@ -38,7 +38,7 @@ class Users(Resource):
             jwt_identity = get_jwt_identity()
             auth_handler = AuthHandler(jwt_identity=jwt_identity)
             current_user = auth_handler.get_current_user_from_jwt()
-            return {"username": current_user}, 200
+            return {"username": current_user[0]["username"]}, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
@@ -46,10 +46,10 @@ class Users(Resource):
                 auth_handler.mongo_client.disconnect()
 
     parser_post = reqparse.RequestParser()
-    parser_post.add_argument("email", type=str, required=True)
-    parser_post.add_argument("username", type=str, required=True)
-    parser_post.add_argument("password", type=str, required=True)
-    parser_post.add_argument("org", type=str, required=True)
+    parser_post.add_argument("email", type=str, location="json", required=True)
+    parser_post.add_argument("username", type=str, location="json", required=True)
+    parser_post.add_argument("password", type=str, location="json", required=True)
+    parser_post.add_argument("org", type=str, location="json", required=True)
 
     @users_namespace.expect(parser_post)
     def post(self):
@@ -126,6 +126,9 @@ class UserTokenRefresh(Resource):
             jwt_identity = get_jwt_identity()
             auth_handler = AuthHandler(jwt_identity=jwt_identity)
             current_user = auth_handler.get_current_user_from_jwt()
+            if not current_user:
+                abort(404, "User not found")
+            current_user = current_user[0]["username"]
             new_access_token = create_access_token(identity=current_user, expires_delta=timedelta(minutes=EXP_MINUTES_ACCESS_TOKEN))
             return {"access_token": new_access_token}, 201
         except CustomException as e:
