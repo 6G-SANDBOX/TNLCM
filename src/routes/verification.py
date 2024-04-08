@@ -51,7 +51,7 @@ class RequestVerificationToken(Resource):
 
             return {"message": "Verification token sent by email successfully"}, 200
         except CustomException as e:
-            return abort(422, str(e))
+            return abort(e.error_code, str(e))
         finally:
             if auth_handler != None:
                 auth_handler.mongo_client.disconnect()
@@ -94,12 +94,56 @@ class NewUserVerification(Resource):
             latest_verification_token = verification_handler.get_verification_token()
 
             if not latest_verification_token:
-                return {"message": "Token provided not correct"}, 401
+                return abort(401, "Token provided not correct")
 
             auth_handler.create_user()
             return {"message": "User added"}, 201
         except CustomException as e:
-            return {'message': str(e)}, 422
+            return abort(e.error_code, str(e))
+        finally:
+            if auth_handler != None:
+                auth_handler.mongo_client.disconnect()
+            if verification_handler != None:
+                verification_handler.mongo_client.disconnect()
+
+@verification_namespace.route("/request-reset-token")
+class RequestResetToken(Resource):
+
+    parser_post = reqparse.RequestParser()
+    parser_post.add_argument("email", type=str, location="json", required=True)
+
+    @verification_namespace.expect(parser_post)
+    def post(self):
+        """
+        Request a reset token via email for changing password
+        """
+        verification_handler = None
+        auth_handler = None
+        try:
+            sender_email = os.getenv("MAIL_USERNAME")
+            receiver_email = self.parser_post.parse_args()["email"]
+            _six_digit_random = randint(100000, 999999)
+
+            auth_handler = AuthHandler(email=receiver_email)
+            user = auth_handler.get_email()
+            if not user:
+                return abort(404, "User not found")
+
+            with mail.connect() as conn:
+                msg = Message(
+                    subject="[6G-SANDBOX] TNLCM: Account recovery.",
+                    sender=sender_email,
+                    recipients=[receiver_email]
+                )
+                msg.body = f"Your account recovery code is {_six_digit_random}."
+                conn.send(msg)
+
+            verification_handler = VerificationHandler(receiver_email, _six_digit_random)
+            verification_handler.update_verification_token()
+
+            return {"message": "Reset Token sent by email successfully"}, 200
+        except CustomException as e:
+            return abort(e.error_code, str(e))
         finally:
             if auth_handler != None:
                 auth_handler.mongo_client.disconnect()
