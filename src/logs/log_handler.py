@@ -9,7 +9,6 @@ class LogHandler:
         self.logger = None
 
         if not os.path.exists(self.executions_folder):
-            print(self.executions_folder)
             os.makedirs(self.executions_folder)
 
         now = datetime.now()
