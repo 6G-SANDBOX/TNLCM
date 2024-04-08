@@ -93,7 +93,7 @@ class NewUserVerification(Resource):
             verification_handler = VerificationHandler(email, verification_token)
             latest_verification_token = verification_handler.get_verification_token()
 
-            if latest_verification_token != verification_token:
+            if not latest_verification_token:
                 return {"message": "Token provided not correct"}, 401
 
             auth_handler.create_user()
