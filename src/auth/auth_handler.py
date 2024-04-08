@@ -29,7 +29,7 @@ class AuthHandler:
         return user
 
     def get_email(self):
-        """Return the email associated with a user"""
+        """Return the email associated with an user"""
         query = {"email": self.email}
         projection = {"_id": 0, "email": 1}
         email = self.mongo_client.find_data(collection_name="users", query=query, projection=projection)
@@ -54,11 +54,17 @@ class AuthHandler:
         self.mongo_client.insert_data("users", user_doc)
 
     def get_password(self):
-        """Return the password associated with a user"""
+        """Return the password associated with an user"""
         query = {"username": self.username}
         projection = {"_id": 0, "password": 1}
         password = self.mongo_client.find_data(collection_name="users", query=query, projection=projection)
         return password
+    
+    def update_password(self):
+        """Update password associated to user"""
+        query = {"email": self.email}
+        projection = {"$set": {"password": generate_password_hash(self.password, method="pbkdf2")}}
+        self.mongo_client.update_data(collection_name="users", query=query, projection=projection)
 
     def check_password(self):
         """Check the hash associated with the password"""
