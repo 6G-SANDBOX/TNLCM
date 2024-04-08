@@ -46,6 +46,7 @@ TNLCM code is structured as follows:
   * **sixglibrary**: folder that handle the connection to the 6G-Library.
   * **temp**: folder that handle the creation of temporary files.
   * **trial_network**: folder that handle the trial networks.
+  * **verification**: folder that handle the users verification to access to TNLCM.
 
 * **app.py**: main file that starts TNLCM.
 * **CHANGELOG.md**: file containing the changes made in each release.
