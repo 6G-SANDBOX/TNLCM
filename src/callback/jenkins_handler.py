@@ -62,7 +62,7 @@ class JenkinsHandler:
             "DEPLOYMENT_SITE": self.jenkins_deployment_site,
         }
 
-    def deploy_trial_network(self, branch=None, commit_id=None):
+    def trial_network_deployment(self, branch=None, commit_id=None):
         """Trial network deployment starts"""
         sixglibrary_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id)
         sixglibrary_handler.git_clone_6glibrary()
@@ -71,15 +71,15 @@ class JenkinsHandler:
             os.makedirs(REPORT_DIRECTORY)
         if os.path.isfile(REPORT_COMPONENTS_JENKINS_FILE_PATH):
             os.remove(REPORT_COMPONENTS_JENKINS_FILE_PATH)
-        self.trial_network_handler.update_status_trial_network("deploying")
-        descriptor_trial_network = self.trial_network_handler.get_descriptor_trial_network()["trial_network"]
+        self.trial_network_handler.update_trial_network_status("deploying")
+        tn_descriptor = self.trial_network_handler.get_trial_network_descriptor()["trial_network"]
         tn_id = self.trial_network_handler.tn_id
         temp_file_handler = TempFileHandler()
-        for entity_name, entity_data in descriptor_trial_network.items():
+        for entity_name, entity_data in tn_descriptor.items():
             entity_name = entity_name + "_" + tn_id
             component_name = entity_data["type"]
             if component_name in components_6glibrary:
-                component_path_temp_file = temp_file_handler.create_entity_temp_file(entity_data, descriptor_trial_network, REPORT_DIRECTORY, tn_id)
+                component_path_temp_file = temp_file_handler.create_entity_temp_file(entity_data, tn_descriptor, REPORT_DIRECTORY, tn_id)
                 if os.path.isfile(component_path_temp_file):
                     with open(component_path_temp_file, 'rb') as component_temp_file:
                         file = {"FILE": (component_path_temp_file, component_temp_file)}
@@ -106,7 +106,7 @@ class JenkinsHandler:
                     raise SixGLibraryComponentNotFound(f"The '{component_name}' component is not in '{branch}' branch of the 6G-Library", 404)
                 else:
                     raise SixGLibraryComponentNotFound(f"The '{component_name}' component is not in commit_id '{commit_id}' of the 6G-Library", 404)
-        self.trial_network_handler.update_status_trial_network("started")
+        self.trial_network_handler.update_trial_network_status("started")
         if os.path.exists(REPORT_COMPONENTS_JENKINS_FILE_PATH):
             report_tn_path = os.path.join(REPORT_DIRECTORY, self.trial_network_handler.current_user + self.trial_network_handler.tn_id + ".md")
             os.rename(REPORT_COMPONENTS_JENKINS_FILE_PATH, report_tn_path)

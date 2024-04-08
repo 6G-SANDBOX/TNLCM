@@ -73,8 +73,8 @@ class TrialNetwork(Resource):
             current_user = get_jwt_identity()
             trial_network_handler = TrialNetworkHandler(current_user, tn_id)
             if trial_network_handler.get_trial_network():
-                sorted_descriptor = trial_network_handler.get_descriptor_trial_network()
-                return {"tn_descriptor": sorted_descriptor}, 200
+                tn_sorted_descriptor = trial_network_handler.get_trial_network_descriptor()
+                return {"tn_descriptor": tn_sorted_descriptor}, 200
             else:
                 return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the trial_network collection in the database '{trial_network_handler.mongo_client.database}'")
         except CustomException as e:
@@ -100,7 +100,7 @@ class TrialNetwork(Resource):
             trial_network_handler = TrialNetworkHandler(current_user, tn_id)
             if trial_network_handler.get_trial_network():
                 self.jenkins_handler = JenkinsHandler(trial_network_handler)
-                self.jenkins_handler.deploy_trial_network(branch=branch, commit_id=commit_id)
+                self.jenkins_handler.trial_network_deployment(branch=branch, commit_id=commit_id)
                 return {"message": "Trial network deployed with jenkins"}, 200
             else:
                 return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the trial_network collection in the database '{trial_network_handler.mongo_client.database}'")
@@ -132,7 +132,7 @@ class TrialNetwork(Resource):
                 trial_network_handler.mongo_client.disconnect()
 
 @trial_network_namespace.route("/status/<string:tn_id>") 
-class StatusSpecificTrialNetwork(Resource):
+class SpecificTrialNetworkStatus(Resource):
 
     @trial_network_namespace.doc(security="Bearer Auth")
     @jwt_required()
@@ -145,8 +145,8 @@ class StatusSpecificTrialNetwork(Resource):
             current_user = get_jwt_identity()
             trial_network_handler = TrialNetworkHandler(current_user, tn_id)
             if trial_network_handler.get_trial_network():
-                status_trial_network = trial_network_handler.get_status_trial_network()
-                return {"tn_status": status_trial_network}, 200
+                trial_network_status = trial_network_handler.get_trial_network_status()
+                return {"tn_status": trial_network_status}, 200
             else:
                 return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the trial_network collection in the database '{trial_network_handler.mongo_client.database}'")
         except CustomException as e:
@@ -172,7 +172,7 @@ class StatusSpecificTrialNetwork(Resource):
             current_user = get_jwt_identity()
             trial_network_handler = TrialNetworkHandler(current_user, tn_id)
             if trial_network_handler.get_trial_network():
-                trial_network_handler.update_status_trial_network(new_status)
+                trial_network_handler.update_trial_network_status(new_status)
                 return {"message": f"The status of the trial network with identifier '{tn_id}' has been updated to '{new_status}'"}, 200
             else:
                 return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the trial_network collection in the database '{trial_network_handler.mongo_client.database}'")
@@ -183,7 +183,7 @@ class StatusSpecificTrialNetwork(Resource):
                 trial_network_handler.mongo_client.disconnect()
 
 @trial_network_namespace.route("/report/<string:tn_id>") 
-class ReportTrialNetwork(Resource):
+class TrialNetworkReport(Resource):
 
     @trial_network_namespace.doc(security="Bearer Auth")
     @jwt_required()
@@ -194,7 +194,7 @@ class ReportTrialNetwork(Resource):
             current_user = get_jwt_identity()
             trial_network_handler = TrialNetworkHandler(current_user, tn_id)
             if trial_network_handler.get_trial_network():
-                tn_report = trial_network_handler.get_report_trial_network()
+                tn_report = trial_network_handler.get_trial_network_report()
                 if tn_report:
                     return {"tn_report": tn_report}, 200
                 else:
@@ -229,7 +229,7 @@ class TrialNetworks(Resource):
                 trial_network_handler.mongo_client.disconnect()
 
 @trial_network_namespace.route("s/status/") 
-class StatusTrialNetwork(Resource):
+class TrialNetworksStatus(Resource):
 
     @trial_network_namespace.doc(security="Bearer Auth")
     @jwt_required()
@@ -241,8 +241,8 @@ class StatusTrialNetwork(Resource):
         try:
             current_user = get_jwt_identity()
             trial_network_handler = TrialNetworkHandler(current_user)
-            status_trial_networks = trial_network_handler.get_status_trial_networks()
-            return {"trial_networks_status": status_trial_networks}, 200
+            trial_networks_status = trial_network_handler.get_trial_networks_status()
+            return {"trial_networks_status": trial_networks_status}, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
@@ -250,7 +250,7 @@ class StatusTrialNetwork(Resource):
                 trial_network_handler.mongo_client.disconnect()
 
 @trial_network_namespace.route("s/templates/")
-class TemplatesTrialNetworks(Resource):
+class TrialNetworksTemplates(Resource):
 
     @trial_network_namespace.doc(security="Bearer Auth")
     @jwt_required()
