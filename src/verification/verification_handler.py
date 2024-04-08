@@ -18,6 +18,11 @@ class VerificationHandler:
         }
         self.mongo_client.insert_data("verification_tokens", verification_token_doc)
     
+    def update_verification_token(self):
+        query = {"new_account_email": self.new_account_email}
+        projection = {"$set": {"verification_token": self.verification_token}}
+        self.mongo_client.update_data(collection_name="verification_tokens", query=query, projection=projection)
+
     def get_verification_token(self):
         query = {"new_account_email": self.new_account_email, "verification_token": self.verification_token}
         projection = {"_id": 0, "verification_token": 1}
