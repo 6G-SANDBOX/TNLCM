@@ -186,8 +186,8 @@ Several tools can be used to open the file:
 > The format of Trial Network Descriptors has not been finalized and is expected to change in the future.
 
 Trial Network Descriptors are yaml files with a set of expected fields and structure. This repository contains an example of descriptor:
-- [`first_descriptor.yml`](../first_descriptor.yml)
-- [`second_descriptor.yml`](../second_descriptor.yml)
+- [`first_descriptor.yml`](../descriptors/first_descriptor.yml)
+- [`second_descriptor.yml`](../descriptors/second_descriptor.yml)
 
 ```yaml
 trial_network:  # Mandatory, contains the description of all entities in the Trial Network
