@@ -31,7 +31,7 @@ class TempFileHandler:
     def find_vxlan_id(self, vnet_name, tn_descriptor, report_directory, tn_id):
         vnet_id = None
         for descriptor_entities_name, descriptor_entities_data in tn_descriptor.items():
-            if descriptor_entities_name == vnet_name and descriptor_entities_data["type"] == "tn_vxlan" or descriptor_entities_data["type"] == "vxlan":
+            if descriptor_entities_name == vnet_name and (descriptor_entities_data["type"] == "tn_vxlan" or descriptor_entities_data["type"] == "vxlan"):
                 descriptor_entity_report_file = os.path.join(report_directory, descriptor_entities_name + "_" + tn_id + ".json")
                 if os.path.isfile(descriptor_entity_report_file):
                     with open(descriptor_entity_report_file, "r") as file:
