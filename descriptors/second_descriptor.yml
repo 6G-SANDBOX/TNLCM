@@ -24,9 +24,9 @@ trial_network:
   first_k8s_medium:
     type: k8s_medium
     depends_on:
-      - k8s_private_vxlan
       - mandatory_tn_vxlan
       - mandatory_tn_bastion
+      - k8s_private_vxlan
     public:
       external_vnet_id: mandatory_tn_vxlan
       internal_vnet_id: k8s_private_vxlan
