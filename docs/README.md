@@ -34,6 +34,7 @@ The **dev** branch will be used for development. This branch will feed the stagi
 
 TNLCM code is structured as follows:
 
+* **descriptors**: folder in which trial network templates are stored.
 * **docs**: folder in which all documentation is stored.
 * **src**: folder in which the developed code is stored.
   * **auth**: folder in which the authentication of users who have access is handled.
