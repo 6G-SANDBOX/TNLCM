@@ -14,7 +14,7 @@ verification_namespace = Namespace(
     description="Namespace for verification endpoints"
 )
 
-@verification_namespace.route("/request-verification-token")
+@verification_namespace.route("/request_verification_token")
 class RequestVerificationToken(Resource):
 
     parser_post = reqparse.RequestParser()
@@ -58,7 +58,7 @@ class RequestVerificationToken(Resource):
             if verification_handler != None:
                 verification_handler.mongo_client.disconnect()
 
-@verification_namespace.route("/new-user-verification")
+@verification_namespace.route("/new_user_verification")
 class NewUserVerification(Resource):
 
     parser_post = reqparse.RequestParser()
@@ -106,7 +106,7 @@ class NewUserVerification(Resource):
             if verification_handler != None:
                 verification_handler.mongo_client.disconnect()
 
-@verification_namespace.route("/request-reset-token")
+@verification_namespace.route("/request_reset_token")
 class RequestResetToken(Resource):
 
     parser_post = reqparse.RequestParser()
@@ -150,7 +150,7 @@ class RequestResetToken(Resource):
             if verification_handler != None:
                 verification_handler.mongo_client.disconnect()
 
-@verification_namespace.route('/change-password')
+@verification_namespace.route('/change_password')
 class ChangePassword(Resource):
 
     parser_post = reqparse.RequestParser()
