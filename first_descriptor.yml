@@ -21,4 +21,3 @@ trial_network:
       one_vm_password: test
       one_component_networks:
         - 0
-        - 1
