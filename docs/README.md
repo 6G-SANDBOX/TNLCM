@@ -60,7 +60,7 @@ TNLCM code is structured as follows:
 
 ## Current Architecture
 
-TNLCM is currently capable of deploying three types of components which are **tn_vxlan**, **tn_bastion** and **vm_kvm**.
+TNLCM is currently capable of deploying five types of components which are **tn_vxlan**, **vxlan**, **tn_bastion**, **vm_kvm** and **k8s**.
 
 ![CurrentArchitecture](./images/currentArchitecture.png)
 
@@ -187,6 +187,7 @@ Several tools can be used to open the file:
 
 Trial Network Descriptors are yaml files with a set of expected fields and structure. This repository contains an example of descriptor:
 - [`first_descriptor.yml`](../first_descriptor.yml)
+- [`second_descriptor.yml`](../second_descriptor.yml)
 
 ```yaml
 trial_network:  # Mandatory, contains the description of all entities in the Trial Network
