@@ -40,7 +40,7 @@ class TrialNetworkHandler:
 
     def generate_trial_network_id(self, size=6, chars=ascii_lowercase + digits):
         """Generate random tn_id using [a-z][0-9]"""
-        return ''.join(choice(chars) for _ in range(size))
+        return choice(ascii_lowercase) + ''.join(choice(chars) for _ in range(size))
 
     def create_trial_network(self, tn_raw_descriptor, tn_sorted_descriptor):
         """Add trial network to database"""
