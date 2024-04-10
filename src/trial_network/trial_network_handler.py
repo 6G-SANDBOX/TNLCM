@@ -45,9 +45,9 @@ class TrialNetworkHandler:
     def create_trial_network(self, tn_raw_descriptor, tn_sorted_descriptor):
         """Add trial network to database"""
         tn_status = STATUS_TRIAL_NETWORK[0]
-        tn_id = self.generate_trial_network_id(size=4)
+        tn_id = self.generate_trial_network_id(size=3)
         while self.find_trial_network_id(tn_id):
-            tn_id = self.generate_trial_network_id(size=4)
+            tn_id = self.generate_trial_network_id(size=3)
         self.tn_id = tn_id
         trial_network_doc = {
             "user_created": self.current_user,
