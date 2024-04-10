@@ -30,6 +30,7 @@ trial_network:
     public:
       external_vnet_id: mandatory_tn_vxlan
       internal_vnet_id: k8s_private_vxlan
+      one_component_name: "first_k8s_medium"
       service_name: "OneKE-sandbox-tn-uma"
       multus_enabled: "YES"
       cni_plugin: "canal"
@@ -45,7 +46,7 @@ trial_network:
       - mandatory_tn_bastion
       - first_k8s_medium
     public:
-      service_name: "k8s_component"
+      service_name: "open5gs_core"
       plmn_id_mcc: "001"
       plmn_id_mnc: "01"
       tac: "200"
