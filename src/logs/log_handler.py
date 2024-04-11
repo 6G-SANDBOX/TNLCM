@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 
 class LogHandler:
-    def __init__(self, executions_folder='src/logs/executions'):
+    def __init__(self, executions_folder="src/logs/executions"):
         self.executions_folder = executions_folder
         self.log_file = None
         self.logger = None
@@ -16,12 +16,12 @@ class LogHandler:
         log_file_name = f"execution_{timestamp}.log"
         self.log_file = os.path.join(self.executions_folder, log_file_name)
 
-        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+        logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
         self.logger = logging.getLogger()
         file_handler = logging.FileHandler(self.log_file)
 
-        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
         file_handler.setFormatter(formatter)
 
         self.logger.addHandler(file_handler)
