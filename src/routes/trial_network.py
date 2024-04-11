@@ -74,7 +74,7 @@ class TrialNetwork(Resource):
             trial_network_handler = TrialNetworkHandler(current_user, tn_id)
             if trial_network_handler.get_trial_network():
                 tn_sorted_descriptor = trial_network_handler.get_trial_network_descriptor()
-                return {"tn_descriptor": tn_sorted_descriptor}, 200
+                return tn_sorted_descriptor, 200
             else:
                 return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the 'trial_network' collection in the database '{trial_network_handler.mongo_client.database}'")
         except CustomException as e:
@@ -146,7 +146,7 @@ class SpecificTrialNetworkStatus(Resource):
             trial_network_handler = TrialNetworkHandler(current_user, tn_id)
             if trial_network_handler.get_trial_network():
                 trial_network_status = trial_network_handler.get_trial_network_status()
-                return {"tn_status": trial_network_status}, 200
+                return trial_network_status, 200
             else:
                 return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the 'trial_network' collection in the database '{trial_network_handler.mongo_client.database}'")
         except CustomException as e:
@@ -196,7 +196,7 @@ class TrialNetworkReport(Resource):
             if trial_network_handler.get_trial_network():
                 tn_report = trial_network_handler.get_trial_network_report()
                 if tn_report:
-                    return {"tn_report": tn_report}, 200
+                    return tn_report, 200
                 else:
                     abort(404, f"Trial network '{tn_id}' has not been deployed yet")
             else:

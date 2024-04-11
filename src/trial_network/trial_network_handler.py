@@ -75,7 +75,8 @@ class TrialNetworkHandler:
         query = {"tn_id": self.tn_id} if self.current_user == "admin" else {"user_created": self.current_user, "tn_id": self.tn_id}
         projection = {"_id": 0, "tn_status": 1}
         trial_network_status = self.mongo_client.find_data(collection_name="trial_network", query=query, projection=projection)
-        return trial_network_status[0]["tn_status"]
+        print(trial_network_status)
+        return trial_network_status[0]
     
     def get_trial_networks_status(self):
         """Return the status of the trial networks"""
