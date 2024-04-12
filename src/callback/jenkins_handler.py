@@ -44,6 +44,8 @@ class JenkinsHandler:
                 os.remove(DECODED_COMPONENT_INFORMATION_FILE_PATH)
             if "result_msg" not in data:
                 raise KeyNotFoundError(f"The 'result_msg' key has not been received by Jenkins", 400)
+            if "kubeconfig" in data:
+                data["kubeconfig"] = b64decode(data["kubeconfig"]).decode("utf-8")
             data["result_msg"] = b64decode(data["result_msg"]).decode("utf-8")
             with open(DECODED_COMPONENT_INFORMATION_FILE_PATH, "w") as decoded_information_file:
                 dump(data, decoded_information_file)
