@@ -75,7 +75,6 @@ class TrialNetworkHandler:
         query = {"tn_id": self.tn_id} if self.current_user == "admin" else {"user_created": self.current_user, "tn_id": self.tn_id}
         projection = {"_id": 0, "tn_status": 1}
         trial_network_status = self.mongo_client.find_data(collection_name="trial_network", query=query, projection=projection)
-        print(trial_network_status)
         return trial_network_status[0]
     
     def get_trial_networks_status(self):
@@ -88,7 +87,7 @@ class TrialNetworkHandler:
     def update_trial_network_status(self, new_status):
         """Update the status of a trial network"""
         if new_status in STATUS_TRIAL_NETWORK:
-            query = {"tn_id": self.tn_id} if self.current_user == "admin" else {"user_created": self.current_user}
+            query = {"tn_id": self.tn_id}
             projection = {"$set": {"tn_status": new_status}}
             self.mongo_client.update_data(collection_name="trial_network", query=query, projection=projection)
         else:
@@ -98,8 +97,8 @@ class TrialNetworkHandler:
         """Return the report associated with a trial network"""
         query = {"tn_id": self.tn_id} if self.current_user == "admin" else {"user_created": self.current_user, "tn_id": self.tn_id}
         projection = {"_id": 0, "tn_report": 1}
-        tn_report = self.mongo_client.find_data(collection_name="trial_network", query=query, projection=projection)[0]
-        return tn_report
+        tn_report = self.mongo_client.find_data(collection_name="trial_network", query=query, projection=projection)
+        return tn_report[0]
 
     def save_report_trial_network(self, report_components_jenkins_content):
         """Save the report of the trial network"""
