@@ -45,7 +45,7 @@ trial_network:
       - mandatory_tn_bastion
       - first_k8s_medium
     public:
-      service_name: "open5gs_core"
+      oneke_cluster_name: "OneKE-sandbox-tn-uma" # same value as service_name of cluster
       plmn_id_mcc: "001"
       plmn_id_mnc: "01"
       tac: "200"
