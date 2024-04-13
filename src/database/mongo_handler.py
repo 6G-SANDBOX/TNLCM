@@ -5,7 +5,7 @@ from pymongo.errors import ConnectionFailure
 
 from src.exceptions.exceptions_handler import VariablesNotDefinedInEnvError, MongoDBConnectionError, MongoDBCollectionError
 
-COLLECTIONS = ["trial_network", "trial_networks_templates", "verification_tokens", "users"]
+COLLECTIONS = ["trial_networks", "trial_networks_templates", "verification_tokens", "users"]
 
 class MongoHandler:
 
