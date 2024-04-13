@@ -249,7 +249,7 @@ class TrialNetworksStatus(Resource):
             if trial_network_handler is not None:
                 trial_network_handler.mongo_client.disconnect()
 
-@trial_network_namespace.route("s/templates/")
+@trial_network_namespace.route("s/templates")
 class TrialNetworksTemplates(Resource):
 
     @trial_network_namespace.doc(security="Bearer Auth")
