@@ -1,4 +1,5 @@
 from json import loads
+from datetime import datetime, timezone
 from string import ascii_lowercase, digits
 from random import choice
 
@@ -19,21 +20,21 @@ class TrialNetworkHandler:
         """Return all the trial networks created by a user. If user is an administrator, it returns all the trial networks created by the users"""
         query = None if self.current_user == "admin" else {"user_created": self.current_user}
         projection = {"_id": 0, "tn_id": 1}
-        trial_networks = self.mongo_client.find_data(collection_name="trial_network", query=query, projection=projection)
+        trial_networks = self.mongo_client.find_data(collection_name="trial_networks", query=query, projection=projection)
         return [tn["tn_id"] for tn in trial_networks]
 
     def get_trial_network(self):
         """Return a trial network with a specific tn_id of a user"""
         query = {"tn_id": self.tn_id} if self.current_user == "admin" else {"user_created": self.current_user, "tn_id": self.tn_id}
         projection = {"_id": 0}
-        trial_network = self.mongo_client.find_data(collection_name="trial_network", query=query, projection=projection)
+        trial_network = self.mongo_client.find_data(collection_name="trial_networks", query=query, projection=projection)
         return trial_network
 
     def find_trial_network_id(self, tn_id):
         """Find if the tn_id has been used before because if so the pipeline will fail. OpenNebula detects that this component is already deployed and returns an error"""
         query = {"tn_id": tn_id}
         projection = {"_id": 0, "tn_id": 1}
-        id = self.mongo_client.find_data(collection_name="trial_network", query=query, projection=projection)
+        id = self.mongo_client.find_data(collection_name="trial_networks", query=query, projection=projection)
         if id:
             return True
         return False
@@ -52,36 +53,37 @@ class TrialNetworkHandler:
         trial_network_doc = {
             "user_created": self.current_user,
             "tn_id": self.tn_id,
+            "tn_date_created": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
             "tn_status": tn_status,
             "tn_raw_descriptor": tn_raw_descriptor,
             "tn_sorted_descriptor": tn_sorted_descriptor
         }
-        self.mongo_client.insert_data("trial_network", trial_network_doc)
+        self.mongo_client.insert_data("trial_networks", trial_network_doc)
 
     def get_trial_network_descriptor(self):
         """Return the descriptor associated to a trial network"""
         query = {"tn_id": self.tn_id} if self.current_user == "admin" else {"user_created": self.current_user, "tn_id": self.tn_id}
         projection = {"_id": 0, "tn_sorted_descriptor": 1}
-        trial_network_descriptor = self.mongo_client.find_data(collection_name="trial_network", query=query, projection=projection)
+        trial_network_descriptor = self.mongo_client.find_data(collection_name="trial_networks", query=query, projection=projection)
         return loads(trial_network_descriptor[0]["tn_sorted_descriptor"])
 
     def delete_trial_network(self):
         """Remove a specific trial network"""
         query = {"tn_id": self.tn_id} if self.current_user == "admin" else {"user_created": self.current_user, "tn_id": self.tn_id}
-        self.mongo_client.delete_data(collection_name="trial_network", query=query)
+        self.mongo_client.delete_data(collection_name="trial_networks", query=query)
 
     def get_trial_network_status(self):
         """Return the status of a trial network"""
         query = {"tn_id": self.tn_id} if self.current_user == "admin" else {"user_created": self.current_user, "tn_id": self.tn_id}
         projection = {"_id": 0, "tn_status": 1}
-        trial_network_status = self.mongo_client.find_data(collection_name="trial_network", query=query, projection=projection)
+        trial_network_status = self.mongo_client.find_data(collection_name="trial_networks", query=query, projection=projection)
         return trial_network_status[0]
     
     def get_trial_networks_status(self):
         """Return the status of the trial networks"""
         query = None if self.current_user == "admin" else {"user_created": self.current_user}
-        projection = {"_id": 0, "tn_id": 1, "tn_status": 1}
-        trial_network_status = self.mongo_client.find_data(collection_name="trial_network", query=query, projection=projection)
+        projection = {"_id": 0, "tn_id": 1, "tn_status": 1, "tn_date_created": 1}
+        trial_network_status = self.mongo_client.find_data(collection_name="trial_networks", query=query, projection=projection)
         return trial_network_status
 
     def update_trial_network_status(self, new_status):
@@ -89,7 +91,7 @@ class TrialNetworkHandler:
         if new_status in STATUS_TRIAL_NETWORK:
             query = {"tn_id": self.tn_id}
             projection = {"$set": {"tn_status": new_status}}
-            self.mongo_client.update_data(collection_name="trial_network", query=query, projection=projection)
+            self.mongo_client.update_data(collection_name="trial_networks", query=query, projection=projection)
         else:
             raise TrialNetworkInvalidStatusError(f"The status cannot be updated. The possible states of a trial network are: {STATUS_TRIAL_NETWORK}", 404)
     
@@ -97,7 +99,7 @@ class TrialNetworkHandler:
         """Return the report associated with a trial network"""
         query = {"tn_id": self.tn_id} if self.current_user == "admin" else {"user_created": self.current_user, "tn_id": self.tn_id}
         projection = {"_id": 0, "tn_report": 1}
-        tn_report = self.mongo_client.find_data(collection_name="trial_network", query=query, projection=projection)
+        tn_report = self.mongo_client.find_data(collection_name="trial_networks", query=query, projection=projection)
         return tn_report[0]
 
     def save_report_trial_network(self, report_components_jenkins_content):
@@ -106,7 +108,7 @@ class TrialNetworkHandler:
             markdown_content = file.read()
         query = {"user_created": self.current_user, "tn_id": self.tn_id}
         projection = {"$set": {"tn_report": markdown_content}}
-        self.mongo_client.update_data(collection_name="trial_network", query=query, projection=projection)
+        self.mongo_client.update_data(collection_name="trial_networks", query=query, projection=projection)
     
     def get_trial_networks_templates(self):
         """Return all the trial networks templates"""
