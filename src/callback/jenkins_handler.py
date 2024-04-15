@@ -23,7 +23,7 @@ class JenkinsHandler:
         self.jenkins_user = os.getenv("JENKINS_USER")
         self.jenkins_password = os.getenv("JENKINS_PASSWORD")
         self.jenkins_token = os.getenv("JENKINS_TOKEN")
-        self.jenkins_job_name = os.getenv("JENKINS_JOB_NAME")
+        self.jenkins_tn_job_name = os.getenv("JENKINS_TN_JOB_NAME")
         self.jenkins_deployment_site = os.getenv("JENKINS_DEPLOYMENT_SITE")
         if self.jenkins_server and self.jenkins_user and self.jenkins_password:
             try:
@@ -33,8 +33,8 @@ class JenkinsHandler:
                 raise JenkinsConnectionError("Error establishing connection to Jenkins", 500)
         else:
             raise VariablesNotDefinedInEnvError("Add the value of the variables JENKINS_SERVER, JENKINS_USER and JENKINS_PASSWORD in the .env file", 500)
-        if not self.jenkins_token or not self.jenkins_job_name or not self.jenkins_deployment_site:
-            raise VariablesNotDefinedInEnvError("Add the value of the variables JENKINS_TOKEN, JENKINS_JOB_NAME and JENKINS_DEPLOYMENT_SITE in the .env file", 500)
+        if not self.jenkins_token or not self.jenkins_tn_job_name or not self.jenkins_deployment_site:
+            raise VariablesNotDefinedInEnvError("Add the value of the variables JENKINS_TOKEN, JENKINS_TN_JOB_NAME and JENKINS_DEPLOYMENT_SITE in the .env file", 500)
         self.trial_network_handler = trial_network_handler
 
     def save_decoded_information(self, data):
@@ -85,13 +85,13 @@ class JenkinsHandler:
                 if os.path.isfile(component_path_temp_file):
                     with open(component_path_temp_file, 'rb') as component_temp_file:
                         file = {"FILE": (component_path_temp_file, component_temp_file)}
-                        jenkins_build_job_url = self.jenkins_client.build_job_url(name=self.jenkins_job_name, parameters=self.jenkins_parameters(tn_id, component_name, branch=branch, commit_id=commit_id))
+                        jenkins_build_job_url = self.jenkins_client.build_job_url(name=self.jenkins_tn_job_name, parameters=self.jenkins_parameters(tn_id, component_name, branch=branch, commit_id=commit_id))
                         response = post(jenkins_build_job_url, auth=(self.jenkins_user, self.jenkins_token), files=file)
                         if response.status_code == 201:
-                            last_build_number = self.jenkins_client.get_job_info(name=self.jenkins_job_name)["nextBuildNumber"]
-                            while last_build_number != self.jenkins_client.get_job_info(name=self.jenkins_job_name)["lastCompletedBuild"]["number"]:
+                            last_build_number = self.jenkins_client.get_job_info(name=self.jenkins_tn_job_name)["nextBuildNumber"]
+                            while last_build_number != self.jenkins_client.get_job_info(name=self.jenkins_tn_job_name)["lastCompletedBuild"]["number"]:
                                 sleep(15)
-                            if self.jenkins_client.get_job_info(name=self.jenkins_job_name)["lastSuccessfulBuild"]["number"] == last_build_number:
+                            if self.jenkins_client.get_job_info(name=self.jenkins_tn_job_name)["lastSuccessfulBuild"]["number"] == last_build_number:
                                 sleep(2)
                                 if os.path.isfile(DECODED_COMPONENT_INFORMATION_FILE_PATH):
                                     os.rename(DECODED_COMPONENT_INFORMATION_FILE_PATH, os.path.join(REPORT_DIRECTORY, entity_name + ".json"))
