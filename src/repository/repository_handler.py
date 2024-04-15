@@ -38,7 +38,7 @@ class RepositoryHandler:
                         output += "updated"
                     else:
                         output += "exists"
-                    if self.pull_if_necessary():
+                    if self.pull_branch():
                         output += "pull"
                     return output
                 except InvalidGitRepositoryError:
@@ -109,18 +109,9 @@ class RepositoryHandler:
                 return True
         return False
 
-    def pull_if_necessary(self):
+    def pull_branch(self):
         """Check if the repository has been updated and applies a git pull in case of changes"""
-        if self.git_branch and not self.is_update_branch():
+        if self.git_branch:
             self.repo.remotes.origin.pull()
             return True
-        return False
-
-    def is_update_branch(self):
-        """Check if branch is updated"""
-        if self.git_branch:
-            remote_ref = f"refs/remotes/origin/{self.git_branch}"
-            local_commit = self.repo.head.commit.hexsha
-            remote_commit = self.repo.commit(remote_ref).hexsha
-            return local_commit == remote_commit
         return False
