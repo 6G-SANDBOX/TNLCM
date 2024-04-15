@@ -49,9 +49,8 @@ class JenkinsHandler:
             data["result_msg"] = b64decode(data["result_msg"]).decode("utf-8")
             with open(DECODED_COMPONENT_INFORMATION_FILE_PATH, "w") as decoded_information_file:
                 dump(data, decoded_information_file)
-            result_msg = data["result_msg"]
             with open(REPORT_COMPONENTS_JENKINS_FILE_PATH, "a") as result_msg_file:
-                result_msg_file.write(result_msg)
+                result_msg_file.write(data)
         except UnicodeDecodeError:
             raise CustomUnicodeDecodeError("Unicode decoding error", 500)
     
