@@ -54,7 +54,7 @@ class Users(Resource):
     @users_namespace.expect(parser_post)
     def post(self):
         """
-        Add an user
+        [DEPRECATED] Add an user
         """
         auth_handler = None
         try:
