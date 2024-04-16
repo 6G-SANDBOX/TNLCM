@@ -37,7 +37,7 @@ class SixGLibraryHandler:
             
             if os.path.exists(description_file_yml) or os.path.exists(description_file_yaml):
                 description_file = description_file_yml if os.path.exists(description_file_yml) else description_file_yaml
-                with open(description_file, "r") as f:
+                with open(description_file, "rt", encoding="utf8") as f:
                     description_data = safe_load(f)
                     if description_data.get("public") is not None:
                         public_parts[component] = description_data.get("public", {})
@@ -55,7 +55,7 @@ class SixGLibraryHandler:
             
             if os.path.exists(description_file_yml) or os.path.exists(description_file_yaml):
                 description_file = description_file_yml if os.path.exists(description_file_yml) else description_file_yaml
-                with open(description_file, "r") as f:
+                with open(description_file, "rt", encoding="utf8") as f:
                     description_data = safe_load(f)
                     if description_data is not None:
                         private_parts[component] = description_data
@@ -73,7 +73,7 @@ class SixGLibraryHandler:
 
             if os.path.exists(description_file_yml) or os.path.exists(description_file_yaml):
                 description_file = description_file_yml if os.path.exists(description_file_yml) else description_file_yaml
-                with open(description_file, "r") as f:
+                with open(description_file, "rt", encoding="utf8") as f:
                     description_data = safe_load(f)
                     metadata = description_data.get("metadata")
                     if metadata is not None and "depends" in metadata:
