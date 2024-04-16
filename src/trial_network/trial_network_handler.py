@@ -19,9 +19,9 @@ class TrialNetworkHandler:
     def get_trial_networks(self):
         """Return all the trial networks created by a user. If user is an administrator, it returns all the trial networks created by the users"""
         query = None if self.current_user == "admin" else {"user_created": self.current_user}
-        projection = {"_id": 0, "tn_id": 1}
+        projection = {"_id": 0}
         trial_networks = self.mongo_client.find_data(collection_name="trial_networks", query=query, projection=projection)
-        return [tn["tn_id"] for tn in trial_networks]
+        return trial_networks
 
     def get_trial_network(self):
         """Return a trial network with a specific tn_id of a user"""
@@ -30,7 +30,7 @@ class TrialNetworkHandler:
         trial_network = self.mongo_client.find_data(collection_name="trial_networks", query=query, projection=projection)
         return trial_network
 
-    def find_trial_network_id(self, tn_id):
+    def _find_trial_network_id(self, tn_id):
         """Find if the tn_id has been used before because if so the pipeline will fail. OpenNebula detects that this component is already deployed and returns an error"""
         query = {"tn_id": tn_id}
         projection = {"_id": 0, "tn_id": 1}
@@ -39,21 +39,21 @@ class TrialNetworkHandler:
             return True
         return False
 
-    def generate_trial_network_id(self, size=6, chars=ascii_lowercase + digits):
+    def _generate_trial_network_id(self, size=6, chars=ascii_lowercase + digits):
         """Generate random tn_id using [a-z][0-9]"""
         return choice(ascii_lowercase) + ''.join(choice(chars) for _ in range(size))
 
     def create_trial_network(self, tn_raw_descriptor, tn_sorted_descriptor):
         """Add trial network to database"""
         tn_status = STATUS_TRIAL_NETWORK[0]
-        tn_id = self.generate_trial_network_id(size=3)
-        while self.find_trial_network_id(tn_id):
-            tn_id = self.generate_trial_network_id(size=3)
+        tn_id = self._generate_trial_network_id(size=3)
+        while self._find_trial_network_id(tn_id):
+            tn_id = self._generate_trial_network_id(size=3)
         self.tn_id = tn_id
         trial_network_doc = {
             "user_created": self.current_user,
             "tn_id": self.tn_id,
-            "tn_date_created": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
+            "tn_date_created_utc": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
             "tn_status": tn_status,
             "tn_raw_descriptor": tn_raw_descriptor,
             "tn_sorted_descriptor": tn_sorted_descriptor
@@ -78,13 +78,6 @@ class TrialNetworkHandler:
         projection = {"_id": 0, "tn_status": 1}
         trial_network_status = self.mongo_client.find_data(collection_name="trial_networks", query=query, projection=projection)
         return trial_network_status[0]
-    
-    def get_trial_networks_status(self):
-        """Return the status of the trial networks"""
-        query = None if self.current_user == "admin" else {"user_created": self.current_user}
-        projection = {"_id": 0, "tn_id": 1, "tn_status": 1, "tn_date_created": 1}
-        trial_network_status = self.mongo_client.find_data(collection_name="trial_networks", query=query, projection=projection)
-        return trial_network_status
 
     def update_trial_network_status(self, new_status):
         """Update the status of a trial network"""
@@ -125,6 +118,7 @@ class TrialNetworkHandler:
         trial_network_doc = {
             "user_created": self.current_user,
             "tn_id": self.tn_id,
+            "tn_date_created_utc": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
             "tn_raw_descriptor": tn_raw_descriptor,
             "tn_sorted_descriptor": tn_sorted_descriptor
         }

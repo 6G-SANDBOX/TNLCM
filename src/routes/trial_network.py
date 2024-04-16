@@ -214,35 +214,14 @@ class TrialNetworks(Resource):
     @jwt_required()
     def get(self):
         """
-        Return all the trial networks stored in database
+        Return information of all trial networks stored in database
         """
         trial_network_handler = None
         try:
             current_user = get_jwt_identity()
             trial_network_handler = TrialNetworkHandler(current_user)
             trial_networks = trial_network_handler.get_trial_networks()
-            return {"tn_ids": trial_networks}, 200
-        except CustomException as e:
-            return abort(e.error_code, str(e))
-        finally:
-            if trial_network_handler is not None:
-                trial_network_handler.mongo_client.disconnect()
-
-@trial_network_namespace.route("s/status/") 
-class TrialNetworksStatus(Resource):
-
-    @trial_network_namespace.doc(security="Bearer Auth")
-    @jwt_required()
-    def get(self):
-        """
-        Return the status of the trial networks
-        """
-        trial_network_handler = None
-        try:
-            current_user = get_jwt_identity()
-            trial_network_handler = TrialNetworkHandler(current_user)
-            trial_networks_status = trial_network_handler.get_trial_networks_status()
-            return {"trial_networks_status": trial_networks_status}, 200
+            return {"trial_networks": trial_networks}, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
