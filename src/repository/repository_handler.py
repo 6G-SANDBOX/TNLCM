@@ -70,7 +70,7 @@ class RepositoryHandler:
                     (last_clone_type == "branch" and self.git_branch and not self.is_current_branch()):
                 if self.git_branch:
                     try:
-                        self.repo.git.checkout(self.git_branch)
+                        self.repo.git.checkout(self.git_branch, "--")
                     except GitCommandError:
                         raise GitCheckoutError(f"Branch '{self.git_branch}' not in '{self.git_repository_name}' repository", 404)
                 else:
