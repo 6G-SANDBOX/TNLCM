@@ -5,14 +5,20 @@
 [![Docker](https://img.shields.io/badge/Docker-latest-2496ED?style=for-the-badge&logo=docker&logoColor=white&labelColor=2496ED)](https://www.docker.com)
 [![MongoDB](https://img.shields.io/badge/MongoDB-latest-green?style=for-the-badge&logo=mongodb&logoColor=white&labelColor=47A248)](https://www.mongodb.com/)
 
+<div style="text-align:center">
+  <img src="./images/TNLCM_LOGO.png">
+  <br />
+  <br />
+</div>
+
 > ⚠ TNLCM is under development and is subject to continuous changes.
 
 ## Table of contents <!-- omit in toc -->
 - [Distribution of branches](#distribution-of-branches)
 - [Code structure](#code-structure)
 - [Lifecycle](#lifecycle)
-- [Current Architecture](#current-architecture)
-- [Deploy TNLCM](#deploy-tnlcm)
+- [Current Status](#current-status)
+- [Deploy TNLCM in a virtual machine](#deploy-tnlcm-in-a-virtual-machine)
   - [Download or clone repository](#download-or-clone-repository)
   - [Create .env using .env.template](#create-env-using-envtemplate)
   - [Create TNLCM database](#create-tnlcm-database)
@@ -26,9 +32,9 @@
 
 The **main** branch will be updated every time there is a plenary meeting. Releases will be created from this branch.
 
-The **staging** branch will be updated every time there is a plenary meeting or a demo.
-
 The **dev** branch will be used for development. This branch will feed the staging and main branches.
+
+The **staging** branch will be updated every time there is a plenary meeting or a demo.
 
 ## Code structure
 
@@ -59,13 +65,13 @@ TNLCM code is structured as follows:
 
 ![TNLCM](./images/TNLCM.png)
 
-## Current Architecture
+## Current Status
 
-TNLCM is currently capable of deploying different types of components, which are: **tn_vxlan**, **vxlan**, **tn_bastion**, **vm_kvm**, **k8s** and **open5gs**.
+TNLCM is currently capable of deploying different types of components, which are: **tn_vxlan**, **vxlan**, **tn_bastion**, **vm_kvm**, **k8s**, **open5gs**, **UERANSIM-gNB** and **UERANSIM-UE**.
 
-![CurrentArchitecture](./images/currentArchitecture.png)
+![CurrentStatus](./images/currentStatus.png)
 
-## Deploy TNLCM
+## Deploy TNLCM in a virtual machine
 
 > ⚠ It is recommended to do this deployment on a virtual machine since you must use a callback URL that Jenkins must have access to.
 
@@ -81,7 +87,7 @@ Download the main branch from the TNLCM repository
 
 Clone repository:
 
-```
+```bash
 git clone https://github.com/6G-SANDBOX/TNLCM
 ```
 
@@ -98,12 +104,12 @@ Create the .env file at the same level and with the contents of the [.env.templa
 
 Once Docker is installed, open a terminal where the docker-compose.yml file is stored (usually inside the TNLCM project) and execute the commands:
 
-```
+```bash
 docker compose build
 ```
 
 Flag **-d** can be added to raise the container in background:
-```
+```bash
 docker compose up -d
 ```
 
@@ -113,31 +119,35 @@ The environment must be created inside the TNLCM project
 
 * Windows
 
-        # Create environment
-        python -m venv venv
+  ```bash
+  # Create environment
+  python -m venv venv
 
-        # Activate environment
-        ./venv/Scripts/activate.ps1
+  # Activate environment
+  ./venv/Scripts/activate.ps1
 
-        # Install libraries
-        pip install -r requirements.txt
+  # Install libraries
+  pip install -r requirements.txt
+  ```
 
 * Linux
 
-        # Create environment
-        python3 -m venv venv
+  ```bash
+  # Create environment
+  python3 -m venv venv
 
-        # Activate environment
-        source venv/bin/activate
-        
-        # Install libraries
-        pip install -r requirements.txt
+  # Activate environment
+  source venv/bin/activate
+  
+  # Install libraries
+  pip install -r requirements.txt
+  ```
 
 ### Start TNLCM
 
 With the environment activated, start TNLCM
 
-```
+```bash
 python app.py
 ```
 
