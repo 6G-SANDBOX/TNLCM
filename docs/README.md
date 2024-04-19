@@ -5,11 +5,9 @@
 [![Docker](https://img.shields.io/badge/Docker-latest-2496ED?style=for-the-badge&logo=docker&logoColor=white&labelColor=2496ED)](https://www.docker.com)
 [![MongoDB](https://img.shields.io/badge/MongoDB-latest-green?style=for-the-badge&logo=mongodb&logoColor=white&labelColor=47A248)](https://www.mongodb.com/)
 
-<div style="text-align:center">
-  <img src="./images/TNLCM_LOGO.png">
-  <br />
-  <br />
-</div>
+<p align="center">
+  <a href="https://github.com/6G-SANDBOX/TNLCM"><img src="./images/TNLCM_LOGO.png" width="80" title="TNLCM"></a>
+</p>
 
 > ⚠ TNLCM is under development and is subject to continuous changes.
 
