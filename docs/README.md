@@ -57,6 +57,9 @@ The **staging** branch will be updated every time there is a plenary meeting or 
 
 TNLCM code is structured as follows:
 
+* **.github**: folder that contains files and templates for GitHub workflow automation.
+  * **workflows**: holds GitHub workflow files, containing automated actions triggered by specific events like pull requests or commits.
+  * **templates**: store templates used for creating issues or pull requests, ensuring consistency and formatting in repository communication.
 * **descriptors**: folder in which trial network templates are stored.
 * **docs**: folder in which all documentation is stored.
 * **src**: folder in which the developed code is stored.
@@ -71,7 +74,7 @@ TNLCM code is structured as follows:
   * **temp**: folder that handle the creation of temporary files.
   * **trial_network**: folder that handle the trial networks.
   * **verification**: folder that handle the users verification to access to TNLCM.
-
+* **tests**: folder that contains files related to testing the code.
 * **app.py**: main file that starts TNLCM.
 * **CHANGELOG.md**: file containing the changes made in each release.
 * **config.py**: configuration file.
