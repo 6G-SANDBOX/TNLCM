@@ -94,9 +94,10 @@ TNLCM is currently capable of deploying different types of components, which are
 
 ## 🚀 Getting Started
 
-> ⚠ It is recommended to do this deployment on a virtual machine since you must use a callback URL that Jenkins must have access to.
-
-> ⚠ The following tools are required to be deployed on platforms:
+> [!WARNING]
+> It is recommended to do this deployment on a virtual machine since you must use a callback URL that Jenkins must have access to.
+> 
+> The following tools are required to be deployed on platforms:
 
 * Jenkins (Mandatory)
 * OpenNebula (Mandatory)
