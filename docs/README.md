@@ -11,7 +11,7 @@
 
   # Trial Network Life Cycle Manager - TNLCM <!-- omit in toc -->
 
-  <img src="https://img.shields.io/badge/TNLCM-v0.1.0-blue" />
+  [![TNLCM][tnlcm-badge]][tnlcm-url]
 
   [Report error](https://github.com/6G-SANDBOX/TNLCM/issues) · [Suggest something](https://github.com/6G-SANDBOX/TNLCM/issues)
 </div>
@@ -240,11 +240,13 @@ trial_network:  # Mandatory, contains the description of all entities in the Tri
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- Links -->
+<!-- Urls, Shields and Badges -->
 [python-url]: https://www.python.org/downloads/release/python-3122/
 [flask-url]: https://flask.palletsprojects.com/en/3.0.x/
 [docker-url]: https://www.docker.com
 [mongodb-url]: https://www.mongodb.com/
+[tnlcm-badge]: https://img.shields.io/badge/TNLCM-v0.1.0-blue
+[tnlcm-url]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.1.0
 [python-badge]: https://img.shields.io/badge/Python-3.12.2+-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB
 [flask-badge]: https://img.shields.io/badge/Flask-3.0.3+-brightgreen?style=for-the-badge&logo=flask&logoColor=white&labelColor=000000
 [docker-badge]: https://img.shields.io/badge/Docker-latest-6AB7FF?style=for-the-badge&logo=docker&logoColor=white&labelColor=2496ED
