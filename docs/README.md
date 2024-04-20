@@ -1,32 +1,51 @@
-# TRIAL NETWORK LIFECYCLE MANAGER (TNLCM) <!-- omit in toc -->
+<a name="readme-top"></a>
 
-[![Python](https://img.shields.io/badge/Python-3.12.2+-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB)](https://www.python.org/downloads/release/python-3122/)
-[![Flask](https://img.shields.io/badge/Flask-3.0.2+-brightgreen?style=for-the-badge&logo=flask&logoColor=white&labelColor=000000)](https://flask.palletsprojects.com/en/3.0.x/)
-[![Docker](https://img.shields.io/badge/Docker-latest-2496ED?style=for-the-badge&logo=docker&logoColor=white&labelColor=2496ED)](https://www.docker.com)
-[![MongoDB](https://img.shields.io/badge/MongoDB-latest-green?style=for-the-badge&logo=mongodb&logoColor=white&labelColor=47A248)](https://www.mongodb.com/)
+<div align="center">
 
-<p align="center">
+  [![Contributors][contributors-shield]][contributors-url]
+  [![Forks][forks-shield]][forks-url]
+  [![Stargazers][stars-shield]][stars-url]
+  [![Issues][issues-shield]][issues-url]
+
   <a href="https://github.com/6G-SANDBOX/TNLCM"><img src="./images/TNLCM_LOGO.png" width="80" title="TNLCM"></a>
-</p>
 
-> ⚠ TNLCM is under development and is subject to continuous changes.
+  # Trial Network Life Cycle Manager - TNLCM <!-- omit in toc -->
 
-## Table of contents <!-- omit in toc -->
-- [Distribution of branches](#distribution-of-branches)
-- [Code structure](#code-structure)
-- [Lifecycle](#lifecycle)
+  <img src="https://img.shields.io/badge/TNLCM-v0.1.0-blue" />
+
+  [Report error](https://github.com/6G-SANDBOX/TNLCM/issues) · [Suggest something](https://github.com/6G-SANDBOX/TNLCM/issues)
+</div>
+
+TNLCM has been designed as a modular application, with the intention of making certain components easily replaceable or extended, while minimizing the effect of changes in other parts of the application. At the same time, there is an emphasis on re-usability, where several data structures and generic logic can be shared between the different components of the application.
+
+> [!WARNING]
+> TNLCM is under development and is subject to continuous changes.
+
+<details>
+<summary>Table of Contents</summary>
+
+- [🛠️ Stack](#️-stack)
+- [Branches Distribution](#branches-distribution)
+- [Code Structure](#code-structure)
+- [Life Cycle](#life-cycle)
 - [Current Status](#current-status)
-- [Deploy TNLCM in a virtual machine](#deploy-tnlcm-in-a-virtual-machine)
+- [🚀 Getting Started](#-getting-started)
   - [Download or clone repository](#download-or-clone-repository)
   - [Create .env using .env.template](#create-env-using-envtemplate)
   - [Create TNLCM database](#create-tnlcm-database)
   - [Create Python environment and install libraries](#create-python-environment-and-install-libraries)
-  - [Start TNLCM](#start-tnlcm)
 - [How to use Swagger UI](#how-to-use-swagger-ui)
 - [Report with the results of the Trial Network deployment](#report-with-the-results-of-the-trial-network-deployment)
 - [Trial Network Descriptor Schema](#trial-network-descriptor-schema)
+</details>
 
-## Distribution of branches
+## 🛠️ Stack
+- [![Python][python-badge]][python-url] - Language on which it is based.
+- [![Flask][flask-badge]][flask-url] - Framework to create the web application (API).
+- [![MongoDB][mongodb-badge]][mongodb-url] - Database used for stored trial networks information.
+- [![Docker][docker-badge]][docker-url] - Automate database deployment.
+
+## Branches Distribution
 
 The **main** branch will be updated every time there is a plenary meeting. Releases will be created from this branch.
 
@@ -34,7 +53,7 @@ The **dev** branch will be used for development. This branch will feed the stagi
 
 The **staging** branch will be updated every time there is a plenary meeting or a demo.
 
-## Code structure
+## Code Structure
 
 TNLCM code is structured as follows:
 
@@ -59,9 +78,11 @@ TNLCM code is structured as follows:
 * **docker-compose.yml**: file for database creation.
 * **requirements.txt**: file containing the libraries and their versions.
 
-## Lifecycle
+## Life Cycle
 
-![TNLCM](./images/TNLCM.png)
+![TNLCM_LIFECYCLE](./images/TNLCM_LIFECYCLE.png)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Current Status
 
@@ -69,7 +90,9 @@ TNLCM is currently capable of deploying different types of components, which are
 
 ![CurrentStatus](./images/currentStatus.png)
 
-## Deploy TNLCM in a virtual machine
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## 🚀 Getting Started
 
 > ⚠ It is recommended to do this deployment on a virtual machine since you must use a callback URL that Jenkins must have access to.
 
@@ -141,8 +164,6 @@ The environment must be created inside the TNLCM project
   pip install -r requirements.txt
   ```
 
-### Start TNLCM
-
 With the environment activated, start TNLCM
 
 ```bash
@@ -150,6 +171,8 @@ python app.py
 ```
 
 A Swagger UI will be available at the url http://localhost:5000 where the API with the endpoints can be seen
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## How to use Swagger UI
 
@@ -181,6 +204,8 @@ If the access token expires, it can be refreshed by using the refresh token. The
 
 ![updateAccessToken](./images/updateAccessToken.png)
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ## Report with the results of the Trial Network deployment
 
 The file with the report after deploying all the components in Jenkins is stored in the path **tnlcm/src/callback/reports**. By default, the reports folder is not created until the components are deployed. The file has a markdown extension and is named "current_user" + "tn_id" + ".md".
@@ -189,6 +214,8 @@ Several tools can be used to open the file:
 
 * Extension vscode: [Markdown All in One](https://marketplace.visualstudio.com/items?itemName=yzhang.markdown-all-in-one)
 * [Obsidian](https://obsidian.md/)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Trial Network Descriptor Schema
 
@@ -209,3 +236,23 @@ trial_network:  # Mandatory, contains the description of all entities in the Tri
     public: # Necessary variables collected from the public part of the 6G-Library
       ...
 ```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- Links -->
+[python-url]: https://www.python.org/downloads/release/python-3122/
+[flask-url]: https://flask.palletsprojects.com/en/3.0.x/
+[docker-url]: https://www.docker.com
+[mongodb-url]: https://www.mongodb.com/
+[python-badge]: https://img.shields.io/badge/Python-3.12.2+-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB
+[flask-badge]: https://img.shields.io/badge/Flask-3.0.3+-brightgreen?style=for-the-badge&logo=flask&logoColor=white&labelColor=000000
+[docker-badge]: https://img.shields.io/badge/Docker-latest-6AB7FF?style=for-the-badge&logo=docker&logoColor=white&labelColor=2496ED
+[mongodb-badge]: https://img.shields.io/badge/MongoDB-latest-green?style=for-the-badge&logo=mongodb&logoColor=white&labelColor=47A248
+[contributors-shield]: https://img.shields.io/github/contributors/6G-SANDBOX/TNLCM.svg?style=for-the-badge
+[contributors-url]: https://github.com/6G-SANDBOX/TNLCM/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/6G-SANDBOX/TNLCM.svg?style=for-the-badge
+[forks-url]: https://github.com/6G-SANDBOX/TNLCM/network/members
+[stars-shield]: https://img.shields.io/github/stars/6G-SANDBOX/TNLCM.svg?style=for-the-badge
+[stars-url]: https://github.com/6G-SANDBOX/TNLCM/stargazers
+[issues-shield]: https://img.shields.io/github/issues/6G-SANDBOX/TNLCM.svg?style=for-the-badge
+[issues-url]: https://github.com/midudev/la-velada-web-oficial/issues
