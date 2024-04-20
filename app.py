@@ -28,7 +28,7 @@ init_mail(app)
 
 api = Api(
     app,
-    title="Trial Network Lifecycle Manager",
+    title="Trial Network Life Cycle Manager",
     version="0.2.0",
     description="Repository: https://github.com/6G-SANDBOX/TNLCM",
     # doc=False
