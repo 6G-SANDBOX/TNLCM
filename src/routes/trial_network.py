@@ -30,7 +30,7 @@ class CreateTrialNetwork(Resource):
     @trial_network_namespace.expect(parser_post)
     def post(self):
         """
-        Create and add a trial network to database
+        Add a trial network to database
         """
         trial_network_handler = None
         try:
@@ -44,11 +44,11 @@ class CreateTrialNetwork(Resource):
                 trial_network_descriptor_handler.add_entity_mandatory_tn_vxlan()
                 trial_network_descriptor_handler.add_entity_mandatory_tn_bastion()
                 tn_raw_descriptor, tn_sorted_descriptor = trial_network_descriptor_handler.sort_descriptor()
-                trial_network_handler.create_trial_network(tn_raw_descriptor, tn_sorted_descriptor)
+                trial_network_handler.add_trial_network(tn_raw_descriptor, tn_sorted_descriptor)
                 tn_id = trial_network_handler.tn_id
                 return {"tn_id": tn_id}, 201
             else:
-                return abort(409, f"Trial network with the name '{tn_id}' created earlier by user '{current_user}' in the 'trial_network' collection in the database '{trial_network_handler.mongo_client.database}'")
+                return abort(409, f"Trial network with the name '{tn_id}' created earlier by user '{current_user}' in the database '{trial_network_handler.mongo_client.database}'")
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
@@ -76,7 +76,7 @@ class TrialNetwork(Resource):
                 tn_sorted_descriptor = trial_network_handler.get_trial_network_descriptor()
                 return tn_sorted_descriptor, 200
             else:
-                return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the 'trial_network' collection in the database '{trial_network_handler.mongo_client.database}'")
+                return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the database '{trial_network_handler.mongo_client.database}'")
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
@@ -103,7 +103,7 @@ class TrialNetwork(Resource):
                 self.jenkins_handler.trial_network_deployment(branch=branch, commit_id=commit_id)
                 return {"message": "Trial network deployed with jenkins"}, 200
             else:
-                return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the 'trial_network' collection in the database '{trial_network_handler.mongo_client.database}'")
+                return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the database '{trial_network_handler.mongo_client.database}'")
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
@@ -124,7 +124,7 @@ class TrialNetwork(Resource):
                 trial_network_handler.delete_trial_network()
                 return {"message": f"The trial network with identifier '{tn_id}' has been removed from the database"}, 200
             else:
-                return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the 'trial_network' collection in the database '{trial_network_handler.mongo_client.database}'")
+                return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the database '{trial_network_handler.mongo_client.database}'")
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
@@ -148,7 +148,7 @@ class SpecificTrialNetworkStatus(Resource):
                 trial_network_status = trial_network_handler.get_trial_network_status()
                 return trial_network_status, 200
             else:
-                return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the 'trial_network' collection in the database '{trial_network_handler.mongo_client.database}'")
+                return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the database '{trial_network_handler.mongo_client.database}'")
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
@@ -175,7 +175,7 @@ class SpecificTrialNetworkStatus(Resource):
                 trial_network_handler.update_trial_network_status(new_status)
                 return {"message": f"The status of the trial network with identifier '{tn_id}' has been updated to '{new_status}'"}, 200
             else:
-                return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the 'trial_network' collection in the database '{trial_network_handler.mongo_client.database}'")
+                return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the database '{trial_network_handler.mongo_client.database}'")
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
@@ -200,7 +200,7 @@ class TrialNetworkReport(Resource):
                 else:
                     abort(404, f"Trial network '{tn_id}' has not been deployed yet")
             else:
-                return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the 'trial_network' collection in the database '{trial_network_handler.mongo_client.database}'")
+                return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the database '{trial_network_handler.mongo_client.database}'")
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
@@ -272,7 +272,7 @@ class TrialNetworksTemplates(Resource):
             trial_network_descriptor_handler.add_entity_mandatory_tn_vxlan()
             trial_network_descriptor_handler.add_entity_mandatory_tn_bastion()
             tn_raw_descriptor, tn_sorted_descriptor = trial_network_descriptor_handler.sort_descriptor()
-            trial_network_handler.create_trial_network_template(tn_raw_descriptor, tn_sorted_descriptor)
+            trial_network_handler.add_trial_network_template(tn_raw_descriptor, tn_sorted_descriptor)
             return {"tn_id": tn_id}, 201
         except CustomException as e:
             return abort(e.error_code, str(e))

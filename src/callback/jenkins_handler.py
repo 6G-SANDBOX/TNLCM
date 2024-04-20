@@ -112,7 +112,7 @@ class JenkinsHandler:
         if os.path.exists(REPORT_COMPONENTS_JENKINS_FILE_PATH):
             report_tn_path = os.path.join(REPORT_DIRECTORY, self.trial_network_handler.current_user + self.trial_network_handler.tn_id + ".md")
             os.rename(REPORT_COMPONENTS_JENKINS_FILE_PATH, report_tn_path)
-            self.trial_network_handler.save_report_trial_network(report_tn_path)
+            self.trial_network_handler.add_report_trial_network(report_tn_path)
         else:
             raise JenkinsDeploymentReportNotFoundError("The trial network report file has not been found", 500)
 

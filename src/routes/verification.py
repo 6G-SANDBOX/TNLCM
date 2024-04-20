@@ -96,7 +96,7 @@ class NewUserVerification(Resource):
             if not latest_verification_token:
                 return abort(401, "Token provided not correct")
 
-            auth_handler.create_user()
+            auth_handler.add_user()
             return {"message": "User added"}, 201
         except CustomException as e:
             return abort(e.error_code, str(e))

@@ -26,6 +26,14 @@ class MongoHandler:
         """Delete connection"""
         self.client.close()
     
+    def find_data(self, collection_name, query=None, projection=None):
+        """Find data in the database"""
+        if collection_name in COLLECTIONS:
+            collection = self.db[collection_name]
+            return list(collection.find(query, projection))
+        else:
+            raise MongoDBCollectionError(f"Collection '{collection_name}' not found in database '{self.database}'", 404)
+
     def insert_data(self, collection_name, doc):
         """Insert data into the database"""
         if collection_name in COLLECTIONS:
@@ -33,14 +41,6 @@ class MongoHandler:
             collection.insert_one(doc)
         else:
             raise MongoDBCollectionError(f"Collection '{collection_name}' not found in database '{self.database}'", 404)
-    
-    def find_data(self, collection_name, query=None, projection=None):
-        """Find data in the database"""
-        if collection_name in COLLECTIONS:
-            collection = self.db[collection_name]
-            return list(collection.find(query, projection))
-        else:
-            raise MongoDBCollectionError(f"Collection '{collection_name}' not found in database '{self.database}'", 404) 
 
     def update_data(self, collection_name, query=None, projection=None):
         """Update data in the database"""

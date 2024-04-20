@@ -35,30 +35,22 @@ class AuthHandler:
         email = self.mongo_client.find_data(collection_name="users", query=query, projection=projection)
         return email
 
-    def is_valid_email(self):
-        """Checks if the email entered by the user is valid"""
-        try:
-            valid = validate_email(self.email)
-            return valid.normalized
-        except EmailNotValidError:
-            raise UserEmailInvalidError("Invalid email entered", 400)
-
-    def create_user(self):
-        """Store an user in the database"""
-        user_doc = {
-            "email": self.is_valid_email(),
-            "username": self.username,
-            "password": generate_password_hash(self.password, method="pbkdf2"),
-            "org": self.org
-        }
-        self.mongo_client.insert_data("users", user_doc)
-
     def get_password(self):
         """Return the password associated with an user"""
         query = {"username": self.username}
         projection = {"_id": 0, "password": 1}
         password = self.mongo_client.find_data(collection_name="users", query=query, projection=projection)
         return password
+
+    def add_user(self):
+        """Store an user in the database"""
+        user_doc = {
+            "email": self._is_valid_email(),
+            "username": self.username,
+            "password": generate_password_hash(self.password, method="pbkdf2"),
+            "org": self.org
+        }
+        self.mongo_client.insert_data("users", user_doc)
     
     def update_password(self):
         """Update password associated to user"""
@@ -72,3 +64,11 @@ class AuthHandler:
             hash_password = self.get_password()[0]["password"]
             return check_password_hash(hash_password, self.password)
         return False
+
+    def _is_valid_email(self):
+        """Checks if the email entered by the user is valid"""
+        try:
+            valid = validate_email(self.email)
+            return valid.normalized
+        except EmailNotValidError:
+            raise UserEmailInvalidError("Invalid email entered", 400)

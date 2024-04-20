@@ -70,7 +70,7 @@ class Users(Resource):
             user = auth_handler.get_username()
             if user:
                 return abort(409, "Username already exist in the database")
-            auth_handler.create_user()
+            auth_handler.add_user()
             return {"message": "User added"}, 201
         except CustomException as e:
             return abort(e.error_code, str(e))

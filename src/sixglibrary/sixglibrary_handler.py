@@ -25,7 +25,7 @@ class SixGLibraryHandler:
 
     def git_clone_6glibrary(self):
         """Clone 6G-Library"""
-        return self.repository_handler.git_clone_repository()
+        self.repository_handler.git_clone_repository()
 
     def extract_public_part_component_6glibrary(self, components):
         """The public part of the components is extracted directly from the 6G-Library"""

@@ -26,24 +26,24 @@ class TrialNetworkDescriptorHandler:
 
     def add_entity_mandatory_tn_vxlan(self):
         """Add the entity vxlan to the descriptor (mandatory)"""
-        if not self.is_entity_descriptor("mandatory_tn_vxlan"):
+        if not self._is_entity_descriptor("mandatory_tn_vxlan"):
             entity_data = {
                 "public": {
                     "one_vxlan_name": "mandatory_tn_vxlan"
                 }
             }
-            self.add_entity_descriptor("mandatory_tn_vxlan", entity_data)
+            self._add_entity_descriptor("mandatory_tn_vxlan", entity_data)
 
     def add_entity_mandatory_tn_bastion(self):
         """Add the entity bastion to the descriptor (mandatory)"""
-        if not self.is_entity_descriptor("mandatory_tn_bastion"):
+        if not self._is_entity_descriptor("mandatory_tn_bastion"):
             entity_data = {
                 "depends_on": ["mandatory_tn_vxlan"],
                 "public": None
             }
-            self.add_entity_descriptor("mandatory_tn_bastion", entity_data)
+            self._add_entity_descriptor("mandatory_tn_bastion", entity_data)
     
-    def is_entity_descriptor(self, entity):
+    def _is_entity_descriptor(self, entity):
         """Return true if an entity is in descriptor"""
         is_entity = False
         for entity_name, entity_data in self.descriptor["trial_network"].items():
@@ -52,7 +52,7 @@ class TrialNetworkDescriptorHandler:
                 break
         return is_entity
 
-    def add_entity_descriptor(self, entity_name, entity_data):
+    def _add_entity_descriptor(self, entity_name, entity_data):
         """Return a new descriptor containing the newly added entity"""
         self.descriptor["trial_network"][entity_name] = entity_data
 
