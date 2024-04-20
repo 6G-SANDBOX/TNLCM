@@ -40,10 +40,10 @@ TNLCM has been designed as a modular application, with the intention of making c
 </details>
 
 ## 🛠️ Stack
-- [![Python][python-badge]][python-url] - Language on which it is based.
-- [![Flask][flask-badge]][flask-url] - Framework to create the web application (API).
-- [![MongoDB][mongodb-badge]][mongodb-url] - Database used for stored trial networks information.
-- [![Docker][docker-badge]][docker-url] - Automate database deployment.
+- [![Python][python-badge]][python-url] - Programming language.
+- [![Flask][flask-badge]][flask-url] - Python microframework for web applications to expose the API.
+- [![MongoDB][mongodb-badge]][mongodb-url] - NoSQL database designed to store Trial Networks.
+- [![Docker][docker-badge]][docker-url] - Platform for running database applications.
 
 ## Branches Distribution
 
@@ -82,7 +82,7 @@ TNLCM code is structured as follows:
 
 ![TNLCM_LIFECYCLE](./images/TNLCM_LIFECYCLE.png)
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right"><a href="#readme-top">Back to top🔼</a></p>
 
 ## Current Status
 
@@ -90,7 +90,7 @@ TNLCM is currently capable of deploying different types of components, which are
 
 ![CurrentStatus](./images/currentStatus.png)
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right"><a href="#readme-top">Back to top🔼</a></p>
 
 ## 🚀 Getting Started
 
@@ -173,7 +173,7 @@ python app.py
 
 A Swagger UI will be available at the url http://localhost:5000 where the API with the endpoints can be seen
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right"><a href="#readme-top">Back to top🔼</a></p>
 
 ## How to use Swagger UI
 
@@ -205,7 +205,7 @@ If the access token expires, it can be refreshed by using the refresh token. The
 
 ![updateAccessToken](./images/updateAccessToken.png)
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right"><a href="#readme-top">Back to top🔼</a></p>
 
 ## Report with the results of the Trial Network deployment
 
@@ -216,7 +216,7 @@ Several tools can be used to open the file:
 * Extension vscode: [Markdown All in One](https://marketplace.visualstudio.com/items?itemName=yzhang.markdown-all-in-one)
 * [Obsidian](https://obsidian.md/)
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right"><a href="#readme-top">Back to top🔼</a></p>
 
 ## Trial Network Descriptor Schema
 
@@ -238,19 +238,19 @@ trial_network:  # Mandatory, contains the description of all entities in the Tri
       ...
 ```
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right"><a href="#readme-top">Back to top🔼</a></p>
 
 <!-- Urls, Shields and Badges -->
-[python-url]: https://www.python.org/downloads/release/python-3122/
-[flask-url]: https://flask.palletsprojects.com/en/3.0.x/
-[docker-url]: https://www.docker.com
-[mongodb-url]: https://www.mongodb.com/
 [tnlcm-badge]: https://img.shields.io/badge/TNLCM-v0.1.0-blue
 [tnlcm-url]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.1.0
 [python-badge]: https://img.shields.io/badge/Python-3.12.2+-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB
+[python-url]: https://www.python.org/downloads/release/python-3122/
 [flask-badge]: https://img.shields.io/badge/Flask-3.0.3+-brightgreen?style=for-the-badge&logo=flask&logoColor=white&labelColor=000000
-[docker-badge]: https://img.shields.io/badge/Docker-latest-6AB7FF?style=for-the-badge&logo=docker&logoColor=white&labelColor=2496ED
+[flask-url]: https://flask.palletsprojects.com/en/3.0.x/
 [mongodb-badge]: https://img.shields.io/badge/MongoDB-latest-green?style=for-the-badge&logo=mongodb&logoColor=white&labelColor=47A248
+[mongodb-url]: https://www.mongodb.com/
+[docker-badge]: https://img.shields.io/badge/Docker-latest-6AB7FF?style=for-the-badge&logo=docker&logoColor=white&labelColor=2496ED
+[docker-url]: https://www.docker.com
 [contributors-shield]: https://img.shields.io/github/contributors/6G-SANDBOX/TNLCM.svg?style=for-the-badge
 [contributors-url]: https://github.com/6G-SANDBOX/TNLCM/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/6G-SANDBOX/TNLCM.svg?style=for-the-badge
@@ -258,4 +258,4 @@ trial_network:  # Mandatory, contains the description of all entities in the Tri
 [stars-shield]: https://img.shields.io/github/stars/6G-SANDBOX/TNLCM.svg?style=for-the-badge
 [stars-url]: https://github.com/6G-SANDBOX/TNLCM/stargazers
 [issues-shield]: https://img.shields.io/github/issues/6G-SANDBOX/TNLCM.svg?style=for-the-badge
-[issues-url]: https://github.com/midudev/la-velada-web-oficial/issues
+[issues-url]: https://github.com/6G-SANDBOX/TNLCM/issues
