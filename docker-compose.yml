@@ -6,7 +6,7 @@ services:
     container_name: tnlcm-database
     image: mongo:latest
     ports:
-      - "27017:27017"
+      - 27017:27017
     volumes:
       - data:/var/lib/mongodb_data
       - ./src/database/tnlcm-structure.js:/docker-entrypoint-initdb.d/tnlcm-structure.js
