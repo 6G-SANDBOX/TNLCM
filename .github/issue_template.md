@@ -32,7 +32,6 @@
 - Browser Version: ---
 - Operating System: Windows, MacOS, Linux
 
-
 ## Error Logs (if applicable)
 
 <!-- Include any relevant log snippet or file here. -->
