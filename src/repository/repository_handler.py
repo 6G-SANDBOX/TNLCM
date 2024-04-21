@@ -2,8 +2,10 @@ import os
 import re
 
 from git import Repo
-from src.exceptions.exceptions_handler import VariablesNotDefinedInEnvError, GitCloneError, GitCheckoutError
 from git.exc import InvalidGitRepositoryError, GitCommandError
+
+from src.logs.log_handler import log_handler
+from src.exceptions.exceptions_handler import VariablesNotDefinedInEnvError, GitCloneError, GitCheckoutError
 
 REPOSITORY_DIRECTORY = os.path.join(os.getcwd(), "src", "repository")
 
@@ -48,6 +50,7 @@ class RepositoryHandler:
     def _clone_repository(self):
         """Clone repository"""
         try:
+            log_handler.info(f"Clone '{self.git_repository_name}' repository")
             self.repo = Repo.clone_from(self.git_url, self.local_directory)
         except InvalidGitRepositoryError:
             raise GitCloneError(f"Cannot clone because the '{self.git_url}' url is not a GitHub repository", 500)
@@ -62,15 +65,20 @@ class RepositoryHandler:
                     (last_clone_type == "branch" and self.git_branch and not self._is_current_branch()):
                 if self.git_branch:
                     try:
+                        log_handler.info(f"Checkout to '{self.git_branch}' branch of '{self.git_repository_name}' repository")
                         self.repo.git.checkout(self.git_branch, "--")
                     except GitCommandError:
-                        raise GitCheckoutError(f"Branch '{self.git_branch}' not in '{self.git_repository_name}' repository", 404)
+                        log_handler.error(f"Branch '{self.git_branch}' is not in '{self.git_repository_name}' repository")
+                        raise GitCheckoutError(f"Branch '{self.git_branch}' is not in '{self.git_repository_name}' repository", 404)
                 else:
                     try:
+                        log_handler.info(f"Checkout to '{self.git_commit_id}' commit of '{self.git_repository_name}' repository")
                         self.repo.git.checkout(self.git_commit_id)
                     except GitCommandError:
-                        raise GitCheckoutError(f"The commit with id '{self.git_commit_id}' not in '{self.git_repository_name}' repository", 404)
+                        log_handler.error(f"Commit with id '{self.git_commit_id}' not in '{self.git_repository_name}' repository")
+                        raise GitCheckoutError(f"Commit with id '{self.git_commit_id}' not in '{self.git_repository_name}' repository", 404)
         else:
+            log_handler.error(f"Clone '{self.git_repository_name}' repository first")
             raise GitCloneError(f"Clone '{self.git_repository_name}' repository first")
 
     def _last_git_clone(self):
@@ -91,6 +99,7 @@ class RepositoryHandler:
     def _pull_branch(self):
         """Check if the repository has been updated and applies a git pull in case of changes"""
         if self.git_branch:
+            log_handler.info(f"Pull execute in branch '{self.git_branch}'")
             self.repo.remotes.origin.pull()
     
     def _is_github_repo(self, url):

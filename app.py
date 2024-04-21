@@ -7,7 +7,7 @@ from flask_cors import CORS
 from waitress import serve
 from dotenv import load_dotenv
 
-from src.logs.log_handler import LogHandler
+from src.logs.log_handler import log_handler
 from src.verification.mail import init_mail
 from src.routes import trial_network_namespace, callback_namespace, sixglibrary_namespace, users_namespace, verification_namespace
 
@@ -40,7 +40,7 @@ api.add_namespace(trial_network_namespace, path="/tnlcm/trial_network")
 api.add_namespace(sixglibrary_namespace, path="/tnlcm/6glibrary")
 api.add_namespace(callback_namespace, path="/tnlcm/callback")
 
-LogHandler()
+log_handler.info("Starting the application...")
 
 if __name__ == "__main__":
     if flask_env == "DEVELOPMENT":

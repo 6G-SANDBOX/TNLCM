@@ -1,6 +1,9 @@
 import os
 
+from src.logs.log_handler import log_handler
+
 class Config(object):
+    log_handler.info("Load configuration file")
     DEBUG = False
     TESTING = False
     SECRET_KEY = os.getenv("SECRET_KEY") or "clave"

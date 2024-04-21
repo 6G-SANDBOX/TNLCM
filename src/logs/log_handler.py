@@ -1,5 +1,6 @@
-import logging
 import os
+import logging
+
 from datetime import datetime
 
 class LogHandler:
@@ -42,3 +43,5 @@ class LogHandler:
         logging.shutdown()
         self.logger = None
         self.log_file = None
+
+log_handler = LogHandler()

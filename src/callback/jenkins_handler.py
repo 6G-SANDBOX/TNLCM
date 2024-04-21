@@ -7,6 +7,7 @@ from json import dump
 from base64 import b64decode
 from time import sleep
 
+from src.logs.log_handler import log_handler
 from src.temp.temp_file_handler import TempFileHandler
 from src.sixglibrary.sixglibrary_handler import SixGLibraryHandler
 from src.exceptions.exceptions_handler import JenkinsConnectionError, VariablesNotDefinedInEnvError, KeyNotFoundError, CustomUnicodeDecodeError, SixGLibraryComponentNotFound, JenkinsComponentFileNotFoundError, JenkinsResponseError, JenkinsComponentPipelineError, JenkinsComponentReportNotFoundError, JenkinsDeploymentReportNotFoundError
@@ -40,9 +41,11 @@ class JenkinsHandler:
     def save_decoded_information(self, data):
         """Store decoded deployment information of each component received by jenkins"""
         try:
+            log_handler.info("Saving entity deployment results received by jenkins")
             if os.path.isfile(DECODED_COMPONENT_INFORMATION_FILE_PATH):
                 os.remove(DECODED_COMPONENT_INFORMATION_FILE_PATH)
             if "result_msg" not in data:
+                log_handler.error(f"The 'result_msg' key has not been received by Jenkins")
                 raise KeyNotFoundError(f"The 'result_msg' key has not been received by Jenkins", 400)
             if "kubeconfig" in data:
                 data["kubeconfig"] = b64decode(data["kubeconfig"]).decode("utf-8")
@@ -52,6 +55,7 @@ class JenkinsHandler:
             result_msg = data["result_msg"]
             with open(REPORT_COMPONENTS_JENKINS_FILE_PATH, "a") as result_msg_file:
                 result_msg_file.write(result_msg)
+            log_handler.info("Saved entity deployment information")
         except UnicodeDecodeError:
             raise CustomUnicodeDecodeError("Unicode decoding error", 500)
     
@@ -78,13 +82,14 @@ class JenkinsHandler:
         tn_id = self.trial_network_handler.tn_id
         temp_file_handler = TempFileHandler()
         for entity_name, entity_data in tn_descriptor.items():
+            log_handler.info(f"Starting the deployment of the '{entity_name}' entity")
             entity_name = entity_name + "_" + tn_id
             component_name = entity_data["type"]
             if component_name in components_6glibrary:
-                component_path_temp_file = temp_file_handler.create_entity_temp_file(entity_data, tn_descriptor, REPORT_DIRECTORY, tn_id)
-                if os.path.isfile(component_path_temp_file):
-                    with open(component_path_temp_file, 'rb') as component_temp_file:
-                        file = {"FILE": (component_path_temp_file, component_temp_file)}
+                entity_path_temp_file = temp_file_handler.create_entity_temp_file(entity_name, entity_data, tn_descriptor, REPORT_DIRECTORY, tn_id)
+                if os.path.isfile(entity_path_temp_file):
+                    with open(entity_path_temp_file, 'rb') as component_temp_file:
+                        file = {"FILE": (entity_path_temp_file, component_temp_file)}
                         jenkins_build_job_url = self.jenkins_client.build_job_url(name=self.jenkins_tn_job_name, parameters=self.jenkins_parameters(tn_id, component_name, branch=branch, commit_id=commit_id))
                         response = post(jenkins_build_job_url, auth=(self.jenkins_user, self.jenkins_token), files=file)
                         if response.status_code == 201:
@@ -92,29 +97,38 @@ class JenkinsHandler:
                             while last_build_number != self.jenkins_client.get_job_info(name=self.jenkins_tn_job_name)["lastCompletedBuild"]["number"]:
                                 sleep(15)
                             if self.jenkins_client.get_job_info(name=self.jenkins_tn_job_name)["lastSuccessfulBuild"]["number"] == last_build_number:
+                                log_handler.info(f"Entity '{entity_name}' successfully deployed")
                                 sleep(2)
                                 if os.path.isfile(DECODED_COMPONENT_INFORMATION_FILE_PATH):
                                     os.rename(DECODED_COMPONENT_INFORMATION_FILE_PATH, os.path.join(REPORT_DIRECTORY, entity_name + ".json"))
                                 else:
-                                    raise JenkinsComponentReportNotFoundError(f"The '{component_name}' component deployment report file is not found", 500)
+                                    log_handler.error(f"Report file for entity {entity_name} could not be found")
+                                    raise JenkinsComponentReportNotFoundError(f"Report file for entity '{entity_name}' could not be found", 500)
                             else:
-                                raise JenkinsComponentPipelineError(f"The pipeline for the component '{component_name}' has failed", 500)
+                                log_handler.error(f"Pipeline for the entity '{entity_name}' has failed")
+                                raise JenkinsComponentPipelineError(f"Pipeline for the entity '{entity_name}' has failed", 500)
                         else:
-                            raise JenkinsResponseError(f"Error in the response received by Jenkins when trying to deploy the '{component_name}' component", response.status_code)
+                            log_handler.error(f"Error in the response received by Jenkins when trying to deploy the '{entity_name}' entity")
+                            raise JenkinsResponseError(f"Error in the response received by Jenkins when trying to deploy the '{entity_name}' entity", response.status_code)
                 else:
-                    raise JenkinsComponentFileNotFoundError("Component file not found", 404)
+                    log_handler.error(f"Entity file '{entity_name}' not found")
+                    raise JenkinsComponentFileNotFoundError(f"Entity file '{entity_name}' not found", 404)
             else:
                 if branch is not None:
-                    raise SixGLibraryComponentNotFound(f"The '{component_name}' component is not in '{branch}' branch of the 6G-Library", 404)
+                    log_handler.error(f"Component '{component_name}' is not in '{branch}' branch of the 6G-Library")
+                    raise SixGLibraryComponentNotFound(f"Component '{component_name}' is not in '{branch}' branch of the 6G-Library", 404)
                 else:
-                    raise SixGLibraryComponentNotFound(f"The '{component_name}' component is not in commit_id '{commit_id}' of the 6G-Library", 404)
+                    log_handler.error(f"Component '{component_name}' is not in commit_id '{commit_id}' of the 6G-Library")
+                    raise SixGLibraryComponentNotFound(f"Component '{component_name}' is not in commit_id '{commit_id}' of the 6G-Library", 404)
+            log_handler.info(f"End of deployment of entity '{entity_name}'")
         self.trial_network_handler.update_trial_network_status("started")
         if os.path.exists(REPORT_COMPONENTS_JENKINS_FILE_PATH):
             report_tn_path = os.path.join(REPORT_DIRECTORY, self.trial_network_handler.current_user + self.trial_network_handler.tn_id + ".md")
             os.rename(REPORT_COMPONENTS_JENKINS_FILE_PATH, report_tn_path)
             self.trial_network_handler.add_report_trial_network(report_tn_path)
         else:
-            raise JenkinsDeploymentReportNotFoundError("The trial network report file has not been found", 500)
+            log_handler.error("Trial network report file has not been found")
+            raise JenkinsDeploymentReportNotFoundError("Trial network report file has not been found", 500)
 
     def jenkins_update_marketplace(self):
         """Pipeline to update the TNLCM version in marketplace"""

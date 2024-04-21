@@ -2,6 +2,7 @@ from werkzeug.utils import secure_filename
 from json import dumps
 from yaml import safe_load, YAMLError
 
+from src.logs.log_handler import log_handler
 from src.exceptions.exceptions_handler import TrialNetworkDescriptorInvalidExtensionError, TrialNetworkDescriptorEmptyError, TrialNetworkDescriptorInvalidContentError, TrialNetworkEntityNotInDescriptorError
 
 class TrialNetworkDescriptorHandler:
@@ -58,6 +59,7 @@ class TrialNetworkDescriptorHandler:
 
     def sort_descriptor(self):
         """Recursive function that returns the raw descriptor and a new descriptor sorted according to dependencies"""
+        log_handler.info("Starting the order of the entities")
         entities = self.descriptor["trial_network"]
         ordered_entities = {}
 
@@ -73,5 +75,6 @@ class TrialNetworkDescriptorHandler:
 
         for entity in entities:
             dfs(entity)
-
+        
+        log_handler.info("End the order of the entities")
         return dumps(self.descriptor), dumps({"trial_network": ordered_entities})
