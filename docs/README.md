@@ -24,22 +24,22 @@ TNLCM has been designed as a modular application, with the intention of making c
 <details>
 <summary>Table of Contents</summary>
 
-- [🛠️ Stack](#️-stack)
+- [:hammer\_and\_wrench: Stack](#hammer_and_wrench-stack)
 - [Branches Distribution](#branches-distribution)
 - [Code Structure](#code-structure)
 - [Life Cycle](#life-cycle)
 - [Current Status](#current-status)
-- [🚀 Getting Started](#-getting-started)
+- [:rocket: Getting Started](#rocket-getting-started)
   - [Download or clone repository](#download-or-clone-repository)
   - [Create .env using .env.template](#create-env-using-envtemplate)
-  - [Create TNLCM database](#create-tnlcm-database)
-  - [Create Python environment and install libraries](#create-python-environment-and-install-libraries)
+  - [:floppy\_disk: Create TNLCM database](#floppy_disk-create-tnlcm-database)
+  - [:snake: Create Python environment and install libraries](#snake-create-python-environment-and-install-libraries)
 - [How to use Swagger UI](#how-to-use-swagger-ui)
-- [Report with the results of the Trial Network deployment](#report-with-the-results-of-the-trial-network-deployment)
+- [:pencil: Report with the results of the Trial Network deployment](#pencil-report-with-the-results-of-the-trial-network-deployment)
 - [Trial Network Descriptor Schema](#trial-network-descriptor-schema)
 </details>
 
-## 🛠️ Stack
+## :hammer_and_wrench: Stack
 - [![Python][python-badge]][python-url] - Programming language.
 - [![Flask][flask-badge]][flask-url] - Python microframework for web applications to expose the API.
 - [![MongoDB][mongodb-badge]][mongodb-url] - NoSQL database designed to store Trial Networks.
@@ -85,7 +85,7 @@ TNLCM code is structured as follows:
 
 ![TNLCM_LIFECYCLE](./images/TNLCM_LIFECYCLE.png)
 
-<p align="right"><a href="#readme-top">Back to top🔼</a></p>
+<p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 ## Current Status
 
@@ -93,9 +93,9 @@ TNLCM is currently capable of deploying different types of components, which are
 
 ![CurrentStatus](./images/currentStatus.png)
 
-<p align="right"><a href="#readme-top">Back to top🔼</a></p>
+<p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
-## 🚀 Getting Started
+## :rocket: Getting Started
 
 > [!WARNING]
 > It is recommended to do this deployment on a virtual machine since you must use a callback URL that Jenkins must have access to.
@@ -120,7 +120,7 @@ git clone https://github.com/6G-SANDBOX/TNLCM
 
 Create the .env file at the same level and with the contents of the [.env.template](../.env.template) file.
 
-### Create TNLCM database
+### :floppy_disk: Create TNLCM database
 
 > This step requires Docker to be installed on the machine.
 
@@ -138,7 +138,7 @@ Flag **-d** can be added to raise the container in background:
 docker compose up -d
 ```
 
-### Create Python environment and install libraries
+### :snake: Create Python environment and install libraries
 
 The environment must be created inside the TNLCM project
 
@@ -176,7 +176,7 @@ python app.py
 
 A Swagger UI will be available at the url http://localhost:5000 where the API with the endpoints can be seen
 
-<p align="right"><a href="#readme-top">Back to top🔼</a></p>
+<p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 ## How to use Swagger UI
 
@@ -208,9 +208,9 @@ If the access token expires, it can be refreshed by using the refresh token. The
 
 ![updateAccessToken](./images/updateAccessToken.png)
 
-<p align="right"><a href="#readme-top">Back to top🔼</a></p>
+<p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
-## Report with the results of the Trial Network deployment
+## :pencil: Report with the results of the Trial Network deployment
 
 The file with the report after deploying all the components in Jenkins is stored in the path **tnlcm/src/callback/reports**. By default, the reports folder is not created until the components are deployed. The file has a markdown extension and is named "current_user" + "tn_id" + ".md".
 
@@ -219,7 +219,7 @@ Several tools can be used to open the file:
 * Extension vscode: [Markdown All in One](https://marketplace.visualstudio.com/items?itemName=yzhang.markdown-all-in-one)
 * [Obsidian](https://obsidian.md/)
 
-<p align="right"><a href="#readme-top">Back to top🔼</a></p>
+<p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 ## Trial Network Descriptor Schema
 
@@ -241,7 +241,7 @@ trial_network:  # Mandatory, contains the description of all entities in the Tri
       ...
 ```
 
-<p align="right"><a href="#readme-top">Back to top🔼</a></p>
+<p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 <!-- Urls, Shields and Badges -->
 [tnlcm-badge]: https://img.shields.io/badge/TNLCM-v0.1.0-blue
