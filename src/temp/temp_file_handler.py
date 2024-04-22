@@ -50,6 +50,8 @@ class TempFileHandler:
         elif entity_type == "k8s_medium":
             entity_public["external_vnet_id"] = self.find_vxlan_ids(entity_public["external_vnet_id"], tn_descriptor, report_directory, tn_id)
             entity_public["internal_vnet_id"] = self.find_vxlan_ids(entity_public["internal_vnet_id"], tn_descriptor, report_directory, tn_id)
+        elif entity_type == "ueransim":
+            entity_public["one_component_networks"] = self.find_vxlan_ids(entity_public["one_component_networks"], tn_descriptor, report_directory, tn_id)
         return entity_public
 
     def create_entity_temp_file(self, entity_name, entity_data, tn_descriptor, report_directory, tn_id):
