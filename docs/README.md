@@ -225,10 +225,7 @@ Several tools can be used to open the file:
 
 > The format of Trial Network Descriptors has not been finalized and is expected to change in the future.
 
-Trial Network Descriptors are yaml files with a set of expected fields and structure. This repository contains examples of descriptor:
-- [`01_descriptor.yml`](../descriptors/01_descriptor.yml)
-- [`02_descriptor.yml`](../descriptors/02_descriptor.yml)
-- [`03_descriptor.yml`](../descriptors/03_descriptor.yml)
+Trial Network Descriptors are yaml files with a set of expected fields and structure. 
 
 ```yaml
 trial_network:  # Mandatory, contains the description of all entities in the Trial Network
@@ -240,6 +237,13 @@ trial_network:  # Mandatory, contains the description of all entities in the Tri
     public: # Necessary variables collected from the public part of the 6G-Library
       ...
 ```
+
+This repository contains examples of descriptor:
+- [`01_descriptor.yml`](../descriptors/01_descriptor.yml)
+- [`02_descriptor.yml`](../descriptors/02_descriptor.yml)
+
+The first Trial Network end-to-end:
+- [`03_descriptor.yml`](../descriptors/03_descriptor_e2e.yml)
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
