@@ -13,11 +13,11 @@ class RepositoryHandler:
 
     def __init__(self, git_url=None, git_branch=None, git_commit_id=None, repository_name=None):
         """Constructor"""
-        if not git_url or not repository_name:
+        if git_url is None or repository_name is None:
             raise VariablesNotDefinedInEnvError("Add the value of the variables git_url and repository_name", 500)
-        if not git_branch and not git_commit_id:
+        if git_branch is None and git_commit_id is None:
             raise VariablesNotDefinedInEnvError("Add the value of the variables git_branch or git_commit_id", 500)
-        if git_branch and git_commit_id:
+        if git_branch is not None and git_commit_id is not None:
             raise VariablesNotDefinedInEnvError("Only one field is required. Either git_branch or git_commit_id", 500)
         if self._is_github_repo(git_url):
             self.git_url = git_url
