@@ -43,7 +43,7 @@ class TempFileHandler:
         entity_type = entity_data["type"]
         entity_public["tnlcm_callback"] = os.getenv("CALLBACK_URL")
         if entity_type == "tn_bastion":
-            entity_public["one_component_networks"] = [0] + self.find_vxlan_ids(entity_public["one_component_networks"], tn_descriptor, report_directory, tn_id)
+            entity_public["one_component_networks"] = [280] + self.find_vxlan_ids(entity_public["one_component_networks"], tn_descriptor, report_directory, tn_id)
             entity_public["one_bastion_wireguard_allowed_networks"] = "192.168.199.0/24"
         elif entity_type == "vm_kvm_very_small" or entity_type == "vm_kvm_small" or entity_type == "vm_kvm_medium" or entity_type == "vm_kvm_large" or entity_type == "vm_kvm_extra_large":
             entity_public["one_component_networks"] = [0] + self.find_vxlan_ids(entity_public["one_component_networks"], tn_descriptor, report_directory, tn_id)
