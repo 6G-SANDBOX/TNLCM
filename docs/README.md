@@ -104,7 +104,7 @@ TNLCM is currently capable of deploying different types of components, which are
 
 * Jenkins (Mandatory)
 * OpenNebula (Mandatory)
-* MinIO (Optional)
+* MinIO (Mandatory)
 
 ### Download or clone repository
 
