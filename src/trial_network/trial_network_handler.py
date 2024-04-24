@@ -21,6 +21,9 @@ class TrialNetworkHandler:
         query = None if self.current_user == "admin" else {"user_created": self.current_user}
         projection = {"_id": 0}
         trial_networks = self.mongo_client.find_data(collection_name="trial_networks", query=query, projection=projection)
+        for tn in trial_networks:
+            tn["tn_raw_descriptor"] = loads(tn["tn_raw_descriptor"])
+            tn["tn_sorted_descriptor"] = loads(tn["tn_sorted_descriptor"])
         return trial_networks
 
     def get_trial_network(self):
