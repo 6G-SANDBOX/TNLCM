@@ -25,7 +25,6 @@ TNLCM has been designed as a modular application, with the intention of making c
 <summary>Table of Contents</summary>
 
 - [:hammer\_and\_wrench: Stack](#hammer_and_wrench-stack)
-- [Branches Distribution](#branches-distribution)
 - [Code Structure](#code-structure)
 - [Life Cycle](#life-cycle)
 - [Current Status](#current-status)
@@ -44,14 +43,6 @@ TNLCM has been designed as a modular application, with the intention of making c
 - [![Flask][flask-badge]][flask-url] - Python microframework for web applications to expose the API.
 - [![MongoDB][mongodb-badge]][mongodb-url] - NoSQL database designed to store Trial Networks.
 - [![Docker][docker-badge]][docker-url] - Platform for running database applications.
-
-## Branches Distribution
-
-The **main** branch will be updated every time there is a plenary meeting. Releases will be created from this branch.
-
-The **dev** branch will be used for development. This branch will feed the staging and main branches.
-
-The **staging** branch will be updated every time there is a plenary meeting or a demo.
 
 ## Code Structure
 
@@ -222,7 +213,7 @@ Several tools can be used to open the file:
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 ## Trial Network Descriptor Schema
-
+> [!WARNING]
 > The format of Trial Network Descriptors has not been finalized and is expected to change in the future.
 
 Trial Network Descriptors are yaml files with a set of expected fields and structure. 
