@@ -24,7 +24,7 @@ class JenkinsHandler:
         self.jenkins_user = os.getenv("JENKINS_USER")
         self.jenkins_password = os.getenv("JENKINS_PASSWORD")
         self.jenkins_token = os.getenv("JENKINS_TOKEN")
-        self.jenkins_tn_job_name = os.getenv("JENKINS_TN_JOB_NAME")
+        self.jenkins_pipeline_name = os.getenv("JENKINS_PIPELINE_NAME")
         self.jenkins_deployment_site = os.getenv("JENKINS_DEPLOYMENT_SITE")
         if self.jenkins_server and self.jenkins_user and self.jenkins_password:
             try:
@@ -34,8 +34,8 @@ class JenkinsHandler:
                 raise JenkinsConnectionError("Error establishing connection to Jenkins", 500)
         else:
             raise VariablesNotDefinedInEnvError("Add the value of the variables JENKINS_SERVER, JENKINS_USER and JENKINS_PASSWORD in the .env file", 500)
-        if not self.jenkins_token or not self.jenkins_tn_job_name or not self.jenkins_deployment_site:
-            raise VariablesNotDefinedInEnvError("Add the value of the variables JENKINS_TOKEN, JENKINS_TN_JOB_NAME and JENKINS_DEPLOYMENT_SITE in the .env file", 500)
+        if not self.jenkins_token or not self.jenkins_pipeline_name or not self.jenkins_deployment_site:
+            raise VariablesNotDefinedInEnvError("Add the value of the variables JENKINS_TOKEN, JENKINS_PIPELINE_NAME and JENKINS_DEPLOYMENT_SITE in the .env file", 500)
         self.trial_network_handler = trial_network_handler
 
     def save_decoded_information(self, data):
@@ -90,13 +90,13 @@ class JenkinsHandler:
                 if os.path.isfile(entity_path_temp_file):
                     with open(entity_path_temp_file, 'rb') as component_temp_file:
                         file = {"FILE": (entity_path_temp_file, component_temp_file)}
-                        jenkins_build_job_url = self.jenkins_client.build_job_url(name=self.jenkins_tn_job_name, parameters=self.jenkins_parameters(tn_id, component_name, branch=sixglibrary_handler.git_6glibrary_branch, commit_id=sixglibrary_handler.git_6glibrary_commit_id))
+                        jenkins_build_job_url = self.jenkins_client.build_job_url(name=self.jenkins_pipeline_name, parameters=self.jenkins_parameters(tn_id, component_name, branch=sixglibrary_handler.git_6glibrary_branch, commit_id=sixglibrary_handler.git_6glibrary_commit_id))
                         response = post(jenkins_build_job_url, auth=(self.jenkins_user, self.jenkins_token), files=file)
                         if response.status_code == 201:
-                            last_build_number = self.jenkins_client.get_job_info(name=self.jenkins_tn_job_name)["nextBuildNumber"]
-                            while last_build_number != self.jenkins_client.get_job_info(name=self.jenkins_tn_job_name)["lastCompletedBuild"]["number"]:
+                            last_build_number = self.jenkins_client.get_job_info(name=self.jenkins_pipeline_name)["nextBuildNumber"]
+                            while last_build_number != self.jenkins_client.get_job_info(name=self.jenkins_pipeline_name)["lastCompletedBuild"]["number"]:
                                 sleep(15)
-                            if self.jenkins_client.get_job_info(name=self.jenkins_tn_job_name)["lastSuccessfulBuild"]["number"] == last_build_number:
+                            if self.jenkins_client.get_job_info(name=self.jenkins_pipeline_name)["lastSuccessfulBuild"]["number"] == last_build_number:
                                 log_handler.info(f"Entity '{entity_name}' successfully deployed")
                                 sleep(2)
                                 if os.path.isfile(DECODED_COMPONENT_INFORMATION_FILE_PATH):
