@@ -69,8 +69,8 @@ class SixGLibraryHandler:
         depends_parts = {}
 
         for component in components:
-            description_file_yml = os.path.join(self.repository_handler.local_directory, component, "depends", "description.yml")
-            description_file_yaml = os.path.join(self.repository_handler.local_directory, component, "depends", "description.yaml")
+            description_file_yml = os.path.join(self.repository_handler.local_directory, component, "public", "description.yml")
+            description_file_yaml = os.path.join(self.repository_handler.local_directory, component, "public", "description.yaml")
 
             if os.path.exists(description_file_yml) or os.path.exists(description_file_yaml):
                 description_file = description_file_yml if os.path.exists(description_file_yml) else description_file_yaml
