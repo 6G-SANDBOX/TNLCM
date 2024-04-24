@@ -13,7 +13,6 @@
 - Connection with Jenkins for the deployment of different components. Currently 8 types of components are running: tn_vxlan, tn_bastion, vm_kvm, vxlan, k8s, open5gs, UERANSIM-gNB and UERANSIM-UE.
 - Logs to check TNLCM behavior.
 - First integration with tests.
-- GitHub workflow automation.
 
 ### Changed
 
@@ -40,5 +39,5 @@
 
 ### Removed
 
-[unreleased]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.1.0...dev
+[unreleased]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.1.0
