@@ -43,8 +43,6 @@ trial_network:
   first_open5gs:
     type: "open5gs"
     depends_on:
-      - "mandatory_tn_vxlan"
-      - "mandatory_tn_bastion"
       - "first_k8s_medium"
     public:
       oneke_cluster_name: "OneKE-sandbox-tn-uma" # same value as service_name of cluster
