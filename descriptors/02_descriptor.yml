@@ -1,0 +1,42 @@
+trial_network:
+
+  mandatory_tn_bastion:
+    type: "tn_bastion"
+    depends_on:
+      - "mandatory_tn_vxlan"
+    public:
+      one_component_networks:
+        - "mandatory_tn_vxlan"
+  mandatory_tn_vxlan:
+    type: "tn_vxlan"
+    depends_on: []
+    public:
+      one_vxlan_name: "mandatory_tn_vxlan"
+  k8s_private_vxlan:
+    type: "vxlan"
+    depends_on:
+      - "mandatory_tn_vxlan"
+      - "mandatory_tn_bastion"
+    public:
+      one_vxlan_name: "k8s_private_vxlan"
+      one_vxlan_dns: "1.1.1.1"
+      one_vxlan_address_size: 100
+      one_vxlan_first_ip: "10.10.10.1"
+      one_vxlan_gw: "10.10.10.1"
+  first_k8s_medium:
+    type: "k8s_medium"
+    depends_on:
+      - "mandatory_tn_vxlan"
+      - "mandatory_tn_bastion"
+      - "k8s_private_vxlan"
+    public:
+      external_vnet_id: "mandatory_tn_vxlan"
+      internal_vnet_id: "k8s_private_vxlan"
+      service_name: "OneKE-sandbox-tn-uma"
+      multus_enabled: "YES"
+      cni_plugin: "canal"
+      longhorn_enabled: "YES"
+      metallb_enabled: "YES"
+      metallb_range: "10.10.12.200-10.10.12.240"
+      traefik_enabled: "NO"
+      vnf_upstream_dns: "1.1.1.1 8.8.8.8"

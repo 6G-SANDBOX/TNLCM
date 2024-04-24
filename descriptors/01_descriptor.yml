@@ -1,0 +1,25 @@
+trial_network:
+
+  mandatory_tn_bastion:
+    type: "tn_bastion"
+    depends_on:
+      - "mandatory_tn_vxlan"
+    public:
+      one_component_networks:
+        - "mandatory_tn_vxlan"
+  mandatory_tn_vxlan:
+    type: "tn_vxlan"
+    depends_on: []
+    public:
+      one_vxlan_name: "mandatory_tn_vxlan"
+  first_vm_kvm_very_small:
+    type: "vm_kvm_very_small"
+    depends_on:
+      - "mandatory_tn_vxlan"
+      - "mandatory_tn_bastion"
+    public:
+      one_component_name: "one_vm_kvm_very_small"
+      one_vm_username: "test"
+      one_vm_password: "test"
+      one_component_networks:
+        - "mandatory_tn_vxlan"
