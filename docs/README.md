@@ -221,9 +221,13 @@ The API set forth in the TNLCM is as follows:
 
 ![api](./images/api.png)
 
-If it is the first time using the API it is necessary to create a user:
+If it is the first time using the API it is necessary to create a user. A verification code is required, so it is necessary to enter a valid email address that can be accessed:
 
-![createUser](./images/createUser.png)
+![requestVerificationToken](./images/requestVerificationToken.png)
+
+Once the registration code is obtained, proceed to the user registration using the email and the code previously employed:
+
+![registerUser](./images/registerUser.png)
 
 Once the user has been created or if it has been previously created, add the user and its password in the green **Authorize** box:
 
@@ -237,7 +241,7 @@ The next step is to add the token in the green **Authorize** box. It is required
 
 ![accessToken](./images/accessToken.png)
 
-Now, requests that involve having an access token can be made
+Now, requests that involve having an access token can be made.
 
 If the access token expires, it can be refreshed by using the refresh token. The token in the green **Authorize** box must be updated with the refresh token and the post request must be made:
 
