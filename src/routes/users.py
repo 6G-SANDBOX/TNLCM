@@ -45,39 +45,6 @@ class Users(Resource):
             if auth_handler is not None:
                 auth_handler.mongo_client.disconnect()
 
-    parser_post = reqparse.RequestParser()
-    parser_post.add_argument("email", type=str, location="json", required=True)
-    parser_post.add_argument("username", type=str, location="json", required=True)
-    parser_post.add_argument("password", type=str, location="json", required=True)
-    parser_post.add_argument("org", type=str, location="json", required=True)
-
-    @users_namespace.expect(parser_post)
-    def post(self):
-        """
-        [DEPRECATED] Add an user
-        """
-        auth_handler = None
-        try:
-            email = self.parser_post.parse_args()["email"]
-            username = self.parser_post.parse_args()["username"]
-            password = self.parser_post.parse_args()["password"]
-            org = self.parser_post.parse_args()["org"]
-
-            auth_handler = AuthHandler(username=username, email=email, password=password, org=org)
-            user = auth_handler.get_email()
-            if user:
-                return abort(409, "Email already exist in the database")
-            user = auth_handler.get_username()
-            if user:
-                return abort(409, "Username already exist in the database")
-            auth_handler.add_user()
-            return {"message": "User added"}, 201
-        except CustomException as e:
-            return abort(e.error_code, str(e))
-        finally:
-            if auth_handler is not None:
-                auth_handler.mongo_client.disconnect()
-
 @users_namespace.route("/login")
 class UserLogin(Resource):
 
