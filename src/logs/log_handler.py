@@ -1,7 +1,29 @@
 import os
 import logging
+import sys
 
 from datetime import datetime
+
+class CustomFormatter(logging.Formatter):
+    grey = "\x1b[38;21m"
+    yellow = "\x1b[33;21m"
+    red = "\x1b[31;21m"
+    bold_red = "\x1b[31;1m"
+    reset = "\x1b[0m"
+    format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)"
+
+    FORMATS = {
+        logging.DEBUG: grey + format + reset,
+        logging.INFO: grey + format + reset,
+        logging.WARNING: yellow + format + reset,
+        logging.ERROR: red + format + reset,
+        logging.CRITICAL: bold_red + format + reset
+    }
+
+    def format(self, record):
+        log_fmt = self.FORMATS.get(record.levelno)
+        formatter = logging.Formatter(log_fmt)
+        return formatter.format(record)
 
 class LogHandler:
     def __init__(self, executions_folder="src/logs/executions"):
@@ -17,15 +39,23 @@ class LogHandler:
         log_file_name = f"execution_{timestamp}.log"
         self.log_file = os.path.join(self.executions_folder, log_file_name)
 
-        logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-
         self.logger = logging.getLogger()
-        file_handler = logging.FileHandler(self.log_file)
+        self.logger.setLevel(logging.INFO)
 
-        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-        file_handler.setFormatter(formatter)
+        file_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)")
+
+        console_formatter = CustomFormatter()
+
+        file_handler = logging.FileHandler(self.log_file)
+        file_handler.setLevel(logging.INFO)
+        file_handler.setFormatter(file_formatter)
+
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setLevel(logging.INFO)
+        console_handler.setFormatter(console_formatter)
 
         self.logger.addHandler(file_handler)
+        self.logger.addHandler(console_handler)
 
     def info(self, message):
         if self.logger:
