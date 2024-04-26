@@ -1,7 +1,9 @@
-from werkzeug.security import generate_password_hash, check_password_hash
-from email_validator import validate_email, EmailNotValidError
-from src.exceptions.exceptions_handler import UserEmailInvalidError
+import re
 
+from werkzeug.security import generate_password_hash, check_password_hash
+
+from src.logs.log_handler import log_handler
+from src.exceptions.exceptions_handler import UserEmailInvalidError
 from src.database.mongo_handler import MongoHandler
 
 class AuthHandler:
@@ -23,6 +25,7 @@ class AuthHandler:
 
     def get_username(self):
         """Return the username associated with a user"""
+        log_handler.info(f"Check if the user '{self.username}' is in the 'users' collection of the database")
         query = {"username": self.username}
         projection = {"_id": 0, "username": 1}
         user = self.mongo_client.find_data(collection_name="users", query=query, projection=projection)
@@ -30,13 +33,15 @@ class AuthHandler:
 
     def get_email(self):
         """Return the email associated with an user"""
+        log_handler.info(f"Check if the email '{self.email}' is in the 'users' collection of the database")
         query = {"email": self.email}
         projection = {"_id": 0, "email": 1}
         email = self.mongo_client.find_data(collection_name="users", query=query, projection=projection)
         return email
 
-    def get_password(self):
+    def _get_password(self):
         """Return the password associated with an user"""
+        log_handler.info(f"Check the password associated with the user '{self.username}' in the 'users' collection of the database")
         query = {"username": self.username}
         projection = {"_id": 0, "password": 1}
         password = self.mongo_client.find_data(collection_name="users", query=query, projection=projection)
@@ -44,6 +49,7 @@ class AuthHandler:
 
     def add_user(self):
         """Store an user in the database"""
+        log_handler.info(f"Add the user '{self.username}' to the database 'users' collection")
         user_doc = {
             "email": self._is_valid_email(),
             "username": self.username,
@@ -54,6 +60,7 @@ class AuthHandler:
     
     def update_password(self):
         """Update password associated to user"""
+        log_handler.info(f"Update the password associated to the user '{self.username}' in the 'users' collection of the database")
         query = {"email": self.email}
         projection = {"$set": {"password": generate_password_hash(self.password, method="pbkdf2")}}
         self.mongo_client.update_data(collection_name="users", query=query, projection=projection)
@@ -61,14 +68,15 @@ class AuthHandler:
     def check_password(self):
         """Check the hash associated with the password"""
         if self.password:
-            hash_password = self.get_password()[0]["password"]
+            hash_password = self._get_password()[0]["password"]
             return check_password_hash(hash_password, self.password)
         return False
 
     def _is_valid_email(self):
         """Checks if the email entered by the user is valid"""
-        try:
-            valid = validate_email(self.email)
-            return valid.normalized
-        except EmailNotValidError:
+        log_handler.info(f"Checks if the email '{self.email}' complies with the email syntax")
+        regex = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b"
+        if (re.fullmatch(regex, self.email)):
+            return self.email
+        else:
             raise UserEmailInvalidError("Invalid email entered", 400)
