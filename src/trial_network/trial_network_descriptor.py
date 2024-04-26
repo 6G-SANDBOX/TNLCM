@@ -16,7 +16,7 @@ class TrialNetworkDescriptorHandler:
         """Check that the descriptor file is well constructed and that its extension is yaml or yml"""
         try:
             filename = secure_filename(self.descriptor.filename)
-            if '.' in filename and filename.split('.')[-1].lower() in ['yml', 'yaml']:
+            if '.' in filename and filename.split('.')[-1].lower() in ["yml", "yaml"]:
                 self.descriptor = safe_load(self.descriptor.stream)
             else:
                 raise TrialNetworkDescriptorInvalidExtensionError("Invalid descriptor format. Only 'yml' or 'yaml' files will be further processed", 422)
