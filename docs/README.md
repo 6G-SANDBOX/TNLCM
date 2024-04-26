@@ -31,7 +31,8 @@ TNLCM has been designed as a modular application, with the intention of making c
 - [:rocket: Getting Started](#rocket-getting-started)
   - [Download or clone repository](#download-or-clone-repository)
   - [Create .env using .env.template](#create-env-using-envtemplate)
-  - [:floppy\_disk: Create TNLCM database](#floppy_disk-create-tnlcm-database)
+  - [:floppy\_disk: Create database](#floppy_disk-create-database)
+  - [Database structure](#database-structure)
   - [:snake: Create Python environment and install libraries](#snake-create-python-environment-and-install-libraries)
 - [How to use Swagger UI](#how-to-use-swagger-ui)
 - [:pencil: Report with the results of the Trial Network deployment](#pencil-report-with-the-results-of-the-trial-network-deployment)
@@ -97,13 +98,15 @@ TNLCM is currently capable of deploying different types of components, which are
 * OpenNebula (Mandatory)
 * MinIO (Mandatory)
 
+TNLCM has been tested on Windows 10 and Ubuntu 22.04.3 LTS distributions.
+
 ### Download or clone repository
 
 Download the main branch from the TNLCM repository
 
 Clone repository:
 
-```bash
+```sh
 git clone https://github.com/6G-SANDBOX/TNLCM
 ```
 
@@ -111,7 +114,7 @@ git clone https://github.com/6G-SANDBOX/TNLCM
 
 Create the .env file at the same level and with the contents of the [.env.template](../.env.template) file.
 
-### :floppy_disk: Create TNLCM database
+### :floppy_disk: Create database
 
 > This step requires Docker to be installed on the machine.
 
@@ -120,14 +123,57 @@ Create the .env file at the same level and with the contents of the [.env.templa
 
 Once Docker is installed, open a terminal where the docker-compose.yml file is stored (usually inside the TNLCM project) and execute the commands:
 
-```bash
+```sh
 docker compose build
 ```
 
 Flag **-d** can be added to raise the container in background:
-```bash
+```sh
 docker compose up -d
 ```
+
+### Database structure
+
+The TNLCM database consists of several collections that store important information about trial networks, users, and verification tokens. Below is the description of each collection:
+
+#### Collection `trial_networks` <!-- omit in toc -->
+
+| Field                   | Description                                                 |
+|-------------------------|-------------------------------------------------------------|
+| `user_created`          | The user who created the trial network.                     |
+| `tn_id`                 | The ID of the trial network.                                |
+| `tn_date_created_utc`   | The date and time when the trial network was created (UTC). |
+| `tn_status`             | The current status of the trial network.                    |
+| `tn_raw_descriptor`     | The raw descriptor of the trial network.                    |
+| `tn_sorted_descriptor`  | The sorted descriptor of the trial network.                 |
+| `tn_report`             | The report related to the trial network.                    |
+
+#### Collection `trial_networks_templates` <!-- omit in toc -->
+
+| Field                   | Description                                                         |
+|-------------------------|---------------------------------------------------------------------|
+| `user_created`          | The user who created the trial network template.                    |
+| `tn_id`                 | The ID of the trial network template.                               |
+| `tn_date_created_utc`   | The date and time when the trial network template was created (UTC).|
+| `tn_raw_descriptor`     | The raw descriptor of the trial network template.                   |
+| `tn_sorted_descriptor`  | The sorted descriptor of the trial network template.                |
+
+#### Collection `users` <!-- omit in toc -->
+
+| Field      | Description                                           |
+|------------|-------------------------------------------------------|
+| `email`    | The email address of the user.                        |
+| `username` | The username of the user.                             |
+| `password` | The password of the user (hashed).                    |
+| `org`      | The organization to which the user belongs.           |
+
+#### Collection `verifications_tokens` <!-- omit in toc -->
+
+| Field                  | Description                                               |
+|------------------------|-----------------------------------------------------------|
+| `new_account_email`    | The email associated with the new account.                |
+| `verification_token`   | The verification token generated for the new account.     |
+| `creation_date`        | The creation date of the verification token.              |
 
 ### :snake: Create Python environment and install libraries
 
@@ -135,7 +181,7 @@ The environment must be created inside the TNLCM project
 
 * Windows
 
-  ```bash
+  ```sh
   # Create environment
   python -m venv venv
 
@@ -148,7 +194,7 @@ The environment must be created inside the TNLCM project
 
 * Linux
 
-  ```bash
+  ```sh
   # Create environment
   python3 -m venv venv
 
@@ -161,7 +207,7 @@ The environment must be created inside the TNLCM project
 
 With the environment activated, start TNLCM
 
-```bash
+```sh
 python app.py
 ```
 
@@ -175,9 +221,13 @@ The API set forth in the TNLCM is as follows:
 
 ![api](./images/api.png)
 
-If it is the first time using the API it is necessary to create a user:
+If it is the first time using the API it is necessary to create a user. A verification code is required, so it is necessary to enter a valid email address that can be accessed:
 
-![createUser](./images/createUser.png)
+![requestVerificationToken](./images/requestVerificationToken.png)
+
+Once the registration code is obtained, proceed to the user registration using the email and the code previously employed:
+
+![registerUser](./images/registerUser.png)
 
 Once the user has been created or if it has been previously created, add the user and its password in the green **Authorize** box:
 
@@ -191,7 +241,7 @@ The next step is to add the token in the green **Authorize** box. It is required
 
 ![accessToken](./images/accessToken.png)
 
-Now, requests that involve having an access token can be made
+Now, requests that involve having an access token can be made.
 
 If the access token expires, it can be refreshed by using the refresh token. The token in the green **Authorize** box must be updated with the refresh token and the post request must be made:
 
