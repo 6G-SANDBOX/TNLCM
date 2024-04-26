@@ -50,7 +50,6 @@ TNLCM has been designed as a modular application, with the intention of making c
 TNLCM code is structured as follows:
 
 * **.github**: folder that contains files and templates for GitHub workflow automation.
-  * **workflows**: holds GitHub workflow files, containing automated actions triggered by specific events like pull requests or commits.
   * **templates**: store templates used for creating issues or pull requests, ensuring consistency and formatting in repository communication.
 * **descriptors**: folder in which trial network templates are stored.
 * **docs**: folder in which all documentation is stored.
@@ -121,7 +120,7 @@ Create the .env file at the same level and with the contents of the [.env.templa
 * [Windows](https://docs.docker.com/desktop/install/windows-install/)
 * [Linux](https://docs.docker.com/desktop/install/linux-install/)
 
-Once Docker is installed, open a terminal where the docker-compose.yml file is stored (usually inside the TNLCM project) and execute the commands:
+Once Docker is installed, open a terminal where the `docker-compose.yml` file is stored (usually inside the TNLCM project) and execute the commands:
 
 ```sh
 docker compose build
@@ -131,6 +130,8 @@ Flag **-d** can be added to raise the container in background:
 ```sh
 docker compose up -d
 ```
+
+A dashboard will be available at the url http://mongo-ip:8081 where the database can be managed
 
 ### Database structure
 
@@ -211,7 +212,7 @@ With the environment activated, start TNLCM
 python app.py
 ```
 
-A Swagger UI will be available at the url http://localhost:5000 where the API with the endpoints can be seen
+A Swagger UI will be available at the url http://tnlcm-bakend-ip:5000 where the API with the endpoints can be seen
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
@@ -283,8 +284,8 @@ This repository contains examples of descriptor:
 - [`01_descriptor.yml`](../descriptors/01_descriptor.yml)
 - [`02_descriptor.yml`](../descriptors/02_descriptor.yml)
 
-The first Trial Network end-to-end:
-- [`03_descriptor.yml`](../descriptors/03_descriptor_e2e.yml)
+The first trial network end-to-end:
+- [`03_descriptor_e2e.yml`](../descriptors/03_descriptor_e2e.yml)
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
