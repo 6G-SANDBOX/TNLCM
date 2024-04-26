@@ -22,8 +22,6 @@
 
 - Frontend implementation.
 
-### Fixed
-
 ## [0.1.0] - 2023-09-29
 
 ### Added
@@ -32,12 +30,6 @@
 - Basic API.
 - Basic Frontend.
 - Initial data structures.
-
-### Changed
-
-### Fixed
-
-### Removed
 
 [unreleased]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.1.0
