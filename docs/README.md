@@ -49,31 +49,31 @@ TNLCM has been designed as a modular application, with the intention of making c
 ## Project Structure
 
 ```
-TNLCM                          // main folder.
-├─ .github                     // folder contains files and templates for GitHub workflow automation.
-│  ├─ CHANGELOG_TEMPLATE       // template for changelog.
-│  └─ ISSUE_TEMPLATE           // template for issue reporting.
-├─ .gitignore                  // file specifying intentionally untracked files to ignore.
-├─ app.py                      // main file that starts TNLCM.
-├─ CHANGELOG.md                // file containing the changes made in each release.
-├─ config.py                   // configuration file.
-├─ descriptors                 // folder in which trial network descriptors templates are stored.
-├─ docker-compose.yml          // file for create database.
-├─ docs                        // folder in which all documentation is stored.
-├─ requirements.txt            // file containing the libraries and their versions.
-├─ src                         // folder in which the developed code is stored.
-│  ├─ auth                     // folder in which the authentication of users who have access is handled.
-│  ├─ callback                 // folder that handle the connection with Jenkins for component deployment.
-│  ├─ database                 // folder that handle the creation and connection to the MongoDB database.
-│  ├─ exceptions               // folder that handle the creation of custom exceptions.
-│  ├─ logs                     // folder that handle log creation.
-│  ├─ repository               // folder that handle the connection to any repository.
-│  ├─ routes                   // folder that handle the API that is exposed.
-│  ├─ sixglibrary              // folder that handle the connection to the 6G-Library.
-│  ├─ temp                     // folder that handle the creation of temporary files.
-│  ├─ trial_network            // folder that handle the trial networks.
-│  └─ verification             // folder that handle the users verification to check the access.
-└─ tests                       // folder that contains files related to testing the code.
+TNLCM                        // main folder.
+├─ .github                   // folder contains files and templates for GitHub workflow automation.
+│  ├─ CHANGELOG_TEMPLATE     // template for changelog.
+│  └─ ISSUE_TEMPLATE         // template for issue reporting.
+├─ .gitignore                // file specifying intentionally untracked files to ignore.
+├─ app.py                    // main file that starts TNLCM.
+├─ CHANGELOG.md              // file containing the changes made in each release.
+├─ config.py                 // configuration file.
+├─ descriptors               // folder in which trial network descriptors templates are stored.
+├─ docker-compose.yml        // file for create database.
+├─ docs                      // folder in which all documentation is stored.
+├─ requirements.txt          // file containing the libraries and their versions.
+├─ src                       // folder in which the developed code is stored.
+│  ├─ auth                   // folder that handle the authentication of users who have access.
+│  ├─ callback               // folder that handle the connection with Jenkins for trial network deployment.
+│  ├─ database               // folder that handle the connection to the MongoDB database.
+│  ├─ exceptions             // folder that handle the creation of custom exceptions.
+│  ├─ logs                   // folder that handle log creation.
+│  ├─ repository             // folder that handle the connection to any repository.
+│  ├─ routes                 // folder that handle the API that is exposed.
+│  ├─ sixglibrary            // folder that handle the connection to the 6G-Library.
+│  ├─ temp                   // folder that handle the creation of temporary files.
+│  ├─ trial_network          // folder that handle the trial networks.
+│  └─ verification           // folder that handle the users verification to check the access.
+└─ tests                     // folder that contains files related to testing the code.
 ```
 
 ## Life Cycle
