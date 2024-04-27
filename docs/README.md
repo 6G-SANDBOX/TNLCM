@@ -63,8 +63,8 @@ TNLCM                        // main folder.
 ├─ requirements.txt          // file containing the libraries and their versions.
 ├─ src                       // folder in which the developed code is stored.
 │  ├─ auth                   // folder that handle the authentication of users who have access.
-│  ├─ callback               // folder that handle the connection with Jenkins for trial network deployment.
-│  ├─ database               // folder that handle the connection to the MongoDB database.
+│  ├─ callback               // folder that handle the connection with Jenkins for tn deployment.
+│  ├─ database               // folder that handle the connection with MongoDB database.
 │  ├─ exceptions             // folder that handle the creation of custom exceptions.
 │  ├─ logs                   // folder that handle log creation.
 │  ├─ repository             // folder that handle the connection to any repository.
