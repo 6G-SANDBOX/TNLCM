@@ -18,7 +18,7 @@
 
 TNLCM has been designed as a modular application, with the intention of making certain components easily replaceable or extended, while minimizing the effect of changes in other parts of the application. At the same time, there is an emphasis on re-usability, where several data structures and generic logic can be shared between the different components of the application.
 
-> [!WARNING]
+> [!NOTE]
 > TNLCM is under development and is subject to continuous changes.
 
 <details>
@@ -32,11 +32,12 @@ TNLCM has been designed as a modular application, with the intention of making c
   - [Download or clone repository](#download-or-clone-repository)
   - [Create .env using .env.template](#create-env-using-envtemplate)
   - [:floppy\_disk: Create database](#floppy_disk-create-database)
-  - [Database structure](#database-structure)
-  - [:snake: Create Python environment and install libraries](#snake-create-python-environment-and-install-libraries)
-- [How to use Swagger UI](#how-to-use-swagger-ui)
-- [:pencil: Report with the results of the Trial Network deployment](#pencil-report-with-the-results-of-the-trial-network-deployment)
+  - [:snake: Create environment, install libraries and start](#snake-create-environment-install-libraries-and-start)
+- [Database Schema](#database-schema)
 - [Trial Network Descriptor Schema](#trial-network-descriptor-schema)
+- [Appendices](#appendices)
+  - [Appendix A: How to use Swagger UI](#appendix-a-how-to-use-swagger-ui)
+  - [Appendix B: How to add TNLCM backend+frontend in OpenNebula](#appendix-b-how-to-add-tnlcm-backendfrontend-in-opennebula)
 </details>
 
 ## :hammer_and_wrench: Stack
@@ -89,19 +90,18 @@ TNLCM is currently capable of deploying different types of components, which are
 ## :rocket: Getting Started
 
 > [!WARNING]
-> It is recommended to do this deployment on a virtual machine since you must use a callback URL that Jenkins must have access to.
-> 
 > The following tools are required to be deployed on platforms:
+> 
+> * Jenkins (Mandatory)
+> * OpenNebula (Mandatory)
+> * MinIO (Mandatory)
 
-* Jenkins (Mandatory)
-* OpenNebula (Mandatory)
-* MinIO (Mandatory)
-
-TNLCM has been tested on Windows 10 and Ubuntu 22.04.3 LTS distributions.
+> [!NOTE]
+> TNLCM has been tested on Windows 10 and Ubuntu 22.04.3 LTS.
 
 ### Download or clone repository
 
-Download the main branch from the TNLCM repository
+Download the **main** branch from the TNLCM repository.
 
 Clone repository:
 
@@ -115,7 +115,8 @@ Create the .env file at the same level and with the contents of the [.env.templa
 
 ### :floppy_disk: Create database
 
-> This step requires Docker to be installed on the machine.
+> [!IMPORTANT]
+> This step requires **Docker** to be installed on the machine.
 
 * [Windows](https://docs.docker.com/desktop/install/windows-install/)
 * [Linux](https://docs.docker.com/desktop/install/linux-install/)
@@ -131,54 +132,14 @@ Flag **-d** can be added to raise the container in background:
 docker compose up -d
 ```
 
-A dashboard will be available at the url http://mongo-ip:8081 where the database can be managed
+A dashboard will be available at the url http://mongo-frontend-ip:8081 where the database can be managed.
 
-### Database structure
+### :snake: Create environment, install libraries and start
 
-The TNLCM database consists of several collections that store important information about trial networks, users, and verification tokens. Below is the description of each collection:
+> [!IMPORTANT]
+> This step requires **Python** to be installed on the machine.
 
-#### Collection `trial_networks` <!-- omit in toc -->
-
-| Field                   | Description                                                 |
-|-------------------------|-------------------------------------------------------------|
-| `user_created`          | The user who created the trial network.                     |
-| `tn_id`                 | The ID of the trial network.                                |
-| `tn_date_created_utc`   | The date and time when the trial network was created (UTC). |
-| `tn_status`             | The current status of the trial network.                    |
-| `tn_raw_descriptor`     | The raw descriptor of the trial network.                    |
-| `tn_sorted_descriptor`  | The sorted descriptor of the trial network.                 |
-| `tn_report`             | The report related to the trial network.                    |
-
-#### Collection `trial_networks_templates` <!-- omit in toc -->
-
-| Field                   | Description                                                         |
-|-------------------------|---------------------------------------------------------------------|
-| `user_created`          | The user who created the trial network template.                    |
-| `tn_id`                 | The ID of the trial network template.                               |
-| `tn_date_created_utc`   | The date and time when the trial network template was created (UTC).|
-| `tn_raw_descriptor`     | The raw descriptor of the trial network template.                   |
-| `tn_sorted_descriptor`  | The sorted descriptor of the trial network template.                |
-
-#### Collection `users` <!-- omit in toc -->
-
-| Field      | Description                                           |
-|------------|-------------------------------------------------------|
-| `email`    | The email address of the user.                        |
-| `username` | The username of the user.                             |
-| `password` | The password of the user (hashed).                    |
-| `org`      | The organization to which the user belongs.           |
-
-#### Collection `verifications_tokens` <!-- omit in toc -->
-
-| Field                  | Description                                               |
-|------------------------|-----------------------------------------------------------|
-| `new_account_email`    | The email associated with the new account.                |
-| `verification_token`   | The verification token generated for the new account.     |
-| `creation_date`        | The creation date of the verification token.              |
-
-### :snake: Create Python environment and install libraries
-
-The environment must be created inside the TNLCM project
+The environment must be created inside the TNLCM project:
 
 * Windows
 
@@ -206,17 +167,90 @@ The environment must be created inside the TNLCM project
   pip install -r requirements.txt
   ```
 
-With the environment activated, start TNLCM
+With the environment activated, start TNLCM:
 
 ```sh
 python app.py
 ```
 
-A Swagger UI will be available at the url http://tnlcm-bakend-ip:5000 where the API with the endpoints can be seen
+A Swagger UI will be available at the url http://tnlcm-backend-ip:5000 where the API with the endpoints can be seen.
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
-## How to use Swagger UI
+## Database Schema
+
+The TNLCM database consists of several collections that store important information about trial networks, users, and verification tokens. Below is the description of each collection:
+
+### Collection `trial_networks` <!-- omit in toc -->
+
+| Field                   | Description                                                 |
+|-------------------------|-------------------------------------------------------------|
+| `user_created`          | The user who created the trial network.                     |
+| `tn_id`                 | The ID of the trial network.                                |
+| `tn_date_created_utc`   | The date and time when the trial network was created (UTC). |
+| `tn_status`             | The current status of the trial network.                    |
+| `tn_raw_descriptor`     | The raw descriptor of the trial network.                    |
+| `tn_sorted_descriptor`  | The sorted descriptor of the trial network.                 |
+| `tn_report`             | The report related to the trial network.                    |
+
+### Collection `trial_networks_templates` <!-- omit in toc -->
+
+| Field                   | Description                                                         |
+|-------------------------|---------------------------------------------------------------------|
+| `user_created`          | The user who created the trial network template.                    |
+| `tn_id`                 | The ID of the trial network template.                               |
+| `tn_date_created_utc`   | The date and time when the trial network template was created (UTC).|
+| `tn_raw_descriptor`     | The raw descriptor of the trial network template.                   |
+| `tn_sorted_descriptor`  | The sorted descriptor of the trial network template.                |
+
+### Collection `users` <!-- omit in toc -->
+
+| Field      | Description                                           |
+|------------|-------------------------------------------------------|
+| `email`    | The email address of the user.                        |
+| `username` | The username of the user.                             |
+| `password` | The password of the user (hashed).                    |
+| `org`      | The organization to which the user belongs.           |
+
+### Collection `verifications_tokens` <!-- omit in toc -->
+
+| Field                  | Description                                               |
+|------------------------|-----------------------------------------------------------|
+| `new_account_email`    | The email associated with the new account.                |
+| `verification_token`   | The verification token generated for the new account.     |
+| `creation_date`        | The creation date of the verification token.              |
+
+<p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
+
+## Trial Network Descriptor Schema
+> [!WARNING]
+> The format of Trial Network Descriptors has not been finalized and is expected to change in the future.
+
+Trial Network Descriptors are yaml files with a set of expected fields and structure:
+
+```yaml
+trial_network:  # Mandatory, contains the description of all entities in the Trial Network
+  <Entity1>:  # A unique identifier for each entity in the Trial Network
+    type:  # A type of component
+    depends_on: # List of dependencies of the component with other components
+      - <EntityN>
+      - ...
+    public: # Necessary variables collected from the public part of the 6G-Library
+      ...
+```
+
+This repository contains a variety of descriptor templates:
+- [`01_descriptor.yml`](../descriptors/01_descriptor.yml)
+- [`02_descriptor.yml`](../descriptors/02_descriptor.yml)
+
+The first end-to-end trial network:
+- [`03_descriptor_e2e.yml`](../descriptors/03_descriptor_e2e.yml)
+
+<p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
+
+## Appendices
+
+### Appendix A: How to use Swagger UI
 
 The API set forth in the TNLCM is as follows:
 
@@ -250,42 +284,9 @@ If the access token expires, it can be refreshed by using the refresh token. The
 
 ![updateAccessToken](./images/updateAccessToken.png)
 
-<p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
+### Appendix B: How to add TNLCM backend+frontend in OpenNebula
 
-## :pencil: Report with the results of the Trial Network deployment
-
-The file with the report after deploying all the components in Jenkins is stored in the path **tnlcm/src/callback/reports**. By default, the reports folder is not created until the components are deployed. The file has a markdown extension and is named "current_user" + "tn_id" + ".md".
-
-Several tools can be used to open the file:
-
-* Extension vscode: [Markdown All in One](https://marketplace.visualstudio.com/items?itemName=yzhang.markdown-all-in-one)
-* [Obsidian](https://obsidian.md/)
-
-<p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
-
-## Trial Network Descriptor Schema
-> [!WARNING]
-> The format of Trial Network Descriptors has not been finalized and is expected to change in the future.
-
-Trial Network Descriptors are yaml files with a set of expected fields and structure. 
-
-```yaml
-trial_network:  # Mandatory, contains the description of all entities in the Trial Network
-  <Entity1>:  # A unique identifier for each entity in the Trial Network
-    type:  # A type of component
-    depends_on: # List of dependencies of the component with other components
-      - <EntityN>
-      - ...
-    public: # Necessary variables collected from the public part of the 6G-Library
-      ...
-```
-
-This repository contains examples of descriptor:
-- [`01_descriptor.yml`](../descriptors/01_descriptor.yml)
-- [`02_descriptor.yml`](../descriptors/02_descriptor.yml)
-
-The first trial network end-to-end:
-- [`03_descriptor_e2e.yml`](../descriptors/03_descriptor_e2e.yml)
+<!-- TODO: Ask Curto -->
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
@@ -296,7 +297,7 @@ The first trial network end-to-end:
 [python-url]: https://www.python.org/downloads/release/python-3122/
 [flask-badge]: https://img.shields.io/badge/Flask-3.0.3+-brightgreen?style=for-the-badge&logo=flask&logoColor=white&labelColor=000000
 [flask-url]: https://flask.palletsprojects.com/en/3.0.x/
-[mongodb-badge]: https://img.shields.io/badge/MongoDB-latest-green?style=for-the-badge&logo=mongodb&logoColor=white&labelColor=47A248
+[mongodb-badge]: https://img.shields.io/badge/MongoDB-7.0.8+-green?style=for-the-badge&logo=mongodb&logoColor=white&labelColor=47A248
 [mongodb-url]: https://www.mongodb.com/
 [docker-badge]: https://img.shields.io/badge/Docker-latest-6AB7FF?style=for-the-badge&logo=docker&logoColor=white&labelColor=2496ED
 [docker-url]: https://www.docker.com
