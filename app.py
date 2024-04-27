@@ -16,7 +16,7 @@ CORS(app)
 JWTManager(app)
 
 load_dotenv()
-flask_env = os.getenv("FLASK_ENV")
+flask_env = os.getenv("FLASK_ENV").upper()
 if flask_env == "DEVELOPMENT":
     app.config.from_object("config.DevelopmentConfig")
 elif flask_env == "PRODUCTION":
