@@ -122,8 +122,3 @@ class JenkinsHandler:
         else:
             raise JenkinsDeploymentReportNotFoundError("Trial network report file has not been found", 500)
         log_handler.info("All entities of the trial network are deployed")
-
-    def jenkins_update_marketplace(self):
-        """Pipeline to update the TNLCM version in marketplace"""
-        # TODO: pipeline to update the TNLCM version in marketplace
-        pass
