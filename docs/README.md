@@ -50,10 +50,10 @@ TNLCM has been designed as a modular application, with the intention of making c
 
 ```
 TNLCM                          // main folder.
-├─ .github                     // folder that contains files and templates for GitHub workflow automation.
-│  ├─ CHANGELOG_TEMPLATE       //
-│  └─ ISSUE_TEMPLATE           //
-├─ .gitignore                  //
+├─ .github                     // folder contains files and templates for GitHub workflow automation.
+│  ├─ CHANGELOG_TEMPLATE       // template for changelog.
+│  └─ ISSUE_TEMPLATE           // template for issue reporting.
+├─ .gitignore                  // file specifying intentionally untracked files to ignore.
 ├─ app.py                      // main file that starts TNLCM.
 ├─ CHANGELOG.md                // file containing the changes made in each release.
 ├─ config.py                   // configuration file.
