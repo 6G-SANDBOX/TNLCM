@@ -26,8 +26,8 @@ TNLCM has been designed as a modular application, with the intention of making c
 
 - [:hammer\_and\_wrench: Stack](#hammer_and_wrench-stack)
 - [Project Structure](#project-structure)
-- [Life Cycle](#life-cycle)
 - [Current Status](#current-status)
+- [Overview of TNLCM and 6G-Library implementation](#overview-of-tnlcm-and-6g-library-implementation)
 - [:rocket: Getting Started](#rocket-getting-started)
   - [:inbox\_tray: Download or clone repository](#inbox_tray-download-or-clone-repository)
   - [:wrench: Configure environment variables](#wrench-configure-environment-variables)
@@ -42,7 +42,7 @@ TNLCM has been designed as a modular application, with the intention of making c
 
 ## :hammer_and_wrench: Stack
 - [![Python][python-badge]][python-url] - Programming language.
-- [![Flask][flask-badge]][flask-url] - Python microframework for web applications to expose the API.
+- [![Flask][flask-badge]][flask-url] - Python framework for web applications to expose the API.
 - [![MongoDB][mongodb-badge]][mongodb-url] - NoSQL database designed to store Trial Networks.
 - [![Docker][docker-badge]][docker-url] - Platform for running database applications.
 
@@ -76,17 +76,17 @@ TNLCM                        // main folder.
 └─ tests                     // folder that contains files related to testing the code.
 ```
 
-## Life Cycle
+## Current Status
 
-![TNLCM_LIFECYCLE](./images/TNLCM_LIFECYCLE.png)
+TNLCM is currently able to deploy the following types of components corresponding with the [6G-Library](https://github.com/6G-SANDBOX/6G-Library): **tn_vxlan**, **vxlan**, **tn_bastion**, **vm_kvm**, **k8s**, **open5gs**, **UERANSIM-gNB** and **UERANSIM-UE**.
+
+![CurrentStatus](./images/currentStatus.png)
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
-## Current Status
+## Overview of TNLCM and 6G-Library implementation
 
-TNLCM is currently capable of deploying different types of components, which are: **tn_vxlan**, **vxlan**, **tn_bastion**, **vm_kvm**, **k8s**, **open5gs**, **UERANSIM-gNB** and **UERANSIM-UE**.
-
-![CurrentStatus](./images/currentStatus.png)
+![TNLCM_LIFECYCLE](./images/TNLCM_6GLIBRARY.png)
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
