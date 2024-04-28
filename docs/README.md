@@ -6,6 +6,8 @@
   [![Forks][forks-shield]][forks-url]
   [![Stargazers][stars-shield]][stars-url]
   [![Issues][issues-shield]][issues-url]
+  <!-- [![MIT License][license-shield]][license-url] -->
+  <!-- [![LinkedIn][linkedin-shield]][linkedin-url] -->
 
   <a href="https://github.com/6G-SANDBOX/TNLCM"><img src="./images/TNLCM_LOGO.png" width="80" title="TNLCM"></a>
 
@@ -13,7 +15,7 @@
 
   [![TNLCM][tnlcm-badge]][tnlcm-url]
 
-  [Report error](https://github.com/6G-SANDBOX/TNLCM/issues) · [Suggest something](https://github.com/6G-SANDBOX/TNLCM/issues)
+  [Report error][report-error-url] · [Feature request][feature-request-url]
 </div>
 
 TNLCM has been designed as a modular application, with the intention of making certain components easily replaceable or extended, while minimizing the effect of changes in other parts of the application. At the same time, there is an emphasis on re-usability, where several data structures and generic logic can be shared between the different components of the application.
@@ -37,7 +39,7 @@ TNLCM has been designed as a modular application, with the intention of making c
 - [Trial Network Descriptor Schema](#trial-network-descriptor-schema)
 - [Appendices](#appendices)
   - [Appendix A: How to use Swagger UI](#appendix-a-how-to-use-swagger-ui)
-  - [Appendix B: How to add TNLCM backend+frontend in OpenNebula](#appendix-b-how-to-add-tnlcm-backendfrontend-in-opennebula)
+  - [Appendix B: How to add TNLCM frontend+backend in OpenNebula](#appendix-b-how-to-add-tnlcm-frontendbackend-in-opennebula)
 </details>
 
 ## :hammer_and_wrench: Stack
@@ -78,7 +80,7 @@ TNLCM                        // main folder.
 
 ## Current Status
 
-TNLCM is currently able to deploy the following types of components corresponding with the [6G-Library](https://github.com/6G-SANDBOX/6G-Library): **tn_vxlan**, **vxlan**, **tn_bastion**, **vm_kvm**, **k8s**, **open5gs**, **UERANSIM-gNB** and **UERANSIM-UE**.
+TNLCM is currently able to deploy the following types of components corresponding with the [6G-Library][6G-Library-url]: **tn_vxlan**, **vxlan**, **tn_bastion**, **vm_kvm**, **k8s**, **open5gs**, **UERANSIM-gNB** and **UERANSIM-UE**.
 
 ![CurrentStatus](./images/currentStatus.png)
 
@@ -114,9 +116,9 @@ git clone https://github.com/6G-SANDBOX/TNLCM
 
 ### :wrench: Configure environment variables
 
-Create a `.env` file at the root level, using the structure and content provided in the [.env.template](../.env.template) file.
+Create a `.env` file at the root level, using the structure and content provided in the [`.env.template`](../.env.template) file.
 
-Mandatory update the values of the following variables according on the platform:
+Mandatory update the values of the following variables according to the platform:
 - `JENKINS_SERVER`
 - `JENKINS_USER`
 - `JENKINS_PASSWORD`
@@ -150,10 +152,10 @@ Flag **-d** can be added to raise the container in background:
 docker compose up -d
 ```
 
-A MongoDB dashboard will be available at the url http://mongo-frontend-ip:8081 where the database can be managed.
+A MongoDB dashboard will be available at the url http://mongodb-frontend-ip:8081 where the database can be managed.
 
 > [!NOTE]
-> User and password to access to the MongoDB dashboard are the values indicated in the variables ME_CONFIG_BASICAUTH_USERNAME and ME_CONFIG_BASICAUTH_PASSWORD of the .env file. By default, the values indicated in the [.env.template](../.env.template) file are used.
+> User and password to access to the MongoDB dashboard are the values indicated in the variables `ME_CONFIG_BASICAUTH_USERNAME` and `ME_CONFIG_BASICAUTH_PASSWORD` of the `.env` file. By default, the values indicated in the [`.env.template`](../.env.template) file are used.
 
 ![dashboardMongoDB](./images/dashboardMongoDB.png)
 
@@ -309,9 +311,9 @@ If the access token expires, it can be refreshed by using the refresh token. The
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
-### Appendix B: How to add TNLCM backend+frontend in OpenNebula
+### Appendix B: How to add TNLCM frontend+backend in OpenNebula
 
-Go to the [marketplace](https://marketplace.mobilesandbox.cloud:9443/appliance) in OpenNebula:
+Go to the [marketplace][marketplace-url] in OpenNebula:
 
 <!-- TODO: Ask Curto -->
 
@@ -327,7 +329,7 @@ Go to the [marketplace](https://marketplace.mobilesandbox.cloud:9443/appliance) 
 [mongodb-badge]: https://img.shields.io/badge/MongoDB-7.0.8-green?style=for-the-badge&logo=mongodb&logoColor=white&labelColor=47A248
 [mongodb-url]: https://www.mongodb.com/
 [docker-badge]: https://img.shields.io/badge/Docker-26.0.0-6AB7FF?style=for-the-badge&logo=docker&logoColor=white&labelColor=2496ED
-[docker-url]: https://www.docker.com
+[docker-url]: https://www.docker.com/
 [contributors-shield]: https://img.shields.io/github/contributors/6G-SANDBOX/TNLCM.svg?style=for-the-badge
 [contributors-url]: https://github.com/6G-SANDBOX/TNLCM/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/6G-SANDBOX/TNLCM.svg?style=for-the-badge
@@ -336,3 +338,11 @@ Go to the [marketplace](https://marketplace.mobilesandbox.cloud:9443/appliance) 
 [stars-url]: https://github.com/6G-SANDBOX/TNLCM/stargazers
 [issues-shield]: https://img.shields.io/github/issues/6G-SANDBOX/TNLCM.svg?style=for-the-badge
 [issues-url]: https://github.com/6G-SANDBOX/TNLCM/issues
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+[linkedin-url]: https://www.linkedin.com/company/itisuma/
+[license-shield]: https://
+[license-url]: https://
+[report-error-url]: https://github.com/6G-SANDBOX/TNLCM/issues/new?assignees=&labels=&projects=&template=bug_report.md
+[feature-request-url]: https://github.com/6G-SANDBOX/TNLCM/issues/new?assignees=&labels=&projects=&template=feature_request.md
+[6G-Library-url]: https://github.com/6G-SANDBOX/6G-Library
+[marketplace-url]: https://marketplace.mobilesandbox.cloud:9443/appliance
