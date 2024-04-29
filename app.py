@@ -16,7 +16,7 @@ CORS(app)
 JWTManager(app)
 
 load_dotenv()
-flask_env = os.getenv("FLASK_ENV")
+flask_env = os.getenv("FLASK_ENV").upper()
 if flask_env == "DEVELOPMENT":
     app.config.from_object("config.DevelopmentConfig")
 elif flask_env == "PRODUCTION":
@@ -40,7 +40,7 @@ api.add_namespace(trial_network_namespace, path="/tnlcm/trial_network")
 api.add_namespace(sixglibrary_namespace, path="/tnlcm/6glibrary")
 api.add_namespace(callback_namespace, path="/tnlcm/callback")
 
-log_handler.info("Starting the application")
+log_handler.info("Start Trial Network Life Cycle Manager - TNLCM")
 
 if __name__ == "__main__":
     if flask_env == "DEVELOPMENT":

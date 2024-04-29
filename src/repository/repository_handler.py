@@ -68,17 +68,14 @@ class RepositoryHandler:
                         log_handler.info(f"Checkout to '{self.git_branch}' branch of '{self.git_repository_name}' repository")
                         self.repo.git.checkout(self.git_branch, "--")
                     except GitCommandError:
-                        log_handler.error(f"Branch '{self.git_branch}' is not in '{self.git_repository_name}' repository")
                         raise GitCheckoutError(f"Branch '{self.git_branch}' is not in '{self.git_repository_name}' repository", 404)
                 else:
                     try:
                         log_handler.info(f"Checkout to '{self.git_commit_id}' commit of '{self.git_repository_name}' repository")
                         self.repo.git.checkout(self.git_commit_id)
                     except GitCommandError:
-                        log_handler.error(f"Commit with id '{self.git_commit_id}' not in '{self.git_repository_name}' repository")
                         raise GitCheckoutError(f"Commit with id '{self.git_commit_id}' not in '{self.git_repository_name}' repository", 404)
         else:
-            log_handler.error(f"Clone '{self.git_repository_name}' repository first")
             raise GitCloneError(f"Clone '{self.git_repository_name}' repository first")
 
     def _last_git_clone(self):
@@ -105,8 +102,8 @@ class RepositoryHandler:
     def _is_github_repo(self, url):
         """Check if the repository url is a git repository"""
         github_url_patterns = [
-            r'^https://github.com/.+/.+\.git$',
-            r'^git@github.com:.+/.+\.git$'
+            r"^https://github.com/.+/.+\.git$",
+            r"^git@github.com:.+/.+\.git$"
         ]
         for pattern in github_url_patterns:
             if re.match(pattern, url):

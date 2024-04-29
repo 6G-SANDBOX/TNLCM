@@ -2,7 +2,7 @@ services:
 
   tnlcm-database:
     container_name: tnlcm-database
-    image: mongo:latest
+    image: mongo:7.0.8-jammy
     ports:
       - 27017:27017
     volumes:
@@ -15,7 +15,7 @@ services:
   
   tnlcm-database-frontend:
     container_name: tnlcm-database-frontend
-    image: mongo-express:latest
+    image: mongo-express:1.0.2-20-alpine3.19
     ports:
       - 8081:8081
     restart: unless-stopped
@@ -25,6 +25,8 @@ services:
       ME_CONFIG_MONGODB_ADMINUSERNAME: ${ME_CONFIG_MONGODB_ADMINUSERNAME}
       ME_CONFIG_MONGODB_ADMINPASSWORD: ${ME_CONFIG_MONGODB_ADMINPASSWORD}
       ME_CONFIG_MONGODB_URL: ${ME_CONFIG_MONGODB_URL}
+      ME_CONFIG_BASICAUTH_USERNAME: ${ME_CONFIG_BASICAUTH_USERNAME}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${ME_CONFIG_BASICAUTH_PASSWORD}
 
 volumes:
   data:
