@@ -15,7 +15,7 @@
 
   [![TNLCM][tnlcm-badge]][tnlcm-url]
 
-  [Report error][report-error-url] · [Feature request][feature-request-url]
+  [Report error](https://github.com/6G-SANDBOX/TNLCM/issues/new?assignees=&labels=&projects=&template=bug_report.md) · [Feature request](https://github.com/6G-SANDBOX/TNLCM/issues/new?assignees=&labels=&projects=&template=feature_request.md)
 </div>
 
 TNLCM has been designed as a modular application, with the intention of making certain components easily replaceable or extended, while minimizing the effect of changes in other parts of the application. At the same time, there is an emphasis on re-usability, where several data structures and generic logic can be shared between the different components of the application.
@@ -27,9 +27,9 @@ TNLCM has been designed as a modular application, with the intention of making c
 <summary>Table of Contents</summary>
 
 - [:hammer\_and\_wrench: Stack](#hammer_and_wrench-stack)
-- [Project Structure](#project-structure)
-- [Current Status](#current-status)
-- [Overview of TNLCM and 6G-Library implementation](#overview-of-tnlcm-and-6g-library-implementation)
+- [:open\_file\_folder: Project Structure](#open_file_folder-project-structure)
+- [:hourglass\_flowing\_sand: Current Status](#hourglass_flowing_sand-current-status)
+- [:mag: Overview of TNLCM and 6G-Library implementation](#mag-overview-of-tnlcm-and-6g-library-implementation)
 - [:rocket: Getting Started](#rocket-getting-started)
   - [:inbox\_tray: Download or clone repository](#inbox_tray-download-or-clone-repository)
   - [:wrench: Configure environment variables](#wrench-configure-environment-variables)
@@ -39,16 +39,15 @@ TNLCM has been designed as a modular application, with the intention of making c
 - [Trial Network Descriptor Schema](#trial-network-descriptor-schema)
 - [Appendices](#appendices)
   - [Appendix A: How to use Swagger UI](#appendix-a-how-to-use-swagger-ui)
-  - [Appendix B: How to add TNLCM frontend+backend in OpenNebula](#appendix-b-how-to-add-tnlcm-frontendbackend-in-opennebula)
 </details>
 
 ## :hammer_and_wrench: Stack
 - [![Python][python-badge]][python-url] - Programming language.
-- [![Flask][flask-badge]][flask-url] - Python framework for web applications to expose the API.
+- [![Flask][flask-badge]][flask-url] - Python micro framework for web applications to expose the API.
 - [![MongoDB][mongodb-badge]][mongodb-url] - NoSQL database designed to store Trial Networks.
 - [![Docker][docker-badge]][docker-url] - Platform for running database applications.
 
-## Project Structure
+## :open_file_folder: Project Structure
 
 ```
 TNLCM                        // main folder.
@@ -78,15 +77,15 @@ TNLCM                        // main folder.
 └─ tests                     // folder that contains files related to testing the code.
 ```
 
-## Current Status
+## :hourglass_flowing_sand: Current Status
 
-TNLCM is currently able to deploy the following types of components corresponding with the [6G-Library][6G-Library-url]: **tn_vxlan**, **vxlan**, **tn_bastion**, **vm_kvm**, **k8s**, **open5gs**, **UERANSIM-gNB** and **UERANSIM-UE**.
+TNLCM is currently able to deploy the following types of components corresponding with the [6G-Library](https://github.com/6G-SANDBOX/6G-Library): **tn_vxlan**, **vxlan**, **tn_bastion**, **vm_kvm**, **k8s**, **open5gs**, **UERANSIM-gNB** and **UERANSIM-UE**.
 
 ![CurrentStatus](./images/currentStatus.png)
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
-## Overview of TNLCM and 6G-Library implementation
+## :mag: Overview of TNLCM and 6G-Library implementation
 
 ![TNLCM_LIFECYCLE](./images/TNLCM_6GLIBRARY.png)
 
@@ -130,6 +129,7 @@ Mandatory update the values of the following variables according to the platform
 - `MAIL_PASSWORD`
 
 Optionally, the value of the following variables can be updated:
+- `FLASK_ENV`
 - `ME_CONFIG_BASICAUTH_USERNAME`
 - `ME_CONFIG_BASICAUTH_PASSWORD`
 
@@ -230,20 +230,20 @@ The TNLCM database consists of several collections that store important informat
 
 ### Collection `users` <!-- omit in toc -->
 
-| Field      | Description                                           |
-|------------|-------------------------------------------------------|
-| `email`    | The email address of the user.                        |
-| `username` | The username of the user.                             |
-| `password` | The password of the user (hashed).                    |
-| `org`      | The organization to which the user belongs.           |
+| Field      | Description                                       |
+|------------|---------------------------------------------------|
+| `email`    | The email address of the user.                    |
+| `username` | The username of the user.                         |
+| `password` | The password of the user (hashed).                |
+| `org`      | The organization to which the user belongs.       |
 
 ### Collection `verifications_tokens` <!-- omit in toc -->
 
-| Field                  | Description                                               |
-|------------------------|-----------------------------------------------------------|
-| `new_account_email`    | The email associated with the new account.                |
-| `verification_token`   | The verification token generated for the new account.     |
-| `creation_date`        | The creation date of the verification token.              |
+| Field                  | Description                                             |
+|------------------------|---------------------------------------------------------|
+| `new_account_email`    | The email associated with the new account.              |
+| `verification_token`   | The verification token generated for the new account.   |
+| `creation_date`        | The creation date of the verification token.            |
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
@@ -311,11 +311,12 @@ If the access token expires, it can be refreshed by using the refresh token. The
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
-### Appendix B: How to add TNLCM frontend+backend in OpenNebula
+## :construction_worker: Development Team <!-- omit in toc -->
 
-Go to the [marketplace][marketplace-url] in OpenNebula:
-
-<!-- TODO: Ask Curto -->
+| Photo | Name | Email | GitHub | Linkedin |
+| :---: | :--: | :---: | :----: | :------: |
+| <img src="https://github.com/CarlosAndreo.png?size=50" width=50px> | Carlos Andreo López | c.andreo@uma.es | <a href="https://github.com/CarlosAndreo"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="https://www.linkedin.com/in/carlos-andreo-lópez-66734b22a/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
+| <img src="https://github.com/NaniteBased.png?size=50" width=50px> | Bruno García García | - | <a href="https://github.com/NaniteBased"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="https://itis.uma.es/personal/bruno-garcia-garcia/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
@@ -342,7 +343,3 @@ Go to the [marketplace][marketplace-url] in OpenNebula:
 [linkedin-url]: https://www.linkedin.com/company/itisuma/
 [license-shield]: https://
 [license-url]: https://
-[report-error-url]: https://github.com/6G-SANDBOX/TNLCM/issues/new?assignees=&labels=&projects=&template=bug_report.md
-[feature-request-url]: https://github.com/6G-SANDBOX/TNLCM/issues/new?assignees=&labels=&projects=&template=feature_request.md
-[6G-Library-url]: https://github.com/6G-SANDBOX/6G-Library
-[marketplace-url]: https://marketplace.mobilesandbox.cloud:9443/appliance
