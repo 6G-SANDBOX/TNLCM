@@ -29,7 +29,7 @@ class TrialNetworkDescriptorHandler:
         """Add the entity vxlan to the descriptor (mandatory)"""
         if not self._is_entity_descriptor("mandatory_tn_vxlan"):
             entity_data = {
-                "public": {
+                "input": {
                     "one_vxlan_name": "mandatory_tn_vxlan"
                 }
             }
@@ -39,8 +39,8 @@ class TrialNetworkDescriptorHandler:
         """Add the entity bastion to the descriptor (mandatory)"""
         if not self._is_entity_descriptor("mandatory_tn_bastion"):
             entity_data = {
-                "depends_on": ["mandatory_tn_vxlan"],
-                "public": None
+                "needs": ["mandatory_tn_vxlan"],
+                "input": None
             }
             self._add_entity_descriptor("mandatory_tn_bastion", entity_data)
     
@@ -68,8 +68,8 @@ class TrialNetworkDescriptorHandler:
                 raise TrialNetworkEntityNotInDescriptorError("Name of the dependency does not match the name of some entity defined in the descriptor", 404)
             if entity in ordered_entities:
                 return
-            if "depends_on" in entities[entity]:
-                for dependency in entities[entity]["depends_on"]:
+            if "needs" in entities[entity]:
+                for dependency in entities[entity]["needs"]:
                     dfs(dependency)
             ordered_entities[entity] = entities[entity]
 
