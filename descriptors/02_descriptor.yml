@@ -2,22 +2,22 @@ trial_network:
 
   mandatory_tn_bastion:
     type: "tn_bastion"
-    depends_on:
+    needs:
       - "mandatory_tn_vxlan"
-    public:
+    input:
       one_component_networks:
         - "mandatory_tn_vxlan"
   mandatory_tn_vxlan:
     type: "tn_vxlan"
-    depends_on: []
-    public:
+    needs: []
+    input:
       one_vxlan_name: "mandatory_tn_vxlan"
   k8s_private_vxlan:
     type: "vxlan"
-    depends_on:
+    needs:
       - "mandatory_tn_vxlan"
       - "mandatory_tn_bastion"
-    public:
+    input:
       one_vxlan_name: "k8s_private_vxlan"
       one_vxlan_dns: "1.1.1.1"
       one_vxlan_address_size: 100
@@ -25,11 +25,11 @@ trial_network:
       one_vxlan_gw: "10.10.10.1"
   first_k8s_medium:
     type: "k8s_medium"
-    depends_on:
+    needs:
       - "mandatory_tn_vxlan"
       - "mandatory_tn_bastion"
       - "k8s_private_vxlan"
-    public:
+    input:
       external_vnet_id: "mandatory_tn_vxlan"
       internal_vnet_id: "k8s_private_vxlan"
       service_name: "OneKE-sandbox-tn-uma"
