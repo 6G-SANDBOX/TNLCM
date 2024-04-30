@@ -22,7 +22,7 @@
 
 - Frontend implementation.
 
-## [0.1.0] - 2023-09-29
+## [v0.1.0] - 2023-09-29
 
 ### Added
 
@@ -32,4 +32,4 @@
 - Initial data structures.
 
 [unreleased]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.1.0
+[v0.1.0]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.1.0
