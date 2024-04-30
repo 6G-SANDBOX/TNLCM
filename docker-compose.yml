@@ -2,7 +2,7 @@ services:
 
   tnlcm-database:
     container_name: tnlcm-database
-    image: mongo:7.0.8-jammy
+    image: mongo:7.0.9-jammy
     ports:
       - 27017:27017
     volumes:
