@@ -114,10 +114,6 @@ class JenkinsComponentPipelineError(CustomJenkinsError):
     """Error thrown when component pipeline has failed"""
     pass
 
-class JenkinsComponentReportNotFoundError(CustomJenkinsError):
-    """Error thrown when the component report file has not been received"""
-    pass
-
 class JenkinsDeploymentReportNotFoundError(CustomJenkinsError):
     """Error thrown when the trial network report file was not found"""
     pass
