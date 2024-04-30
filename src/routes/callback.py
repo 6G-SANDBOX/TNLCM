@@ -1,7 +1,7 @@
 from flask import request
 from flask_restx import Namespace, Resource, abort
 
-from src.callback.jenkins_handler import JenkinsHandler
+from src.callback.callback_handler import CallbackHandler
 from src.exceptions.exceptions_handler import CustomException
 
 callback_namespace = Namespace(
@@ -18,8 +18,8 @@ class Callback(Resource):
         """
         try:
             data = request.get_json()
-            jenkins_handler = JenkinsHandler()
-            jenkins_handler.save_decoded_information(data)
+            callback_handler = CallbackHandler(data)
+            callback_handler.save_decoded_information()
             return {"message": "Stored coded information"}, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
