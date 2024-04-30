@@ -8,7 +8,8 @@
 - Detailed documentation including different sections about TNLCM.
 - API using Python and the Flask-RESTX library.
 - Routes for callback, sixglibrary, trial networks, users and verification.
-- Docker compose for MongoDB database to manage the TNs.
+- MongoDB database to manage the TNs.
+- Docker compose to create MongoDB database.
 - Integration with [6G-Library](https://github.com/6G-SANDBOX/6G-Library).
 - Connection with Jenkins for the deployment of different components. Currently 8 types of components are running: tn_vxlan, tn_bastion, vm_kvm, vxlan, k8s, open5gs, UERANSIM-gNB and UERANSIM-UE.
 - Logs to check TNLCM behavior.
@@ -16,6 +17,7 @@
 
 ### Changed
 
+- Python version to 3.12.3.
 - Create TNLCM from scratch.
 
 ### Removed
