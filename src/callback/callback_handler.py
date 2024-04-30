@@ -4,7 +4,7 @@ from json import dump
 from base64 import b64decode
 
 from src.logs.log_handler import log_handler
-from exceptions.exceptions_handler import KeyNotFoundError, CustomUnicodeDecodeError
+from src.exceptions.exceptions_handler import KeyNotFoundError, CustomUnicodeDecodeError
 
 REPORT_DIRECTORY = os.path.join(os.getcwd(), "src", "callback", "reports")
 
@@ -13,7 +13,7 @@ class CallbackHandler:
     def __init__(self, data):
         self.data = data
 
-    def save_decoded_information(self): # TODO: check if correct the new implementation
+    def save_decoded_information(self):
         """Store decoded deployment information of each component received by jenkins"""
         try:
             log_handler.info("Saving entity deployment results received by jenkins")
