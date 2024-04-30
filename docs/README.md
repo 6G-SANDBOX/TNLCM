@@ -64,9 +64,10 @@ TNLCM                        // main folder.
 ├─ requirements.txt          // file containing the libraries and their versions.
 ├─ src                       // folder in which the developed code is stored.
 │  ├─ auth                   // folder that handle the authentication of users who have access.
-│  ├─ callback               // folder that handle the connection with Jenkins for tn deployment.
+│  ├─ callback               // folder that handle the results received by Jenkins.
 │  ├─ database               // folder that handle the connection with MongoDB database.
 │  ├─ exceptions             // folder that handle the creation of custom exceptions.
+│  ├─ jenkins                // folder that handle the connection with Jenkins for tn deployment.
 │  ├─ logs                   // folder that handle log creation.
 │  ├─ repository             // folder that handle the connection to any repository.
 │  ├─ routes                 // folder that handle the API that is exposed.
@@ -257,10 +258,10 @@ Trial Network Descriptors are yaml files with a set of expected fields and with 
 trial_network:  # Mandatory, contains the description of all entities in the Trial Network
   <Entity1>:  # A unique identifier for each entity in the Trial Network
     type:  # A type of component
-    depends_on: # List of dependencies of the component with other components
+    needs: # List of dependencies of the component with other components
       - <EntityN>
       - ...
-    public: # Necessary variables collected from the public part of the 6G-Library
+    input: # Necessary variables collected from the input part of the 6G-Library
       ...
 ```
 
