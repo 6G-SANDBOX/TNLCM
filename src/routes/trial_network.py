@@ -2,7 +2,7 @@ from flask_restx import Namespace, Resource, reqparse, abort
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.datastructures import FileStorage
 
-from src.callback.jenkins_handler import JenkinsHandler
+from jenkins.jenkins_handler import JenkinsHandler
 from src.trial_network.trial_network_descriptor import TrialNetworkDescriptorHandler
 from src.trial_network.trial_network_handler import TrialNetworkHandler
 from src.exceptions.exceptions_handler import CustomException
