@@ -6,7 +6,7 @@ from src.exceptions.exceptions_handler import CustomException
 
 callback_namespace = Namespace(
     name="callback",
-    description="Handling the data returned by jenkins after deploying the components"
+    description="Handling the data returned by Jenkins after deploying the components"
 )
 
 @callback_namespace.route("")
@@ -20,6 +20,6 @@ class Callback(Resource):
             data = request.get_json()
             callback_handler = CallbackHandler(data)
             callback_handler.save_decoded_results()
-            return {"message": "Stored results received by Jenkins"}, 200
+            return {"message": "Save results received by Jenkins"}, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
