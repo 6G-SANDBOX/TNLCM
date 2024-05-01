@@ -12,6 +12,10 @@ class KeyNotFoundError(CustomException):
     """Error thrown when a key in a JSON is not found"""
     pass
 
+class InstanceNotCreatedError(CustomException):
+    """Error when instance of a class not created"""
+    pass
+
 class CustomUnicodeDecodeError(CustomException):
     """Error thrown when there is an issue with decoding Unicode"""
     pass
