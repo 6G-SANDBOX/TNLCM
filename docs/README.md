@@ -102,7 +102,7 @@ TNLCM is currently able to deploy the following types of components correspondin
 > * MinIO (Mandatory)
 
 > [!NOTE]
-> TNLCM has been tested on Windows 10 and Ubuntu 22.04.3 LTS.
+> TNLCM is being developed on Windows 10 and has been tested on Windows 10 and Linux in version 22.04.3 LTS.
 
 ### :inbox_tray: Download or clone repository
 

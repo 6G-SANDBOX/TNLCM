@@ -19,10 +19,9 @@ class RepositoryHandler:
             raise VariablesNotDefinedInEnvError("Add the value of the variables git_branch or git_commit_id", 500)
         if git_branch is not None and git_commit_id is not None:
             raise VariablesNotDefinedInEnvError("Only one field is required. Either git_branch or git_commit_id", 500)
-        if self._is_github_repo(git_url):
-            self.git_url = git_url
-        else:
+        if not self._is_github_repo(git_url):
             raise GitCloneError(f"Repository url specified '{self.git_url}' is not correct", 500)
+        self.git_url = git_url
         self.git_branch = git_branch
         self.git_commit_id = git_commit_id
         self.git_repository_name = repository_name
@@ -57,26 +56,25 @@ class RepositoryHandler:
 
     def _git_checkout_repository(self):
         """Checkout to branch or commit_id"""
-        if self.repo is not None:
-            last_clone_type = self._last_git_clone()
-            if (last_clone_type == "commit" and self.git_branch) or \
-                    (last_clone_type == "commit" and self.git_commit_id and not self._is_current_commit_id()) or \
-                    (last_clone_type == "branch" and self.git_commit_id) or \
-                    (last_clone_type == "branch" and self.git_branch and not self._is_current_branch()):
-                if self.git_branch:
-                    try:
-                        log_handler.info(f"Checkout to '{self.git_branch}' branch of '{self.git_repository_name}' repository")
-                        self.repo.git.checkout(self.git_branch, "--")
-                    except GitCommandError:
-                        raise GitCheckoutError(f"Branch '{self.git_branch}' is not in '{self.git_repository_name}' repository", 404)
-                else:
-                    try:
-                        log_handler.info(f"Checkout to '{self.git_commit_id}' commit of '{self.git_repository_name}' repository")
-                        self.repo.git.checkout(self.git_commit_id)
-                    except GitCommandError:
-                        raise GitCheckoutError(f"Commit with id '{self.git_commit_id}' not in '{self.git_repository_name}' repository", 404)
-        else:
+        if self.repo is None:
             raise GitCloneError(f"Clone '{self.git_repository_name}' repository first")
+        last_clone_type = self._last_git_clone()
+        if (last_clone_type == "commit" and self.git_branch) or \
+                (last_clone_type == "commit" and self.git_commit_id and not self._is_current_commit_id()) or \
+                (last_clone_type == "branch" and self.git_commit_id) or \
+                (last_clone_type == "branch" and self.git_branch and not self._is_current_branch()):
+            if self.git_branch:
+                try:
+                    log_handler.info(f"Checkout to '{self.git_branch}' branch of '{self.git_repository_name}' repository")
+                    self.repo.git.checkout(self.git_branch, "--")
+                except GitCommandError:
+                    raise GitCheckoutError(f"Branch '{self.git_branch}' is not in '{self.git_repository_name}' repository", 404)
+            else:
+                try:
+                    log_handler.info(f"Checkout to '{self.git_commit_id}' commit of '{self.git_repository_name}' repository")
+                    self.repo.git.checkout(self.git_commit_id)
+                except GitCommandError:
+                    raise GitCheckoutError(f"Commit with id '{self.git_commit_id}' not in '{self.git_repository_name}' repository", 404)
 
     def _last_git_clone(self):
         """Check if the current repository is of a commit_id or of a branch"""

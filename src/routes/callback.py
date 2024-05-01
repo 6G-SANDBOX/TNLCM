@@ -14,12 +14,12 @@ class Callback(Resource):
     
     def post(self):
         """
-        Save jenkins results from deploying components
+        Save Jenkins results from deploying components
         """
         try:
             data = request.get_json()
             callback_handler = CallbackHandler(data)
-            callback_handler.save_decoded_information()
-            return {"message": "Stored coded information"}, 200
+            callback_handler.save_decoded_results()
+            return {"message": "Stored results received by Jenkins"}, 200
         except CustomException as e:
             return abort(e.error_code, str(e))

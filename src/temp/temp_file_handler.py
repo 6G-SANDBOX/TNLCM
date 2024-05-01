@@ -57,7 +57,7 @@ class TempFileHandler:
     def create_entity_temp_file(self, entity_name, entity_data, tn_descriptor, report_directory, tn_id):
         """Create temporary files for each entity that is deployed in the pipeline and returns the path to the file"""
         log_handler.info(f"Creating a temporary file with the private and input part for the '{entity_name}' entity. It is required to send it to the pipeline")
-        with NamedTemporaryFile(delete=False, dir=TEMP_FILES_PATH, suffix=".yaml", mode='w') as entity_temp_file:
+        with NamedTemporaryFile(delete=False, dir=TEMP_FILES_PATH, suffix=".yaml", mode="w") as entity_temp_file:
             entity_input = self._add_private_entity_parameters(entity_name, entity_data, tn_descriptor, report_directory, tn_id)
             dump(entity_input, entity_temp_file, default_flow_style=False)
         return entity_temp_file.name

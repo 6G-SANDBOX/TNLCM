@@ -5,7 +5,7 @@ from src.exceptions.exceptions_handler import CustomException
 
 sixglibrary_namespace = Namespace(
     name="6G-Library",
-    description="TNLCM integration with the 6G-Library"
+    description="TNLCM integration with 6G-Library"
 )
 
 @sixglibrary_namespace.route("/clone")
