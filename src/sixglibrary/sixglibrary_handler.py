@@ -33,78 +33,75 @@ class SixGLibraryHandler:
 
     def extract_input_part_component_6glibrary(self, components):
         """The input part of the components is extracted directly from the 6G-Library"""
-        input_parts = {}
+        input_part = {}
 
         for component in components:
-            if component != "dummy-component" and component != "suggested_skel":
-                description_file = os.path.join(self.git_6glibrary_local_directory, component, "variables", "public.yaml")
-                
-                if os.path.exists(description_file):
-                    with open(description_file, "rt", encoding="utf8") as f:
-                        description_data = safe_load(f)
-                        if description_data["input"]:
-                            input_parts[component] = description_data["input"]
-                        else:
-                            input_parts[component] = {}
-        return input_parts
+            description_file = os.path.join(self.git_6glibrary_local_directory, component, "variables", "public.yaml")
+            
+            if os.path.exists(description_file):
+                with open(description_file, "rt", encoding="utf8") as f:
+                    description_data = safe_load(f)
+                    if description_data["input"]:
+                        input_part[component] = description_data["input"]
+                    else:
+                        input_part[component] = {}
+        return input_part
     
     def extract_private_part_component_6glibrary(self, components):
         """The private part of the components is extracted directly from the 6G-Library"""
-        private_parts = {}
+        private_part = {}
 
         for component in components:
-            if component != "dummy-component" and component != "suggested_skel":
-                description_file = os.path.join(self.git_6glibrary_local_directory, component, "variables", "private.yaml")
-                
-                if os.path.exists(description_file):
-                    with open(description_file, "rt", encoding="utf8") as f:
-                        description_data = safe_load(f)
-                        if description_data:
-                            private_parts[component] = description_data
-                        else:
-                            private_parts[component] = {}
-        return private_parts
+            description_file = os.path.join(self.git_6glibrary_local_directory, component, "variables", "private.yaml")
+            
+            if os.path.exists(description_file):
+                with open(description_file, "rt", encoding="utf8") as f:
+                    description_data = safe_load(f)
+                    if description_data:
+                        private_part[component] = description_data
+                    else:
+                        private_part[component] = {}
+        return private_part
 
-    def extract_needs_part_component_6glibrary(self, components):
-        """The needs part of the components is extracted directly from the 6G-Library"""
-        needs_parts = {}
+    def extract_metadata_part_component_6glibrary(self, components):
+        """The metadata part of the components is extracted directly from the 6G-Library"""
+        metadata_part = {}
 
         for component in components:
-            if component != "dummy-component" and component != "suggested_skel":
-                description_file = os.path.join(self.git_6glibrary_local_directory, component, "variables", "public.yaml")
+            description_file = os.path.join(self.git_6glibrary_local_directory, component, "variables", "public.yaml")
 
-                if os.path.exists(description_file):
-                    with open(description_file, "rt", encoding="utf8") as f:
-                        description_data = safe_load(f)
-                        if description_data["metadata"]["needs"]:
-                            needs_parts[component] = description_data["metadata"]["needs"]
-                        else:
-                            needs_parts[component] = []
-        return needs_parts
+            if os.path.exists(description_file):
+                with open(description_file, "rt", encoding="utf8") as f:
+                    description_data = safe_load(f)
+                    if description_data["metadata"]:
+                        metadata_part[component] = description_data["metadata"]
+                    else:
+                        metadata_part[component] = []
+        return metadata_part
 
-    def extract_info_components_6glibrary(self):
+    def extract_parts_components_6glibrary(self):
         """Extracts input, private, and needs parts of the components from the 6G-Library"""
         components = None
         if os.path.exists(self.git_6glibrary_local_directory) and os.path.exists(os.path.join(self.git_6glibrary_local_directory, ".git")):
             components = [folder for folder in os.listdir(self.git_6glibrary_local_directory)
                           if os.path.isdir(os.path.join(self.git_6glibrary_local_directory, folder))
-                          and folder not in (".git", ".global", ".vscode")]
+                          and folder not in (".git", ".global", ".vscode", "dummy-component", "suggested_skel", "skel")]
         if not components:
             if self.git_6glibrary_branch:
                 raise SixGLibraryComponentsNotFound(f"No components in the '{self.git_6glibrary_branch}' branch of 6G-Library", 404)
             else:
                 raise SixGLibraryComponentsNotFound(f"No components in the '{self.git_6glibrary_commit_id}' commit of 6G-Library", 404)
         else:
-            input_parts = self.extract_input_part_component_6glibrary(components)
-            # private_parts = self.extract_private_part_component_6glibrary(components)
-            needs_parts = self.extract_needs_part_component_6glibrary(components)
-            
+            input_part = self.extract_input_part_component_6glibrary(components)
+            # private_part = self.extract_private_part_component_6glibrary(components)
+            metadata_part = self.extract_metadata_part_component_6glibrary(components)
+
             component_data = {}
             for component in components:
                 component_data[component] = {
-                    "input": input_parts.get(component, {}),
-                    # "private": private_parts.get(component, {}),
-                    "needs": needs_parts.get(component, [])
+                    "input": input_part[component],
+                    # "private": private_part[component],
+                    "metadata": metadata_part[component]
                 }
             return component_data
 
