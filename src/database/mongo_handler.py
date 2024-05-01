@@ -19,7 +19,7 @@ class MongoHandler:
         if not self.uri:
             missing_variables.append("MONGO_URI")
         if missing_variables:
-            raise VariablesNotDefinedInEnvError(f"Add the value of the variables {", ".join(missing_variables)} in the .env file", 500)
+            raise VariablesNotDefinedInEnvError(f"Add the value of the variables {', '.join(missing_variables)} in the .env file", 500)
         try:
             self.client = MongoClient(self.uri)
             self.db = self.client[self.database]

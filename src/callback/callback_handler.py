@@ -20,7 +20,7 @@ class CallbackHandler:
             log_handler.info("Saving entity deployment results received by jenkins")
             missing_keys = [key for key in ["tn_id", "library_component_name", "entity_name", "result_msg"] if key not in self.data]
             if missing_keys:
-                raise KeyNotFoundError(f"Missing keys: {", ".join(missing_keys)}", 400)
+                raise KeyNotFoundError(f"Missing keys: {', '.join(missing_keys)}", 400)
             if "kubeconfig" in self.data:
                 self.data["kubeconfig"] = b64decode(self.data["kubeconfig"]).decode("utf-8")
             self.data["result_msg"] = b64decode(self.data["result_msg"]).decode("utf-8")

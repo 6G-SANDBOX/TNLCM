@@ -40,7 +40,7 @@ class JenkinsHandler:
         if not self.tnlcm_callback:
             missing_variables.append("TNLCM_CALLBACK")
         if missing_variables:
-            raise VariablesNotDefinedInEnvError(f"Add the value of the variables {", ".join(missing_variables)} in the .env file", 500)
+            raise VariablesNotDefinedInEnvError(f"Add the value of the variables {', '.join(missing_variables)} in the .env file", 500)
         if self.trial_network_handler is None:
             raise InstanceNotCreatedError("Instance of trial network handler not created", 500)
         try:
