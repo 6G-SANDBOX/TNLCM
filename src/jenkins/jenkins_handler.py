@@ -9,7 +9,7 @@ from time import sleep
 from src.logs.log_handler import log_handler
 from src.temp.temp_file_handler import TempFileHandler
 from src.sixglibrary.sixglibrary_handler import SixGLibraryHandler
-from src.exceptions.exceptions_handler import JenkinsConnectionError, VariablesNotDefinedInEnvError, SixGLibraryComponentNotFound, JenkinsComponentFileNotFoundError, JenkinsResponseError, JenkinsComponentPipelineError, JenkinsDeploymentReportNotFoundError
+from src.exceptions.exceptions_handler import JenkinsConnectionError, VariablesNotDefinedInEnvError, InstanceNotCreatedError, SixGLibraryComponentNotFound, JenkinsComponentFileNotFoundError, JenkinsResponseError, JenkinsComponentPipelineError, JenkinsDeploymentReportNotFoundError
 
 REPORT_DIRECTORY = os.path.join(os.getcwd(), "src", "callback", "reports")
 
@@ -23,23 +23,38 @@ class JenkinsHandler:
         self.jenkins_token = os.getenv("JENKINS_TOKEN")
         self.jenkins_pipeline_name = os.getenv("JENKINS_PIPELINE_NAME")
         self.jenkins_deployment_site = os.getenv("JENKINS_DEPLOYMENT_SITE")
-        if self.jenkins_server and self.jenkins_user and self.jenkins_password:
-            try:
-                self.jenkins_client = Jenkins(self.jenkins_server, username=self.jenkins_user, password=self.jenkins_password)
-                self.jenkins_client.get_whoami()
-            except RequestException:
-                raise JenkinsConnectionError("Error establishing connection to Jenkins", 500)
-        else:
-            raise VariablesNotDefinedInEnvError("Add the value of the variables JENKINS_SERVER, JENKINS_USER and JENKINS_PASSWORD in the .env file", 500)
-        if not self.jenkins_token or not self.jenkins_pipeline_name or not self.jenkins_deployment_site:
-            raise VariablesNotDefinedInEnvError("Add the value of the variables JENKINS_TOKEN, JENKINS_PIPELINE_NAME and JENKINS_DEPLOYMENT_SITE in the .env file", 500)
+        self.tnlcm_callback = os.getenv("TNLCM_CALLBACK")
+        missing_variables = []
+        if not self.jenkins_server:
+            missing_variables.append("JENKINS_SERVER")
+        if not self.jenkins_user:
+            missing_variables.append("JENKINS_USER")
+        if not self.jenkins_password:
+            missing_variables.append("JENKINS_PASSWORD")
+        if not self.jenkins_token:
+            missing_variables.append("JENKINS_TOKEN")
+        if not self.jenkins_pipeline_name:
+            missing_variables.append("JENKINS_PIPELINE_NAME")
+        if not self.jenkins_deployment_site:
+            missing_variables.append("JENKINS_DEPLOYMENT_SITE")
+        if not self.tnlcm_callback:
+            missing_variables.append("TNLCM_CALLBACK")
+        if missing_variables:
+            raise VariablesNotDefinedInEnvError(f"Add the value of the variables {", ".join(missing_variables)} in the .env file", 500)
+        if self.trial_network_handler is None:
+            raise InstanceNotCreatedError("Instance of trial network handler not created", 500)
+        try:
+            self.jenkins_client = Jenkins(self.jenkins_server, username=self.jenkins_user, password=self.jenkins_password)
+            self.jenkins_client.get_whoami()
+        except RequestException:
+            raise JenkinsConnectionError("Error establishing connection with Jenkins", 500)
         self.trial_network_handler = trial_network_handler
-    
+
     def jenkins_parameters(self, tn_id, library_component_name, library_url, entity_name, branch=None, commit_id=None):
         """Return a dictionary with the parameters for each component to be passed to the jenkins pipeline"""
         return {
             "TN_ID": tn_id,
-            "TNLCM_CALLBACK": os.getenv("TNLCM_CALLBACK"),
+            "TNLCM_CALLBACK": self.tnlcm_callback,
             # "LIBRARY_URL": library_url, # Optional
             "LIBRARY_COMPONENT_NAME": library_component_name,
             "ENTITY_NAME": entity_name,
