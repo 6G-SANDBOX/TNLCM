@@ -40,7 +40,7 @@ api.add_namespace(trial_network_namespace, path="/tnlcm/trial_network")
 api.add_namespace(sixglibrary_namespace, path="/tnlcm/6glibrary")
 api.add_namespace(callback_namespace, path="/tnlcm/callback")
 
-log_handler.info("Start Trial Network Life Cycle Manager - TNLCM")
+log_handler.info("Start Server Trial Network Life Cycle Manager (TNLCM) on http://0.0.0.0:5000")
 
 if __name__ == "__main__":
     if flask_env == "DEVELOPMENT":
