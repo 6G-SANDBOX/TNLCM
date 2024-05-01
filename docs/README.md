@@ -328,7 +328,7 @@ If the access token expires, it can be refreshed by using the refresh token. The
 [python-url]: https://www.python.org/downloads/release/python-3123/
 [flask-badge]: https://img.shields.io/badge/Flask-3.0.3-brightgreen?style=for-the-badge&logo=flask&logoColor=white&labelColor=000000
 [flask-url]: https://flask.palletsprojects.com/en/3.0.x/
-[mongodb-badge]: https://img.shields.io/badge/MongoDB-7.0.8-green?style=for-the-badge&logo=mongodb&logoColor=white&labelColor=47A248
+[mongodb-badge]: https://img.shields.io/badge/MongoDB-7.0.9-green?style=for-the-badge&logo=mongodb&logoColor=white&labelColor=47A248
 [mongodb-url]: https://www.mongodb.com/
 [docker-badge]: https://img.shields.io/badge/Docker-26.0.0-6AB7FF?style=for-the-badge&logo=docker&logoColor=white&labelColor=2496ED
 [docker-url]: https://www.docker.com/
