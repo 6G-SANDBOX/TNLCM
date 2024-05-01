@@ -9,7 +9,7 @@ from src.exceptions.exceptions_handler import CustomException
 
 trial_network_namespace = Namespace(
     name="trial_network",
-    description="Trial network status and management",
+    description="Namespace for trial network status and management",
     authorizations={
         "Bearer Auth": {
             "type": "apiKey",

@@ -6,7 +6,7 @@ from src.exceptions.exceptions_handler import CustomException
 
 callback_namespace = Namespace(
     name="callback",
-    description="Handling the data returned by Jenkins after deploying the components"
+    description="Namespace for handler the data returned by Jenkins after deploying the components"
 )
 
 @callback_namespace.route("")

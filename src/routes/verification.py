@@ -11,7 +11,7 @@ from src.exceptions.exceptions_handler import CustomException
 
 verification_namespace = Namespace(
     name="verification",
-    description="Namespace for verification endpoints"
+    description="Namespace for verification"
 )
 
 @verification_namespace.route("/request_verification_token")
