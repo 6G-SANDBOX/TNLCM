@@ -36,15 +36,16 @@ class SixGLibraryHandler:
         input_parts = {}
 
         for component in components:
-            description_file = os.path.join(self.repository_handler.local_directory, component, "variables", "public.yaml")
-            
-            if os.path.exists(description_file):
-                with open(description_file, "rt", encoding="utf8") as f:
-                    description_data = safe_load(f)
-                    if description_data.get("input") is not None:
-                        input_parts[component] = description_data.get("input", {})
-                    else:
-                        input_parts[component] = {}
+            if component != "dummy-component" and component != "suggested_skel":
+                description_file = os.path.join(self.git_6glibrary_local_directory, component, "variables", "public.yaml")
+                
+                if os.path.exists(description_file):
+                    with open(description_file, "rt", encoding="utf8") as f:
+                        description_data = safe_load(f)
+                        if description_data["input"]:
+                            input_parts[component] = description_data["input"]
+                        else:
+                            input_parts[component] = {}
         return input_parts
     
     def extract_private_part_component_6glibrary(self, components):
@@ -52,15 +53,16 @@ class SixGLibraryHandler:
         private_parts = {}
 
         for component in components:
-            description_file = os.path.join(self.repository_handler.local_directory, component, "variables", "private.yaml")
-            
-            if os.path.exists(description_file):
-                with open(description_file, "rt", encoding="utf8") as f:
-                    description_data = safe_load(f)
-                    if description_data is not None:
-                        private_parts[component] = description_data
-                    else:
-                        private_parts[component] = {}
+            if component != "dummy-component" and component != "suggested_skel":
+                description_file = os.path.join(self.git_6glibrary_local_directory, component, "variables", "private.yaml")
+                
+                if os.path.exists(description_file):
+                    with open(description_file, "rt", encoding="utf8") as f:
+                        description_data = safe_load(f)
+                        if description_data:
+                            private_parts[component] = description_data
+                        else:
+                            private_parts[component] = {}
         return private_parts
 
     def extract_needs_part_component_6glibrary(self, components):
@@ -68,24 +70,24 @@ class SixGLibraryHandler:
         needs_parts = {}
 
         for component in components:
-            description_file = os.path.join(self.repository_handler.local_directory, component, "variables", "public.yaml")
+            if component != "dummy-component" and component != "suggested_skel":
+                description_file = os.path.join(self.git_6glibrary_local_directory, component, "variables", "public.yaml")
 
-            if os.path.exists(description_file):
-                with open(description_file, "rt", encoding="utf8") as f:
-                    description_data = safe_load(f)
-                    metadata = description_data.get("metadata")
-                    if metadata is not None and "needs" in metadata:
-                        needs_parts[component] = metadata["needs"]
-                    else:
-                        needs_parts[component] = []
+                if os.path.exists(description_file):
+                    with open(description_file, "rt", encoding="utf8") as f:
+                        description_data = safe_load(f)
+                        if description_data["metadata"]["needs"]:
+                            needs_parts[component] = description_data["metadata"]["needs"]
+                        else:
+                            needs_parts[component] = []
         return needs_parts
 
     def extract_info_components_6glibrary(self):
         """Extracts input, private, and needs parts of the components from the 6G-Library"""
         components = None
-        if os.path.exists(self.repository_handler.local_directory) and os.path.exists(os.path.join(self.repository_handler.local_directory, ".git")):
-            components = [folder for folder in os.listdir(self.repository_handler.local_directory)
-                          if os.path.isdir(os.path.join(self.repository_handler.local_directory, folder))
+        if os.path.exists(self.git_6glibrary_local_directory) and os.path.exists(os.path.join(self.git_6glibrary_local_directory, ".git")):
+            components = [folder for folder in os.listdir(self.git_6glibrary_local_directory)
+                          if os.path.isdir(os.path.join(self.git_6glibrary_local_directory, folder))
                           and folder not in (".git", ".global", ".vscode")]
         if not components:
             if self.git_6glibrary_branch:
@@ -109,10 +111,10 @@ class SixGLibraryHandler:
     def extract_components_6glibrary(self):
         """6G-Library components are extracted"""
         components = None
-        if os.path.exists(self.repository_handler.local_directory) and os.path.exists(os.path.join(self.repository_handler.local_directory, ".git")):
-            components = [folder for folder in os.listdir(self.repository_handler.local_directory)
-                        if os.path.isdir(os.path.join(self.repository_handler.local_directory, folder))
-                        and folder not in (".git", ".global")]
+        if os.path.exists(self.git_6glibrary_local_directory) and os.path.exists(os.path.join(self.git_6glibrary_local_directory, ".git")):
+            components = [folder for folder in os.listdir(self.git_6glibrary_local_directory)
+                        if os.path.isdir(os.path.join(self.git_6glibrary_local_directory, folder))
+                        and folder not in (".git", ".global", ".vscode")]
         if not components:
             if self.git_6glibrary_branch:
                 raise SixGLibraryComponentsNotFound(f"No components in the '{self.git_6glibrary_branch}' branch of 6G-Library", 404)
