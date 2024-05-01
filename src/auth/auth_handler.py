@@ -1,6 +1,5 @@
-import re
-
 from werkzeug.security import generate_password_hash, check_password_hash
+from email_validator import validate_email, EmailNotValidError
 
 from src.logs.log_handler import log_handler
 from src.exceptions.exceptions_handler import UserEmailInvalidError
@@ -57,7 +56,7 @@ class AuthHandler:
             "org": self.org
         }
         self.mongo_client.insert_data("users", user_doc)
-    
+
     def update_password(self):
         """Update password associated to user"""
         log_handler.info(f"Update the password associated to the user '{self.username}' in the 'users' collection of the database")
@@ -75,8 +74,8 @@ class AuthHandler:
     def _is_valid_email(self):
         """Checks if the email entered by the user is valid"""
         log_handler.info(f"Checks if the email '{self.email}' complies with the email syntax")
-        regex = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b"
-        if (re.fullmatch(regex, self.email)):
-            return self.email
-        else:
+        try:
+            valid = validate_email(self.email)
+            return valid.normalized
+        except EmailNotValidError:
             raise UserEmailInvalidError("Invalid email entered", 400)
