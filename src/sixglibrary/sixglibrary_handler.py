@@ -5,12 +5,15 @@ from yaml import safe_load
 from src.repository.repository_handler import RepositoryHandler
 from src.exceptions.exceptions_handler import SixGLibraryComponentsNotFound
 
+SIXGLIBRARY_DIRECTORY = os.path.join(os.getcwd(), "src", "sixglibrary")
+
 class SixGLibraryHandler:
 
     def __init__(self, branch=None, commit_id=None):
         """Constructor"""
         self.git_6glibrary_https_url = os.getenv("GIT_6GLIBRARY_HTTPS_URL")
         self.git_6glibrary_repository_name = os.getenv("GIT_6GLIBRARY_REPOSITORY_NAME")
+        self.git_6glibrary_local_directory = os.path.join(SIXGLIBRARY_DIRECTORY, self.git_6glibrary_repository_name)
         self.git_6glibrary_branch = None
         self.git_6glibrary_commit_id = None
         if branch is None and commit_id is not None:
@@ -22,7 +25,7 @@ class SixGLibraryHandler:
         else:
             self.git_6glibrary_branch = branch
             self.git_6glibrary_commit_id = commit_id
-        self.repository_handler = RepositoryHandler(self.git_6glibrary_https_url, self.git_6glibrary_branch, self.git_6glibrary_commit_id, self.git_6glibrary_repository_name)
+        self.repository_handler = RepositoryHandler(self.git_6glibrary_https_url, self.git_6glibrary_branch, self.git_6glibrary_commit_id, self.git_6glibrary_repository_name, self.git_6glibrary_local_directory)
 
     def git_clone_6glibrary(self):
         """Clone 6G-Library"""
