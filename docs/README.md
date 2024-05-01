@@ -63,18 +63,18 @@ TNLCM                        // main folder.
 ├─ docs                      // folder in which all documentation is stored.
 ├─ requirements.txt          // file containing the libraries and their versions.
 ├─ src                       // folder in which the developed code is stored.
-│  ├─ auth                   // folder that handle the authentication of users who have access.
-│  ├─ callback               // folder that handle the results received by Jenkins.
-│  ├─ database               // folder that handle the connection with MongoDB database.
-│  ├─ exceptions             // folder that handle the creation of custom exceptions.
-│  ├─ jenkins                // folder that handle the connection with Jenkins for tn deployment.
-│  ├─ logs                   // folder that handle log creation.
-│  ├─ repository             // folder that handle the connection to any repository.
-│  ├─ routes                 // folder that handle the API that is exposed.
-│  ├─ sixglibrary            // folder that handle the connection to the 6G-Library.
-│  ├─ temp                   // folder that handle the creation of temporary files.
-│  ├─ trial_network          // folder that handle the trial networks.
-│  └─ verification           // folder that handle the users verification to check the access.
+│  ├─ auth                   // folder that handler the authentication of users who have access.
+│  ├─ callback               // folder that handler the results received by Jenkins.
+│  ├─ database               // folder that handler the connection with MongoDB database.
+│  ├─ exceptions             // folder that handler the creation of custom exceptions.
+│  ├─ jenkins                // folder that handler the connection with Jenkins for tn deployment.
+│  ├─ logs                   // folder that handler log creation.
+│  ├─ repository             // folder that handler the connection to any repository.
+│  ├─ routes                 // folder that handler the API that is exposed.
+│  ├─ sixglibrary            // folder that handler the connection to the 6G-Library.
+│  ├─ temp                   // folder that handler the creation of temporary files.
+│  ├─ trial_network          // folder that handler the trial networks.
+│  └─ verification           // folder that handler the users verification to check the access.
 └─ tests                     // folder that contains files related to testing the code.
 ```
 
