@@ -4,9 +4,10 @@
 
 ### Added
 
+- Python version to 3.12.3.
+- API using Python and the Flask-RESTX library.
 - Different descriptors defining different trial networks.
 - Detailed documentation including different sections about TNLCM.
-- API using Python and the Flask-RESTX library.
 - Routes for callback, sixglibrary, trial networks, users and verification.
 - MongoDB database to manage the TNs.
 - Docker compose to create MongoDB database.
@@ -17,21 +18,10 @@
 
 ### Changed
 
-- Python version to 3.12.3.
 - Create TNLCM from scratch.
 
 ### Removed
 
 - Frontend implementation.
 
-## [v0.1.0] - 2023-09-29
-
-### Added
-
-- Basic Trial Network lifecycle management.
-- Basic API.
-- Basic Frontend.
-- Initial data structures.
-
-[unreleased]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.1.0...HEAD
-[v0.1.0]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.1.0
+[unreleased]: https://github.com/6G-SANDBOX/TNLCM
