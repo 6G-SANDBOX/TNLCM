@@ -6,6 +6,7 @@ from src.repository.repository_handler import RepositoryHandler
 from src.exceptions.exceptions_handler import SixGLibraryComponentsNotFound
 
 SIXGLIBRARY_DIRECTORY = os.path.join(os.getcwd(), "src", "sixglibrary")
+SIXGLIBRARY_EXCLUDE_FOLDERS = [".git", ".global", ".vscode", "dummy-component", "suggested_skel", "skel"]
 
 class SixGLibraryHandler:
 
@@ -36,7 +37,7 @@ class SixGLibraryHandler:
         input_part = {}
 
         for component in components:
-            description_file = os.path.join(self.git_6glibrary_local_directory, component, "variables", "public.yaml")
+            description_file = os.path.join(self.git_6glibrary_local_directory, component, ".tnlcm", "public.yaml")
             
             if os.path.exists(description_file):
                 with open(description_file, "rt", encoding="utf8") as f:
@@ -46,13 +47,13 @@ class SixGLibraryHandler:
                     else:
                         input_part[component] = {}
         return input_part
-    
+
     def extract_private_part_component_6glibrary(self, components):
         """The private part of the components is extracted directly from the 6G-Library"""
         private_part = {}
 
         for component in components:
-            description_file = os.path.join(self.git_6glibrary_local_directory, component, "variables", "private.yaml")
+            description_file = os.path.join(self.git_6glibrary_local_directory, component, "variables", "hypervisor", "one", "private.yaml")
             
             if os.path.exists(description_file):
                 with open(description_file, "rt", encoding="utf8") as f:
@@ -68,7 +69,7 @@ class SixGLibraryHandler:
         metadata_part = {}
 
         for component in components:
-            description_file = os.path.join(self.git_6glibrary_local_directory, component, "variables", "public.yaml")
+            description_file = os.path.join(self.git_6glibrary_local_directory, component, ".tnlcm", "public.yaml")
 
             if os.path.exists(description_file):
                 with open(description_file, "rt", encoding="utf8") as f:
@@ -85,7 +86,7 @@ class SixGLibraryHandler:
         if os.path.exists(self.git_6glibrary_local_directory) and os.path.exists(os.path.join(self.git_6glibrary_local_directory, ".git")):
             components = [folder for folder in os.listdir(self.git_6glibrary_local_directory)
                           if os.path.isdir(os.path.join(self.git_6glibrary_local_directory, folder))
-                          and folder not in (".git", ".global", ".vscode", "dummy-component", "suggested_skel", "skel")]
+                          and folder not in SIXGLIBRARY_EXCLUDE_FOLDERS]
         if not components:
             if self.git_6glibrary_branch:
                 raise SixGLibraryComponentsNotFound(f"No components in the '{self.git_6glibrary_branch}' branch of 6G-Library", 404)
@@ -111,7 +112,7 @@ class SixGLibraryHandler:
         if os.path.exists(self.git_6glibrary_local_directory) and os.path.exists(os.path.join(self.git_6glibrary_local_directory, ".git")):
             components = [folder for folder in os.listdir(self.git_6glibrary_local_directory)
                         if os.path.isdir(os.path.join(self.git_6glibrary_local_directory, folder))
-                        and folder not in (".git", ".global", ".vscode")]
+                        and folder not in SIXGLIBRARY_EXCLUDE_FOLDERS]
         if not components:
             if self.git_6glibrary_branch:
                 raise SixGLibraryComponentsNotFound(f"No components in the '{self.git_6glibrary_branch}' branch of 6G-Library", 404)

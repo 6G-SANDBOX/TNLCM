@@ -13,7 +13,7 @@ class KeyNotFoundError(CustomException):
     pass
 
 class InstanceNotCreatedError(CustomException):
-    """Error when instance of a class not created"""
+    """Error thrown when instance of a class not created"""
     pass
 
 class CustomUnicodeDecodeError(CustomException):

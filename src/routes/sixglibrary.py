@@ -54,17 +54,17 @@ class AllPartsComponents6GLibrary(Resource):
             components = sixglibrary_handler.extract_parts_components_6glibrary()
             if branch is not None:
                 return {
-                    "branch": branch, 
+                    "branch": branch,
                     "components": components
                     }, 200
             elif commit_id is not None:
                 return {
-                    "commit_id": commit_id, 
+                    "commit_id": commit_id,
                     "components": components
                     }, 200
             else:
                 return {
-                    "branch": sixglibrary_handler.git_6glibrary_branch, 
+                    "branch": sixglibrary_handler.git_6glibrary_branch,
                     "components": components
                     }, 200
         except CustomException as e:
@@ -98,12 +98,12 @@ class InputPartComponents6GLibrary(Resource):
                     }, 200
             elif commit_id is not None:
                 return {
-                    "commit_id": commit_id, 
+                    "commit_id": commit_id,
                     "input_part_components": input_part_components
                     }, 200
             else:
                 return {
-                    "branch": sixglibrary_handler.git_6glibrary_branch, 
+                    "branch": sixglibrary_handler.git_6glibrary_branch,
                     "input_part_components": input_part_components
                     }, 200
         except CustomException as e:
@@ -137,17 +137,17 @@ class PrivatePartComponents6GLibrary(Resource):
                     }, 200
             elif commit_id is not None:
                 return {
-                    "commit_id": commit_id, 
+                    "commit_id": commit_id,
                     "private_part_components": private_part_components
                     }, 200
             else:
                 return {
-                    "branch": sixglibrary_handler.git_6glibrary_branch, 
+                    "branch": sixglibrary_handler.git_6glibrary_branch,
                     "private_part_components": private_part_components
                     }, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
-        
+
 @sixglibrary_namespace.route("/components/needs")
 class NeedsPartComponents6GLibrary(Resource):
 
@@ -176,12 +176,12 @@ class NeedsPartComponents6GLibrary(Resource):
                     }, 200
             elif commit_id is not None:
                 return {
-                    "commit_id": commit_id, 
+                    "commit_id": commit_id,
                     "needs_part_components": needs_part_components
                     }, 200
             else:
                 return {
-                    "branch": sixglibrary_handler.git_6glibrary_branch, 
+                    "branch": sixglibrary_handler.git_6glibrary_branch,
                     "needs_part_components": needs_part_components
                     }, 200
         except CustomException as e:

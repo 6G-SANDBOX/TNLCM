@@ -148,7 +148,7 @@ Once Docker is installed, open a terminal where the `docker-compose.yml` file is
 docker compose build
 ```
 
-Flag **-d** can be added to raise the container in background:
+Flag **-d** can be added to raise the containers in background:
 ```sh
 docker compose up -d
 ```
