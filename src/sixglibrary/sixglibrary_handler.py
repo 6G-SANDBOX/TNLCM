@@ -6,7 +6,7 @@ from src.repository.repository_handler import RepositoryHandler
 from src.exceptions.exceptions_handler import SixGLibraryComponentsNotFound
 
 SIXGLIBRARY_DIRECTORY = os.path.join(os.getcwd(), "src", "sixglibrary")
-SIXGLIBRARY_EXCLUDE_FOLDERS = [".git", ".global", ".vscode", "dummy-component", "suggested_skel", "skel"]
+SIXGLIBRARY_EXCLUDE_FOLDERS = [".git", ".global", ".vscode", "dummy-component", "skel", "suggested_skel"]
 
 class SixGLibraryHandler:
 
@@ -70,7 +70,7 @@ class SixGLibraryHandler:
 
         for component in components:
             description_file = os.path.join(self.git_6glibrary_local_directory, component, ".tnlcm", "public.yaml")
-
+            
             if os.path.exists(description_file):
                 with open(description_file, "rt", encoding="utf8") as f:
                     description_data = safe_load(f)

@@ -43,7 +43,7 @@ TNLCM has been designed as a modular application, with the intention of making c
 
 ## :hammer_and_wrench: Stack
 - [![Python][python-badge]][python-url] - Programming language.
-- [![Flask][flask-badge]][flask-url] - Python micro framework for web applications to expose the API.
+- [![Flask][flask-badge]][flask-url] - Python framework for web applications to expose the API.
 - [![MongoDB][mongodb-badge]][mongodb-url] - NoSQL database designed to store Trial Networks.
 - [![Docker][docker-badge]][docker-url] - Platform for running database applications.
 
@@ -256,10 +256,10 @@ Trial Network Descriptors are yaml files with a set of expected fields and with 
 
 ```yaml
 trial_network:  # Mandatory, contains the description of all entities in the Trial Network
-  <Entity1>:  # A unique identifier for each entity in the Trial Network
-    type:  # A type of component
+  entity1:  # A unique identifier for each entity in the Trial Network
+    type:  # 6G-Library component type
     needs: # List of dependencies of the component with other components
-      - <EntityN>
+      - entityN
       - ...
     input: # Necessary variables collected from the input part of the 6G-Library
       ...

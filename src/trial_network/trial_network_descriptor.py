@@ -59,7 +59,7 @@ class TrialNetworkDescriptorHandler:
 
     def sort_descriptor(self):
         """Recursive function that returns the raw descriptor and a new descriptor sorted according to dependencies"""
-        log_handler.info("Starting the order of the entities")
+        log_handler.info("Start the order of the entities")
         entities = self.descriptor["trial_network"]
         ordered_entities = {}
 
