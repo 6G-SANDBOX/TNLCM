@@ -4,10 +4,11 @@ from flask_restx import Resource, Namespace, reqparse, abort
 from flask_mail import Message
 from random import randint
 
-from src.auth.auth_handler import AuthHandler
 from src.verification.mail import mail
+from src.auth.auth_handler import AuthHandler
+from src.database.mongo_handler import MongoHandler
 from src.verification.verification_handler import VerificationHandler
-from src.exceptions.exceptions_handler import CustomException
+from src.exceptions.exceptions_handler import CustomException, VariablesNotDefinedInEnvError
 
 verification_namespace = Namespace(
     name="verification",
@@ -25,14 +26,16 @@ class RequestVerificationToken(Resource):
         """
         Request a verification token via email for registering a new account
         """
-        verification_handler = None
-        auth_handler = None
+        mongo_handler = None
         try:
             sender_email = os.getenv("MAIL_USERNAME")
+            if sender_email is None:
+                raise VariablesNotDefinedInEnvError(f"Add the value of the variable 'MAIL_USERNAME' in the .env file", 500)
             receiver_email = self.parser_post.parse_args()["email"]
             _six_digit_random = randint(100000, 999999)
 
-            auth_handler = AuthHandler(email=receiver_email)
+            mongo_handler = MongoHandler()
+            auth_handler = AuthHandler(mongo_handler=mongo_handler, email=receiver_email)
             user = auth_handler.get_email()
             if user:
                 return abort(409, "Email already exist in the database")
@@ -46,17 +49,15 @@ class RequestVerificationToken(Resource):
                 msg.body = f"Your verification code is {_six_digit_random}."
                 conn.send(msg)
 
-            verification_handler = VerificationHandler(receiver_email, _six_digit_random)
+            verification_handler = VerificationHandler(mongo_handler=mongo_handler, new_account_email=receiver_email, verification_token=_six_digit_random)
             verification_handler.add_verification_token()
 
             return {"message": "Verification token sent by email successfully"}, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
-            if auth_handler != None:
-                auth_handler.mongo_client.disconnect()
-            if verification_handler != None:
-                verification_handler.mongo_client.disconnect()
+            if mongo_handler is not None:
+                mongo_handler.disconnect()
 
 @verification_namespace.route("/new_user_verification")
 class NewUserVerification(Resource):
@@ -73,8 +74,7 @@ class NewUserVerification(Resource):
         """
         Verify a new user account via email with the verification token
         """
-        verification_handler = None
-        auth_handler = None
+        mongo_handler = None
         try:
             email = self.parser_post.parse_args()["email"]
             verification_token = self.parser_post.parse_args()["verification_token"]
@@ -82,7 +82,8 @@ class NewUserVerification(Resource):
             password = self.parser_post.parse_args()["password"]
             org = self.parser_post.parse_args()["org"]
 
-            auth_handler = AuthHandler(username=username, email=email, password=password, org=org)
+            mongo_handler = MongoHandler()
+            auth_handler = AuthHandler(mongo_handler=mongo_handler, username=username, email=email, password=password, org=org)
             user = auth_handler.get_email()
             if user:
                 return abort(409, "Email already exist in the database")
@@ -90,7 +91,7 @@ class NewUserVerification(Resource):
             if user:
                 return abort(409, "Username already exist in the database")
 
-            verification_handler = VerificationHandler(email, verification_token)
+            verification_handler = VerificationHandler(mongo_handler=mongo_handler, new_account_email=email, verification_token=verification_token)
             latest_verification_token = verification_handler.get_verification_token()
 
             if not latest_verification_token:
@@ -101,10 +102,8 @@ class NewUserVerification(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
-            if auth_handler != None:
-                auth_handler.mongo_client.disconnect()
-            if verification_handler != None:
-                verification_handler.mongo_client.disconnect()
+            if mongo_handler is not None:
+                mongo_handler.disconnect()
 
 @verification_namespace.route("/request_reset_token")
 class RequestResetToken(Resource):
@@ -117,14 +116,16 @@ class RequestResetToken(Resource):
         """
         Request a reset token via email for changing password
         """
-        verification_handler = None
-        auth_handler = None
+        mongo_handler = None
         try:
             sender_email = os.getenv("MAIL_USERNAME")
+            if sender_email is None:
+                raise VariablesNotDefinedInEnvError(f"Add the value of the variable 'MAIL_USERNAME' in the .env file", 500)
             receiver_email = self.parser_post.parse_args()["email"]
             _six_digit_random = randint(100000, 999999)
 
-            auth_handler = AuthHandler(email=receiver_email)
+            mongo_handler = MongoHandler()
+            auth_handler = AuthHandler(mongo_handler=mongo_handler, email=receiver_email)
             user = auth_handler.get_email()
             if not user:
                 return abort(404, "User not found")
@@ -138,17 +139,15 @@ class RequestResetToken(Resource):
                 msg.body = f"Your account recovery code is {_six_digit_random}."
                 conn.send(msg)
 
-            verification_handler = VerificationHandler(receiver_email, _six_digit_random)
+            verification_handler = VerificationHandler(mongo_handler=mongo_handler, new_account_email=receiver_email, verification_token=_six_digit_random)
             verification_handler.update_verification_token()
 
             return {"message": "Reset token sent by email successfully"}, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
-            if auth_handler != None:
-                auth_handler.mongo_client.disconnect()
-            if verification_handler != None:
-                verification_handler.mongo_client.disconnect()
+            if mongo_handler is not None:
+                mongo_handler.disconnect()
 
 @verification_namespace.route('/change_password')
 class ChangePassword(Resource):
@@ -163,20 +162,22 @@ class ChangePassword(Resource):
         """
         Change an user password with a reset token
         """
-        verification_handler = None
-        auth_handler = None
+        mongo_handler = None
         try:
             sender_email = os.getenv("MAIL_USERNAME")
+            if sender_email is None:
+                raise VariablesNotDefinedInEnvError(f"Add the value of the variable 'MAIL_USERNAME' in the .env file", 500)
             receiver_email = self.parser_post.parse_args()["email"]
             password = self.parser_post.parse_args()["password"]
             reset_token = self.parser_post.parse_args()["reset_token"]
             
-            auth_handler = AuthHandler(email=receiver_email, password=password)
+            mongo_handler = MongoHandler()
+            auth_handler = AuthHandler(mongo_handler=mongo_handler, email=receiver_email, password=password)
             user = auth_handler.get_email()
             if not user:
                 return abort(404, "User not found")
             
-            verification_handler = VerificationHandler(receiver_email, reset_token)
+            verification_handler = VerificationHandler(mongo_handler=mongo_handler, new_account_email=receiver_email, verification_token=reset_token)
             latest_verification_token = verification_handler.get_verification_token()
 
             if not latest_verification_token:
@@ -197,7 +198,5 @@ class ChangePassword(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
-            if auth_handler != None:
-                auth_handler.mongo_client.disconnect()
-            if auth_handler != None:
-                auth_handler.mongo_client.disconnect()
+            if mongo_handler is not None:
+                mongo_handler.disconnect()
