@@ -33,7 +33,7 @@ class SixGSandboxSitesHandler():
                     data = safe_load(f)
                 except YAMLError:
                     raise InvalidContentError("Descriptor content not properly parsed", 422)
-                if data["site_default_network_id"]:
+                if "site_default_network_id" in data:
                     return data["site_default_network_id"]
                 else:
                     raise KeyNotFoundError(f"Key 'site_default_network_id' is missing in the file located in the path '{site_file}'", 400)
@@ -47,7 +47,7 @@ class SixGSandboxSitesHandler():
                     data = safe_load(f)
                 except YAMLError:
                     raise InvalidContentError("Descriptor content not properly parsed", 422)
-                if data["site_public_network_id"]:
+                if "site_public_network_id" in data:
                     return data["site_public_network_id"]
                 else:
                     raise KeyNotFoundError(f"Key 'site_public_network_id' is missing in the file located in the path '{site_file}'", 400)
