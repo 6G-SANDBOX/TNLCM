@@ -18,7 +18,7 @@ class Clone6GLibrary(Resource):
     @sixglibrary_namespace.expect(parser_post)
     def post(self):
         """
-        Clone a branch or commit_id from the 6G-Library
+        Clone a branch or commit_id from the 6G-Library repository
         **Clone the main branch of the default 6G-Library if no fields are specified**
         **If a branch or commit is set that does not exist, the default main branch will be cloned**
         """

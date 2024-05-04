@@ -27,7 +27,7 @@ class MongoHandler:
             raise MongoDBConnectionError(f"Unable to establish connection to the '{self.database}' database", 408)
 
     def disconnect(self):
-        """Delete connection"""
+        """Close MongoDB connection"""
         self.client.close()
     
     def find_data(self, collection_name, query=None, projection=None):
