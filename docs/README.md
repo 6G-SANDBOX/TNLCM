@@ -71,7 +71,8 @@ TNLCM                        // main folder.
 │  ├─ logs                   // folder that handler log creation.
 │  ├─ repository             // folder that handler the connection to any repository.
 │  ├─ routes                 // folder that handler the API that is exposed.
-│  ├─ sixglibrary            // folder that handler the connection to the 6G-Library.
+│  ├─ sixglibrary            // folder that handler the connection to the 6G-Library repository.
+│  ├─ sixgsandbox_sites      // folder that handler the connection to the 6G-Sandbox-sites repository.
 │  ├─ temp                   // folder that handler the creation of temporary files.
 │  ├─ trial_network          // folder that handler the trial networks.
 │  └─ verification           // folder that handler the users verification to check the access.
