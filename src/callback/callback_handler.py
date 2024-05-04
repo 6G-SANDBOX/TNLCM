@@ -90,7 +90,7 @@ class CallbackHandler:
         vxlan_ids = []
         tn_descriptor = self.trial_network_handler.get_trial_network_descriptor()["trial_network"]
         tn_id = self.trial_network_handler.tn_id
-        if vxlan_name in tn_descriptor.keys(): # TODO: Check if correct
+        if vxlan_name in tn_descriptor.keys():
             entity_data = tn_descriptor[vxlan_name]
             entity_type = entity_data["type"]
             if entity_type == "tn_vxlan" or entity_type == "vxlan":

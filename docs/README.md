@@ -72,7 +72,7 @@ TNLCM                        // main folder.
 │  ├─ repository             // folder that handler the connection to any repository.
 │  ├─ routes                 // folder that handler the API that is exposed.
 │  ├─ sixglibrary            // folder that handler the connection to the 6G-Library repository.
-│  ├─ sixgsandbox_sites      // folder that handler the connection to the 6G-Sandbox-sites repository.
+│  ├─ sixgsandbox_sites      // folder that handler the connection to the 6G-Sandbox-Sites repository.
 │  ├─ temp                   // folder that handler the creation of temporary files.
 │  ├─ trial_network          // folder that handler the trial networks.
 │  └─ verification           // folder that handler the users verification to check the access.
@@ -103,7 +103,7 @@ TNLCM is currently able to deploy the following types of components correspondin
 > * MinIO (Mandatory)
 
 > [!NOTE]
-> TNLCM is being developed on Windows 10 and has been tested on Windows 10 and Linux in version 22.04.3 LTS.
+> TNLCM is being developed on Windows 10 and has been tested on Windows 10 and Ubuntu in version 22.04.3 LTS.
 
 ### :inbox_tray: Download or clone repository
 
@@ -126,7 +126,8 @@ Mandatory update the values of the following variables according to the platform
 - `JENKINS_TOKEN`
 - `JENKINS_PIPELINE_NAME`
 - `JENKINS_DEPLOYMENT_SITE`
-- `CALLBACK_URL`
+- `TNLCM_CALLBACK`
+- `GIT_6GSANDBOX_SITES_TOKEN`
 - `MAIL_USERNAME`
 - `MAIL_PASSWORD`
 
