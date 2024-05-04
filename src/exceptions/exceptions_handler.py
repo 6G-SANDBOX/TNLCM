@@ -9,15 +9,19 @@ class VariablesNotDefinedInEnvError(CustomException):
     pass
 
 class KeyNotFoundError(CustomException):
-    """Error thrown when a key in a JSON is not found"""
-    pass
-
-class InstanceNotCreatedError(CustomException):
-    """Error thrown when instance of a class not created"""
+    """Error thrown when a key in a JSON or YAML is not found"""
     pass
 
 class CustomUnicodeDecodeError(CustomException):
     """Error thrown when there is an issue with decoding Unicode"""
+    pass
+
+class InvalidFileExtensionError(CustomException):
+    """Error thrown when file does not have the correct extensions"""
+    pass
+
+class InvalidContentError(CustomException):
+    """Error thrown when file has semantic faults"""
     pass
 
 # GitHub exceptions
@@ -74,14 +78,6 @@ class TrialNetworkInvalidStatusError(CustomTrialNetworkError):
 
 class TrialNetworkDescriptorEmptyError(CustomTrialNetworkError):
     """Error thrown when try to save an empty descriptor"""
-    pass
-
-class TrialNetworkDescriptorInvalidExtensionError(CustomTrialNetworkError):
-    """Error thrown when the descriptor does not have the correct extensions"""
-    pass
-
-class TrialNetworkDescriptorInvalidContentError(CustomTrialNetworkError):
-    """Error thrown when the descriptor has semantic faults"""
     pass
 
 class TrialNetworkEntityNotInDescriptorError(CustomTrialNetworkError):
