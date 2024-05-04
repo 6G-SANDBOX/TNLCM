@@ -9,20 +9,20 @@ from src.exceptions.exceptions_handler import VariablesNotDefinedInEnvError, Git
 
 class RepositoryHandler:
 
-    def __init__(self, git_url=None, git_branch=None, git_commit_id=None, git_repository_name=None, git_local_directory=None):
+    def __init__(self, git_https_url=None, git_repository_name=None, git_branch=None, git_commit_id=None, git_local_directory=None):
         """Constructor"""
-        if not git_url or not git_repository_name:
-            raise VariablesNotDefinedInEnvError("Add the value of the variables git_url and repository_name", 500)
+        if not git_https_url:
+            raise VariablesNotDefinedInEnvError("Add the value of the variable git_https_url", 500)
         if not git_branch and not git_commit_id:
             raise VariablesNotDefinedInEnvError("Add the value of the variables git_branch or git_commit_id", 500)
         if git_branch and git_commit_id:
             raise VariablesNotDefinedInEnvError("Only one field is required. Either git_branch or git_commit_id", 500)
-        if not self._is_github_repo(git_url):
-            raise GitCloneError(f"Repository url specified '{self.git_url}' is not correct", 500)
-        self.git_url = git_url
+        if not self._is_github_repo(git_https_url):
+            raise GitCloneError(f"Repository url specified '{git_https_url}' is not correct", 500)
+        self.git_https_url = git_https_url
+        self.git_repository_name = git_repository_name
         self.git_branch = git_branch
         self.git_commit_id = git_commit_id
-        self.git_repository_name = git_repository_name
         self.git_local_directory = git_local_directory
         self.repo = None
 
@@ -48,9 +48,9 @@ class RepositoryHandler:
         """Clone repository"""
         try:
             log_handler.info(f"Clone '{self.git_repository_name}' repository into '{self.git_local_directory}")
-            self.repo = Repo.clone_from(self.git_url, self.git_local_directory)
+            self.repo = Repo.clone_from(self.git_https_url, self.git_local_directory)
         except InvalidGitRepositoryError:
-            raise GitCloneError(f"Cannot clone because the '{self.git_url}' url is not a GitHub repository", 500)
+            raise GitCloneError(f"Cannot clone because the '{self.git_https_url}' url is not a GitHub repository", 500)
 
     def _git_checkout_repository(self):
         """Checkout to branch or commit_id"""
@@ -106,7 +106,8 @@ class RepositoryHandler:
         """Check if the repository url is a git repository"""
         github_url_patterns = [
             r"^https://github.com/.+/.+\.git$",
-            r"^git@github.com:.+/.+\.git$"
+            r"^git@github.com:.+/.+\.git$",
+            r"^https://.+\@github\.com/(.+)/(.+)\.git$"
         ]
         for pattern in github_url_patterns:
             if re.match(pattern, url):
