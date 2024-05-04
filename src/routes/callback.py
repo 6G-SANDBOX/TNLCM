@@ -18,7 +18,7 @@ class Callback(Resource):
         """
         try:
             data = request.get_json()
-            callback_handler = CallbackHandler(data)
+            callback_handler = CallbackHandler(data=data)
             callback_handler.save_decoded_results()
             return {"message": "Save results received by Jenkins"}, 200
         except CustomException as e:
