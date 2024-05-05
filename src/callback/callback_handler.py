@@ -4,7 +4,7 @@ from json import dump, load
 from base64 import b64decode
 
 from src.logs.log_handler import log_handler
-from src.exceptions.exceptions_handler import KeyNotFoundError, CustomUnicodeDecodeError
+from src.exceptions.exceptions_handler import KeyNotFoundError, CustomUnicodeDecodeError, CustomFileNotFoundError
 
 REPORT_DIRECTORY = os.path.join(os.getcwd(), "src", "callback", "reports")
 JENKINS_RESULT_KEYS = ["tn_id", "library_component_name", "entity_name", "success", "markdown", "output"]
@@ -104,4 +104,13 @@ class CallbackHandler:
     
     def get_path_report_trial_network(self):
         """Return path where report of trial network is stored"""
-        return os.path.join(REPORT_DIRECTORY, self.trial_network_handler.tn_id)
+        path_report_trial_network = os.path.join(REPORT_DIRECTORY, self.trial_network_handler.tn_id)
+        if os.path.exists(path_report_trial_network):
+            return path_report_trial_network
+        else:
+            raise CustomFileNotFoundError("Trial network report file has not been found", 404)
+    
+    def exists_path_entity_trial_network(self, entity_name, entity_type):
+        """Return true if exists entity file with information received by Jenkins"""
+        path_entity_trial_network = os.path.join(REPORT_DIRECTORY, f"{self.trial_network_handler.tn_id}-{entity_type}-{entity_name}.json")
+        return os.path.exists(path_entity_trial_network)
