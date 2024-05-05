@@ -3,7 +3,7 @@ from json import dumps
 from yaml import safe_load, YAMLError
 
 from src.logs.log_handler import log_handler
-from src.exceptions.exceptions_handler import InvalidFileExtensionError, InvalidContentError, TrialNetworkDescriptorEmptyError, TrialNetworkEntityNotInDescriptorError
+from src.exceptions.exceptions_handler import InvalidFileExtensionError, InvalidContentFileError, TrialNetworkEntityNotInDescriptorError
 
 class TrialNetworkDescriptorHandler:
 
@@ -21,10 +21,10 @@ class TrialNetworkDescriptorHandler:
                 self.descriptor = safe_load(self.descriptor.stream)
             else:
                 raise InvalidFileExtensionError("Invalid descriptor format. Only 'yml' or 'yaml' files will be further processed", 422)
-            if self.descriptor["trial_network"] is None:
-                raise TrialNetworkDescriptorEmptyError("Trial network descriptor empty", 400)
+            if len(self.descriptor.keys()) > 1 or not "trial_network" in self.descriptor.keys():
+                raise InvalidContentFileError("Trial network descriptor is not parsed correctly", 422)
         except YAMLError:
-            raise InvalidContentError("Descriptor content not properly parsed", 422)
+            raise InvalidContentFileError("Trial network descriptor is not parsed correctly", 422)
 
     def add_entity_mandatory_tn_vxlan(self):
         """Add the entity vxlan to the descriptor (mandatory)"""
@@ -51,7 +51,7 @@ class TrialNetworkDescriptorHandler:
         """Return true if an entity is in descriptor"""
         is_entity = False
         for entity_name, entity_data in self.descriptor["trial_network"].items():
-            if entity_name == entity and entity_data is not None:
+            if entity_name == entity and entity_data:
                 is_entity = True
                 break
         return is_entity

@@ -44,7 +44,7 @@ class Users(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
-            if mongo_handler is not None:
+            if mongo_handler:
                 mongo_handler.disconnect()
 
 @users_namespace.route("/login")
@@ -79,7 +79,7 @@ class UserLogin(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
-            if mongo_handler is not None:
+            if mongo_handler:
                 mongo_handler.disconnect()
 
 @users_namespace.route("/refresh")
@@ -105,5 +105,5 @@ class UserTokenRefresh(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
-            if mongo_handler is not None:
+            if mongo_handler:
                 mongo_handler.disconnect()

@@ -29,7 +29,7 @@ class RequestVerificationToken(Resource):
         mongo_handler = None
         try:
             sender_email = os.getenv("MAIL_USERNAME")
-            if sender_email is None:
+            if not sender_email:
                 raise VariablesNotDefinedInEnvError(f"Add the value of the variable 'MAIL_USERNAME' in the .env file", 500)
             receiver_email = self.parser_post.parse_args()["email"]
             _six_digit_random = randint(100000, 999999)
@@ -56,7 +56,7 @@ class RequestVerificationToken(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
-            if mongo_handler is not None:
+            if mongo_handler:
                 mongo_handler.disconnect()
 
 @verification_namespace.route("/new_user_verification")
@@ -102,7 +102,7 @@ class NewUserVerification(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
-            if mongo_handler is not None:
+            if mongo_handler:
                 mongo_handler.disconnect()
 
 @verification_namespace.route("/request_reset_token")
@@ -119,7 +119,7 @@ class RequestResetToken(Resource):
         mongo_handler = None
         try:
             sender_email = os.getenv("MAIL_USERNAME")
-            if sender_email is None:
+            if not sender_email:
                 raise VariablesNotDefinedInEnvError(f"Add the value of the variable 'MAIL_USERNAME' in the .env file", 500)
             receiver_email = self.parser_post.parse_args()["email"]
             _six_digit_random = randint(100000, 999999)
@@ -146,7 +146,7 @@ class RequestResetToken(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
-            if mongo_handler is not None:
+            if mongo_handler:
                 mongo_handler.disconnect()
 
 @verification_namespace.route('/change_password')
@@ -165,7 +165,7 @@ class ChangePassword(Resource):
         mongo_handler = None
         try:
             sender_email = os.getenv("MAIL_USERNAME")
-            if sender_email is None:
+            if not sender_email:
                 raise VariablesNotDefinedInEnvError(f"Add the value of the variable 'MAIL_USERNAME' in the .env file", 500)
             receiver_email = self.parser_post.parse_args()["email"]
             password = self.parser_post.parse_args()["password"]
@@ -198,5 +198,5 @@ class ChangePassword(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
-            if mongo_handler is not None:
+            if mongo_handler:
                 mongo_handler.disconnect()

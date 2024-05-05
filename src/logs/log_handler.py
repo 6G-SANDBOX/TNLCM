@@ -32,8 +32,7 @@ class LogHandler:
         self.log_file = None
         self.logger = None
 
-        if not os.path.exists(LOGS_DIRECTORY):
-            os.makedirs(LOGS_DIRECTORY)
+        os.makedirs(LOGS_DIRECTORY, exist_ok=True)
 
         now = datetime.now()
         timestamp = now.strftime("%Y-%m-%d_%H-%M-%S")

@@ -4,7 +4,7 @@ from yaml import safe_load, YAMLError
 
 from src.logs.log_handler import log_handler
 from src.repository.repository_handler import RepositoryHandler
-from src.exceptions.exceptions_handler import VariablesNotDefinedInEnvError, SixGLibraryComponentsNotFound, InvalidContentError
+from src.exceptions.exceptions_handler import VariablesNotDefinedInEnvError, SixGLibraryComponentsNotFound, InvalidContentFileError, CustomFileNotFoundError
 
 SIXGLIBRARY_DIRECTORY = os.path.join(os.getcwd(), "src", "sixglibrary")
 SIXGLIBRARY_EXCLUDE_FOLDERS = [".git", ".global", ".vscode", "dummy-component", "skel", "suggested_skel"]
@@ -20,11 +20,11 @@ class SixGLibraryHandler:
         self.git_6glibrary_local_directory = os.path.join(SIXGLIBRARY_DIRECTORY, self.git_6glibrary_repository_name)
         self.git_6glibrary_branch = None
         self.git_6glibrary_commit_id = None
-        if branch is None and commit_id is not None:
+        if not branch and commit_id:
             self.git_6glibrary_commit_id = commit_id
-        elif branch is not None and commit_id is None:
+        elif branch and not commit_id:
             self.git_6glibrary_branch = branch
-        elif branch is None and commit_id is None:
+        elif not branch and not commit_id:
             self.git_6glibrary_branch = os.getenv("GIT_6GLIBRARY_BRANCH")
         else:
             self.git_6glibrary_branch = branch
@@ -48,11 +48,13 @@ class SixGLibraryHandler:
                     try:
                         public_data = safe_load(f)
                     except YAMLError:
-                        raise InvalidContentError("Descriptor content not properly parsed", 422)
-                    if public_data["input"]:
+                        raise InvalidContentFileError(f"File '{public_file}' is not parsed correctly", 422)
+                    if "input" in public_data.keys():
                         input_part[component] = public_data["input"]
                     else:
                         input_part[component] = {}
+            else:
+                raise CustomFileNotFoundError(f"File '{public_file}' not found", 404)
         return input_part
 
     def extract_private_part_component_6glibrary(self, components):
@@ -68,11 +70,13 @@ class SixGLibraryHandler:
                     try:
                         private_data = safe_load(f)
                     except YAMLError:
-                        raise InvalidContentError("Descriptor content not properly parsed", 422)
+                        raise InvalidContentFileError(f"File '{private_file}' is not parsed correctly", 422)
                     if private_data:
                         private_part[component] = private_data
                     else:
                         private_part[component] = {}
+            else:
+                raise CustomFileNotFoundError(f"File '{private_file}' not found", 404)
         return private_part
 
     def extract_metadata_part_component_6glibrary(self, components):
@@ -88,11 +92,14 @@ class SixGLibraryHandler:
                     try:
                         public_data = safe_load(f)
                     except YAMLError:
-                        raise InvalidContentError("Descriptor content not properly parsed", 422)
-                    if public_data["metadata"]:
+                        raise InvalidContentFileError(f"File '{public_file}' is not parsed correctly", 422)
+                    if "metadata" in public_data.keys():
+                        print(public_data.keys())
                         metadata_part[component] = public_data["metadata"]
                     else:
                         metadata_part[component] = []
+            else:
+                raise CustomFileNotFoundError(f"File '{public_file}' not found", 404)
         return metadata_part
 
     def extract_parts_components_6glibrary(self):

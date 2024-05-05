@@ -54,7 +54,7 @@ class RepositoryHandler:
 
     def _git_checkout_repository(self):
         """Checkout to branch or commit_id"""
-        if self.repo is None:
+        if not self.repo:
             raise GitCloneError(f"Clone '{self.git_repository_name}' repository first")
         last_clone_type = self._last_git_clone()
         if (last_clone_type == "commit" and self.git_branch) or \

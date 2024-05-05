@@ -58,7 +58,7 @@ class CreateTrialNetwork(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
-            if mongo_handler is not None:
+            if mongo_handler:
                 mongo_handler.disconnect()
 
 @trial_network_namespace.route("/<string:tn_id>")
@@ -87,7 +87,7 @@ class TrialNetwork(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
-            if mongo_handler is not None:
+            if mongo_handler:
                 mongo_handler.disconnect()
 
     @trial_network_namespace.doc(security="Bearer Auth")
@@ -119,7 +119,7 @@ class TrialNetwork(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
-            if mongo_handler is not None:
+            if mongo_handler:
                 mongo_handler.disconnect()
     
     @trial_network_namespace.doc(security="Bearer Auth")
@@ -141,7 +141,7 @@ class TrialNetwork(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
-            if mongo_handler is not None:
+            if mongo_handler:
                 mongo_handler.disconnect()
 
 @trial_network_namespace.route("/status/<string:tn_id>") 
@@ -166,7 +166,7 @@ class SpecificTrialNetworkStatus(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
-            if mongo_handler is not None:
+            if mongo_handler:
                 mongo_handler.disconnect()
     
     parser_put = reqparse.RequestParser()
@@ -194,7 +194,7 @@ class SpecificTrialNetworkStatus(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
-            if mongo_handler is not None:
+            if mongo_handler:
                 mongo_handler.disconnect()
 
 @trial_network_namespace.route("/report/<string:tn_id>") 
@@ -220,7 +220,7 @@ class TrialNetworkReport(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
-            if mongo_handler is not None:
+            if mongo_handler:
                 mongo_handler.disconnect()
 
 @trial_network_namespace.route("s/") 
@@ -242,7 +242,7 @@ class TrialNetworks(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
-            if mongo_handler is not None:
+            if mongo_handler:
                 mongo_handler.disconnect()
 
 @trial_network_namespace.route("s/templates/")
@@ -264,7 +264,7 @@ class TrialNetworksTemplates(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
-            if mongo_handler is not None:
+            if mongo_handler:
                 mongo_handler.disconnect()
     
     parser_post = reqparse.RequestParser()
@@ -296,5 +296,5 @@ class TrialNetworksTemplates(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
-            if mongo_handler is not None:
+            if mongo_handler:
                 mongo_handler.disconnect()

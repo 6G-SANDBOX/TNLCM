@@ -52,12 +52,12 @@ class AllPartsComponents6GLibrary(Resource):
             sixglibrary_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id)
             sixglibrary_handler.git_clone_6glibrary()
             components = sixglibrary_handler.extract_parts_components_6glibrary()
-            if branch is not None:
+            if branch:
                 return {
                     "branch": branch,
                     "components": components
                     }, 200
-            elif commit_id is not None:
+            elif commit_id:
                 return {
                     "commit_id": commit_id,
                     "components": components
@@ -91,12 +91,12 @@ class InputPartComponents6GLibrary(Resource):
             sixglibrary_handler.git_clone_6glibrary()
             components = sixglibrary_handler.extract_components_6glibrary()
             input_part_components = sixglibrary_handler.extract_input_part_component_6glibrary(components)
-            if branch is not None:
+            if branch:
                 return {
                     "branch": branch,
                     "input_part_components": input_part_components
                     }, 200
-            elif commit_id is not None:
+            elif commit_id:
                 return {
                     "commit_id": commit_id,
                     "input_part_components": input_part_components
@@ -130,12 +130,12 @@ class PrivatePartComponents6GLibrary(Resource):
             sixglibrary_handler.git_clone_6glibrary()
             components = sixglibrary_handler.extract_components_6glibrary()
             private_part_components = sixglibrary_handler.extract_private_part_component_6glibrary(components)
-            if branch is not None:
+            if branch:
                 return {
                     "branch": branch,
                     "private_part_components": private_part_components
                     }, 200
-            elif commit_id is not None:
+            elif commit_id:
                 return {
                     "commit_id": commit_id,
                     "private_part_components": private_part_components
@@ -148,8 +148,8 @@ class PrivatePartComponents6GLibrary(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
 
-@sixglibrary_namespace.route("/components/needs")
-class NeedsPartComponents6GLibrary(Resource):
+@sixglibrary_namespace.route("/components/metadata")
+class MetadataPartComponents6GLibrary(Resource):
 
     parser_get = reqparse.RequestParser()
     parser_get.add_argument("branch", type=str, required=False)
@@ -158,7 +158,7 @@ class NeedsPartComponents6GLibrary(Resource):
     @sixglibrary_namespace.expect(parser_get)
     def get(self):
         """
-        Return the needs part of the components to be specified
+        Return the metadata part of the components to be specified
         **Only one of the two values has to be specified. If neither is specified, the main branch will be used**
         """
         try:
@@ -168,21 +168,21 @@ class NeedsPartComponents6GLibrary(Resource):
             sixglibrary_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id)
             sixglibrary_handler.git_clone_6glibrary()
             components = sixglibrary_handler.extract_components_6glibrary()
-            needs_part_components = sixglibrary_handler.extract_needs_part_component_6glibrary(components)
-            if branch is not None:
+            metadata_part_components = sixglibrary_handler.extract_metadata_part_component_6glibrary(components)
+            if branch:
                 return {
                     "branch": branch,
-                    "needs_part_components": needs_part_components
+                    "metadata_part_components": metadata_part_components
                     }, 200
-            elif commit_id is not None:
+            elif commit_id:
                 return {
                     "commit_id": commit_id,
-                    "needs_part_components": needs_part_components
+                    "metadata_part_components": metadata_part_components
                     }, 200
             else:
                 return {
                     "branch": sixglibrary_handler.git_6glibrary_branch,
-                    "needs_part_components": needs_part_components
+                    "metadata_part_components": metadata_part_components
                     }, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
