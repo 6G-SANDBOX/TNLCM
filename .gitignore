@@ -163,4 +163,5 @@ cython_debug/
 src/callback/reports/
 src/temp/files/
 src/logs/executions/
-src/repository/6glibrary/
+src/sixglibrary/6glibrary/
+src/sixgsandbox_sites/6gsandbox_sites/

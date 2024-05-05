@@ -4,6 +4,8 @@ import sys
 
 from datetime import datetime
 
+LOGS_DIRECTORY = os.path.join(os.getcwd(), "src", "logs", "executions")
+
 class CustomFormatter(logging.Formatter):
     grey = "\x1b[38;21m"
     yellow = "\x1b[33;21m"
@@ -26,36 +28,39 @@ class CustomFormatter(logging.Formatter):
         return formatter.format(record)
 
 class LogHandler:
-    def __init__(self, executions_folder="src/logs/executions"):
-        self.executions_folder = executions_folder
+    def __init__(self, loggers):
         self.log_file = None
         self.logger = None
 
-        if not os.path.exists(self.executions_folder):
-            os.makedirs(self.executions_folder)
+        os.makedirs(LOGS_DIRECTORY, exist_ok=True)
 
         now = datetime.now()
         timestamp = now.strftime("%Y-%m-%d_%H-%M-%S")
         log_file_name = f"execution_{timestamp}.log"
-        self.log_file = os.path.join(self.executions_folder, log_file_name)
+        self.log_file = os.path.join(LOGS_DIRECTORY, log_file_name)
 
-        self.logger = logging.getLogger()
-        self.logger.setLevel(logging.INFO)
-
-        file_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)")
-
-        console_formatter = CustomFormatter()
-
+        file_formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)")
         file_handler = logging.FileHandler(self.log_file)
         file_handler.setLevel(logging.INFO)
         file_handler.setFormatter(file_formatter)
 
+        console_formatter = CustomFormatter()
         console_handler = logging.StreamHandler(sys.stdout)
         console_handler.setLevel(logging.INFO)
         console_handler.setFormatter(console_formatter)
 
+        self.logger = logging.getLogger("tnlcm")
+        self.logger.propagate = False
+        self.logger.setLevel(logging.INFO)
         self.logger.addHandler(file_handler)
         self.logger.addHandler(console_handler)
+
+        for log in loggers:
+            log_libraries = logging.getLogger(log)
+            log_libraries.propagate = False
+            log_libraries.setLevel(logging.INFO)
+            log_libraries.addHandler(file_handler)
+            log_libraries.addHandler(console_handler)
 
     def info(self, message):
         if self.logger:
@@ -74,4 +79,4 @@ class LogHandler:
         self.logger = None
         self.log_file = None
 
-log_handler = LogHandler()
+log_handler = LogHandler(["waitress", "werkzeug"])

@@ -43,7 +43,7 @@ TNLCM has been designed as a modular application, with the intention of making c
 
 ## :hammer_and_wrench: Stack
 - [![Python][python-badge]][python-url] - Programming language.
-- [![Flask][flask-badge]][flask-url] - Python micro framework for web applications to expose the API.
+- [![Flask][flask-badge]][flask-url] - Python framework for web applications to expose the API.
 - [![MongoDB][mongodb-badge]][mongodb-url] - NoSQL database designed to store Trial Networks.
 - [![Docker][docker-badge]][docker-url] - Platform for running database applications.
 
@@ -63,17 +63,19 @@ TNLCM                        // main folder.
 ├─ docs                      // folder in which all documentation is stored.
 ├─ requirements.txt          // file containing the libraries and their versions.
 ├─ src                       // folder in which the developed code is stored.
-│  ├─ auth                   // folder that handle the authentication of users who have access.
-│  ├─ callback               // folder that handle the connection with Jenkins for tn deployment.
-│  ├─ database               // folder that handle the connection with MongoDB database.
-│  ├─ exceptions             // folder that handle the creation of custom exceptions.
-│  ├─ logs                   // folder that handle log creation.
-│  ├─ repository             // folder that handle the connection to any repository.
-│  ├─ routes                 // folder that handle the API that is exposed.
-│  ├─ sixglibrary            // folder that handle the connection to the 6G-Library.
-│  ├─ temp                   // folder that handle the creation of temporary files.
-│  ├─ trial_network          // folder that handle the trial networks.
-│  └─ verification           // folder that handle the users verification to check the access.
+│  ├─ auth                   // folder that handler the authentication of users who have access.
+│  ├─ callback               // folder that handler the results received by Jenkins.
+│  ├─ database               // folder that handler the connection with MongoDB database.
+│  ├─ exceptions             // folder that handler the creation of custom exceptions.
+│  ├─ jenkins                // folder that handler the connection with Jenkins for tn deployment.
+│  ├─ logs                   // folder that handler log creation.
+│  ├─ repository             // folder that handler the connection to any repository.
+│  ├─ routes                 // folder that handler the API that is exposed.
+│  ├─ sixglibrary            // folder that handler the connection to the 6G-Library repository.
+│  ├─ sixgsandbox_sites      // folder that handler the connection to the 6G-Sandbox-Sites repository.
+│  ├─ temp                   // folder that handler the creation of temporary files.
+│  ├─ trial_network          // folder that handler the trial networks.
+│  └─ verification           // folder that handler the users verification to check the access.
 └─ tests                     // folder that contains files related to testing the code.
 ```
 
@@ -101,7 +103,7 @@ TNLCM is currently able to deploy the following types of components correspondin
 > * MinIO (Mandatory)
 
 > [!NOTE]
-> TNLCM has been tested on Windows 10 and Ubuntu 22.04.3 LTS.
+> TNLCM is being developed on Windows 10 and has been tested on Windows 10 and Ubuntu in version 22.04.3 LTS.
 
 ### :inbox_tray: Download or clone repository
 
@@ -124,7 +126,8 @@ Mandatory update the values of the following variables according to the platform
 - `JENKINS_TOKEN`
 - `JENKINS_PIPELINE_NAME`
 - `JENKINS_DEPLOYMENT_SITE`
-- `CALLBACK_URL`
+- `TNLCM_CALLBACK`
+- `GIT_6GSANDBOX_SITES_TOKEN`
 - `MAIL_USERNAME`
 - `MAIL_PASSWORD`
 
@@ -147,7 +150,7 @@ Once Docker is installed, open a terminal where the `docker-compose.yml` file is
 docker compose build
 ```
 
-Flag **-d** can be added to raise the container in background:
+Flag **-d** can be added to raise the containers in background:
 ```sh
 docker compose up -d
 ```
@@ -255,12 +258,12 @@ Trial Network Descriptors are yaml files with a set of expected fields and with 
 
 ```yaml
 trial_network:  # Mandatory, contains the description of all entities in the Trial Network
-  <Entity1>:  # A unique identifier for each entity in the Trial Network
-    type:  # A type of component
-    depends_on: # List of dependencies of the component with other components
-      - <EntityN>
+  entity1:  # A unique identifier for each entity in the Trial Network
+    type:  # 6G-Library component type
+    needs: # List of dependencies of the component with other components
+      - entityN
       - ...
-    public: # Necessary variables collected from the public part of the 6G-Library
+    input: # Necessary variables collected from the input part of the 6G-Library
       ...
 ```
 
@@ -321,13 +324,13 @@ If the access token expires, it can be refreshed by using the refresh token. The
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 <!-- Urls, Shields and Badges -->
-[tnlcm-badge]: https://img.shields.io/badge/TNLCM-v0.1.0-blue
-[tnlcm-url]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.1.0
-[python-badge]: https://img.shields.io/badge/Python-3.12.2-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB
-[python-url]: https://www.python.org/downloads/release/python-3122/
+[tnlcm-badge]: https://img.shields.io/badge/TNLCM-v0.0.0-blue
+[tnlcm-url]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.0.0
+[python-badge]: https://img.shields.io/badge/Python-3.12.3-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB
+[python-url]: https://www.python.org/downloads/release/python-3123/
 [flask-badge]: https://img.shields.io/badge/Flask-3.0.3-brightgreen?style=for-the-badge&logo=flask&logoColor=white&labelColor=000000
 [flask-url]: https://flask.palletsprojects.com/en/3.0.x/
-[mongodb-badge]: https://img.shields.io/badge/MongoDB-7.0.8-green?style=for-the-badge&logo=mongodb&logoColor=white&labelColor=47A248
+[mongodb-badge]: https://img.shields.io/badge/MongoDB-7.0.9-green?style=for-the-badge&logo=mongodb&logoColor=white&labelColor=47A248
 [mongodb-url]: https://www.mongodb.com/
 [docker-badge]: https://img.shields.io/badge/Docker-26.0.0-6AB7FF?style=for-the-badge&logo=docker&logoColor=white&labelColor=2496ED
 [docker-url]: https://www.docker.com/

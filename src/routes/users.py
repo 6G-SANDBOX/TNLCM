@@ -1,9 +1,10 @@
 from flask import request
 from datetime import timedelta
-from flask_restx import Resource, Namespace, reqparse, abort
+from flask_restx import Resource, Namespace, abort
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, create_refresh_token
 
 from src.auth.auth_handler import AuthHandler
+from src.database.mongo_handler import MongoHandler
 from src.exceptions.exceptions_handler import CustomException
 
 EXP_MINUTES_ACCESS_TOKEN = 45
@@ -33,17 +34,18 @@ class Users(Resource):
         """
         Retrieve current user
         """
-        auth_handler = None
+        mongo_handler = None
         try:
+            mongo_handler = MongoHandler()
             jwt_identity = get_jwt_identity()
-            auth_handler = AuthHandler(jwt_identity=jwt_identity)
+            auth_handler = AuthHandler(mongo_handler=mongo_handler, jwt_identity=jwt_identity)
             current_user = auth_handler.get_current_user_from_jwt()
             return {"username": current_user[0]["username"]}, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
-            if auth_handler is not None:
-                auth_handler.mongo_client.disconnect()
+            if mongo_handler:
+                mongo_handler.disconnect()
 
 @users_namespace.route("/login")
 class UserLogin(Resource):
@@ -53,14 +55,15 @@ class UserLogin(Resource):
         """
         Login for user and return tokens
         """
-        auth_handler = None
+        mongo_handler = None
         try:
             auth = request.authorization
 
             if not auth or not auth.username or not auth.password:
                 return abort(401, f"Could not verify the user {auth.username}")
 
-            auth_handler = AuthHandler(username=auth.username, password=auth.password)
+            mongo_handler = MongoHandler()
+            auth_handler = AuthHandler(mongo_handler=mongo_handler, username=auth.username, password=auth.password)
             username = auth_handler.get_username()
             if not username:
                 return abort(404, f"User {auth.username} not found")
@@ -76,8 +79,8 @@ class UserLogin(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
-            if auth_handler is not None:
-                auth_handler.mongo_client.disconnect()
+            if mongo_handler:
+                mongo_handler.disconnect()
 
 @users_namespace.route("/refresh")
 class UserTokenRefresh(Resource):
@@ -88,10 +91,11 @@ class UserTokenRefresh(Resource):
         """
         Refresh tokens for user
         """
-        auth_handler = None
+        mongo_handler = None
         try:
+            mongo_handler = MongoHandler()
             jwt_identity = get_jwt_identity()
-            auth_handler = AuthHandler(jwt_identity=jwt_identity)
+            auth_handler = AuthHandler(mongo_handler=mongo_handler, jwt_identity=jwt_identity)
             current_user = auth_handler.get_current_user_from_jwt()
             if not current_user:
                 abort(404, "User not found")
@@ -101,5 +105,5 @@ class UserTokenRefresh(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
         finally:
-            if auth_handler is not None:
-                auth_handler.mongo_client.disconnect()
+            if mongo_handler:
+                mongo_handler.disconnect()

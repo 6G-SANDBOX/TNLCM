@@ -4,11 +4,13 @@
 
 ### Added
 
+- Python version to 3.12.3.
+- API using Python and the Flask-RESTX library.
 - Different descriptors defining different trial networks.
 - Detailed documentation including different sections about TNLCM.
-- API using Python and the Flask-RESTX library.
 - Routes for callback, sixglibrary, trial networks, users and verification.
-- Docker compose for MongoDB database to manage the TNs.
+- MongoDB database to manage the TNs.
+- Docker compose to create MongoDB database.
 - Integration with [6G-Library](https://github.com/6G-SANDBOX/6G-Library).
 - Connection with Jenkins for the deployment of different components. Currently 8 types of components are running: tn_vxlan, tn_bastion, vm_kvm, vxlan, k8s, open5gs, UERANSIM-gNB and UERANSIM-UE.
 - Logs to check TNLCM behavior.
@@ -22,14 +24,4 @@
 
 - Frontend implementation.
 
-## [0.1.0] - 2023-09-29
-
-### Added
-
-- Basic Trial Network lifecycle management.
-- Basic API.
-- Basic Frontend.
-- Initial data structures.
-
-[unreleased]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.1.0
+[unreleased]: https://github.com/6G-SANDBOX/TNLCM
