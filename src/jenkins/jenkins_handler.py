@@ -7,7 +7,7 @@ from requests.exceptions import RequestException
 from time import sleep
 
 from src.logs.log_handler import log_handler
-from src.exceptions.exceptions_handler import JenkinsConnectionError, VariablesNotDefinedInEnvError, SixGLibraryComponentNotFound, JenkinsComponentFileNotFoundError, JenkinsResponseError, JenkinsComponentPipelineError, JenkinsDeploymentReportNotFoundError
+from src.exceptions.exceptions_handler import JenkinsConnectionError, VariablesNotDefinedInEnvError, SixGLibraryComponentNotFound, CustomFileNotFoundError, JenkinsResponseError, JenkinsComponentPipelineError
 
 JENKINS_DEPLOYMENT_SITES = ["uma", "athens", "fokus"]
 
@@ -88,22 +88,22 @@ class JenkinsHandler:
                                 sleep(15)
                             if self.jenkins_client.get_job_info(name=self.jenkins_pipeline_name)["lastSuccessfulBuild"]["number"] == last_build_number:
                                 log_handler.info(f"Entity '{entity_name}' successfully deployed")
+                                sleep(2) # TODO: Not sure if required
+                                if not self.callback_handler.exists_path_entity_trial_network(entity_name, library_component_name):
+                                    raise CustomFileNotFoundError(f"File with the results of the entity '{entity_name}' not found", 404)
                             else:
                                 raise JenkinsComponentPipelineError(f"Pipeline for the entity '{entity_name}' has failed", 500)
                         else:
                             raise JenkinsResponseError(f"Error in the response received by Jenkins when trying to deploy the '{entity_name}' entity", response.status_code)
                 else:
-                    raise JenkinsComponentFileNotFoundError(f"Entity file '{entity_name}' not found", 404)
+                    raise CustomFileNotFoundError(f"Temporary entity file '{entity_name}' not found", 404)
             else:
-                if self.sixglibrary_handler.git_6glibrary_branch is not None:
+                if self.sixglibrary_handler.git_6glibrary_branch:
                     raise SixGLibraryComponentNotFound(f"Component '{library_component_name}' is not in '{self.sixglibrary_handler.git_6glibrary_branch}' branch of the 6G-Library", 404)
                 else:
                     raise SixGLibraryComponentNotFound(f"Component '{library_component_name}' is not in commit_id '{self.sixglibrary_handler.git_6glibrary_commit_id}' of the 6G-Library", 404)
             log_handler.info(f"End of deployment of entity '{entity_name}'")
         self.trial_network_handler.update_trial_network_status("started")
         path_report_trial_network = self.callback_handler.get_path_report_trial_network()
-        if os.path.exists(path_report_trial_network):
-            self.trial_network_handler.add_report_trial_network(path_report_trial_network)
-        else:
-            raise JenkinsDeploymentReportNotFoundError("Trial network report file has not been found", 500)
+        self.trial_network_handler.add_report_trial_network(path_report_trial_network)
         log_handler.info("All entities of the trial network are deployed")
