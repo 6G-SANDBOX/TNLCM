@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 
 from src.logs.log_handler import log_handler
 from src.verification.mail import init_mail
-from src.routes import callback_namespace, sixglibrary_namespace, sixgsandbox_sites_namespace, trial_network_namespace, users_namespace, verification_namespace
+from src.routes import callback_namespace, sixglibrary_namespace, trial_network_namespace, users_namespace, verification_namespace
 
 app = Flask(__name__)
 CORS(app)
@@ -40,7 +40,6 @@ api = Api(
 
 api.add_namespace(callback_namespace, path="/tnlcm/callback")
 api.add_namespace(sixglibrary_namespace, path="/tnlcm/6glibrary")
-api.add_namespace(sixgsandbox_sites_namespace, path="/tnlcm/6gsandbox_sites")
 api.add_namespace(trial_network_namespace, path="/tnlcm/trial_network")
 api.add_namespace(users_namespace, path="/tnlcm/user")
 api.add_namespace(verification_namespace, path="/tnlcm/verification")
