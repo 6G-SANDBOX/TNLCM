@@ -20,8 +20,12 @@ class InvalidFileExtensionError(CustomException):
     """Error thrown when file does not have the correct extensions"""
     pass
 
-class InvalidContentError(CustomException):
+class InvalidContentFileError(CustomException):
     """Error thrown when file has semantic faults"""
+    pass
+
+class CustomFileNotFoundError(CustomException):
+    """Error thrown when the file not found"""
     pass
 
 # GitHub exceptions
@@ -76,10 +80,6 @@ class TrialNetworkInvalidStatusError(CustomTrialNetworkError):
     """Error thrown when an invalid status of trial network is provided"""
     pass
 
-class TrialNetworkDescriptorEmptyError(CustomTrialNetworkError):
-    """Error thrown when try to save an empty descriptor"""
-    pass
-
 class TrialNetworkEntityNotInDescriptorError(CustomTrialNetworkError):
     """Error thrown when the name of the dependency does not match the name of some entity defined in the descriptor"""
     pass
@@ -102,18 +102,10 @@ class JenkinsConnectionError(CustomJenkinsError):
     """Error thrown when unable to establish connection to Jenkins"""
     pass
 
-class JenkinsComponentFileNotFoundError(CustomJenkinsError):
-    """Error thrown when the component file with the necessary information to send is not found"""
-    pass
-
 class JenkinsResponseError(CustomJenkinsError):
     """Error thrown when request response is unsuccessful"""
     pass
 
 class JenkinsComponentPipelineError(CustomJenkinsError):
     """Error thrown when component pipeline has failed"""
-    pass
-
-class JenkinsDeploymentReportNotFoundError(CustomJenkinsError):
-    """Error thrown when the trial network report file was not found"""
     pass
