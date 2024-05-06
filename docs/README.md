@@ -49,7 +49,7 @@ TNLCM has been designed as a modular application, with the intention of making c
 
 ## :open_file_folder: Project Structure
 
-```
+``` # TODO: update
 TNLCM                        // main folder.
 ├─ .github                   // folder contains files and templates for GitHub workflow automation.
 │  ├─ CHANGELOG_TEMPLATE     // template for changelog.
@@ -62,7 +62,7 @@ TNLCM                        // main folder.
 ├─ docker-compose.yml        // file for create database.
 ├─ docs                      // folder in which all documentation is stored.
 ├─ requirements.txt          // file containing the libraries and their versions.
-├─ src                       // folder in which the developed code is stored.
+├─ tnlcm                     // folder in which the developed code is stored.
 │  ├─ auth                   // folder that handler the authentication of users who have access.
 │  ├─ callback               // folder that handler the results received by Jenkins.
 │  ├─ database               // folder that handler the connection with MongoDB database.

@@ -160,8 +160,8 @@ cython_debug/
 .idea/
 
 # TNLCM
-src/callback/reports/
-src/temp/files/
-src/logs/executions/
-src/sixglibrary/6glibrary/
-src/sixgsandbox_sites/6gsandbox_sites/
+tnlcm/callback/reports/
+tnlcm/temp/files/
+tnlcm/logs/executions/
+tnlcm/sixglibrary/6glibrary/
+tnlcm/sixgsandbox_sites/6gsandbox_sites/
