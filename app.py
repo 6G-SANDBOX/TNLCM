@@ -42,9 +42,9 @@ api = Api(
 
 api.add_namespace(callback_namespace, path="/tnlcm/callback")
 api.add_namespace(sixglibrary_namespace, path="/tnlcm/6glibrary")
-api.add_namespace(trial_network_namespace, path="/tnlcm/trial-network")
+api.add_namespace(trial_network_namespace, path="/tnlcm/trial_network")
 api.add_namespace(user_namespace, path="/tnlcm/user")
-api.add_namespace(verification_token_namespace, path="/tnlcm/verification-token")
+api.add_namespace(verification_token_namespace, path="/tnlcm/verification_token")
 
 log_handler.info("Start Server Trial Network Life Cycle Manager (TNLCM) on http://0.0.0.0:5000")
 

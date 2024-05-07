@@ -3,16 +3,17 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.datastructures import FileStorage
 
 from tnlcm.auth import get_current_user_from_jwt
-from tnlcm.models import TrialNetworkModel
+from tnlcm.callback.callback_handler import CallbackHandler
 from tnlcm.jenkins.jenkins_handler import JenkinsHandler
+from tnlcm.models import TrialNetworkModel
 from tnlcm.sixglibrary.sixglibrary_handler import SixGLibraryHandler
 from tnlcm.sixgsandbox_sites.sixgsandbox_sites_handler import SixGSandboxSitesHandler
 from tnlcm.temp.temp_file_handler import TempFileHandler
-from tnlcm.callback.callback_handler import CallbackHandler
+
 from tnlcm.exceptions.exceptions_handler import CustomException
 
 trial_network_namespace = Namespace(
-    name="trial-network",
+    name="trial_network",
     description="Namespace for trial network status and management",
     authorizations={
         "Bearer Auth": {

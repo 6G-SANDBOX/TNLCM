@@ -5,6 +5,7 @@ from string import ascii_lowercase, digits
 from random import choice
 from datetime import datetime, timezone
 
+from tnlcm.logs.log_handler import log_handler
 from mongoengine import Document, StringField, DateTimeField
 from tnlcm.exceptions.exceptions_handler import InvalidFileExtensionError, InvalidContentFileError, TrialNetworkEntityNotInDescriptorError
 
@@ -14,7 +15,7 @@ class TrialNetworkModel(Document):
     tn_date_created_utc = DateTimeField(required=True, default=datetime.now(timezone.utc))
     tn_raw_descriptor = StringField(required=True)
     tn_sorted_descriptor = StringField(required=True)
-    tn_report = StringField(required=True)
+    tn_report = StringField(required=False)
 
     meta = {
         "db_alias": "tnlcm-database-alias",
@@ -50,6 +51,7 @@ class TrialNetworkModel(Document):
 
     def set_tn_sorted_descriptor(self):
         """Recursive method that returns the raw descriptor and a new descriptor sorted according to dependencies (needs)"""
+        log_handler.info("Start order of the entities of the descriptor")
         entities = self.json_to_descriptor(self.tn_raw_descriptor)["trial_network"]
         ordered_entities = {}
 
@@ -66,6 +68,7 @@ class TrialNetworkModel(Document):
         for entity in entities:
             dfs(entity)
         
+        log_handler.info("End order of the entities of the descriptor")
         self.tn_sorted_descriptor = self.descriptor_to_json({"trial_network": ordered_entities})
 
     def set_tn_report(self, report_file):

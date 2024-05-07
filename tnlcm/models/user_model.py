@@ -26,9 +26,11 @@ class UserModel(Document):
         self.org = org
 
     def set_password(self, secret):
+        """Update the password to hash"""
         self.password = generate_password_hash(secret, method="pbkdf2")
 
     def check_password(self, secret):
+        """Check the hash associated with the password"""
         value = check_password_hash(self.password, secret)
         return value
 
