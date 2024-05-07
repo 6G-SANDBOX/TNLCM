@@ -25,7 +25,7 @@ class SixGSandboxSitesHandler():
         self.repository_handler.git_clone_repository()
 
     def extract_site_default_network_id(self, jenkins_deployment_site):
-        """Return a list with the id of the site_default_network_id"""
+        """Return the id of the site_default_network_id"""
         site_file = os.path.join(self.git_6gsandbox_sites_local_directory, ".sites", jenkins_deployment_site, "values.yaml")
         log_handler.info(f"Extract 'site_default_network_id' from '{site_file}'")
         if os.path.exists(site_file):
@@ -42,7 +42,7 @@ class SixGSandboxSitesHandler():
             raise CustomFileNotFoundError(f"File '{site_file}' not found", 404)
 
     def extract_site_public_network_id(self, jenkins_deployment_site):
-        """Return a list with the id of the site_public_network_id"""
+        """Return the id of the site_public_network_id"""
         site_file = os.path.join(self.git_6gsandbox_sites_local_directory, ".sites", jenkins_deployment_site, "values.yaml")
         log_handler.info(f"Extract 'site_public_network_id' from '{site_file}'")
         if os.path.exists(site_file):

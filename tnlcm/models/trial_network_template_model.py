@@ -67,9 +67,11 @@ class TrialNetworkTemplateModel(Document):
         self.tn_sorted_descriptor = self.descriptor_to_json({"trial_network": ordered_entities})
 
     def descriptor_to_json(self, descriptor):
+        """Convert descriptor to json"""
         return dumps(descriptor)
 
     def json_to_descriptor(self, descriptor):
+        """Convert descriptor in json to Python object"""
         return loads(descriptor)
 
     def to_dict(self):
