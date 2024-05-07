@@ -9,7 +9,7 @@
   <!-- [![MIT License][license-shield]][license-url] -->
   <!-- [![LinkedIn][linkedin-shield]][linkedin-url] -->
 
-  <a href="https://github.com/6G-SANDBOX/TNLCM"><img src="./images/TNLCM_LOGO.png" width="80" title="TNLCM"></a>
+  <a href="https://github.com/6G-SANDBOX/TNLCM"><img src="./static/TNLCM_LOGO.png" width="80" title="TNLCM"></a>
 
   # Trial Network Life Cycle Manager - TNLCM <!-- omit in toc -->
 
@@ -49,7 +49,7 @@ TNLCM has been designed as a modular application, with the intention of making c
 
 ## :open_file_folder: Project Structure
 
-``` # TODO: update
+```
 TNLCM                        // main folder.
 ├─ .github                   // folder contains files and templates for GitHub workflow automation.
 │  ├─ CHANGELOG_TEMPLATE     // template for changelog.
@@ -65,17 +65,17 @@ TNLCM                        // main folder.
 ├─ tnlcm                     // folder in which the developed code is stored.
 │  ├─ auth                   // folder that handler the authentication of users who have access.
 │  ├─ callback               // folder that handler the results received by Jenkins.
-│  ├─ database               // folder that handler the connection with MongoDB database.
+│  ├─ database               // folder that handler the connection with MongoDB database using mongoengine.
 │  ├─ exceptions             // folder that handler the creation of custom exceptions.
 │  ├─ jenkins                // folder that handler the connection with Jenkins for tn deployment.
 │  ├─ logs                   // folder that handler log creation.
+│  ├─ mail                   // folder that handler the configuration to use flask_mail.
+│  ├─ models                 // folder that contains the database models.
 │  ├─ repository             // folder that handler the connection to any repository.
 │  ├─ routes                 // folder that handler the API that is exposed.
 │  ├─ sixglibrary            // folder that handler the connection to the 6G-Library repository.
 │  ├─ sixgsandbox_sites      // folder that handler the connection to the 6G-Sandbox-Sites repository.
-│  ├─ temp                   // folder that handler the creation of temporary files.
-│  ├─ trial_network          // folder that handler the trial networks.
-│  └─ verification           // folder that handler the users verification to check the access.
+│  └─ temp                   // folder that handler the creation of temporary files.
 └─ tests                     // folder that contains files related to testing the code.
 ```
 
@@ -83,13 +83,13 @@ TNLCM                        // main folder.
 
 TNLCM is currently able to deploy the following types of components corresponding with the [6G-Library](https://github.com/6G-SANDBOX/6G-Library): **tn_vxlan**, **vxlan**, **tn_bastion**, **vm_kvm**, **k8s**, **open5gs**, **UERANSIM-gNB** and **UERANSIM-UE**.
 
-![CurrentStatus](./images/currentStatus.png)
+![CurrentStatus](./static/currentStatus.png)
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 ## :mag: Overview of TNLCM and 6G-Library implementation
 
-![TNLCM_LIFECYCLE](./images/TNLCM_6GLIBRARY.png)
+![TNLCM_LIFECYCLE](./static/TNLCM_6GLIBRARY.png)
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
@@ -160,7 +160,7 @@ A MongoDB dashboard will be available at the url http://mongodb-frontend-ip:8081
 > [!NOTE]
 > User and password to access to the MongoDB dashboard are the values indicated in the variables `ME_CONFIG_BASICAUTH_USERNAME` and `ME_CONFIG_BASICAUTH_PASSWORD` of the `.env` file. By default, the values indicated in the [`.env.template`](../.env.template) file are used.
 
-![dashboardMongoDB](./images/dashboardMongoDB.png)
+![dashboardMongoDB](./static/dashboardMongoDB.png)
 
 ### :snake: Create environment, install libraries and start
 
@@ -216,7 +216,6 @@ The TNLCM database consists of several collections that store important informat
 | `user_created`          | The user who created the trial network.                     |
 | `tn_id`                 | The ID of the trial network.                                |
 | `tn_date_created_utc`   | The date and time when the trial network was created (UTC). |
-| `tn_status`             | The current status of the trial network.                    |
 | `tn_raw_descriptor`     | The raw descriptor of the trial network.                    |
 | `tn_sorted_descriptor`  | The sorted descriptor of the trial network.                 |
 | `tn_report`             | The report related to the trial network.                    |
@@ -282,35 +281,35 @@ The first end-to-end trial network:
 
 The API set forth in the TNLCM is as follows:
 
-![api](./images/api.png)
+![api](./static/api.png)
 
 If it is the first time using the API it is necessary to create a user. A verification code is required, so it is necessary to enter a valid email address that can be accessed:
 
-![requestVerificationToken](./images/requestVerificationToken.png)
+![requestVerificationToken](./static/requestVerificationToken.png)
 
 Once the registration code is obtained, proceed to the user registration using the email and the code previously employed:
 
-![registerUser](./images/registerUser.png)
+![registerUser](./static/registerUser.png)
 
 Once the user has been created or if it has been previously created, add the user and its password in the green **Authorize** box:
 
-![addUser](./images/addUser.png)
+![addUser](./static/addUser.png)
 
 Once the user has been added, an access token and its refresh token can be generated. This access token has a duration of 45 minutes (can be modified):
 
-![tokens](./images/obtainTokens.png)
+![tokens](./static/obtainTokens.png)
 
 The next step is to add the token in the green **Authorize** box. It is required to put the word **Bearer**, a space and then the token. An example is shown:
 
-![accessToken](./images/accessToken.png)
+![accessToken](./static/accessToken.png)
 
 Now, requests that involve having an access token can be made.
 
 If the access token expires, it can be refreshed by using the refresh token. The token in the green **Authorize** box must be updated with the refresh token and the post request must be made:
 
-![refreshToken](./images/refreshToken.png)
+![refreshToken](./static/refreshToken.png)
 
-![updateAccessToken](./images/updateAccessToken.png)
+![updateAccessToken](./static/updateAccessToken.png)
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
