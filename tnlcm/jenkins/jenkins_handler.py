@@ -23,6 +23,7 @@ class JenkinsHandler:
         self.jenkins_user = os.getenv("JENKINS_USER")
         self.jenkins_password = os.getenv("JENKINS_PASSWORD")
         self.jenkins_token = os.getenv("JENKINS_TOKEN")
+        self.jenkins_pipeline_folder = os.getenv("JENKINS_PIPELINE_FOLDER")
         self.jenkins_pipeline_name = os.getenv("JENKINS_PIPELINE_NAME")
         self.jenkins_deployment_site = os.getenv("JENKINS_DEPLOYMENT_SITE")
         self.tnlcm_callback = os.getenv("TNLCM_CALLBACK")
@@ -46,6 +47,11 @@ class JenkinsHandler:
         self.jenkins_deployment_site = self.jenkins_deployment_site.lower()
         if self.jenkins_deployment_site not in JENKINS_DEPLOYMENT_SITES:
             raise VariablesNotDefinedInEnvError(f"The value of the variable 'JENKINS_DEPLOYMENT_SITE' should be {', '.join(JENKINS_DEPLOYMENT_SITES)} in the .env file", 500)
+        self.jenkins_pipeline = None
+        if not self.jenkins_pipeline_folder:
+            self.jenkins_pipeline = self.jenkins_pipeline_name
+        else:
+            self.jenkins_pipeline = self.jenkins_pipeline_folder + "/" + self.jenkins_pipeline_name
         try:
             self.jenkins_client = Jenkins(self.jenkins_server, username=self.jenkins_user, password=self.jenkins_password)
             self.jenkins_client.get_whoami()
@@ -71,7 +77,7 @@ class JenkinsHandler:
         components_6glibrary = self.sixglibrary_handler.extract_components_6glibrary()
         tn_sorted_descriptor = self.trial_network.json_to_descriptor(self.trial_network.tn_sorted_descriptor)["trial_network"]
         for entity_name, entity_data in tn_sorted_descriptor.items():
-            log_handler.info(f"Start the deployment of the '{entity_name}' entity")            
+            log_handler.info(f"Start the deployment of the '{entity_name}' entity")
             library_component_name = entity_data["type"]
             if library_component_name in components_6glibrary:
                 content = self.callback_handler.add_entity_input_parameters(entity_name, entity_data, self.jenkins_deployment_site)
@@ -79,13 +85,13 @@ class JenkinsHandler:
                 if os.path.isfile(entity_path_temp_file):
                     with open(entity_path_temp_file, "rb") as component_temp_file:
                         file = {"FILE": (entity_path_temp_file, component_temp_file)}
-                        jenkins_build_job_url = self.jenkins_client.build_job_url(name=self.jenkins_pipeline_name, parameters=self._jenkins_parameters(library_component_name, entity_name))
+                        jenkins_build_job_url = self.jenkins_client.build_job_url(name=self.jenkins_pipeline, parameters=self._jenkins_parameters(library_component_name, entity_name))
                         response = post(jenkins_build_job_url, auth=(self.jenkins_user, self.jenkins_token), files=file)
                         if response.status_code == 201:
-                            last_build_number = self.jenkins_client.get_job_info(name=self.jenkins_pipeline_name)["nextBuildNumber"]
-                            while last_build_number != self.jenkins_client.get_job_info(name=self.jenkins_pipeline_name)["lastCompletedBuild"]["number"]:
+                            last_build_number = self.jenkins_client.get_job_info(name=self.jenkins_pipeline)["nextBuildNumber"]
+                            while last_build_number != self.jenkins_client.get_job_info(name=self.jenkins_pipeline)["lastCompletedBuild"]["number"]:
                                 sleep(15)
-                            if self.jenkins_client.get_job_info(name=self.jenkins_pipeline_name)["lastSuccessfulBuild"]["number"] == last_build_number:
+                            if self.jenkins_client.get_job_info(name=self.jenkins_pipeline)["lastSuccessfulBuild"]["number"] == last_build_number:
                                 log_handler.info(f"Entity '{entity_name}' successfully deployed")
                                 sleep(2) # TODO: Not sure if required
                                 if not self.callback_handler.exists_path_entity_trial_network(entity_name, library_component_name):
@@ -104,4 +110,3 @@ class JenkinsHandler:
             log_handler.info(f"End of deployment of entity '{entity_name}'")
         log_handler.info("All entities of the trial network are deployed")
         return self.callback_handler.get_path_report_trial_network()
-        
