@@ -57,6 +57,28 @@ class SixGLibraryHandler:
                 raise CustomFileNotFoundError(f"File '{public_file}' not found", 404)
         return input_part
 
+    def extract_metadata_part_component_6glibrary(self, components):
+        """The metadata part of the components is extracted directly from the 6G-Library"""
+        log_handler.info("Extract metadata of components from the 6G-Library")
+        metadata_part = {}
+
+        for component in components:
+            public_file = os.path.join(self.git_6glibrary_local_directory, component, ".tnlcm", "public.yaml")
+            
+            if os.path.exists(public_file):
+                with open(public_file, "rt", encoding="utf8") as f:
+                    try:
+                        public_data = safe_load(f)
+                    except YAMLError:
+                        raise InvalidContentFileError(f"File '{public_file}' is not parsed correctly", 422)
+                    if "metadata" in public_data.keys():
+                        metadata_part[component] = public_data["metadata"]
+                    else:
+                        metadata_part[component] = []
+            else:
+                raise CustomFileNotFoundError(f"File '{public_file}' not found", 404)
+        return metadata_part
+
     def extract_private_part_component_6glibrary(self, components):
         """The private part of the components is extracted directly from the 6G-Library"""
         log_handler.info("Extract private part of components from the 6G-Library")
@@ -79,10 +101,10 @@ class SixGLibraryHandler:
                 raise CustomFileNotFoundError(f"File '{private_file}' not found", 404)
         return private_part
 
-    def extract_metadata_part_component_6glibrary(self, components):
-        """The metadata part of the components is extracted directly from the 6G-Library"""
-        log_handler.info("Extract metadata of components from the 6G-Library")
-        metadata_part = {}
+    def extract_output_part_component_6glibrary(self, components):
+        """The output part of the components is extracted directly from the 6G-Library"""
+        log_handler.info("Extract output part of components from the 6G-Library")
+        output_part = {}
 
         for component in components:
             public_file = os.path.join(self.git_6glibrary_local_directory, component, ".tnlcm", "public.yaml")
@@ -93,14 +115,13 @@ class SixGLibraryHandler:
                         public_data = safe_load(f)
                     except YAMLError:
                         raise InvalidContentFileError(f"File '{public_file}' is not parsed correctly", 422)
-                    if "metadata" in public_data.keys():
-                        print(public_data.keys())
-                        metadata_part[component] = public_data["metadata"]
+                    if "output" in public_data.keys():
+                        output_part[component] = public_data["output"]
                     else:
-                        metadata_part[component] = []
+                        output_part[component] = []
             else:
                 raise CustomFileNotFoundError(f"File '{public_file}' not found", 404)
-        return metadata_part
+        return output_part
 
     def extract_parts_components_6glibrary(self):
         """Extracts input, private, and needs parts of the components from the 6G-Library"""
