@@ -68,7 +68,7 @@ TNLCM                        // main folder.
 │  ├─ database               // folder that handler the connection with MongoDB database using mongoengine.
 │  ├─ exceptions             // folder that handler the creation of custom exceptions.
 │  ├─ jenkins                // folder that handler the connection with Jenkins for tn deployment.
-│  ├─ logs                   // folder that handler log creation.
+│  ├─ logs                   // folder that handler the logs configuration.
 │  ├─ mail                   // folder that handler the configuration to use flask_mail.
 │  ├─ models                 // folder that contains the database models.
 │  ├─ repository             // folder that handler the connection to any repository.
@@ -124,6 +124,7 @@ Mandatory update the values of the following variables according to the platform
 - `JENKINS_USER`
 - `JENKINS_PASSWORD`
 - `JENKINS_TOKEN`
+- `JENKINS_PIPELINE_FOLDER`
 - `JENKINS_PIPELINE_NAME`
 - `JENKINS_DEPLOYMENT_SITE`
 - `TNLCM_CALLBACK`
