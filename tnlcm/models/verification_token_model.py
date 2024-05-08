@@ -1,5 +1,4 @@
 from datetime import datetime, timezone
-
 from mongoengine import Document, EmailField, IntField, DateTimeField
 
 class VerificationTokenModel(Document):

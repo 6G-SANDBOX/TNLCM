@@ -34,10 +34,9 @@ class SixGSandboxSitesHandler():
                     data = safe_load(f)
                 except YAMLError:
                     raise InvalidContentFileError(f"File '{site_file}' is not parsed correctly", 422)
-                if "site_default_network_id" in data.keys():
-                    return data["site_default_network_id"]
-                else:
+                if not "site_default_network_id" in data.keys():
                     raise KeyNotFoundError(f"Key 'site_default_network_id' is missing in the file located in the path '{site_file}'", 400)
+                return data["site_default_network_id"]
         else:
             raise CustomFileNotFoundError(f"File '{site_file}' not found", 404)
 
@@ -51,9 +50,8 @@ class SixGSandboxSitesHandler():
                     data = safe_load(f)
                 except YAMLError:
                     raise InvalidContentFileError(f"File '{site_file}' is not parsed correctly", 422)
-                if "site_public_network_id" in data.keys():
-                    return data["site_public_network_id"]
-                else:
+                if not "site_public_network_id" in data.keys():
                     raise KeyNotFoundError(f"Key 'site_public_network_id' is missing in the file located in the path '{site_file}'", 400)
+                return data["site_public_network_id"]
         else:
             raise CustomFileNotFoundError(f"File '{site_file}' not found", 404)

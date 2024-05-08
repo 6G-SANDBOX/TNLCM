@@ -4,8 +4,8 @@ from yaml import safe_load, YAMLError
 from string import ascii_lowercase, digits
 from random import choice
 from datetime import datetime, timezone
-
 from mongoengine import Document, StringField, DateTimeField
+
 from tnlcm.exceptions.exceptions_handler import InvalidFileExtensionError, InvalidContentFileError, TrialNetworkEntityNotInDescriptorError
 
 class TrialNetworkTemplateModel(Document):
