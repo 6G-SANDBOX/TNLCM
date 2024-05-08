@@ -7,13 +7,14 @@ from tnlcm.logs.log_handler import log_handler
 from tnlcm.exceptions.exceptions_handler import KeyNotFoundError, CustomUnicodeDecodeError, CustomFileNotFoundError
 
 REPORT_DIRECTORY = os.path.join(os.getcwd(), "tnlcm", "callback", "reports")
-JENKINS_RESULT_KEYS = ["tn_id", "library_component_name", "entity_name", "success", "markdown", "output"]
+JENKINS_RESULT_KEYS = ["tn_id", "library_component_name", "entity_name", "success", "output", "markdown"]
 
 class CallbackHandler:
 
-    def __init__(self, data=None, trial_network=None, sixgsandbox_sites_handler=None):
+    def __init__(self, data=None, trial_network=None, sixglibrary_handler=None, sixgsandbox_sites_handler=None):
         """Constructor"""
         self.data = data
+        self.sixglibrary_handler = sixglibrary_handler
         self.trial_network = trial_network
         self.sixgsandbox_sites_handler = sixgsandbox_sites_handler
         os.makedirs(REPORT_DIRECTORY, exist_ok=True)
@@ -35,25 +36,50 @@ class CallbackHandler:
                     decoded_data[key_data] = decoded_output
                 else:
                     decoded_data[key_data] = b64decode(value_data).decode("utf-8")
+            
+            entity_name = decoded_data["entity_name"]
+            library_component_name = decoded_data["library_component_name"]
+            tn_id = decoded_data["tn_id"]
+            success = decoded_data["success"] # TODO: not use
+            output_jenkins = decoded_data["output"]
+            markdown = decoded_data["markdown"]
 
-            entity_file_name = decoded_data["tn_id"] + "-" + decoded_data["library_component_name"] + "-" + decoded_data["entity_name"] + ".json"
+            components = self.sixglibrary_handler.extract_components_6glibrary()
+            output_parts_components = self.sixglibrary_handler.extract_output_part_component_6glibrary(components)
+            self._is_output_correct(output_jenkins, output_parts_components[library_component_name])
+
+            entity_file_name = tn_id + "-" + library_component_name + "-" + entity_name + ".json"
             path_entity_file_name = os.path.join(REPORT_DIRECTORY, entity_file_name)
-
+            
             with open(path_entity_file_name, "w") as entity_file:
                 dump(decoded_data, entity_file)
-
-            entity_name = decoded_data["entity_name"]
+            
             log_handler.info(f"Information of the '{entity_name}' entity save in the file '{entity_file_name}' located in the path '{path_entity_file_name}'")
 
-            report_trial_network_name = decoded_data["tn_id"] + ".md"
+            report_trial_network_name = tn_id + ".md"
             path_report_trial_network = os.path.join(REPORT_DIRECTORY, report_trial_network_name)
 
             with open(path_report_trial_network, "a") as report_trial_network:
-                report_trial_network.write(decoded_data["markdown"])
+                report_trial_network.write(markdown)
 
-            log_handler.info(f"'markdown' of the '{entity_name}' entity save in the report file '{report_trial_network_name}' located in the path '{path_report_trial_network}'")
+            log_handler.info(f"'Markdown' of the '{entity_name}' entity save in the report file '{report_trial_network_name}' located in the path '{path_report_trial_network}'")
         except UnicodeDecodeError:
             raise CustomUnicodeDecodeError("Unicode decoding error", 401)
+
+    def _is_output_correct(self, output_jenkins, output_component):
+        """Check if output received by Jenkins is the same as the output of the 6G-Library"""
+        log_handler.info("Check if output received by Jenkins is the same as the output of the 6G-Library")
+        if output_jenkins and output_component:
+            list1 = output_jenkins.keys()
+            list2 = output_component.keys()
+            if len(list1) != len(list2):
+                return False
+            for key in list1:
+                if key not in list2:
+                    return False
+            return True
+        else:
+            return False
 
     def add_entity_input_parameters(self, entity_name, entity_data, jenkins_deployment_site):
         """Add parameters to the entity file"""
@@ -93,7 +119,7 @@ class CallbackHandler:
         if vxlan_name in tn_sorted_descriptor.keys():
             entity_data = tn_sorted_descriptor[vxlan_name]
             entity_type = entity_data["type"]
-            if entity_type == "tn_vxlan" or entity_type == "vxlan":
+            if entity_type == "tn_vxlan" or entity_type == "vnet":
                 entity_report_file = os.path.join(REPORT_DIRECTORY, f"{tn_id}-{entity_type}-{vxlan_name}.json")
                 if os.path.isfile(entity_report_file):
                     with open(entity_report_file, "r") as file:
