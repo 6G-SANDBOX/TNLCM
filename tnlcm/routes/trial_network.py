@@ -5,7 +5,7 @@ from werkzeug.datastructures import FileStorage
 from tnlcm.auth import get_current_user_from_jwt
 from tnlcm.callback.callback_handler import CallbackHandler
 from tnlcm.jenkins.jenkins_handler import JenkinsHandler
-from tnlcm.models import TrialNetworkModel
+from tnlcm.models import TrialNetworkModel, TrialNetworkTemplateModel
 from tnlcm.sixglibrary.sixglibrary_handler import SixGLibraryHandler
 from tnlcm.sixgsandbox_sites.sixgsandbox_sites_handler import SixGSandboxSitesHandler
 from tnlcm.temp.temp_file_handler import TempFileHandler
@@ -35,7 +35,7 @@ class CreateTrialNetwork(Resource):
     @trial_network_namespace.expect(parser_post)
     def post(self):
         """
-        Add a trial network to database
+        Add a trial network
         """
         try:
             tn_descriptor_file = self.parser_post.parse_args()["descriptor"]
@@ -45,8 +45,7 @@ class CreateTrialNetwork(Resource):
                 user_created=current_user.username
             )
             trial_network.set_tn_id(size=3)
-            trial_network.set_tn_raw_descriptor(tn_descriptor_file)
-            trial_network.set_tn_sorted_descriptor()
+            trial_network.set_tn_descriptor(tn_descriptor_file)
             trial_network.save()
             return trial_network.to_dict(), 201
         except CustomException as e:
@@ -63,14 +62,14 @@ class TrialNetwork(Resource):
     @jwt_required()
     def get(self, tn_id):
         """
-        Return the descriptor of the trial network specified in tn_id
+        Return the descriptor of the trial network
         """
         try:
             current_user = get_current_user_from_jwt(get_jwt_identity())
             trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
             if not trial_network:
                 return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the database")
-            return trial_network.json_to_descriptor(trial_network.tn_sorted_descriptor), 200
+            return trial_network.json_to_descriptor(trial_network.tn_descriptor), 200
         except CustomException as e:
             return abort(e.error_code, str(e))
     
@@ -79,8 +78,8 @@ class TrialNetwork(Resource):
     @trial_network_namespace.expect(parser_put)
     def put(self, tn_id):
         """
-        Trial network entities deployment begins
-        **Can specify a branch or a commit_id of the 6G-Library. If nothing is specified, the main branch will be used**
+        Start trial network deployment
+        Can specify a branch or a commit_id of the 6G-Library. **If nothing is specified, the main branch will be used.**
         """
         try:
             branch = self.parser_put.parse_args()["branch"]
@@ -94,9 +93,9 @@ class TrialNetwork(Resource):
             temp_file_handler = TempFileHandler()
             sixgsandbox_sites_handler = SixGSandboxSitesHandler()
             callback_handler = CallbackHandler(trial_network=trial_network, sixglibrary_handler=sixglibrary_handler, sixgsandbox_sites_handler=sixgsandbox_sites_handler)
-            jenkins_handler = JenkinsHandler(trial_network=trial_network, sixglibrary_handler=sixglibrary_handler, temp_file_handler=temp_file_handler, callback_handler=callback_handler)
-            path_report_trial_network = jenkins_handler.trial_network_deployment()
-            trial_network.set_tn_report(path_report_trial_network)
+            jenkins_handler = JenkinsHandler(trial_network=trial_network, sixglibrary_handler=sixglibrary_handler, sixgsandbox_sites_handler=sixgsandbox_sites_handler, temp_file_handler=temp_file_handler, callback_handler=callback_handler)
+            jenkins_handler.trial_network_deployment()
+            trial_network.set_tn_report(callback_handler.get_path_report_trial_network())
             return {"message": "Trial network deployed with jenkins"}, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
@@ -105,7 +104,7 @@ class TrialNetwork(Resource):
     @jwt_required()
     def delete(self, tn_id):
         """
-        Delete a trial network specified in tn_id
+        Delete a trial network
         """
         try:
             current_user = get_current_user_from_jwt(get_jwt_identity())
@@ -129,10 +128,7 @@ class TrialNetworkReport(Resource):
             trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
             if not trial_network:
                 return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the database")
-            if trial_network.tn_report:
-                return trial_network.tn_report, 200
-            else:
-                abort(404, f"Trial network '{tn_id}' has not been deployed yet")
+            return {"tn_report": trial_network.tn_report}, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
 
@@ -143,11 +139,26 @@ class TrialNetworks(Resource):
     @jwt_required()
     def get(self):
         """
-        Return information of all trial networks stored in database
+        Return information of all trial networks stored in database created by user identified
         """
         try:
             current_user = get_current_user_from_jwt(get_jwt_identity())
             trial_networks = TrialNetworkModel.objects(user_created=current_user.username)
             return {'trial_networks': [tn.to_dict_full() for tn in trial_networks]}, 200
+        except CustomException as e:
+            return abort(e.error_code, str(e))
+
+@trial_network_namespace.route("s/templates/")
+class TrialNetworksTemplates(Resource):
+
+    @trial_network_namespace.doc(security="Bearer Auth")
+    @jwt_required()
+    def get(self):
+        """
+        Return trial networks templates
+        """
+        try:
+            trial_networks = TrialNetworkTemplateModel.objects()
+            return {'trial_networks_templates': [tn.to_dict_full() for tn in trial_networks]}, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
