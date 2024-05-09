@@ -70,8 +70,8 @@ class JenkinsHandler:
             "DEPLOYMENT_SITE": self.jenkins_deployment_site,
             "TNLCM_CALLBACK": self.tnlcm_callback,
             # OPTIONAL
-            # "LIBRARY_URL": self.sixglibrary_handler.git_6glibrary_https_url,
-            # "LIBRARY_BRANCH": self.sixglibrary_handler.git_6glibrary_branch or self.sixglibrary_handler.git_6glibrary_commit_id,
+            "LIBRARY_URL": self.sixglibrary_handler.git_6glibrary_https_url,
+            "LIBRARY_BRANCH": self.sixglibrary_handler.git_6glibrary_branch or self.sixglibrary_handler.git_6glibrary_commit_id,
             # "SITES_URL": self.sixgsandbox_sites_handler.git_6gsandbox_sites_https_url,
             # "SITES_BRANCH": self.sixgsandbox_sites_handler.git_6gsandbox_sites_branch,
             # "DEBUG": False
@@ -96,6 +96,7 @@ class JenkinsHandler:
                         file = {"FILE": (entity_path_temp_file, component_temp_file)}
                         jenkins_build_job_url = self.jenkins_client.build_job_url(name=self.jenkins_pipeline, parameters=self._jenkins_parameters(library_component_name, entity_name))
                         response = post(jenkins_build_job_url, auth=(self.jenkins_user, self.jenkins_token), files=file)
+                        log_handler.info(f"Deployment request code of the {entity_name} entity {response.status_code}")
                         if response.status_code == 201:
                             last_build_number = self.jenkins_client.get_job_info(name=self.jenkins_pipeline)["nextBuildNumber"]
                             while last_build_number != self.jenkins_client.get_job_info(name=self.jenkins_pipeline)["lastCompletedBuild"]["number"]:
