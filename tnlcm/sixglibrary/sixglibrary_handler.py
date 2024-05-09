@@ -49,7 +49,7 @@ class SixGLibraryHandler:
                         public_data = safe_load(f)
                     except YAMLError:
                         raise InvalidContentFileError(f"File '{public_file}' is not parsed correctly", 422)
-                    if "input" in public_data.keys():
+                    if "input" in public_data:
                         input_part[component] = public_data["input"]
                     else:
                         input_part[component] = {}
@@ -71,7 +71,7 @@ class SixGLibraryHandler:
                         public_data = safe_load(f)
                     except YAMLError:
                         raise InvalidContentFileError(f"File '{public_file}' is not parsed correctly", 422)
-                    if "metadata" in public_data.keys():
+                    if "metadata" in public_data:
                         metadata_part[component] = public_data["metadata"]
                     else:
                         metadata_part[component] = []
@@ -115,7 +115,7 @@ class SixGLibraryHandler:
                         public_data = safe_load(f)
                     except YAMLError:
                         raise InvalidContentFileError(f"File '{public_file}' is not parsed correctly", 422)
-                    if "output" in public_data.keys():
+                    if "output" in public_data:
                         output_part[component] = public_data["output"]
                     else:
                         output_part[component] = []
@@ -124,7 +124,7 @@ class SixGLibraryHandler:
         return output_part
 
     def extract_parts_components_6glibrary(self):
-        """Extracts input, private, and needs parts of the components from the 6G-Library"""
+        """Extracts input, private, and dependencies parts of the components from the 6G-Library"""
         log_handler.info("Extract parts of components from the 6G-Library")
         components = None
         if os.path.exists(self.git_6glibrary_local_directory) and os.path.exists(os.path.join(self.git_6glibrary_local_directory, ".git")):
