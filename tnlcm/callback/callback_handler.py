@@ -118,9 +118,10 @@ class CallbackHandler:
         entity_name, output, value_output = vxlan_path.split(".")
         tn_id = self.trial_network.tn_id
         custom_name = None
+        component_type = None
         if "-" in entity_name:
             component_type, custom_name = entity_name.split("-")
-        file_path = os.path.join(REPORT_DIRECTORY, f"{tn_id}-{entity_name}.json") if custom_name else os.path.join(REPORT_DIRECTORY, f"{tn_id}-{component_type}.json")
+        file_path = os.path.join(REPORT_DIRECTORY, f"{tn_id}-{entity_name}.json") if component_type else os.path.join(REPORT_DIRECTORY, f"{tn_id}-{component_type}.json")
         with open(file_path, "r") as file:
             data = load(file)
         return data[output][value_output]
