@@ -81,7 +81,7 @@ class JenkinsHandler:
         """Trial network deployment starts"""
         self.sixglibrary_handler.git_clone_6glibrary()
         components_6glibrary = self.sixglibrary_handler.extract_components_6glibrary()
-        tn_descriptor = self.trial_network.json_to_descriptor(self.trial_network.tn_descriptor)["trial_network"]
+        tn_descriptor = self.trial_network.json_to_descriptor(self.trial_network.tn_sorted_descriptor)["trial_network"]
         for entity, entity_data in tn_descriptor.items():
             library_component_name = entity_data["type"]
             entity_name = entity
