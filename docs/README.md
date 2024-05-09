@@ -258,10 +258,11 @@ Trial Network Descriptors are yaml files with a set of expected fields and with 
 
 ```yaml
 trial_network:  # Mandatory, contains the description of all entities in the Trial Network
-  entity1:  # A unique identifier for each entity in the Trial Network
+  type-name:  # A unique identifier for each entity in the Trial Network
     type:  # 6G-Library component type
-    needs: # List of dependencies of the component with other components
-      - entityN
+    name: # entity name
+    dependencies: # List of dependencies of the component with other components
+      - {type}-{name}
       - ...
     input: # Necessary variables collected from the input part of the 6G-Library
       ...
@@ -270,9 +271,11 @@ trial_network:  # Mandatory, contains the description of all entities in the Tri
 This repository contains a variety of descriptor templates:
 - [`01_descriptor.yml`](../descriptors/01_descriptor.yml)
 - [`02_descriptor.yml`](../descriptors/02_descriptor.yml)
+- [`03_descriptor.yml`](../descriptors/03_descriptor.yml)
+- [`04_descriptor.yml`](../descriptors/04_descriptor.yml)
 
 The first end-to-end trial network:
-- [`03_descriptor_e2e.yml`](../descriptors/03_descriptor_e2e.yml)
+- [`05_descriptor.yml`](../descriptors/05_descriptor.yml)
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
