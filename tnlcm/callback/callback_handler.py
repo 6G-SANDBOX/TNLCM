@@ -86,7 +86,7 @@ class CallbackHandler:
 
     def add_entity_input_parameters(self, entity, entity_data, jenkins_deployment_site):
         """Add parameters to the entity file"""
-        log_handler.info(f"Add parameters to entity '{entity}'")
+        log_handler.info(f"Add input parameters to entity '{entity}'")
         entity_input = entity_data["input"]
         entity_type = entity_data["type"]
         if entity_type == "tn_bastion":
@@ -121,15 +121,20 @@ class CallbackHandler:
         file_path = os.path.join(REPORT_DIRECTORY, f"{tn_id}-{entity_name}.json")
         with open(file_path, "r") as file:
             data = load(file)
-        return data[output][value_output]
+        if output not in data:
+            raise KeyNotFoundError(f"Key '{output}' is missing in the file located in the path '{file_path}'", 404)
+        if data[output][value_output] not in data[output]:
+            raise KeyNotFoundError(f"Key '{output}' is missing in the file located in the path '{file_path}'", 404)
+        identifier = data[output][value_output]
+        log_handler.info(f"Identifier of vxlan '{entity_name}' is: '{identifier}'")
+        return identifier
     
     def get_path_report_trial_network(self):
         """Return path where report of trial network is stored"""
         path_report_trial_network = os.path.join(REPORT_DIRECTORY, f"{self.trial_network.tn_id}.md")
-        if os.path.exists(path_report_trial_network):
-            return path_report_trial_network
-        else:
+        if not os.path.exists(path_report_trial_network):
             raise CustomFileNotFoundError("Trial network report file has not been found", 404)
+        return path_report_trial_network
     
     def exists_path_entity_trial_network(self, entity, entity_type):
         """Return true if exists entity file with information received by Jenkins"""

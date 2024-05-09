@@ -47,7 +47,7 @@ class RepositoryHandler:
     def _clone_repository(self):
         """Clone repository"""
         try:
-            log_handler.info(f"Clone '{self.git_repository_name}' repository into '{self.git_local_directory}")
+            log_handler.info(f"Clone '{self.git_repository_name}' repository into '{self.git_local_directory}'")
             self.repo = Repo.clone_from(self.git_https_url, self.git_local_directory)
         except InvalidGitRepositoryError:
             raise GitCloneError(f"Cannot clone because the '{self.git_https_url}' url is not a GitHub repository", 500)
