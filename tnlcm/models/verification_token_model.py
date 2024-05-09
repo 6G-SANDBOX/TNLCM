@@ -2,9 +2,9 @@ from datetime import datetime, timezone
 from mongoengine import Document, EmailField, IntField, DateTimeField
 
 class VerificationTokenModel(Document):
-    new_account_email = EmailField(max_length=50, required=True)
-    verification_token = IntField(max_length=50, required=True)
-    creation_date = DateTimeField(required=True, default=datetime.now(timezone.utc))
+    new_account_email = EmailField(max_length=50, unique=True)
+    verification_token = IntField(max_length=50)
+    creation_date = DateTimeField(default=datetime.now(timezone.utc))
 
     meta = {
         "db_alias": "tnlcm-database-alias",
@@ -15,7 +15,7 @@ class VerificationTokenModel(Document):
         return {
             "new_account_email": self.new_account_email,
             "verification_token": self.verification_token,
-            "creation_date": self.creation_date.strftime("%Y-%m-%d %H:%M:%S") if self.creation_date is not None else None
+            "creation_date": self.creation_date.isoformat() if self.creation_date else None
         }
 
     def __repr__(self):

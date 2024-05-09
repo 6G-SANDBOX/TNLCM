@@ -5,25 +5,15 @@ from mongoengine import Document, EmailField, StringField
 from tnlcm.exceptions.exceptions_handler import UserEmailInvalidError
 
 class UserModel(Document):
-    username = StringField(max_length=50, required=True, unique=True)
-    password = StringField(max_length=255, required=True)
-    email = EmailField(max_length=50, required=True, unique=True)
-    org = StringField(max_length=50, required=False)
+    username = StringField(max_length=50, unique=True)
+    password = StringField(max_length=255)
+    email = EmailField(max_length=50, unique=True)
+    org = StringField(max_length=50)
 
     meta = {
         "db_alias": "tnlcm-database-alias",
         "collection": "users"
     }
-
-    def __init__(self, username=None, password=None, email=None, org=None, *args, **kwargs):
-        """Constructor"""
-        super().__init__(*args, **kwargs)
-        self.username = username
-        self.password = password
-        if not self._is_valid_email(email):
-            raise UserEmailInvalidError("Invalid email entered", 400)
-        self.email = email
-        self.org = org
 
     def set_password(self, secret):
         """Update the password to hash"""
@@ -34,6 +24,11 @@ class UserModel(Document):
         value = check_password_hash(self.password, secret)
         return value
 
+    def set_email(self, email):
+        if not self._is_valid_email(email):
+            raise UserEmailInvalidError("Invalid email entered", 400)
+        self.email = email
+        
     def _is_valid_email(self, email):
         """Checks if the email entered by the user is valid"""
         try:
