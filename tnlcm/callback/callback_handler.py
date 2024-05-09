@@ -55,7 +55,8 @@ class CallbackHandler:
             with open(path_entity_file_name, "w") as entity_file:
                 dump(decoded_data, entity_file)
             
-            log_handler.info(f"Information of the '{custom_name}' entity save in the file '{entity_file_name}' located in the path '{path_entity_file_name}'")
+            entity = component_type + "-" + custom_name if custom_name is not "None" else component_type
+            log_handler.info(f"Information of the '{entity}' entity save in the file '{entity_file_name}' located in the path '{path_entity_file_name}'")
 
             report_trial_network_name = tn_id + ".md"
             path_report_trial_network = os.path.join(REPORT_DIRECTORY, report_trial_network_name)
@@ -63,7 +64,7 @@ class CallbackHandler:
             with open(path_report_trial_network, "a") as report_trial_network:
                 report_trial_network.write(markdown)
 
-            log_handler.info(f"'Markdown' of the '{custom_name}' entity save in the report file '{report_trial_network_name}' located in the path '{path_report_trial_network}'")               
+            log_handler.info(f"'Markdown' of the '{entity}' entity save in the report file '{report_trial_network_name}' located in the path '{path_report_trial_network}'")               
         except UnicodeDecodeError:
             raise CustomUnicodeDecodeError("Unicode decoding error", 401)
 
@@ -83,9 +84,9 @@ class CallbackHandler:
         output_component = public_data["output"]
         return set(output_jenkins.keys()) == set(output_component.keys())
 
-    def add_entity_input_parameters(self, custom_name, entity_data, jenkins_deployment_site):
+    def add_entity_input_parameters(self, entity, entity_data, jenkins_deployment_site):
         """Add parameters to the entity file"""
-        log_handler.info(f"Add parameters to entity '{custom_name}'")
+        log_handler.info(f"Add parameters to entity '{entity}'")
         entity_input = entity_data["input"]
         entity_type = entity_data["type"]
         if entity_type == "tn_bastion":
@@ -134,7 +135,8 @@ class CallbackHandler:
         else:
             raise CustomFileNotFoundError("Trial network report file has not been found", 404)
     
-    def exists_path_entity_trial_network(self, custom_name, entity_type):
+    def exists_path_entity_trial_network(self, entity, entity_type):
         """Return true if exists entity file with information received by Jenkins"""
-        path_entity_trial_network = os.path.join(REPORT_DIRECTORY, f"{self.trial_network.tn_id}-{entity_type}-{custom_name}.json")
+        log_handler.info(f"Check whether the file of the '{entity}' entity has been created.")
+        path_entity_trial_network = os.path.join(REPORT_DIRECTORY, f"{self.trial_network.tn_id}-{entity}.json")
         return os.path.exists(path_entity_trial_network)

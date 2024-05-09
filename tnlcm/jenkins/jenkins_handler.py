@@ -91,35 +91,35 @@ class JenkinsHandler:
             custom_name = None
             if "name" in entity_data:
                 custom_name = entity_data["name"]
-            log_handler.info(f"Start the deployment of the '{custom_name}' entity")
+            log_handler.info(f"Start the deployment of the '{entity}' entity")
             if component_type in components_6glibrary:
-                content = self.callback_handler.add_entity_input_parameters(custom_name, entity_data, self.jenkins_deployment_site)
+                content = self.callback_handler.add_entity_input_parameters(entity, entity_data, self.jenkins_deployment_site)
                 entity_path_temp_file = self.temp_file_handler.create_temp_file(content)
                 if os.path.isfile(entity_path_temp_file):
                     with open(entity_path_temp_file, "rb") as component_temp_file:
                         file = {"FILE": (entity_path_temp_file, component_temp_file)}
                         jenkins_build_job_url = self.jenkins_client.build_job_url(name=self.jenkins_pipeline, parameters=self._jenkins_parameters(component_type, custom_name))
                         response = post(jenkins_build_job_url, auth=(self.jenkins_user, self.jenkins_token), files=file)
-                        log_handler.info(f"Deployment request code of the '{custom_name}' entity '{response.status_code}'")
+                        log_handler.info(f"Deployment request code of the '{entity}' entity '{response.status_code}'")
                         if response.status_code == 201:
                             last_build_number = self.jenkins_client.get_job_info(name=self.jenkins_pipeline)["nextBuildNumber"]
                             while last_build_number != self.jenkins_client.get_job_info(name=self.jenkins_pipeline)["lastCompletedBuild"]["number"]:
                                 sleep(15)
                             if self.jenkins_client.get_job_info(name=self.jenkins_pipeline)["lastSuccessfulBuild"]["number"] == last_build_number:
-                                log_handler.info(f"Entity '{custom_name}' successfully deployed")
+                                log_handler.info(f"Entity '{entity}' successfully deployed")
                                 sleep(2)
-                                if not self.callback_handler.exists_path_entity_trial_network(custom_name, component_type):
-                                    raise CustomFileNotFoundError(f"File with the results of the entity '{custom_name}' not found", 404)
+                                if not self.callback_handler.exists_path_entity_trial_network(entity, component_type):
+                                    raise CustomFileNotFoundError(f"File with the results of the entity '{entity}' not found", 404)
                             else:
-                                raise JenkinsComponentPipelineError(f"Pipeline for the entity '{custom_name}' has failed", 500)
+                                raise JenkinsComponentPipelineError(f"Pipeline for the entity '{entity}' has failed", 500)
                         else:
-                            raise JenkinsResponseError(f"Error in the response received by Jenkins when trying to deploy the '{custom_name}' entity", response.status_code)
+                            raise JenkinsResponseError(f"Error in the response received by Jenkins when trying to deploy the '{entity}' entity", response.status_code)
                 else:
-                    raise CustomFileNotFoundError(f"Temporary entity file '{custom_name}' not found", 404)
+                    raise CustomFileNotFoundError(f"Temporary entity file '{entity}' not found", 404)
             else:
                 if self.sixglibrary_handler.git_6glibrary_branch:
                     raise SixGLibraryComponentNotFound(f"Component '{component_type}' is not in '{self.sixglibrary_handler.git_6glibrary_branch}' branch of the 6G-Library", 404)
                 else:
                     raise SixGLibraryComponentNotFound(f"Component '{component_type}' is not in commit_id '{self.sixglibrary_handler.git_6glibrary_commit_id}' of the 6G-Library", 404)
-            log_handler.info(f"End of deployment of entity '{custom_name}'")
+            log_handler.info(f"End of deployment of entity '{entity}'")
         log_handler.info("All entities of the trial network are deployed")
