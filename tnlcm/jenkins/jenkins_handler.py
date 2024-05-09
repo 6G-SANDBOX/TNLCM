@@ -62,11 +62,10 @@ class JenkinsHandler:
     def _jenkins_parameters(self, component_type, custom_name):
         """Return a dictionary with the parameters for each component to be passed to the Jenkins pipeline"""
         log_handler.info(f"Add jenkins parameters to the pipeline of the '{custom_name}' entity which is '{component_type}' component")
-        return {
+        parameters = {
             # MANDATORY
             "TN_ID": self.trial_network.tn_id,
             "COMPONENT_TYPE": component_type,
-            "CUSTOM_NAME": custom_name,
             "DEPLOYMENT_SITE": self.jenkins_deployment_site,
             "TNLCM_CALLBACK": self.tnlcm_callback,
             # OPTIONAL
@@ -77,6 +76,11 @@ class JenkinsHandler:
             # "DEBUG": False
         }
 
+        if custom_name:
+            parameters["CUSTOM_NAME"] = custom_name
+
+        return parameters
+
     def trial_network_deployment(self):
         """Trial network deployment starts"""
         self.sixglibrary_handler.git_clone_6glibrary()
@@ -84,7 +88,7 @@ class JenkinsHandler:
         tn_descriptor = self.trial_network.json_to_descriptor(self.trial_network.tn_sorted_descriptor)["trial_network"]
         for entity, entity_data in tn_descriptor.items():
             component_type = entity_data["type"]
-            custom_name = entity
+            custom_name = None
             if "name" in entity_data:
                 custom_name = entity_data["name"]
             log_handler.info(f"Start the deployment of the '{custom_name}' entity")

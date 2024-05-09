@@ -49,7 +49,7 @@ class CallbackHandler:
             if not self._is_output_correct(output_jenkins, component_type):
                 raise InvalidContentFileError("Output received by Jenkins does not match output from the 6G-Library", 500)
             
-            entity_file_name = tn_id + "-" + component_type + "-" + custom_name + ".json"
+            entity_file_name = tn_id + "-" + component_type + "-" + custom_name + ".json" if custom_name is not "None" else tn_id + "-" + component_type + ".json"
             path_entity_file_name = os.path.join(REPORT_DIRECTORY, entity_file_name)
             
             with open(path_entity_file_name, "w") as entity_file:
