@@ -93,7 +93,7 @@ class TrialNetwork(Resource):
             sixglibrary_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id)
             temp_file_handler = TempFileHandler()
             sixgsandbox_sites_handler = SixGSandboxSitesHandler()
-            callback_handler = CallbackHandler(trial_network=trial_network, sixglibrary_handler=sixglibrary_handler, sixgsandbox_sites_handler=sixgsandbox_sites_handler)
+            callback_handler = CallbackHandler(trial_network=trial_network, sixgsandbox_sites_handler=sixgsandbox_sites_handler)
             jenkins_handler = JenkinsHandler(trial_network=trial_network, sixglibrary_handler=sixglibrary_handler, sixgsandbox_sites_handler=sixgsandbox_sites_handler, temp_file_handler=temp_file_handler, callback_handler=callback_handler)
             jenkins_handler.trial_network_deployment()
             trial_network.set_tn_report(callback_handler.get_path_report_trial_network())
