@@ -49,16 +49,16 @@ class CallbackHandler:
             if not self._is_output_correct(output_jenkins, component_type):
                 raise InvalidContentFileError("Output received by Jenkins does not match output from the 6G-Library", 500)
             
-            entity_file_name = tn_id + "-" + component_type + "-" + custom_name + ".json" if custom_name is not "None" else tn_id + "-" + component_type + ".json"
+            entity_file_name = f"{tn_id}-{component_type}-{custom_name}.json" if custom_name != "None" else f"{tn_id}-{component_type}.json"
             path_entity_file_name = os.path.join(REPORT_DIRECTORY, entity_file_name)
             
             with open(path_entity_file_name, "w") as entity_file:
                 dump(decoded_data, entity_file)
             
-            entity = component_type + "-" + custom_name if custom_name is not "None" else component_type
+            entity = f"{component_type}-{custom_name}" if custom_name != "None" else component_type
             log_handler.info(f"Information of the '{entity}' entity save in the file '{entity_file_name}' located in the path '{path_entity_file_name}'")
 
-            report_trial_network_name = tn_id + ".md"
+            report_trial_network_name = f"{tn_id}.md"
             path_report_trial_network = os.path.join(REPORT_DIRECTORY, report_trial_network_name)
 
             with open(path_report_trial_network, "a") as report_trial_network:
@@ -118,11 +118,7 @@ class CallbackHandler:
         log_handler.info(f"Get identifier of '{vxlan_path}' vxlan")
         entity_name, output, value_output = vxlan_path.split(".")
         tn_id = self.trial_network.tn_id
-        custom_name = None
-        component_type = None
-        if "-" in entity_name:
-            component_type, custom_name = entity_name.split("-")
-        file_path = os.path.join(REPORT_DIRECTORY, f"{tn_id}-{entity_name}.json") if component_type else os.path.join(REPORT_DIRECTORY, f"{tn_id}-{component_type}.json")
+        file_path = os.path.join(REPORT_DIRECTORY, f"{tn_id}-{entity_name}.json")
         with open(file_path, "r") as file:
             data = load(file)
         return data[output][value_output]

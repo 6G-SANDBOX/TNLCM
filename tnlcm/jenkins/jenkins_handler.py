@@ -61,7 +61,6 @@ class JenkinsHandler:
 
     def _jenkins_parameters(self, component_type, custom_name):
         """Return a dictionary with the parameters for each component to be passed to the Jenkins pipeline"""
-        log_handler.info(f"Add jenkins parameters to the pipeline of the '{custom_name}' entity which is '{component_type}' component")
         parameters = {
             # MANDATORY
             "TN_ID": self.trial_network.tn_id,
@@ -98,6 +97,7 @@ class JenkinsHandler:
                 if os.path.isfile(entity_path_temp_file):
                     with open(entity_path_temp_file, "rb") as component_temp_file:
                         file = {"FILE": (entity_path_temp_file, component_temp_file)}
+                        log_handler.info(f"Add jenkins parameters to the pipeline of the '{entity}' entity")
                         jenkins_build_job_url = self.jenkins_client.build_job_url(name=self.jenkins_pipeline, parameters=self._jenkins_parameters(component_type, custom_name))
                         response = post(jenkins_build_job_url, auth=(self.jenkins_user, self.jenkins_token), files=file)
                         log_handler.info(f"Deployment request code of the '{entity}' entity '{response.status_code}'")
