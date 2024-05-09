@@ -1,49 +1,51 @@
 trial_network:
 
-  mandatory_tn_bastion:
+  tn_vxlan:
+    type: "tn_vxlan"
+    dependencies: []
+    input: {}
+  tn_bastion:
     type: "tn_bastion"
-    need:
-      - "mandatory_tn_vxlan"
+    dependencies:
+      - "tn_vxlan"
     input:
       one_component_networks:
-        - "mandatory_tn_vxlan"
-  mandatory_tn_vxlan:
-    type: "tn_vxlan"
-    needs: []
-    input:
-      one_vxlan_name: "mandatory_tn_vxlan"
-  k8s_private_vxlan:
-    type: "vxlan"
-    needs:
-      - "mandatory_tn_vxlan"
-      - "mandatory_tn_bastion"
+        - "tn_vxlan.output.tn_vxlan_id"
+  vnet-private_vnet_oneKE:
+    type: "vnet"
+    name: "private_vnet_oneKE"
+    dependencies:
+      - "tn_vxlan"
+      - "tn_bastion"
     input:
       one_vxlan_name: "k8s_private_vxlan"
-      one_vxlan_dns: "192.168.199.1" # Bastion IP
+      one_vxlan_dns: "1.1.1.1"
       one_vxlan_address_size: 100
       one_vxlan_first_ip: "10.10.10.1"
       one_vxlan_gw: "10.10.10.1"
-  first_k8s_medium:
+  k8s_medium-oneKE:
     type: "k8s_medium"
-    needs:
-      - "mandatory_tn_vxlan"
-      - "mandatory_tn_bastion"
-      - "k8s_private_vxlan"
+    name: "oneKE"
+    dependencies:
+      - "tn_vxlan"
+      - "tn_bastion"
+      - "vnet-private_vnet_oneKE"
     input:
-      external_vnet_id: "mandatory_tn_vxlan" # name of the vxlan entity on which it needs
-      internal_vnet_id: "k8s_private_vxlan" # name of the vxlan entity on which it needs
+      external_vnet_id: "tn_vxlan.output.tn_vxlan_id"
+      internal_vnet_id: "vnet-private_vnet_oneKE.output.vxlan_id"
       service_name: "OneKE-sandbox-tn-uma"
       multus_enabled: "YES"
       cni_plugin: "canal"
       longhorn_enabled: "YES"
       metallb_enabled: "YES"
-      metallb_range: "10.10.10.200-10.10.10.240"
+      metallb_range: "10.10.12.200-10.10.12.240"
       traefik_enabled: "NO"
       vnf_upstream_dns: "1.1.1.1 8.8.8.8"
-  first_open5gs:
+  open5gs-core:
     type: "open5gs"
-    needs:
-      - "first_k8s_medium"
+    name: "core"
+    dependencies:
+      - "open5gs-core"
     input:
       oneke_cluster_name: "OneKE-sandbox-tn-uma" # same value as service_name of cluster
       plmn_id_mcc: "001"
@@ -54,44 +56,46 @@ trial_network:
       amf_ip: "10.10.10.200"
       upf_ip: "10.10.10.201"
       domain_webui_dashboard : "webui-dashboard.int"
-  first_ueransim_gnb:
+  ueransim-gnb:
     type: "ueransim"
-    needs:
-      - "mandatory_tn_vxlan"
-      - "mandatory_tn_bastion"
+    name: "gnb"
+    dependencies:
+      - "tn_vxlan"
+      - "tn_bastion"
     input:
       one_component_name: "gNB"
       one_component_networks: 
         - "mandatory_tn_vxlan"
       one_vm_username: "experimenter"
       one_vm_password: "experimenter"
-      oneke_vnf: '192.168.199.2'
-      run_gnb: 'YES'
-      gnb_mcc: '001'
-      gnb_mnc: '01'
-      gnb_tac: '200'
-      gnb_amf_address: '10.10.10.200'
+      oneke_vnf: "192.168.199.2"
+      run_gnb: "YES"
+      gnb_mcc: "001"
+      gnb_mnc: "01"
+      gnb_tac: "200"
+      gnb_amf_address: "10.10.10.200"
       gnb_slices_sst: 1
       gnb_slices_sd: 1
-  first_ueransim_ue:
+  ueransim-ue:
     type: "ueransim"
-    needs:
-      - "mandatory_tn_vxlan"
-      - "mandatory_tn_bastion"
+    name: "ue"
+    dependencies:
+      - "tn_vxlan"
+      - "tn_bastion"
     input:
       one_component_name: "UE"
       one_component_networks: 
         - "mandatory_tn_vxlan"
       one_vm_username: "experimenter"
       one_vm_password: "experimenter"
-      run_ue: 'YES'
-      ue_supi: 'imsi-001010000000001'
-      ue_mcc: '001'
-      ue_mnc: '01'
-      ue_key: '465B5CE8B199B49FAA5F0A2EE238A6BC'
-      ue_op: 'E8ED289DEBA952E4283B54E88E6183CA'
-      ue_gnbSearchList: '192.168.199.3'
-      ue_session_apn: 'internet'
+      run_ue: "YES"
+      ue_supi: "imsi-001010000000001"
+      ue_mcc: "001"
+      ue_mnc: "01"
+      ue_key: "465B5CE8B199B49FAA5F0A2EE238A6BC"
+      ue_op: "E8ED289DEBA952E4283B54E88E6183CA"
+      ue_gnbSearchList: "192.168.199.3"
+      ue_session_apn: "internet"
       ue_session_sst: 1
       ue_session_sd: 1
       ue_configured_nssai_sst: 1
