@@ -10,7 +10,7 @@ trial_network:
       - "tn_vxlan"
     input:
       one_component_networks:
-        - "tn_vxlan.output.tn_vxlan_id"
+        - "tn_vxlan.output.id"
   vm_kvm_very_small-ubuntu22.04:
     type: "vm_kvm_very_small"
     name: "ubuntu22.04"
@@ -22,4 +22,4 @@ trial_network:
       one_vm_username: "test"
       one_vm_password: "test"
       one_component_networks:
-        - "tn_vxlan.output.tn_vxlan_id"
+        - "tn_vxlan.output.id"

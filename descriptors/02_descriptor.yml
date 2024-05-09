@@ -10,4 +10,4 @@ trial_network:
       - "tn_vxlan"
     input:
       one_component_networks:
-        - "tn_vxlan.output.tn_vxlan_id"
+        - "tn_vxlan.output.id"

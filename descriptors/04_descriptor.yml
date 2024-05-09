@@ -10,7 +10,7 @@ trial_network:
       - "tn_vxlan"
     input:
       one_component_networks:
-        - "tn_vxlan.output.tn_vxlan_id"
+        - "tn_vxlan.output.id"
   vnet-private_vnet_oneKE:
     type: "vnet"
     name: "private_vnet_oneKE"
@@ -31,7 +31,7 @@ trial_network:
       - "tn_bastion"
       - "vnet-private_vnet_oneKE"
     input:
-      external_vnet_id: "tn_vxlan.output.tn_vxlan_id"
+      external_vnet_id: "tn_vxlan.output.id"
       internal_vnet_id: "vnet-private_vnet_oneKE.output.vxlan_id"
       service_name: "OneKE-sandbox-tn-uma"
       multus_enabled: "YES"
