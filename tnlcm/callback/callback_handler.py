@@ -9,7 +9,7 @@ from tnlcm.exceptions.exceptions_handler import KeyNotFoundError, CustomUnicodeD
 
 REPORT_DIRECTORY = os.path.join(os.getcwd(), "tnlcm", "callback", "reports")
 SIXGLIBRARY_DIRECTORY = os.path.join(os.getcwd(), "tnlcm", "sixglibrary")
-JENKINS_RESULT_KEYS = ["tn_id", "library_component_name", "entity_name", "success", "output", "markdown"]
+JENKINS_RESULT_KEYS = ["tn_id", "component_type", "custom_name", "success", "output", "markdown"]
 
 class CallbackHandler:
 
@@ -39,23 +39,23 @@ class CallbackHandler:
                 else:
                     decoded_data[key_data] = b64decode(value_data).decode("utf-8")
             
-            entity_name = decoded_data["entity_name"]
-            library_component_name = decoded_data["library_component_name"]
+            custom_name = decoded_data["custom_name"]
+            component_type = decoded_data["component_type"]
             tn_id = decoded_data["tn_id"]
             success = decoded_data["success"]
             output_jenkins = decoded_data["output"]
             markdown = decoded_data["markdown"]
             
-            if not self._is_output_correct(output_jenkins, library_component_name):
+            if not self._is_output_correct(output_jenkins, component_type):
                 raise InvalidContentFileError("Output received by Jenkins does not match output from the 6G-Library", 500)
             
-            entity_file_name = tn_id + "-" + library_component_name + "-" + entity_name + ".json"
+            entity_file_name = tn_id + "-" + component_type + "-" + custom_name + ".json"
             path_entity_file_name = os.path.join(REPORT_DIRECTORY, entity_file_name)
             
             with open(path_entity_file_name, "w") as entity_file:
                 dump(decoded_data, entity_file)
             
-            log_handler.info(f"Information of the '{entity_name}' entity save in the file '{entity_file_name}' located in the path '{path_entity_file_name}'")
+            log_handler.info(f"Information of the '{custom_name}' entity save in the file '{entity_file_name}' located in the path '{path_entity_file_name}'")
 
             report_trial_network_name = tn_id + ".md"
             path_report_trial_network = os.path.join(REPORT_DIRECTORY, report_trial_network_name)
@@ -63,14 +63,14 @@ class CallbackHandler:
             with open(path_report_trial_network, "a") as report_trial_network:
                 report_trial_network.write(markdown)
 
-            log_handler.info(f"'Markdown' of the '{entity_name}' entity save in the report file '{report_trial_network_name}' located in the path '{path_report_trial_network}'")               
+            log_handler.info(f"'Markdown' of the '{custom_name}' entity save in the report file '{report_trial_network_name}' located in the path '{path_report_trial_network}'")               
         except UnicodeDecodeError:
             raise CustomUnicodeDecodeError("Unicode decoding error", 401)
 
-    def _is_output_correct(self, output_jenkins, library_component_name):
+    def _is_output_correct(self, output_jenkins, component_type):
         """Return true if output received by Jenkins is the same as the output of the 6G-Library"""
         log_handler.info("Check if output received by Jenkins is the same as the output of the 6G-Library")
-        public_file = os.path.join(SIXGLIBRARY_DIRECTORY, os.getenv("GIT_6GLIBRARY_REPOSITORY_NAME"), library_component_name, ".tnlcm", "public.yaml")
+        public_file = os.path.join(SIXGLIBRARY_DIRECTORY, os.getenv("GIT_6GLIBRARY_REPOSITORY_NAME"), component_type, ".tnlcm", "public.yaml")
         if not os.path.exists(public_file):
             raise CustomFileNotFoundError(f"File '{public_file}' not found", 404)
         with open(public_file, "rt", encoding="utf8") as file:
@@ -83,9 +83,9 @@ class CallbackHandler:
         output_component = public_data["output"]
         return set(output_jenkins.keys()) == set(output_component.keys())
 
-    def add_entity_input_parameters(self, entity_name, entity_data, jenkins_deployment_site):
+    def add_entity_input_parameters(self, custom_name, entity_data, jenkins_deployment_site):
         """Add parameters to the entity file"""
-        log_handler.info(f"Add parameters to entity '{entity_name}'")
+        log_handler.info(f"Add parameters to entity '{custom_name}'")
         entity_input = entity_data["input"]
         entity_type = entity_data["type"]
         if entity_type == "tn_bastion":
@@ -118,8 +118,8 @@ class CallbackHandler:
         entity_type, output, value_output = vxlan_path.split(".")
         tn_id = self.trial_network.tn_id
         if "-" in entity_type:
-            entity_type, entity_name = entity_type.split("-")
-        file_path = os.path.join(REPORT_DIRECTORY, f"{tn_id}-{entity_type}-{entity_name}.json") if entity_name else os.path.join(REPORT_DIRECTORY, f"{tn_id}-{entity_type}.json")
+            entity_type, custom_name = entity_type.split("-")
+        file_path = os.path.join(REPORT_DIRECTORY, f"{tn_id}-{entity_type}-{custom_name}.json") if custom_name else os.path.join(REPORT_DIRECTORY, f"{tn_id}-{entity_type}.json")
         with open(file_path, "r") as file:
             data = load(file)
         return data[output][value_output]
@@ -132,7 +132,7 @@ class CallbackHandler:
         else:
             raise CustomFileNotFoundError("Trial network report file has not been found", 404)
     
-    def exists_path_entity_trial_network(self, entity_name, entity_type):
+    def exists_path_entity_trial_network(self, custom_name, entity_type):
         """Return true if exists entity file with information received by Jenkins"""
-        path_entity_trial_network = os.path.join(REPORT_DIRECTORY, f"{self.trial_network.tn_id}-{entity_type}-{entity_name}.json")
+        path_entity_trial_network = os.path.join(REPORT_DIRECTORY, f"{self.trial_network.tn_id}-{entity_type}-{custom_name}.json")
         return os.path.exists(path_entity_trial_network)
