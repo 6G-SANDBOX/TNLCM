@@ -45,7 +45,8 @@ class CreateTrialNetwork(Resource):
                 user_created=current_user.username
             )
             trial_network.set_tn_id(size=3)
-            trial_network.set_tn_descriptor(tn_descriptor_file)
+            trial_network.set_tn_raw_descriptor(tn_descriptor_file)
+            trial_network.set_tn_sorted_descriptor()
             trial_network.save()
             return trial_network.to_dict(), 201
         except CustomException as e:
@@ -69,7 +70,7 @@ class TrialNetwork(Resource):
             trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
             if not trial_network:
                 return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the database")
-            return trial_network.json_to_descriptor(trial_network.tn_descriptor), 200
+            return trial_network.json_to_descriptor(trial_network.tn_sorted_descriptor), 200
         except CustomException as e:
             return abort(e.error_code, str(e))
     
