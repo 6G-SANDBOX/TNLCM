@@ -94,8 +94,8 @@ class NewUserVerification(Resource):
                 email=email,
                 org=org
             )
-
             user.set_password(password)
+            user.set_email(email)
             user.save()
 
             return {"message": "User added"}, 201
