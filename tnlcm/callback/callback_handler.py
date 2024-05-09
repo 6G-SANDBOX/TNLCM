@@ -21,7 +21,6 @@ class CallbackHandler:
 
     def save_decoded_results(self):
         """Save decoded deployment information of each component received by Jenkins"""
-        # TODO: Check if success is true to continue with the pipeline
         try:
             log_handler.info("Save entity deployment results received by Jenkins")
             missing_keys = [key for key in JENKINS_RESULT_KEYS if key not in self.data]
@@ -40,10 +39,10 @@ class CallbackHandler:
             entity_name = decoded_data["entity_name"]
             library_component_name = decoded_data["library_component_name"]
             tn_id = decoded_data["tn_id"]
-            success = decoded_data["success"] # TODO: not use
+            success = decoded_data["success"]
             output_jenkins = decoded_data["output"]
             markdown = decoded_data["markdown"]
-
+            
             components = self.sixglibrary_handler.extract_components_6glibrary()
             output_parts_components = self.sixglibrary_handler.extract_output_part_component_6glibrary(components)
             self._is_output_correct(output_jenkins, output_parts_components[library_component_name])
@@ -100,37 +99,31 @@ class CallbackHandler:
             entity_input["one_component_networks"] = self._get_vxlan_ids(entity_input["one_component_networks"])
         return entity_input
 
-    def _get_vxlan_ids(self, vxlan_names):
+    def _get_vxlan_ids(self, vxlan_paths):
         """Extract vxlan ids"""
         vnets_id = []
-        if isinstance(vxlan_names, list):
-            for vxlan in vxlan_names:
-                vnets_id.extend(self._vxlan_ids(vxlan))
+        if isinstance(vxlan_paths, list):
+            for vxlan_path in vxlan_paths:
+                vnets_id.append(self._extract_vxlan_id(vxlan_path))
         else:
-            vnets_id = self._vxlan_ids(vxlan_names)[0]
+            vnets_id.append(self._extract_vxlan_id(vxlan_paths))
         return vnets_id
 
-    def _vxlan_ids(self, vxlan_name):
-        """Return list with vxlan ids"""
-        log_handler.info(f"Get id of the '{vxlan_name}' vxlan")
-        vxlan_ids = []
-        tn_sorted_descriptor = self.trial_network.json_to_descriptor(self.trial_network.tn_sorted_descriptor)["trial_network"]
+    def _extract_vxlan_id(self, vxlan_path):
+        """Return vxlan id"""
+        log_handler.info(f"Get identifier of '{vxlan_path}' vxlan")
+        entity_type, output, value_output = vxlan_path.split(".")
         tn_id = self.trial_network.tn_id
-        if vxlan_name in tn_sorted_descriptor.keys():
-            entity_data = tn_sorted_descriptor[vxlan_name]
-            entity_type = entity_data["type"]
-            if entity_type == "tn_vxlan" or entity_type == "vnet":
-                entity_report_file = os.path.join(REPORT_DIRECTORY, f"{tn_id}-{entity_type}-{vxlan_name}.json")
-                if os.path.isfile(entity_report_file):
-                    with open(entity_report_file, "r") as file:
-                        json_data = load(file)
-                        tn_vxlan_id = json_data["tn_vxlan_id"]
-                        vxlan_ids.append(int(tn_vxlan_id))
-        return vxlan_ids
+        if "-" in entity_type:
+            entity_type, entity_name = entity_type.split("-")
+        file_path = os.path.join(REPORT_DIRECTORY, f"{tn_id}-{entity_type}-{entity_name}.json") if entity_name else os.path.join(REPORT_DIRECTORY, f"{tn_id}-{entity_type}.json")
+        with open(file_path, "r") as file:
+            data = load(file)
+        return data[output][value_output]
     
     def get_path_report_trial_network(self):
         """Return path where report of trial network is stored"""
-        path_report_trial_network = os.path.join(REPORT_DIRECTORY, self.trial_network.tn_id)
+        path_report_trial_network = os.path.join(REPORT_DIRECTORY, f"{self.trial_network.tn_id}.md")
         if os.path.exists(path_report_trial_network):
             return path_report_trial_network
         else:
