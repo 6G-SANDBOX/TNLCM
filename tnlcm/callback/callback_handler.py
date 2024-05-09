@@ -1,20 +1,21 @@
 import os
 
 from json import dump, load
+from yaml import safe_load, YAMLError
 from base64 import b64decode
 
 from tnlcm.logs.log_handler import log_handler
-from tnlcm.exceptions.exceptions_handler import KeyNotFoundError, CustomUnicodeDecodeError, CustomFileNotFoundError
+from tnlcm.exceptions.exceptions_handler import KeyNotFoundError, CustomUnicodeDecodeError, InvalidContentFileError, CustomFileNotFoundError, KeyNotFoundError
 
 REPORT_DIRECTORY = os.path.join(os.getcwd(), "tnlcm", "callback", "reports")
+SIXGLIBRARY_DIRECTORY = os.path.join(os.getcwd(), "tnlcm", "sixglibrary")
 JENKINS_RESULT_KEYS = ["tn_id", "library_component_name", "entity_name", "success", "output", "markdown"]
 
 class CallbackHandler:
 
-    def __init__(self, data=None, trial_network=None, sixglibrary_handler=None, sixgsandbox_sites_handler=None):
+    def __init__(self, data=None, trial_network=None, sixgsandbox_sites_handler=None):
         """Constructor"""
         self.data = data
-        self.sixglibrary_handler = sixglibrary_handler
         self.trial_network = trial_network
         self.sixgsandbox_sites_handler = sixgsandbox_sites_handler
         os.makedirs(REPORT_DIRECTORY, exist_ok=True)
@@ -33,6 +34,8 @@ class CallbackHandler:
                     for key_output, value_output in value_data.items():
                         decoded_output[key_output] = b64decode(value_output).decode("utf-8")
                     decoded_data[key_data] = decoded_output
+                elif key_data == "success":
+                    decoded_data[key_data] = value_data
                 else:
                     decoded_data[key_data] = b64decode(value_data).decode("utf-8")
             
@@ -43,10 +46,9 @@ class CallbackHandler:
             output_jenkins = decoded_data["output"]
             markdown = decoded_data["markdown"]
             
-            components = self.sixglibrary_handler.extract_components_6glibrary()
-            output_parts_components = self.sixglibrary_handler.extract_output_part_component_6glibrary(components)
-            self._is_output_correct(output_jenkins, output_parts_components[library_component_name])
-
+            if not self._is_output_correct(output_jenkins, library_component_name):
+                raise InvalidContentFileError("Output received by Jenkins does not match output from the 6G-Library", 500)
+            
             entity_file_name = tn_id + "-" + library_component_name + "-" + entity_name + ".json"
             path_entity_file_name = os.path.join(REPORT_DIRECTORY, entity_file_name)
             
@@ -61,24 +63,25 @@ class CallbackHandler:
             with open(path_report_trial_network, "a") as report_trial_network:
                 report_trial_network.write(markdown)
 
-            log_handler.info(f"'Markdown' of the '{entity_name}' entity save in the report file '{report_trial_network_name}' located in the path '{path_report_trial_network}'")
+            log_handler.info(f"'Markdown' of the '{entity_name}' entity save in the report file '{report_trial_network_name}' located in the path '{path_report_trial_network}'")               
         except UnicodeDecodeError:
             raise CustomUnicodeDecodeError("Unicode decoding error", 401)
 
-    def _is_output_correct(self, output_jenkins, output_component):
-        """Check if output received by Jenkins is the same as the output of the 6G-Library"""
+    def _is_output_correct(self, output_jenkins, library_component_name):
+        """Return true if output received by Jenkins is the same as the output of the 6G-Library"""
         log_handler.info("Check if output received by Jenkins is the same as the output of the 6G-Library")
-        if output_jenkins and output_component:
-            list1 = output_jenkins.keys()
-            list2 = output_component.keys()
-            if len(list1) != len(list2):
-                return False
-            for key in list1:
-                if key not in list2:
-                    return False
-            return True
-        else:
-            return False
+        public_file = os.path.join(SIXGLIBRARY_DIRECTORY, os.getenv("GIT_6GLIBRARY_REPOSITORY_NAME"), library_component_name, ".tnlcm", "public.yaml")
+        if not os.path.exists(public_file):
+            raise CustomFileNotFoundError(f"File '{public_file}' not found", 404)
+        with open(public_file, "rt", encoding="utf8") as file:
+            try:
+                public_data = safe_load(file)
+            except YAMLError:
+                raise InvalidContentFileError(f"File '{public_file}' is not parsed correctly", 422)
+        if "output" not in public_data:
+            raise KeyNotFoundError(f"Key 'output' is missing in the file located in the path '{public_file}'", 404)
+        output_component = public_data["output"]
+        return set(output_jenkins.keys()) == set(output_component.keys())
 
     def add_entity_input_parameters(self, entity_name, entity_data, jenkins_deployment_site):
         """Add parameters to the entity file"""
