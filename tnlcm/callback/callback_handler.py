@@ -117,7 +117,10 @@ class CallbackHandler:
         log_handler.info(f"Get identifier of '{vxlan_path}' vxlan")
         entity_name, output, value_output = vxlan_path.split(".")
         tn_id = self.trial_network.tn_id
-        file_path = os.path.join(REPORT_DIRECTORY, f"{tn_id}-{entity_name}.json")
+        custom_name = None
+        if "-" in entity_name:
+            component_type, custom_name = entity_name.split("-")
+        file_path = os.path.join(REPORT_DIRECTORY, f"{tn_id}-{entity_name}.json") if custom_name else os.path.join(REPORT_DIRECTORY, f"{tn_id}-{component_type}.json")
         with open(file_path, "r") as file:
             data = load(file)
         return data[output][value_output]
