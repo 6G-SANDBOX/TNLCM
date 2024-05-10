@@ -109,7 +109,7 @@ class JenkinsHandler:
                     raise JenkinsComponentPipelineError(f"Pipeline for the entity '{entity}' has failed", 500)
                 log_handler.info(f"Entity '{entity}' successfully deployed")
                 sleep(2)
-                if not self.callback_handler.exists_path_entity_trial_network(entity, component_type):
+                if not self.callback_handler.exists_path_entity_trial_network(entity):
                     raise CustomFileNotFoundError(f"File with the results of the entity '{entity}' not found", 404)
             log_handler.info(f"End of deployment of entity '{entity}'")
         log_handler.info("All entities of the trial network are deployed")

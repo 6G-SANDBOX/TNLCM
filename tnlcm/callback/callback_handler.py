@@ -91,11 +91,11 @@ class CallbackHandler:
         entity_type = entity_data["type"]
         if entity_type == "tn_bastion":
             self.sixgsandbox_sites_handler.git_clone_6gsandbox_sites()
-            entity_input["one_component_networks"] = [self.sixgsandbox_sites_handler.extract_site_public_network_id(jenkins_deployment_site)] + self._get_vxlan_ids(entity_input["one_component_networks"])
+            entity_input["one_component_networks"] = [self.sixgsandbox_sites_handler.extract_site_default_network_id(jenkins_deployment_site)] + self._get_vxlan_ids(entity_input["one_component_networks"])
             entity_input["one_bastion_wireguard_allowed_networks"] = "192.168.199.0/24"
         elif entity_type == "vm_kvm_very_small" or entity_type == "vm_kvm_small" or entity_type == "vm_kvm_medium" or entity_type == "vm_kvm_large" or entity_type == "vm_kvm_extra_large":
             self.sixgsandbox_sites_handler.git_clone_6gsandbox_sites()
-            entity_input["one_component_networks"] = [self.sixgsandbox_sites_handler.extract_site_default_network_id(jenkins_deployment_site)] + self._get_vxlan_ids(entity_input["one_component_networks"])
+            entity_input["one_component_networks"] = [self.sixgsandbox_sites_handler.extract_site_public_network_id(jenkins_deployment_site)] + self._get_vxlan_ids(entity_input["one_component_networks"])
         elif entity_type == "k8s_medium":
             entity_input["external_vnet_id"] = self._get_vxlan_ids(entity_input["external_vnet_id"])
             entity_input["internal_vnet_id"] = self._get_vxlan_ids(entity_input["internal_vnet_id"])
@@ -136,7 +136,7 @@ class CallbackHandler:
             raise CustomFileNotFoundError("Trial network report file has not been found", 404)
         return path_report_trial_network
     
-    def exists_path_entity_trial_network(self, entity, entity_type):
+    def exists_path_entity_trial_network(self, entity):
         """Return true if exists entity file with information received by Jenkins"""
         log_handler.info(f"Check whether the file of the '{entity}' entity has been created.")
         path_entity_trial_network = os.path.join(REPORT_DIRECTORY, f"{self.trial_network.tn_id}-{entity}.json")
