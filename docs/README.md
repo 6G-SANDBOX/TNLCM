@@ -212,41 +212,41 @@ The TNLCM database consists of several collections that store important informat
 
 ### Collection `trial_networks` <!-- omit in toc -->
 
-| Field                   | Description                                                 |
-|-------------------------|-------------------------------------------------------------|
-| `user_created`          | The user who created the trial network.                     |
-| `tn_id`                 | The ID of the trial network.                                |
-| `tn_date_created_utc`   | The date and time when the trial network was created (UTC). |
-| `tn_raw_descriptor`     | The raw descriptor of the trial network.                    |
-| `tn_sorted_descriptor`  | The sorted descriptor of the trial network.                 |
-| `tn_report`             | The report related to the trial network.                    |
+| Field                  | Description                                                 |
+| ---------------------- | ----------------------------------------------------------- |
+| `user_created`         | The user who created the trial network.                     |
+| `tn_id`                | The ID of the trial network.                                |
+| `tn_date_created_utc`  | The date and time when the trial network was created (UTC). |
+| `tn_raw_descriptor`    | The raw descriptor of the trial network.                    |
+| `tn_sorted_descriptor` | The sorted descriptor of the trial network.                 |
+| `tn_report`            | The report related to the trial network.                    |
 
 ### Collection `trial_networks_templates` <!-- omit in toc -->
 
-| Field                   | Description                                                         |
-|-------------------------|---------------------------------------------------------------------|
-| `user_created`          | The user who created the trial network template.                    |
-| `tn_id`                 | The ID of the trial network template.                               |
-| `tn_date_created_utc`   | The date and time when the trial network template was created (UTC).|
-| `tn_raw_descriptor`     | The raw descriptor of the trial network template.                   |
-| `tn_sorted_descriptor`  | The sorted descriptor of the trial network template.                |
+| Field                  | Description                                                          |
+| ---------------------- | -------------------------------------------------------------------- |
+| `user_created`         | The user who created the trial network template.                     |
+| `tn_id`                | The ID of the trial network template.                                |
+| `tn_date_created_utc`  | The date and time when the trial network template was created (UTC). |
+| `tn_raw_descriptor`    | The raw descriptor of the trial network template.                    |
+| `tn_sorted_descriptor` | The sorted descriptor of the trial network template.                 |
 
 ### Collection `users` <!-- omit in toc -->
 
-| Field      | Description                                       |
-|------------|---------------------------------------------------|
-| `email`    | The email address of the user.                    |
-| `username` | The username of the user.                         |
-| `password` | The password of the user (hashed).                |
-| `org`      | The organization to which the user belongs.       |
+| Field      | Description                                 |
+| ---------- | ------------------------------------------- |
+| `email`    | The email address of the user.              |
+| `username` | The username of the user.                   |
+| `password` | The password of the user (hashed).          |
+| `org`      | The organization to which the user belongs. |
 
 ### Collection `verifications_tokens` <!-- omit in toc -->
 
-| Field                  | Description                                             |
-|------------------------|---------------------------------------------------------|
-| `new_account_email`    | The email associated with the new account.              |
-| `verification_token`   | The verification token generated for the new account.   |
-| `creation_date`        | The creation date of the verification token.            |
+| Field                | Description                                           |
+| -------------------- | ----------------------------------------------------- |
+| `new_account_email`  | The email associated with the new account.            |
+| `verification_token` | The verification token generated for the new account. |
+| `creation_date`      | The creation date of the verification token.          |
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
@@ -319,10 +319,10 @@ If the access token expires, it can be refreshed by using the refresh token. The
 
 ## :construction_worker: Development Team <!-- omit in toc -->
 
-| Photo | Name | Email | GitHub | Linkedin |
-| :---: | :--: | :---: | :----: | :------: |
+|                               Photo                                |        Name         |      Email      |                                                                        GitHub                                                                        |                                                                                      Linkedin                                                                                       |
+| :----------------------------------------------------------------: | :-----------------: | :-------------: | :--------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
 | <img src="https://github.com/CarlosAndreo.png?size=50" width=50px> | Carlos Andreo López | c.andreo@uma.es | <a href="https://github.com/CarlosAndreo"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="https://www.linkedin.com/in/carlos-andreo-lópez-66734b22a/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
-| <img src="https://github.com/NaniteBased.png?size=50" width=50px> | Bruno García García | - | <a href="https://github.com/NaniteBased"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="https://itis.uma.es/personal/bruno-garcia-garcia/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
+| <img src="https://github.com/NaniteBased.png?size=50" width=50px>  | Bruno García García |        -        | <a href="https://github.com/NaniteBased"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a>  |     <a href="https://itis.uma.es/personal/bruno-garcia-garcia/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a>      |
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
