@@ -164,3 +164,34 @@ class TrialNetworksTemplates(Resource):
             return {'trial_networks_templates': [tn.to_dict_full() for tn in trial_networks]}, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
+    
+
+@trial_network_namespace.route("/template")
+class CreateTrialNetworkTemplate(Resource):
+
+    parser_post = reqparse.RequestParser()
+    parser_post.add_argument("descriptor", location="files", type=FileStorage, required=True)
+    parser_post.add_argument("tn_id", type=str, required=True)
+
+    @trial_network_namespace.doc(security="Bearer Auth")
+    @jwt_required()
+    @trial_network_namespace.expect(parser_post)
+    def post(self):
+        """
+        Add a trial network template
+        """
+        try:
+            tn_descriptor_file = self.parser_post.parse_args()["descriptor"]
+            tn_id = self.parser_post.parse_args()["tn_id"]
+
+            current_user = get_current_user_from_jwt(get_jwt_identity())
+            trial_network = TrialNetworkTemplateModel(
+                user_created=current_user.username
+            )
+            trial_network.set_tn_id(tn_id=tn_id)
+            trial_network.set_tn_raw_descriptor(tn_descriptor_file)
+            trial_network.set_tn_sorted_descriptor()
+            trial_network.save()
+            return trial_network.to_dict(), 201
+        except CustomException as e:
+            return abort(e.error_code, str(e))
