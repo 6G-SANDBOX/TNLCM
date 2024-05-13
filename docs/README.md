@@ -96,12 +96,13 @@ TNLCM is currently able to deploy the following types of components correspondin
 ## :rocket: Getting Started
 
 > [!WARNING]
-> The following tools are required to be deployed on platforms:
+> In order to run TNLCM, the following tools are **required** to be deployed on the platforms:
 > 
-> * Jenkins (Mandatory)
-> * OpenNebula (Mandatory)
-> * MinIO (Mandatory)
+> * Jenkins - v2.440.3 or later
+> * OpenNebula - v6.6.3 or later
+> * MinIO
 
+<!-- TODO: Add 6G-Library version -->
 > [!NOTE]
 > TNLCM is being developed on Windows 10 and has been tested on Windows 10 and Ubuntu in version 22.04.3 LTS.
 
