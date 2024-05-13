@@ -7,11 +7,14 @@ from datetime import datetime, timezone
 from mongoengine import Document, StringField, DateTimeField
 
 from tnlcm.logs.log_handler import log_handler
-from tnlcm.exceptions.exceptions_handler import InvalidFileExtensionError, InvalidContentFileError, TrialNetworkEntityNotInDescriptorError
+from tnlcm.exceptions.exceptions_handler import InvalidFileExtensionError, InvalidContentFileError, TrialNetworkEntityNotInDescriptorError, TrialNetworkInvalidStatusError
+
+TN_VALID_STATUS = ["created", "started"]
 
 class TrialNetworkModel(Document):
-    user_created = StringField(max_length=255)
-    tn_id = StringField(max_length=255, unique=True)
+    user_created = StringField(max_length=100)
+    tn_id = StringField(max_length=10, unique=True)
+    tn_status = StringField(max_length=50)
     tn_date_created_utc = DateTimeField(default=datetime.now(timezone.utc))
     tn_raw_descriptor = StringField()
     tn_sorted_descriptor = StringField()
@@ -25,6 +28,12 @@ class TrialNetworkModel(Document):
     def set_tn_id(self, size=6, chars=ascii_lowercase + digits):
         """Generate random tn_id using [a-z][0-9]"""
         self.tn_id = choice(ascii_lowercase) + ''.join(choice(chars) for _ in range(size))
+
+    def set_tn_status(self, tn_status):
+        """Set status of trial network"""
+        if tn_status not in TN_VALID_STATUS:
+            raise TrialNetworkInvalidStatusError(f"Trial network '{tn_status}' status not found", 404)
+        self.tn_status = tn_status
 
     def set_tn_raw_descriptor(self, tn_descriptor_file):
         """Check the descriptor file is well constructed and its extension is yaml or yml"""
@@ -86,6 +95,7 @@ class TrialNetworkModel(Document):
         return {
             "user_created": self.user_created,
             "tn_id": self.tn_id,
+            "tn_status": self.tn_status,
             "tn_date_created_utc": self.creation_date.isoformat(),
             "tn_raw_descriptor": self.json_to_descriptor(self.tn_raw_descriptor),
             "tn_sorted_descriptor": self.json_to_descriptor(self.tn_sorted_descriptor),

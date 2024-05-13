@@ -45,6 +45,7 @@ class CreateTrialNetwork(Resource):
                 user_created=current_user.username
             )
             trial_network.set_tn_id(size=3)
+            trial_network.set_tn_status("created")
             trial_network.set_tn_raw_descriptor(tn_descriptor_file)
             trial_network.set_tn_sorted_descriptor()
             trial_network.save()
