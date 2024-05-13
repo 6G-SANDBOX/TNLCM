@@ -20,7 +20,7 @@ class CallbackHandler:
         self.sixgsandbox_sites_handler = sixgsandbox_sites_handler
         os.makedirs(REPORT_DIRECTORY, exist_ok=True)
 
-    def save_decoded_results(self):
+    def save_pipeline_results(self):
         """Save decoded deployment information of each component received by Jenkins"""
         try:
             log_handler.info("Save entity deployment results received by Jenkins")

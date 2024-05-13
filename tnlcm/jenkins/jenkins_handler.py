@@ -92,7 +92,7 @@ class JenkinsHandler:
                     raise SixGLibraryComponentNotFound(f"Component '{component_type}' is not in commit_id '{self.sixglibrary_handler.git_6glibrary_commit_id}' of the 6G-Library", 404) 
             content = self.callback_handler.add_entity_input_parameters(entity, entity_data, self.jenkins_deployment_site)
             entity_path_temp_file = self.temp_file_handler.create_temp_file(content)
-            if not os.path.isfile(entity_path_temp_file):
+            if not os.path.exists(entity_path_temp_file):
                 raise CustomFileNotFoundError(f"Temporary entity file '{entity}' not found", 404)
             with open(entity_path_temp_file, "rb") as component_temp_file:
                 file = {"FILE": (entity_path_temp_file, component_temp_file)}
@@ -113,3 +113,4 @@ class JenkinsHandler:
                     raise CustomFileNotFoundError(f"File with the results of the entity '{entity}' not found", 404)
             log_handler.info(f"End of deployment of entity '{entity}'")
         log_handler.info("All entities of the trial network are deployed")
+        self.trial_network.set_tn_status("started")

@@ -10,8 +10,8 @@ from tnlcm.logs.log_handler import log_handler
 from tnlcm.exceptions.exceptions_handler import InvalidFileExtensionError, InvalidContentFileError, TrialNetworkEntityNotInDescriptorError
 
 class TrialNetworkTemplateModel(Document):
-    user_created = StringField(max_length=255)
-    tn_id = StringField(max_length=255, unique=True)
+    user_created = StringField(max_length=100)
+    tn_id = StringField(max_length=10, unique=True)
     tn_date_created_utc = DateTimeField(default=datetime.now(timezone.utc))
     tn_raw_descriptor = StringField()
     tn_sorted_descriptor = StringField()

@@ -19,7 +19,7 @@ class Callback(Resource):
         try:
             data = request.get_json()
             callback_handler = CallbackHandler(data=data)
-            callback_handler.save_decoded_results()
+            callback_handler.save_pipeline_results()
             return {"message": "Save results received by Jenkins"}, 201
         except CustomException as e:
             return abort(e.error_code, str(e))
