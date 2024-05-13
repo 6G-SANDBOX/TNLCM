@@ -25,9 +25,12 @@ class TrialNetworkModel(Document):
         "collection": "trial_networks"
     }
 
-    def set_tn_id(self, size=6, chars=ascii_lowercase + digits):
+    def set_tn_id(self, size=6, chars=ascii_lowercase+digits, tn_id=None):
         """Generate random tn_id using [a-z][0-9]"""
-        self.tn_id = choice(ascii_lowercase) + ''.join(choice(chars) for _ in range(size))
+        if not tn_id:
+            self.tn_id = choice(ascii_lowercase) + ''.join(choice(chars) for _ in range(size))
+        else:
+            self.tn_id = tn_id
 
     def set_tn_status(self, tn_status):
         """Set status of trial network"""
