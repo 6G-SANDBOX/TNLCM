@@ -7,9 +7,10 @@ from flask_cors import CORS
 from waitress import serve
 from dotenv import load_dotenv
 
-from src.logs.log_handler import log_handler
-from src.verification.mail import init_mail
-from src.routes import callback_namespace, sixglibrary_namespace, trial_network_namespace, users_namespace, verification_namespace
+from tnlcm.logs.log_handler import log_handler
+from tnlcm.mail.mail import init_mail
+from tnlcm.database.database import init_db
+from tnlcm.routes import callback_namespace, sixglibrary_namespace, trial_network_namespace, user_namespace, verification_token_namespace
 
 app = Flask(__name__)
 CORS(app)
@@ -24,6 +25,7 @@ elif flask_env == "DEVELOPMENT":
 else:
     app.config.from_object("config.TestingConfig")
 
+init_db(app)
 init_mail(app)
 
 api = Api(
@@ -41,8 +43,8 @@ api = Api(
 api.add_namespace(callback_namespace, path="/tnlcm/callback")
 api.add_namespace(sixglibrary_namespace, path="/tnlcm/6glibrary")
 api.add_namespace(trial_network_namespace, path="/tnlcm/trial_network")
-api.add_namespace(users_namespace, path="/tnlcm/user")
-api.add_namespace(verification_namespace, path="/tnlcm/verification")
+api.add_namespace(user_namespace, path="/tnlcm/user")
+api.add_namespace(verification_token_namespace, path="/tnlcm/verification_token")
 
 log_handler.info("Start Server Trial Network Life Cycle Manager (TNLCM) on http://0.0.0.0:5000")
 

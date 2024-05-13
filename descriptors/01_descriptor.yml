@@ -1,25 +1,6 @@
 trial_network:
 
-  mandatory_tn_bastion:
-    type: "tn_bastion"
-    needs:
-      - "mandatory_tn_vxlan"
-    input:
-      one_component_networks:
-        - "mandatory_tn_vxlan"
-  mandatory_tn_vxlan:
+  tn_vxlan:
     type: "tn_vxlan"
-    needs: []
-    input:
-      one_vxlan_name: "mandatory_tn_vxlan"
-  first_vm_kvm_very_small:
-    type: "vm_kvm_very_small"
-    needs:
-      - "mandatory_tn_vxlan"
-      - "mandatory_tn_bastion"
-    input:
-      one_component_name: "one_vm_kvm_very_small"
-      one_vm_username: "test"
-      one_vm_password: "test"
-      one_component_networks:
-        - "mandatory_tn_vxlan"
+    dependencies: []
+    input: {}

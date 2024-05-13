@@ -9,7 +9,7 @@
   <!-- [![MIT License][license-shield]][license-url] -->
   <!-- [![LinkedIn][linkedin-shield]][linkedin-url] -->
 
-  <a href="https://github.com/6G-SANDBOX/TNLCM"><img src="./images/TNLCM_LOGO.png" width="80" title="TNLCM"></a>
+  <a href="https://github.com/6G-SANDBOX/TNLCM"><img src="./static/TNLCM_LOGO.png" width="80" title="TNLCM"></a>
 
   # Trial Network Life Cycle Manager - TNLCM <!-- omit in toc -->
 
@@ -62,20 +62,20 @@ TNLCM                        // main folder.
 ├─ docker-compose.yml        // file for create database.
 ├─ docs                      // folder in which all documentation is stored.
 ├─ requirements.txt          // file containing the libraries and their versions.
-├─ src                       // folder in which the developed code is stored.
+├─ tnlcm                     // folder in which the developed code is stored.
 │  ├─ auth                   // folder that handler the authentication of users who have access.
 │  ├─ callback               // folder that handler the results received by Jenkins.
-│  ├─ database               // folder that handler the connection with MongoDB database.
+│  ├─ database               // folder that handler the connection with MongoDB database using mongoengine.
 │  ├─ exceptions             // folder that handler the creation of custom exceptions.
 │  ├─ jenkins                // folder that handler the connection with Jenkins for tn deployment.
-│  ├─ logs                   // folder that handler log creation.
+│  ├─ logs                   // folder that handler the logs configuration.
+│  ├─ mail                   // folder that handler the configuration to use flask_mail.
+│  ├─ models                 // folder that contains the database models.
 │  ├─ repository             // folder that handler the connection to any repository.
 │  ├─ routes                 // folder that handler the API that is exposed.
 │  ├─ sixglibrary            // folder that handler the connection to the 6G-Library repository.
 │  ├─ sixgsandbox_sites      // folder that handler the connection to the 6G-Sandbox-Sites repository.
-│  ├─ temp                   // folder that handler the creation of temporary files.
-│  ├─ trial_network          // folder that handler the trial networks.
-│  └─ verification           // folder that handler the users verification to check the access.
+│  └─ temp                   // folder that handler the creation of temporary files.
 └─ tests                     // folder that contains files related to testing the code.
 ```
 
@@ -83,25 +83,26 @@ TNLCM                        // main folder.
 
 TNLCM is currently able to deploy the following types of components corresponding with the [6G-Library](https://github.com/6G-SANDBOX/6G-Library): **tn_vxlan**, **vxlan**, **tn_bastion**, **vm_kvm**, **k8s**, **open5gs**, **UERANSIM-gNB** and **UERANSIM-UE**.
 
-![CurrentStatus](./images/currentStatus.png)
+![CurrentStatus](./static/currentStatus.png)
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 ## :mag: Overview of TNLCM and 6G-Library implementation
 
-![TNLCM_LIFECYCLE](./images/TNLCM_6GLIBRARY.png)
+![TNLCM_LIFECYCLE](./static/TNLCM_6GLIBRARY.png)
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 ## :rocket: Getting Started
 
 > [!WARNING]
-> The following tools are required to be deployed on platforms:
+> In order to run TNLCM, the following tools are **required** to be deployed on the platforms:
 > 
-> * Jenkins (Mandatory)
-> * OpenNebula (Mandatory)
-> * MinIO (Mandatory)
+> * Jenkins - v2.440.3 or later
+> * OpenNebula - v6.6.3 or later
+> * MinIO
 
+<!-- TODO: Add 6G-Library version -->
 > [!NOTE]
 > TNLCM is being developed on Windows 10 and has been tested on Windows 10 and Ubuntu in version 22.04.3 LTS.
 
@@ -124,6 +125,7 @@ Mandatory update the values of the following variables according to the platform
 - `JENKINS_USER`
 - `JENKINS_PASSWORD`
 - `JENKINS_TOKEN`
+- `JENKINS_PIPELINE_FOLDER`
 - `JENKINS_PIPELINE_NAME`
 - `JENKINS_DEPLOYMENT_SITE`
 - `TNLCM_CALLBACK`
@@ -160,7 +162,7 @@ A MongoDB dashboard will be available at the url http://mongodb-frontend-ip:8081
 > [!NOTE]
 > User and password to access to the MongoDB dashboard are the values indicated in the variables `ME_CONFIG_BASICAUTH_USERNAME` and `ME_CONFIG_BASICAUTH_PASSWORD` of the `.env` file. By default, the values indicated in the [`.env.template`](../.env.template) file are used.
 
-![dashboardMongoDB](./images/dashboardMongoDB.png)
+![dashboardMongoDB](./static/dashboardMongoDB.png)
 
 ### :snake: Create environment, install libraries and start
 
@@ -211,42 +213,41 @@ The TNLCM database consists of several collections that store important informat
 
 ### Collection `trial_networks` <!-- omit in toc -->
 
-| Field                   | Description                                                 |
-|-------------------------|-------------------------------------------------------------|
-| `user_created`          | The user who created the trial network.                     |
-| `tn_id`                 | The ID of the trial network.                                |
-| `tn_date_created_utc`   | The date and time when the trial network was created (UTC). |
-| `tn_status`             | The current status of the trial network.                    |
-| `tn_raw_descriptor`     | The raw descriptor of the trial network.                    |
-| `tn_sorted_descriptor`  | The sorted descriptor of the trial network.                 |
-| `tn_report`             | The report related to the trial network.                    |
+| Field                  | Description                                                 |
+| ---------------------- | ----------------------------------------------------------- |
+| `user_created`         | The user who created the trial network.                     |
+| `tn_id`                | The ID of the trial network.                                |
+| `tn_date_created_utc`  | The date and time when the trial network was created (UTC). |
+| `tn_raw_descriptor`    | The raw descriptor of the trial network.                    |
+| `tn_sorted_descriptor` | The sorted descriptor of the trial network.                 |
+| `tn_report`            | The report related to the trial network.                    |
 
 ### Collection `trial_networks_templates` <!-- omit in toc -->
 
-| Field                   | Description                                                         |
-|-------------------------|---------------------------------------------------------------------|
-| `user_created`          | The user who created the trial network template.                    |
-| `tn_id`                 | The ID of the trial network template.                               |
-| `tn_date_created_utc`   | The date and time when the trial network template was created (UTC).|
-| `tn_raw_descriptor`     | The raw descriptor of the trial network template.                   |
-| `tn_sorted_descriptor`  | The sorted descriptor of the trial network template.                |
+| Field                  | Description                                                          |
+| ---------------------- | -------------------------------------------------------------------- |
+| `user_created`         | The user who created the trial network template.                     |
+| `tn_id`                | The ID of the trial network template.                                |
+| `tn_date_created_utc`  | The date and time when the trial network template was created (UTC). |
+| `tn_raw_descriptor`    | The raw descriptor of the trial network template.                    |
+| `tn_sorted_descriptor` | The sorted descriptor of the trial network template.                 |
 
 ### Collection `users` <!-- omit in toc -->
 
-| Field      | Description                                       |
-|------------|---------------------------------------------------|
-| `email`    | The email address of the user.                    |
-| `username` | The username of the user.                         |
-| `password` | The password of the user (hashed).                |
-| `org`      | The organization to which the user belongs.       |
+| Field      | Description                                 |
+| ---------- | ------------------------------------------- |
+| `email`    | The email address of the user.              |
+| `username` | The username of the user.                   |
+| `password` | The password of the user (hashed).          |
+| `org`      | The organization to which the user belongs. |
 
 ### Collection `verifications_tokens` <!-- omit in toc -->
 
-| Field                  | Description                                             |
-|------------------------|---------------------------------------------------------|
-| `new_account_email`    | The email associated with the new account.              |
-| `verification_token`   | The verification token generated for the new account.   |
-| `creation_date`        | The creation date of the verification token.            |
+| Field                | Description                                           |
+| -------------------- | ----------------------------------------------------- |
+| `new_account_email`  | The email associated with the new account.            |
+| `verification_token` | The verification token generated for the new account. |
+| `creation_date`      | The creation date of the verification token.          |
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
@@ -258,10 +259,11 @@ Trial Network Descriptors are yaml files with a set of expected fields and with 
 
 ```yaml
 trial_network:  # Mandatory, contains the description of all entities in the Trial Network
-  entity1:  # A unique identifier for each entity in the Trial Network
+  type-name:  # A unique identifier for each entity in the Trial Network
     type:  # 6G-Library component type
-    needs: # List of dependencies of the component with other components
-      - entityN
+    name: # entity name
+    dependencies: # List of dependencies of the component with other components
+      - {type}-{name}
       - ...
     input: # Necessary variables collected from the input part of the 6G-Library
       ...
@@ -270,9 +272,11 @@ trial_network:  # Mandatory, contains the description of all entities in the Tri
 This repository contains a variety of descriptor templates:
 - [`01_descriptor.yml`](../descriptors/01_descriptor.yml)
 - [`02_descriptor.yml`](../descriptors/02_descriptor.yml)
+- [`03_descriptor.yml`](../descriptors/03_descriptor.yml)
+- [`04_descriptor.yml`](../descriptors/04_descriptor.yml)
 
 The first end-to-end trial network:
-- [`03_descriptor_e2e.yml`](../descriptors/03_descriptor_e2e.yml)
+- [`05_descriptor.yml`](../descriptors/05_descriptor.yml)
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
@@ -282,44 +286,44 @@ The first end-to-end trial network:
 
 The API set forth in the TNLCM is as follows:
 
-![api](./images/api.png)
+![api](./static/api.png)
 
 If it is the first time using the API it is necessary to create a user. A verification code is required, so it is necessary to enter a valid email address that can be accessed:
 
-![requestVerificationToken](./images/requestVerificationToken.png)
+![requestVerificationToken](./static/requestVerificationToken.png)
 
 Once the registration code is obtained, proceed to the user registration using the email and the code previously employed:
 
-![registerUser](./images/registerUser.png)
+![registerUser](./static/registerUser.png)
 
 Once the user has been created or if it has been previously created, add the user and its password in the green **Authorize** box:
 
-![addUser](./images/addUser.png)
+![addUser](./static/addUser.png)
 
 Once the user has been added, an access token and its refresh token can be generated. This access token has a duration of 45 minutes (can be modified):
 
-![tokens](./images/obtainTokens.png)
+![tokens](./static/obtainTokens.png)
 
 The next step is to add the token in the green **Authorize** box. It is required to put the word **Bearer**, a space and then the token. An example is shown:
 
-![accessToken](./images/accessToken.png)
+![accessToken](./static/accessToken.png)
 
 Now, requests that involve having an access token can be made.
 
 If the access token expires, it can be refreshed by using the refresh token. The token in the green **Authorize** box must be updated with the refresh token and the post request must be made:
 
-![refreshToken](./images/refreshToken.png)
+![refreshToken](./static/refreshToken.png)
 
-![updateAccessToken](./images/updateAccessToken.png)
+![updateAccessToken](./static/updateAccessToken.png)
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 ## :construction_worker: Development Team <!-- omit in toc -->
 
-| Photo | Name | Email | GitHub | Linkedin |
-| :---: | :--: | :---: | :----: | :------: |
+|                               Photo                                |        Name         |      Email      |                                                                        GitHub                                                                        |                                                                                      Linkedin                                                                                       |
+| :----------------------------------------------------------------: | :-----------------: | :-------------: | :--------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
 | <img src="https://github.com/CarlosAndreo.png?size=50" width=50px> | Carlos Andreo López | c.andreo@uma.es | <a href="https://github.com/CarlosAndreo"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="https://www.linkedin.com/in/carlos-andreo-lópez-66734b22a/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
-| <img src="https://github.com/NaniteBased.png?size=50" width=50px> | Bruno García García | - | <a href="https://github.com/NaniteBased"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="https://itis.uma.es/personal/bruno-garcia-garcia/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
+| <img src="https://github.com/NaniteBased.png?size=50" width=50px>  | Bruno García García |        -        | <a href="https://github.com/NaniteBased"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a>  |     <a href="https://itis.uma.es/personal/bruno-garcia-garcia/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a>      |
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 

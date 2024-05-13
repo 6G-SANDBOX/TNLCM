@@ -1,0 +1,25 @@
+trial_network:
+
+  tn_vxlan:
+    type: "tn_vxlan"
+    dependencies: []
+    input: {}
+  tn_bastion:
+    type: "tn_bastion"
+    dependencies:
+      - "tn_vxlan"
+    input:
+      one_component_networks:
+        - "tn_vxlan.output.id"
+  vm_kvm_very_small-ubuntu22.04:
+    type: "vm_kvm_very_small"
+    name: "ubuntu22.04"
+    dependencies:
+      - "tn_vxlan"
+      - "tn_bastion"
+    input:
+      one_component_name: "one_vm_kvm_very_small"
+      one_vm_username: "test"
+      one_vm_password: "test"
+      one_component_networks:
+        - "tn_vxlan.output.id"
