@@ -6,8 +6,8 @@ from requests.exceptions import RequestException
 
 from time import sleep
 
-from tnlcm.logs.log_handler import log_handler
-from tnlcm.exceptions.exceptions_handler import JenkinsConnectionError, VariablesNotDefinedInEnvError, SixGLibraryComponentNotFound, CustomFileNotFoundError, JenkinsResponseError, JenkinsComponentPipelineError
+from core.logs.log_handler import log_handler
+from core.exceptions.exceptions_handler import JenkinsConnectionError, VariablesNotDefinedInEnvError, SixGLibraryComponentNotFound, CustomFileNotFoundError, JenkinsResponseError, JenkinsComponentPipelineError
 
 JENKINS_DEPLOYMENT_SITES = ["uma", "athens", "fokus"]
 

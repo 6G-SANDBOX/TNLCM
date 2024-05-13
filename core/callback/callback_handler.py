@@ -4,11 +4,11 @@ from json import dump, load
 from yaml import safe_load, YAMLError
 from base64 import b64decode
 
-from tnlcm.logs.log_handler import log_handler
-from tnlcm.exceptions.exceptions_handler import KeyNotFoundError, CustomUnicodeDecodeError, InvalidContentFileError, CustomFileNotFoundError, KeyNotFoundError
+from core.logs.log_handler import log_handler
+from core.exceptions.exceptions_handler import KeyNotFoundError, CustomUnicodeDecodeError, InvalidContentFileError, CustomFileNotFoundError, KeyNotFoundError
 
-REPORT_DIRECTORY = os.path.join(os.getcwd(), "tnlcm", "callback", "reports")
-SIXGLIBRARY_DIRECTORY = os.path.join(os.getcwd(), "tnlcm", "sixglibrary")
+REPORT_DIRECTORY = os.path.join(os.getcwd(), "core", "callback", "reports")
+SIXGLIBRARY_DIRECTORY = os.path.join(os.getcwd(), "core", "sixglibrary")
 JENKINS_RESULT_KEYS = ["tn_id", "component_type", "custom_name", "success", "output", "markdown"]
 
 class CallbackHandler:

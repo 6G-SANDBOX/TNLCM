@@ -6,19 +6,27 @@ from random import choice
 from datetime import datetime, timezone
 from mongoengine import Document, StringField, DateTimeField
 
-from tnlcm.logs.log_handler import log_handler
-from tnlcm.exceptions.exceptions_handler import InvalidFileExtensionError, InvalidContentFileError, TrialNetworkEntityNotInDescriptorError
+from core.logs.log_handler import log_handler
+from core.exceptions.exceptions_handler import InvalidFileExtensionError, InvalidContentFileError, TrialNetworkEntityNotInDescriptorError, TrialNetworkInvalidStatusError
 
-class TrialNetworkTemplateModel(Document):
+TN_STATE_MACHINE = ["created", "started"]
+# created: meaning that it is deployed but not initiated
+# started: meaning that it is deployed and started
+# suspended: 
+# deleted:
+
+class TrialNetworkModel(Document):
     user_created = StringField(max_length=100)
     tn_id = StringField(max_length=10, unique=True)
+    tn_status = StringField(max_length=50)
     tn_date_created_utc = DateTimeField(default=datetime.now(timezone.utc))
     tn_raw_descriptor = StringField()
     tn_sorted_descriptor = StringField()
+    tn_report = StringField()
 
     meta = {
         "db_alias": "tnlcm-database-alias",
-        "collection": "trial_networks_templates"
+        "collection": "trial_networks"
     }
 
     def set_tn_id(self, size=6, chars=ascii_lowercase+digits, tn_id=None):
@@ -27,6 +35,12 @@ class TrialNetworkTemplateModel(Document):
             self.tn_id = choice(ascii_lowercase) + ''.join(choice(chars) for _ in range(size))
         else:
             self.tn_id = tn_id
+
+    def set_tn_status(self, tn_status):
+        """Set status of trial network"""
+        if tn_status not in TN_STATE_MACHINE:
+            raise TrialNetworkInvalidStatusError(f"Trial network '{tn_status}' status not found", 404)
+        self.tn_status = tn_status
 
     def set_tn_raw_descriptor(self, tn_descriptor_file):
         """Check the descriptor file is well constructed and its extension is yaml or yml"""
@@ -64,6 +78,12 @@ class TrialNetworkTemplateModel(Document):
         log_handler.info("End order of the entities of the descriptor")
         self.tn_sorted_descriptor = self.descriptor_to_json({"trial_network": ordered_entities})
 
+    def set_tn_report(self, report_file):
+        """Update trial network report"""
+        with open(report_file, "r") as file:
+            markdown_content = file.read()
+        self.tn_report = markdown_content
+
     def descriptor_to_json(self, descriptor):
         """Convert descriptor to json"""
         return dumps(descriptor)
@@ -82,9 +102,11 @@ class TrialNetworkTemplateModel(Document):
         return {
             "user_created": self.user_created,
             "tn_id": self.tn_id,
-            "tn_date_created_utc": self.tn_date_created_utc.isoformat(),
+            "tn_status": self.tn_status,
+            "tn_date_created_utc": self.creation_date.isoformat(),
             "tn_raw_descriptor": self.json_to_descriptor(self.tn_raw_descriptor),
-            "tn_sorted_descriptor": self.json_to_descriptor(self.tn_sorted_descriptor)
+            "tn_sorted_descriptor": self.json_to_descriptor(self.tn_sorted_descriptor),
+            "tn_report": self.tn_report
         }
 
     def __repr__(self):

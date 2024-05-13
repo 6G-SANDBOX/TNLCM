@@ -4,9 +4,9 @@ from flask_restx import Resource, Namespace, reqparse, abort
 from flask_mail import Message
 from random import randint
 
-from tnlcm.mail.mail import mail
-from tnlcm.models import UserModel, VerificationTokenModel
-from tnlcm.exceptions.exceptions_handler import CustomException, VariablesNotDefinedInEnvError
+from core.mail.mail import mail
+from core.models import UserModel, VerificationTokenModel
+from core.exceptions.exceptions_handler import CustomException, VariablesNotDefinedInEnvError
 
 verification_token_namespace = Namespace(
     name="verification",

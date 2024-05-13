@@ -1,7 +1,7 @@
 from flask_restx import Namespace, Resource, abort, reqparse
 
-from tnlcm.sixglibrary.sixglibrary_handler import SixGLibraryHandler
-from tnlcm.exceptions.exceptions_handler import CustomException
+from core.sixglibrary.sixglibrary_handler import SixGLibraryHandler
+from core.exceptions.exceptions_handler import CustomException
 
 sixglibrary_namespace = Namespace(
     name="6G-Library",

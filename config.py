@@ -1,6 +1,6 @@
 import os
 
-from tnlcm.logs.log_handler import log_handler
+from core.logs.log_handler import log_handler
 
 class Config(object):
     log_handler.info("Load configuration file")

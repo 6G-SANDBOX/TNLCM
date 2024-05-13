@@ -4,7 +4,7 @@ import sys
 
 from datetime import datetime
 
-LOGS_DIRECTORY = os.path.join(os.getcwd(), "tnlcm", "logs", "executions")
+LOGS_DIRECTORY = os.path.join(os.getcwd(), "core", "logs", "executions")
 
 class CustomFormatter(logging.Formatter):
     grey = "\x1b[38;21m"

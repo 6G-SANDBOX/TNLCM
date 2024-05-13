@@ -163,8 +163,8 @@ cython_debug/
 .vscode
 
 # TNLCM
-tnlcm/callback/reports/
-tnlcm/temp/files/
-tnlcm/logs/executions/
-tnlcm/sixglibrary/6glibrary/
-tnlcm/sixgsandbox_sites/6gsandbox_sites/
+core/callback/reports/
+core/temp/files/
+core/logs/executions/
+core/sixglibrary/6glibrary/
+core/sixgsandbox_sites/6gsandbox_sites/

@@ -2,7 +2,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from email_validator import validate_email, EmailNotValidError
 from mongoengine import Document, EmailField, StringField
 
-from tnlcm.exceptions.exceptions_handler import UserEmailInvalidError
+from core.exceptions.exceptions_handler import UserEmailInvalidError
 
 class UserModel(Document):
     username = StringField(max_length=50, unique=True)

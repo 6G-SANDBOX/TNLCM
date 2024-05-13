@@ -62,7 +62,7 @@ TNLCM                        // main folder.
 ├─ docker-compose.yml        // file for create database.
 ├─ docs                      // folder in which all documentation is stored.
 ├─ requirements.txt          // file containing the libraries and their versions.
-├─ tnlcm                     // folder in which the developed code is stored.
+├─ core                      // folder in which the developed code is stored.
 │  ├─ auth                   // folder that handler the authentication of users who have access.
 │  ├─ callback               // folder that handler the results received by Jenkins.
 │  ├─ database               // folder that handler the connection with MongoDB database using mongoengine.

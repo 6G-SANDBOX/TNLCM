@@ -7,10 +7,10 @@ from flask_cors import CORS
 from waitress import serve
 from dotenv import load_dotenv
 
-from tnlcm.logs.log_handler import log_handler
-from tnlcm.mail.mail import init_mail
-from tnlcm.database.database import init_db
-from tnlcm.routes import callback_namespace, sixglibrary_namespace, trial_network_namespace, user_namespace, verification_token_namespace
+from core.logs.log_handler import log_handler
+from core.mail.mail import init_mail
+from core.database.database import init_db
+from core.routes import callback_namespace, sixglibrary_namespace, trial_network_namespace, user_namespace, verification_token_namespace
 
 app = Flask(__name__)
 CORS(app)

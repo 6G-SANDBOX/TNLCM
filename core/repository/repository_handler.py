@@ -4,8 +4,8 @@ import re
 from git import Repo
 from git.exc import InvalidGitRepositoryError, GitCommandError
 
-from tnlcm.logs.log_handler import log_handler
-from tnlcm.exceptions.exceptions_handler import VariablesNotDefinedInEnvError, GitCloneError, GitCheckoutError
+from core.logs.log_handler import log_handler
+from core.exceptions.exceptions_handler import VariablesNotDefinedInEnvError, GitCloneError, GitCheckoutError
 
 class RepositoryHandler:
 

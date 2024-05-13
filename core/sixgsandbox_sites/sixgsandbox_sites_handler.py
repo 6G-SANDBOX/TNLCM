@@ -2,11 +2,11 @@ import os
 
 from yaml import safe_load, YAMLError
 
-from tnlcm.logs.log_handler import log_handler
-from tnlcm.repository.repository_handler import RepositoryHandler
-from tnlcm.exceptions.exceptions_handler import VariablesNotDefinedInEnvError, KeyNotFoundError, InvalidContentFileError, CustomFileNotFoundError
+from core.logs.log_handler import log_handler
+from core.repository.repository_handler import RepositoryHandler
+from core.exceptions.exceptions_handler import VariablesNotDefinedInEnvError, KeyNotFoundError, InvalidContentFileError, CustomFileNotFoundError
 
-SIXGSANDBOX_SITES_DIRECTORY = os.path.join(os.getcwd(), "tnlcm", "sixgsandbox_sites")
+SIXGSANDBOX_SITES_DIRECTORY = os.path.join(os.getcwd(), "core", "sixgsandbox_sites")
 
 class SixGSandboxSitesHandler():
 

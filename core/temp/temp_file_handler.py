@@ -3,9 +3,9 @@ import os
 from yaml import dump
 from tempfile import NamedTemporaryFile
 
-from tnlcm.logs.log_handler import log_handler
+from core.logs.log_handler import log_handler
 
-TEMP_FILES_DIRECTORY = os.path.join(os.getcwd(), "tnlcm", "temp", "files")
+TEMP_FILES_DIRECTORY = os.path.join(os.getcwd(), "core", "temp", "files")
 
 class TempFileHandler:
 

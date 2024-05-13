@@ -3,9 +3,9 @@ from datetime import timedelta
 from flask_restx import Resource, Namespace, abort
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, create_refresh_token
 
-from tnlcm.auth import get_current_user_from_jwt
-from tnlcm.models import UserModel
-from tnlcm.exceptions.exceptions_handler import CustomException
+from core.auth import get_current_user_from_jwt
+from core.models import UserModel
+from core.exceptions.exceptions_handler import CustomException
 
 EXP_MINUTES_ACCESS_TOKEN = 50
 EXP_DAYS_REFRESH_TOKEN = 730

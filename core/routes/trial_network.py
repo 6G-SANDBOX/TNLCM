@@ -2,15 +2,15 @@ from flask_restx import Namespace, Resource, reqparse, abort
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.datastructures import FileStorage
 
-from tnlcm.auth import get_current_user_from_jwt
-from tnlcm.callback.callback_handler import CallbackHandler
-from tnlcm.jenkins.jenkins_handler import JenkinsHandler
-from tnlcm.models import TrialNetworkModel, TrialNetworkTemplateModel
-from tnlcm.sixglibrary.sixglibrary_handler import SixGLibraryHandler
-from tnlcm.sixgsandbox_sites.sixgsandbox_sites_handler import SixGSandboxSitesHandler
-from tnlcm.temp.temp_file_handler import TempFileHandler
+from core.auth import get_current_user_from_jwt
+from core.callback.callback_handler import CallbackHandler
+from core.jenkins.jenkins_handler import JenkinsHandler
+from core.models import TrialNetworkModel, TrialNetworkTemplateModel
+from core.sixglibrary.sixglibrary_handler import SixGLibraryHandler
+from core.sixgsandbox_sites.sixgsandbox_sites_handler import SixGSandboxSitesHandler
+from core.temp.temp_file_handler import TempFileHandler
 
-from tnlcm.exceptions.exceptions_handler import CustomException
+from core.exceptions.exceptions_handler import CustomException
 
 trial_network_namespace = Namespace(
     name="trial_network",

@@ -2,11 +2,11 @@ import os
 
 from yaml import safe_load, YAMLError
 
-from tnlcm.logs.log_handler import log_handler
-from tnlcm.repository.repository_handler import RepositoryHandler
-from tnlcm.exceptions.exceptions_handler import VariablesNotDefinedInEnvError, SixGLibraryComponentsNotFound, InvalidContentFileError, CustomFileNotFoundError
+from core.logs.log_handler import log_handler
+from core.repository.repository_handler import RepositoryHandler
+from core.exceptions.exceptions_handler import VariablesNotDefinedInEnvError, SixGLibraryComponentsNotFound, InvalidContentFileError, CustomFileNotFoundError
 
-SIXGLIBRARY_DIRECTORY = os.path.join(os.getcwd(), "tnlcm", "sixglibrary")
+SIXGLIBRARY_DIRECTORY = os.path.join(os.getcwd(), "core", "sixglibrary")
 SIXGLIBRARY_EXCLUDE_FOLDERS = [".git", ".global", ".vscode", "dummy-component", "skel", "suggested_skel"]
 
 class SixGLibraryHandler:
