@@ -13,7 +13,7 @@ from core.temp.temp_file_handler import TempFileHandler
 from core.exceptions.exceptions_handler import CustomException
 
 trial_network_namespace = Namespace(
-    name="trial_network",
+    name="trial-network",
     description="Namespace for trial network status and management",
     authorizations={
         "Bearer Auth": {
@@ -25,48 +25,21 @@ trial_network_namespace = Namespace(
 )
 
 @trial_network_namespace.route("")
-class CreateTrialNetwork(Resource):
-
-    parser_post = reqparse.RequestParser()
-    parser_post.add_argument("descriptor", location="files", type=FileStorage, required=True)
-
-    @trial_network_namespace.doc(security="Bearer Auth")
-    @jwt_required()
-    @trial_network_namespace.expect(parser_post)
-    def post(self):
-        """
-        Add a trial network
-        """
-        try:
-            tn_descriptor_file = self.parser_post.parse_args()["descriptor"]
-
-            current_user = get_current_user_from_jwt(get_jwt_identity())
-            trial_network = TrialNetworkModel(
-                user_created=current_user.username
-            )
-            trial_network.set_tn_id(size=3)
-            trial_network.set_tn_status("created")
-            trial_network.set_tn_raw_descriptor(tn_descriptor_file)
-            trial_network.set_tn_sorted_descriptor()
-            trial_network.save()
-            return trial_network.to_dict(), 201
-        except CustomException as e:
-            return abort(e.error_code, str(e))
-
-@trial_network_namespace.route("/<string:tn_id>")
 class TrialNetwork(Resource):
 
-    parser_put = reqparse.RequestParser()
-    parser_put.add_argument("branch", type=str, required=False)
-    parser_put.add_argument("commit_id", type=str, required=False)
+    parser_get = reqparse.RequestParser()
+    parser_get.add_argument("tn_id", type=str, required=True)
 
     @trial_network_namespace.doc(security="Bearer Auth")
     @jwt_required()
-    def get(self, tn_id):
+    @trial_network_namespace.expect(parser_get)
+    def get(self):
         """
         Return the descriptor of the trial network
         """
         try:
+            tn_id = self.parser_get.parse_args()["tn_id"]
+
             current_user = get_current_user_from_jwt(get_jwt_identity())
             trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
             if not trial_network:
@@ -74,16 +47,50 @@ class TrialNetwork(Resource):
             return trial_network.json_to_descriptor(trial_network.tn_sorted_descriptor), 200
         except CustomException as e:
             return abort(e.error_code, str(e))
+
+    parser_post = reqparse.RequestParser()
+    parser_post.add_argument("tn_id", type=str, required=False)
+    parser_post.add_argument("descriptor", location="files", type=FileStorage, required=True)
+
+    @trial_network_namespace.doc(security="Bearer Auth")
+    @jwt_required()
+    @trial_network_namespace.expect(parser_post)
+    def post(self):
+        """
+        Create and suspend trial network
+        """
+        try:
+            tn_id = self.parser_post.parse_args()["tn_id"]
+            tn_descriptor_file = self.parser_post.parse_args()["descriptor"]
+
+            current_user = get_current_user_from_jwt(get_jwt_identity())
+            trial_network = TrialNetworkModel(
+                user_created=current_user.username
+            )
+            trial_network.set_tn_id(size=3, tn_id=tn_id)
+            trial_network.set_tn_status("created")
+            trial_network.set_tn_raw_descriptor(tn_descriptor_file)
+            trial_network.set_tn_sorted_descriptor()
+            trial_network.save()
+            return trial_network.to_dict(), 201
+        except CustomException as e:
+            return abort(e.error_code, str(e))
     
+    parser_put = reqparse.RequestParser()
+    parser_put.add_argument("tn_id", type=str, required=True)
+    parser_put.add_argument("branch", type=str, required=False)
+    parser_put.add_argument("commit_id", type=str, required=False)
+
     @trial_network_namespace.doc(security="Bearer Auth")
     @jwt_required()
     @trial_network_namespace.expect(parser_put)
-    def put(self, tn_id):
+    def put(self):
         """
-        Start trial network deployment
+        Play trial network
         Can specify a branch or a commit_id of the 6G-Library. **If nothing is specified, the main branch will be used.**
         """
         try:
+            tn_id = self.parser_put.parse_args()["tn_id"]
             branch = self.parser_put.parse_args()["branch"]
             commit_id = self.parser_put.parse_args()["commit_id"]
             
@@ -104,11 +111,14 @@ class TrialNetwork(Resource):
 
     @trial_network_namespace.doc(security="Bearer Auth")
     @jwt_required()
-    def delete(self, tn_id):
+    @trial_network_namespace.expect(parser_get)
+    def delete(self):
         """
-        Delete a trial network
+        Delete trial network
         """
         try:
+            tn_id = self.parser_get.parse_args()["tn_id"]
+
             current_user = get_current_user_from_jwt(get_jwt_identity())
             trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
             if not trial_network:
@@ -164,7 +174,6 @@ class TrialNetworksTemplates(Resource):
             return {'trial_networks_templates': [tn.to_dict_full() for tn in trial_networks]}, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
-    
 
 @trial_network_namespace.route("/template")
 class CreateTrialNetworkTemplate(Resource):
@@ -195,3 +204,11 @@ class CreateTrialNetworkTemplate(Resource):
             return trial_network_template.to_dict(), 201
         except CustomException as e:
             return abort(e.error_code, str(e))
+
+@trial_network_namespace.route("/play")
+class PlayTrialNetworkTemplate(Resource):
+    pass
+
+@trial_network_namespace.route("/suspend")
+class SuspendTrialNetworkTemplate(Resource):
+    pass

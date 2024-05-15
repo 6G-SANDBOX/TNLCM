@@ -13,7 +13,7 @@ verification_token_namespace = Namespace(
     description="Namespace for verification"
 )
 
-@verification_token_namespace.route("/request_verification_token")
+@verification_token_namespace.route("/request-verification-token")
 class RequestVerificationToken(Resource):
 
     parser_post = reqparse.RequestParser()
@@ -55,7 +55,7 @@ class RequestVerificationToken(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
 
-@verification_token_namespace.route("/new_user_verification")
+@verification_token_namespace.route("/new-user-verification")
 class NewUserVerification(Resource):
 
     parser_post = reqparse.RequestParser()
@@ -102,7 +102,7 @@ class NewUserVerification(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
 
-@verification_token_namespace.route("/request_reset_token")
+@verification_token_namespace.route("/request-reset-token")
 class RequestResetToken(Resource):
 
     parser_post = reqparse.RequestParser()
@@ -141,7 +141,7 @@ class RequestResetToken(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
 
-@verification_token_namespace.route("/change_password")
+@verification_token_namespace.route("/change-password")
 class ChangePassword(Resource):
 
     parser_post = reqparse.RequestParser()
