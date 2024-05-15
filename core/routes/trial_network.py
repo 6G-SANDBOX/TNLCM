@@ -185,13 +185,13 @@ class CreateTrialNetworkTemplate(Resource):
             tn_id = self.parser_post.parse_args()["tn_id"]
 
             current_user = get_current_user_from_jwt(get_jwt_identity())
-            trial_network = TrialNetworkTemplateModel(
+            trial_network_template = TrialNetworkTemplateModel(
                 user_created=current_user.username
             )
-            trial_network.set_tn_id(tn_id=tn_id)
-            trial_network.set_tn_raw_descriptor(tn_descriptor_file)
-            trial_network.set_tn_sorted_descriptor()
-            trial_network.save()
-            return trial_network.to_dict(), 201
+            trial_network_template.set_tn_id(tn_id=tn_id)
+            trial_network_template.set_tn_raw_descriptor(tn_descriptor_file)
+            trial_network_template.set_tn_sorted_descriptor()
+            trial_network_template.save()
+            return trial_network_template.to_dict(), 201
         except CustomException as e:
             return abort(e.error_code, str(e))

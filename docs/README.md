@@ -217,6 +217,7 @@ The TNLCM database consists of several collections that store important informat
 | ---------------------- | ----------------------------------------------------------- |
 | `user_created`         | The user who created the trial network.                     |
 | `tn_id`                | The ID of the trial network.                                |
+| `tn_status`            | The status of the trial network.                            |
 | `tn_date_created_utc`  | The date and time when the trial network was created (UTC). |
 | `tn_raw_descriptor`    | The raw descriptor of the trial network.                    |
 | `tn_sorted_descriptor` | The sorted descriptor of the trial network.                 |
