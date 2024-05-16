@@ -113,4 +113,3 @@ class JenkinsHandler:
                     raise CustomFileNotFoundError(f"File with the results of the entity '{entity}' not found", 404)
             log_handler.info(f"End of deployment of entity '{entity}'")
         log_handler.info("All entities of the trial network are deployed")
-        self.trial_network.set_tn_status("started")
