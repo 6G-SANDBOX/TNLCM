@@ -99,7 +99,11 @@ TNLCM is currently able to deploy the following types of components correspondin
 > TNLCM is being developed on Windows 10 and has been tested on Windows 10 and Ubuntu in version 22.04.3 LTS.
 
 > [!TIP]
-> TNLCM uses from 6G-Library: [alt_architecture](https://github.com/6G-SANDBOX/6G-Library/tree/alt_architecture) branch.
+> TNLCM frontend uses the following repository branches:
+> 
+> | Repository | Branch                                                                             |
+> | ---------- | ---------------------------------------------------------------------------------- |
+> | 6G-Library | [alt_architecture](https://github.com/6G-SANDBOX/6G-Library/tree/alt_architecture) |
 
 > [!WARNING]
 > In order to run TNLCM, the following tools are **required** to be deployed on the platforms:
@@ -107,6 +111,7 @@ TNLCM is currently able to deploy the following types of components correspondin
 > * OpenNebula: v6.6.3 or later
 >
 > From [OpenNebula Marketplace](https://marketplace.mobilesandbox.cloud:9443/appliance):
+> 
 > * Jenkins
 > * MinIO
 
