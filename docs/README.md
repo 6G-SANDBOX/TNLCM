@@ -95,16 +95,18 @@ TNLCM is currently able to deploy the following types of components correspondin
 
 ## :rocket: Getting Started
 
+> [!NOTE]
+> TNLCM is being developed on Windows 10 and has been tested on Windows 10 and Ubuntu in version 22.04.3 LTS.
+
 > [!WARNING]
 > In order to run TNLCM, the following tools are **required** to be deployed on the platforms:
 > 
 > * Jenkins - v2.440.3 or later
 > * OpenNebula - v6.6.3 or later
 > * MinIO
-
-<!-- TODO: Add 6G-Library version -->
-> [!NOTE]
-> TNLCM is being developed on Windows 10 and has been tested on Windows 10 and Ubuntu in version 22.04.3 LTS.
+<!-- Fix: when stable version -->
+> [!TIP]
+> TNLCM is currently using the [`alt_architecture`](https://github.com/6G-SANDBOX/6G-Library/tree/alt_architecture) branch of the 6G-Library for deployment.
 
 ### :inbox_tray: Download or clone repository
 
