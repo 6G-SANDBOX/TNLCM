@@ -30,7 +30,7 @@ TNLCM has been designed as a modular application, with the intention of making c
 - [:open\_file\_folder: Project Structure](#open_file_folder-project-structure)
 - [:hourglass\_flowing\_sand: Current Status](#hourglass_flowing_sand-current-status)
 - [:mag: Overview of TNLCM and 6G-Library implementation](#mag-overview-of-tnlcm-and-6g-library-implementation)
-- [:rocket: Getting Started](#rocket-getting-started)
+- [:rocket: Getting Started Locally](#rocket-getting-started-locally)
   - [:inbox\_tray: Download or clone repository](#inbox_tray-download-or-clone-repository)
   - [:wrench: Configure environment variables](#wrench-configure-environment-variables)
   - [:floppy\_disk: Create database](#floppy_disk-create-database)
@@ -93,20 +93,22 @@ TNLCM is currently able to deploy the following types of components correspondin
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
-## :rocket: Getting Started
+## :rocket: Getting Started Locally
 
 > [!NOTE]
 > TNLCM is being developed on Windows 10 and has been tested on Windows 10 and Ubuntu in version 22.04.3 LTS.
 
+> [!TIP]
+> TNLCM uses from 6G-Library: [alt_architecture](https://github.com/6G-SANDBOX/6G-Library/tree/alt_architecture) branch.
+
 > [!WARNING]
 > In order to run TNLCM, the following tools are **required** to be deployed on the platforms:
-> 
-> * Jenkins - v2.440.3 or later
-> * OpenNebula - v6.6.3 or later
+>
+> * OpenNebula: v6.6.3 or later
+>
+> From [OpenNebula Marketplace](https://marketplace.mobilesandbox.cloud:9443/appliance):
+> * Jenkins
 > * MinIO
-<!-- Fix: when stable version -->
-> [!TIP]
-> TNLCM is currently using the [`alt_architecture`](https://github.com/6G-SANDBOX/6G-Library/tree/alt_architecture) branch of the 6G-Library for deployment.
 
 ### :inbox_tray: Download or clone repository
 
@@ -219,7 +221,7 @@ The TNLCM database consists of several collections that store important informat
 | ---------------------- | ----------------------------------------------------------- |
 | `user_created`         | The user who created the trial network.                     |
 | `tn_id`                | The ID of the trial network.                                |
-| `tn_state`             | The status of the trial network.                            |
+| `tn_state`             | The state of the trial network.                             |
 | `tn_date_created_utc`  | The date and time when the trial network was created (UTC). |
 | `tn_raw_descriptor`    | The raw descriptor of the trial network.                    |
 | `tn_sorted_descriptor` | The sorted descriptor of the trial network.                 |
@@ -331,15 +333,15 @@ If the access token expires, it can be refreshed by using the refresh token. The
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 <!-- Urls, Shields and Badges -->
-[tnlcm-badge]: https://img.shields.io/badge/TNLCM-v0.0.0-blue
-[tnlcm-url]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.0.0
+[tnlcm-badge]: https://img.shields.io/badge/TNLCM-v0.1.0-blue
+[tnlcm-url]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.1.0
 [python-badge]: https://img.shields.io/badge/Python-3.12.3-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB
 [python-url]: https://www.python.org/downloads/release/python-3123/
 [flask-badge]: https://img.shields.io/badge/Flask-3.0.3-brightgreen?style=for-the-badge&logo=flask&logoColor=white&labelColor=000000
 [flask-url]: https://flask.palletsprojects.com/en/3.0.x/
 [mongodb-badge]: https://img.shields.io/badge/MongoDB-7.0.9-green?style=for-the-badge&logo=mongodb&logoColor=white&labelColor=47A248
 [mongodb-url]: https://www.mongodb.com/
-[docker-badge]: https://img.shields.io/badge/Docker-26.0.0-6AB7FF?style=for-the-badge&logo=docker&logoColor=white&labelColor=2496ED
+[docker-badge]: https://img.shields.io/badge/Docker-25.0.4-6AB7FF?style=for-the-badge&logo=docker&logoColor=white&labelColor=2496ED
 [docker-url]: https://www.docker.com/
 [contributors-shield]: https://img.shields.io/github/contributors/6G-SANDBOX/TNLCM.svg?style=for-the-badge
 [contributors-url]: https://github.com/6G-SANDBOX/TNLCM/graphs/contributors
