@@ -52,8 +52,8 @@ TNLCM has been designed as a modular application, with the intention of making c
 ```
 TNLCM                        // main folder.
 ├─ .github                   // folder contains files and templates for GitHub workflow automation.
-│  ├─ CHANGELOG_TEMPLATE     // template for changelog.
-│  └─ ISSUE_TEMPLATE         // template for issue reporting.
+│  ├─ CHANGELOG_TEMPLATE     // folder with template for changelog.
+│  └─ ISSUE_TEMPLATE         // folder with template for issue reporting.
 ├─ .gitignore                // file specifying intentionally untracked files to ignore.
 ├─ app.py                    // main file that starts TNLCM.
 ├─ CHANGELOG.md              // file containing the changes made in each release.
@@ -217,7 +217,7 @@ The TNLCM database consists of several collections that store important informat
 | ---------------------- | ----------------------------------------------------------- |
 | `user_created`         | The user who created the trial network.                     |
 | `tn_id`                | The ID of the trial network.                                |
-| `tn_status`            | The status of the trial network.                            |
+| `tn_state`             | The status of the trial network.                            |
 | `tn_date_created_utc`  | The date and time when the trial network was created (UTC). |
 | `tn_raw_descriptor`    | The raw descriptor of the trial network.                    |
 | `tn_sorted_descriptor` | The sorted descriptor of the trial network.                 |
