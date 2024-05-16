@@ -31,7 +31,7 @@ init_mail(app)
 api = Api(
     app,
     title="Trial Network Life Cycle Manager - TNLCM",
-    version="0.1.0",
+    version="0.2.0",
     description=("""
     Welcome to the Trial Network Life Cycle Manager (TNLCM) API! This powerful tool facilitates the management and orchestration of network life cycles, designed specifically for the cutting-edge 6G Sandbox project.
 
