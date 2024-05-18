@@ -1,21 +1,21 @@
 from flask_restx import Namespace, Resource, abort, reqparse
 
-from core.sixglibrary.sixglibrary_handler import SixGLibraryHandler
+from core.sixg_library.sixg_library_handler import SixGLibraryHandler
 from core.exceptions.exceptions_handler import CustomException
 
-sixglibrary_namespace = Namespace(
+sixg_library_namespace = Namespace(
     name="6G-Library",
     description="Namespace for TNLCM integration with 6G-Library"
 )
 
-@sixglibrary_namespace.route("/clone")
+@sixg_library_namespace.route("/clone")
 class Clone6GLibrary(Resource):
 
     parser_post = reqparse.RequestParser()
     parser_post.add_argument("branch", type=str, required=False)
     parser_post.add_argument("commit_id", type=str, required=False)
 
-    @sixglibrary_namespace.expect(parser_post)
+    @sixg_library_namespace.expect(parser_post)
     def post(self):
         """
         Clone a branch or commit_id from the 6G-Library repository
@@ -26,20 +26,20 @@ class Clone6GLibrary(Resource):
             branch = self.parser_post.parse_args()["branch"]
             commit_id = self.parser_post.parse_args()["commit_id"]
 
-            sixglibrary_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id)
-            sixglibrary_handler.git_clone_6glibrary()
+            sixg_library_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id)
+            sixg_library_handler.git_clone_6g_library()
             return {"message": "6G-Library cloned"},  201
         except CustomException as e:
             return abort(e.error_code, str(e))
 
-@sixglibrary_namespace.route("/components/all")
+@sixg_library_namespace.route("/components/all")
 class AllPartsComponents6GLibrary(Resource):
 
     parser_get = reqparse.RequestParser()
     parser_get.add_argument("branch", type=str, required=False)
     parser_get.add_argument("commit_id", type=str, required=False)
 
-    @sixglibrary_namespace.expect(parser_get)
+    @sixg_library_namespace.expect(parser_get)
     def get(self):
         """
         Return the components stored in the branch or commit_id of the 6G-Library repository
@@ -49,9 +49,9 @@ class AllPartsComponents6GLibrary(Resource):
             branch = self.parser_get.parse_args()["branch"]
             commit_id = self.parser_get.parse_args()["commit_id"]
 
-            sixglibrary_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id)
-            sixglibrary_handler.git_clone_6glibrary()
-            components = sixglibrary_handler.extract_parts_components_6glibrary()
+            sixg_library_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id)
+            sixg_library_handler.git_clone_6g_library()
+            components = sixg_library_handler.extract_parts_components()
             if branch:
                 return {
                     "branch": branch,
@@ -64,20 +64,20 @@ class AllPartsComponents6GLibrary(Resource):
                     }, 200
             else:
                 return {
-                    "branch": sixglibrary_handler.git_6glibrary_branch,
+                    "branch": sixg_library_handler.github_6g_library_branch,
                     "components": components
                     }, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
 
-@sixglibrary_namespace.route("/components/input")
+@sixg_library_namespace.route("/components/input")
 class InputPartComponents6GLibrary(Resource):
 
     parser_get = reqparse.RequestParser()
     parser_get.add_argument("branch", type=str, required=False)
     parser_get.add_argument("commit_id", type=str, required=False)
 
-    @sixglibrary_namespace.expect(parser_get)
+    @sixg_library_namespace.expect(parser_get)
     def get(self):
         """
         Return the input part of the components to be specified
@@ -87,10 +87,10 @@ class InputPartComponents6GLibrary(Resource):
             branch = self.parser_get.parse_args()["branch"]
             commit_id = self.parser_get.parse_args()["commit_id"]
 
-            sixglibrary_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id)
-            sixglibrary_handler.git_clone_6glibrary()
-            components = sixglibrary_handler.extract_components_6glibrary()
-            input_part_components = sixglibrary_handler.extract_input_part_component_6glibrary(components)
+            sixg_library_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id)
+            sixg_library_handler.git_clone_6g_library()
+            components = sixg_library_handler.extract_components()
+            input_part_components = sixg_library_handler.extract_input_part_component(components)
             if branch:
                 return {
                     "branch": branch,
@@ -103,20 +103,20 @@ class InputPartComponents6GLibrary(Resource):
                     }, 200
             else:
                 return {
-                    "branch": sixglibrary_handler.git_6glibrary_branch,
+                    "branch": sixg_library_handler.github_6g_library_branch,
                     "input_part_components": input_part_components
                     }, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
 
-@sixglibrary_namespace.route("/components/output")
+@sixg_library_namespace.route("/components/output")
 class OutputPartComponents6GLibrary(Resource):
 
     parser_get = reqparse.RequestParser()
     parser_get.add_argument("branch", type=str, required=False)
     parser_get.add_argument("commit_id", type=str, required=False)
 
-    @sixglibrary_namespace.expect(parser_get)
+    @sixg_library_namespace.expect(parser_get)
     def get(self):
         """
         Return the output part of the components to be specified
@@ -126,10 +126,10 @@ class OutputPartComponents6GLibrary(Resource):
             branch = self.parser_get.parse_args()["branch"]
             commit_id = self.parser_get.parse_args()["commit_id"]
 
-            sixglibrary_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id)
-            sixglibrary_handler.git_clone_6glibrary()
-            components = sixglibrary_handler.extract_components_6glibrary()
-            output_part_components = sixglibrary_handler.extract_output_part_component_6glibrary(components)
+            sixg_library_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id)
+            sixg_library_handler.git_clone_6g_library()
+            components = sixg_library_handler.extract_components()
+            output_part_components = sixg_library_handler.extract_output_part_component(components)
             if branch:
                 return {
                     "branch": branch,
@@ -142,20 +142,20 @@ class OutputPartComponents6GLibrary(Resource):
                     }, 200
             else:
                 return {
-                    "branch": sixglibrary_handler.git_6glibrary_branch,
+                    "branch": sixg_library_handler.github_6g_library_branch,
                     "output_part_components": output_part_components
                     }, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
 
-@sixglibrary_namespace.route("/components/private")
+@sixg_library_namespace.route("/components/private")
 class PrivatePartComponents6GLibrary(Resource):
 
     parser_get = reqparse.RequestParser()
     parser_get.add_argument("branch", type=str, required=False)
     parser_get.add_argument("commit_id", type=str, required=False)
 
-    @sixglibrary_namespace.expect(parser_get)
+    @sixg_library_namespace.expect(parser_get)
     def get(self):
         """
         Return the private part of the components to be specified
@@ -165,10 +165,10 @@ class PrivatePartComponents6GLibrary(Resource):
             branch = self.parser_get.parse_args()["branch"]
             commit_id = self.parser_get.parse_args()["commit_id"]
 
-            sixglibrary_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id)
-            sixglibrary_handler.git_clone_6glibrary()
-            components = sixglibrary_handler.extract_components_6glibrary()
-            private_part_components = sixglibrary_handler.extract_private_part_component_6glibrary(components)
+            sixg_library_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id)
+            sixg_library_handler.git_clone_6g_library()
+            components = sixg_library_handler.extract_components()
+            private_part_components = sixg_library_handler.extract_private_part_component(components)
             if branch:
                 return {
                     "branch": branch,
@@ -181,20 +181,20 @@ class PrivatePartComponents6GLibrary(Resource):
                     }, 200
             else:
                 return {
-                    "branch": sixglibrary_handler.git_6glibrary_branch,
+                    "branch": sixg_library_handler.github_6g_library_branch,
                     "private_part_components": private_part_components
                     }, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
 
-@sixglibrary_namespace.route("/components/metadata")
+@sixg_library_namespace.route("/components/metadata")
 class MetadataPartComponents6GLibrary(Resource):
 
     parser_get = reqparse.RequestParser()
     parser_get.add_argument("branch", type=str, required=False)
     parser_get.add_argument("commit_id", type=str, required=False)
 
-    @sixglibrary_namespace.expect(parser_get)
+    @sixg_library_namespace.expect(parser_get)
     def get(self):
         """
         Return the metadata part of the components to be specified
@@ -204,10 +204,10 @@ class MetadataPartComponents6GLibrary(Resource):
             branch = self.parser_get.parse_args()["branch"]
             commit_id = self.parser_get.parse_args()["commit_id"]
 
-            sixglibrary_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id)
-            sixglibrary_handler.git_clone_6glibrary()
-            components = sixglibrary_handler.extract_components_6glibrary()
-            metadata_part_components = sixglibrary_handler.extract_metadata_part_component_6glibrary(components)
+            sixg_library_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id)
+            sixg_library_handler.git_clone_6g_library()
+            components = sixg_library_handler.extract_components()
+            metadata_part_components = sixg_library_handler.extract_metadata_part_component(components)
             if branch:
                 return {
                     "branch": branch,
@@ -220,7 +220,7 @@ class MetadataPartComponents6GLibrary(Resource):
                     }, 200
             else:
                 return {
-                    "branch": sixglibrary_handler.git_6glibrary_branch,
+                    "branch": sixg_library_handler.github_6g_library_branch,
                     "metadata_part_components": metadata_part_components
                     }, 200
         except CustomException as e:

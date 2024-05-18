@@ -2,12 +2,12 @@ from flask_restx import Namespace, Resource, reqparse, abort
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.datastructures import FileStorage
 
-from core.auth import get_current_user_from_jwt
+from core.auth.auth import get_current_user_from_jwt
 from core.callback.callback_handler import CallbackHandler
 from core.jenkins.jenkins_handler import JenkinsHandler
 from core.models import TrialNetworkModel, TrialNetworkTemplateModel
-from core.sixglibrary.sixglibrary_handler import SixGLibraryHandler
-from core.sixgsandbox_sites.sixgsandbox_sites_handler import SixGSandboxSitesHandler
+from core.sixg_library.sixg_library_handler import SixGLibraryHandler
+from core.sixg_sandbox_sites.sixg_sandbox_sites_handler import SixGSandboxSitesHandler
 from core.temp.temp_file_handler import TempFileHandler
 
 from core.exceptions.exceptions_handler import CustomException
@@ -48,7 +48,7 @@ class CreateTrialNetwork(Resource):
                 user_created=current_user.username
             )
             trial_network.set_tn_id(size=3, tn_id=tn_id)
-            trial_network.set_tn_state("suspended")
+            trial_network.set_tn_state("suspended") # FIX: add validate state before suspend
             trial_network.set_tn_raw_descriptor(tn_descriptor_file)
             trial_network.set_tn_sorted_descriptor()
             trial_network.save()
@@ -97,11 +97,11 @@ class TrialNetwork(Resource):
             tn_state = trial_network.tn_state
             # TODO: State machine with checks
             if tn_state == "suspended":
-                sixglibrary_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id)
+                sixg_library_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id)
                 temp_file_handler = TempFileHandler()
-                sixgsandbox_sites_handler = SixGSandboxSitesHandler()
-                callback_handler = CallbackHandler(trial_network=trial_network, sixgsandbox_sites_handler=sixgsandbox_sites_handler)
-                jenkins_handler = JenkinsHandler(trial_network=trial_network, sixglibrary_handler=sixglibrary_handler, sixgsandbox_sites_handler=sixgsandbox_sites_handler, temp_file_handler=temp_file_handler, callback_handler=callback_handler)
+                sixg_sandbox_sites_handler = SixGSandboxSitesHandler()
+                callback_handler = CallbackHandler(trial_network=trial_network, sixg_sandbox_sites_handler=sixg_sandbox_sites_handler)
+                jenkins_handler = JenkinsHandler(trial_network=trial_network, sixg_library_handler=sixg_library_handler, sixg_sandbox_sites_handler=sixg_sandbox_sites_handler, temp_file_handler=temp_file_handler, callback_handler=callback_handler)
                 jenkins_handler.trial_network_deployment()
                 trial_network.set_tn_report(callback_handler.get_path_report_trial_network())
                 trial_network.set_tn_state("active")

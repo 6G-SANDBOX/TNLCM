@@ -2,7 +2,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from email_validator import validate_email, EmailNotValidError
 from mongoengine import Document, EmailField, StringField
 
-from core.exceptions.exceptions_handler import UserEmailInvalidError
+from core.exceptions.exceptions_handler import InvalidEmailError
 
 class UserModel(Document):
     username = StringField(max_length=50, unique=True)
@@ -26,7 +26,7 @@ class UserModel(Document):
 
     def set_email(self, email):
         if not self._is_valid_email(email):
-            raise UserEmailInvalidError("Invalid email entered", 400)
+            raise InvalidEmailError("Invalid email entered", 400)
         self.email = email
         
     def _is_valid_email(self, email):
