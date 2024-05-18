@@ -4,20 +4,22 @@ from json import dump, load
 from yaml import safe_load, YAMLError
 from base64 import b64decode
 
+from conf import SixGLibrarySettings
 from core.logs.log_handler import log_handler
 from core.exceptions.exceptions_handler import KeyNotFoundError, CustomUnicodeDecodeError, InvalidContentFileError, CustomFileNotFoundError, KeyNotFoundError
 
-REPORT_DIRECTORY = os.path.join(os.getcwd(), "core", "callback", "reports")
-SIXGLIBRARY_DIRECTORY = os.path.join(os.getcwd(), "core", "sixglibrary")
+CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
+REPORT_DIRECTORY = os.path.join(CURRENT_DIRECTORY, "reports")
+SIXG_LIBRARY_DIRECTORY = os.path.join(CURRENT_DIRECTORY, "..", "sixg_library")
 JENKINS_RESULT_KEYS = ["tn_id", "component_type", "custom_name", "success", "output", "markdown"]
 
 class CallbackHandler:
 
-    def __init__(self, data=None, trial_network=None, sixgsandbox_sites_handler=None):
+    def __init__(self, data=None, trial_network=None, sixg_sandbox_sites_handler=None):
         """Constructor"""
         self.data = data
         self.trial_network = trial_network
-        self.sixgsandbox_sites_handler = sixgsandbox_sites_handler
+        self.sixg_sandbox_sites_handler = sixg_sandbox_sites_handler
         os.makedirs(REPORT_DIRECTORY, exist_ok=True)
 
     def save_pipeline_results(self):
@@ -71,7 +73,7 @@ class CallbackHandler:
     def _is_output_correct(self, output_jenkins, component_type):
         """Return true if output received by Jenkins is the same as the output of the 6G-Library"""
         log_handler.info("Check if output received by Jenkins is the same as the output of the 6G-Library")
-        public_file = os.path.join(SIXGLIBRARY_DIRECTORY, os.getenv("GIT_6GLIBRARY_REPOSITORY_NAME"), component_type, ".tnlcm", "public.yaml")
+        public_file = os.path.join(SIXG_LIBRARY_DIRECTORY, SixGLibrarySettings.GITHUB_6G_LIBRARY_REPOSITORY_NAME, component_type, ".tnlcm", "public.yaml")
         if not os.path.exists(public_file):
             raise CustomFileNotFoundError(f"File '{public_file}' not found", 404)
         with open(public_file, "rt", encoding="utf8") as file:
@@ -90,12 +92,12 @@ class CallbackHandler:
         entity_input = entity_data["input"]
         entity_type = entity_data["type"]
         if entity_type == "tn_bastion":
-            self.sixgsandbox_sites_handler.git_clone_6gsandbox_sites()
-            entity_input["one_component_networks"] = [self.sixgsandbox_sites_handler.extract_site_default_network_id(jenkins_deployment_site)] + self._get_vxlan_ids(entity_input["one_component_networks"])
+            self.sixg_sandbox_sites_handler.git_clone_6g_sandbox_sites()
+            entity_input["one_component_networks"] = [self.sixg_sandbox_sites_handler.extract_site_default_network_id(jenkins_deployment_site)] + self._get_vxlan_ids(entity_input["one_component_networks"])
             entity_input["one_bastion_wireguard_allowed_networks"] = "192.168.199.0/24"
         elif entity_type == "vm_kvm_very_small" or entity_type == "vm_kvm_small" or entity_type == "vm_kvm_medium" or entity_type == "vm_kvm_large" or entity_type == "vm_kvm_extra_large":
-            self.sixgsandbox_sites_handler.git_clone_6gsandbox_sites()
-            entity_input["one_component_networks"] = [self.sixgsandbox_sites_handler.extract_site_public_network_id(jenkins_deployment_site)] + self._get_vxlan_ids(entity_input["one_component_networks"])
+            self.sixg_sandbox_sites_handler.git_clone_6g_sandbox_sites()
+            entity_input["one_component_networks"] = [self.sixg_sandbox_sites_handler.extract_site_public_network_id(jenkins_deployment_site)] + self._get_vxlan_ids(entity_input["one_component_networks"])
         elif entity_type == "k8s_medium":
             entity_input["external_vnet_id"] = self._get_vxlan_ids(entity_input["external_vnet_id"])
             entity_input["internal_vnet_id"] = self._get_vxlan_ids(entity_input["internal_vnet_id"])

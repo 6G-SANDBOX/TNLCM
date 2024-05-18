@@ -4,9 +4,10 @@ from flask_restx import Resource, Namespace, reqparse, abort
 from flask_mail import Message
 from random import randint
 
+from conf import MailSettings
 from core.mail.mail import mail
 from core.models import UserModel, VerificationTokenModel
-from core.exceptions.exceptions_handler import CustomException, VariablesNotDefinedInEnvError
+from core.exceptions.exceptions_handler import CustomException
 
 verification_token_namespace = Namespace(
     name="verification",
@@ -25,9 +26,7 @@ class RequestVerificationToken(Resource):
         Request a verification token via email for registering a new account
         """
         try:
-            sender_email = os.getenv("MAIL_USERNAME")
-            if not sender_email:
-                raise VariablesNotDefinedInEnvError(f"Add the value of the variable 'MAIL_USERNAME' in the .env file", 500)
+            sender_email = MailSettings.MAIL_USERNAME
             receiver_email = self.parser_post.parse_args()["email"]
             _six_digit_random = randint(100000, 999999)
 
@@ -114,9 +113,7 @@ class RequestResetToken(Resource):
         Request a reset token via email for changing password
         """
         try:
-            sender_email = os.getenv("MAIL_USERNAME")
-            if not sender_email:
-                raise VariablesNotDefinedInEnvError(f"Add the value of the variable 'MAIL_USERNAME' in the .env file", 500)
+            sender_email = MailSettings.MAIL_USERNAME
             receiver_email = self.parser_post.parse_args()["email"]
             _six_digit_random = randint(100000, 999999)
 
@@ -155,9 +152,7 @@ class ChangePassword(Resource):
         Change an user password with a reset token
         """
         try:
-            sender_email = os.getenv("MAIL_USERNAME")
-            if not sender_email:
-                raise VariablesNotDefinedInEnvError(f"Add the value of the variable 'MAIL_USERNAME' in the .env file", 500)
+            sender_email = MailSettings.MAIL_USERNAME
             receiver_email = self.parser_post.parse_args()["email"]
             password = self.parser_post.parse_args()["password"]
             verification_token = self.parser_post.parse_args()["verification_token"]

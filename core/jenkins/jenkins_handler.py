@@ -2,55 +2,33 @@ import os
 
 from jenkins import Jenkins
 from requests import post
+from time import sleep
 from requests.exceptions import RequestException
 
-from time import sleep
-
+from conf import JenkinsSettings
 from core.logs.log_handler import log_handler
-from core.exceptions.exceptions_handler import JenkinsConnectionError, VariablesNotDefinedInEnvError, SixGLibraryComponentNotFound, CustomFileNotFoundError, JenkinsResponseError, JenkinsComponentPipelineError
-
-JENKINS_DEPLOYMENT_SITES = ["uma", "athens", "fokus"]
+from core.exceptions.exceptions_handler import JenkinsConnectionError, SixGLibraryComponentNotFound, CustomFileNotFoundError, JenkinsResponseError, JenkinsComponentPipelineError
 
 class JenkinsHandler:
 
-    def __init__(self, trial_network=None, sixglibrary_handler=None, sixgsandbox_sites_handler=None, temp_file_handler=None, callback_handler=None):
+    def __init__(self, trial_network=None, sixg_library_handler=None, sixg_sandbox_sites_handler=None, temp_file_handler=None, callback_handler=None):
         """Constructor"""
         self.trial_network = trial_network
-        self.sixglibrary_handler = sixglibrary_handler
-        self.sixgsandbox_sites_handler = sixgsandbox_sites_handler
+        self.sixg_library_handler = sixg_library_handler
+        self.sixg_sandbox_sites_handler = sixg_sandbox_sites_handler
         self.temp_file_handler = temp_file_handler
         self.callback_handler = callback_handler
-        self.jenkins_server = os.getenv("JENKINS_SERVER")
-        self.jenkins_user = os.getenv("JENKINS_USER")
-        self.jenkins_password = os.getenv("JENKINS_PASSWORD")
-        self.jenkins_token = os.getenv("JENKINS_TOKEN")
-        self.jenkins_pipeline_folder = os.getenv("JENKINS_PIPELINE_FOLDER")
-        self.jenkins_pipeline_name = os.getenv("JENKINS_PIPELINE_NAME")
-        self.jenkins_deployment_site = os.getenv("JENKINS_DEPLOYMENT_SITE")
-        self.tnlcm_callback = os.getenv("TNLCM_CALLBACK")
-        missing_variables = []
-        if not self.jenkins_server:
-            missing_variables.append("JENKINS_SERVER")
-        if not self.jenkins_user:
-            missing_variables.append("JENKINS_USER")
-        if not self.jenkins_password:
-            missing_variables.append("JENKINS_PASSWORD")
-        if not self.jenkins_token:
-            missing_variables.append("JENKINS_TOKEN")
-        if not self.jenkins_pipeline_name:
-            missing_variables.append("JENKINS_PIPELINE_NAME")
-        if not self.jenkins_deployment_site:
-            missing_variables.append("JENKINS_DEPLOYMENT_SITE")
-        if not self.tnlcm_callback:
-            missing_variables.append("TNLCM_CALLBACK")
-        if missing_variables:
-            raise VariablesNotDefinedInEnvError(f"Add the value of the variables {', '.join(missing_variables)} in the .env file", 500)
-        self.jenkins_deployment_site = self.jenkins_deployment_site.lower()
-        if self.jenkins_deployment_site not in JENKINS_DEPLOYMENT_SITES:
-            raise VariablesNotDefinedInEnvError(f"The value of the variable 'JENKINS_DEPLOYMENT_SITE' should be {', '.join(JENKINS_DEPLOYMENT_SITES)} in the .env file", 500)
-        self.jenkins_pipeline = self.jenkins_pipeline_name if not self.jenkins_pipeline_folder else f"{self.jenkins_pipeline_folder}/{self.jenkins_pipeline_name}"
+        self.jenkins_url = JenkinsSettings.JENKINS_URL
+        self.jenkins_username = JenkinsSettings.JENKINS_USERNAME
+        self.jenkins_password = JenkinsSettings.JENKINS_PASSWORD
+        self.jenkins_token = JenkinsSettings.JENKINS_TOKEN
+        self.jenkins_pipeline_folder = JenkinsSettings.JENKINS_PIPELINE_FOLDER
+        self.jenkins_pipeline_name = JenkinsSettings.JENKINS_PIPELINE_NAME
+        self.jenkins_deployment_site = JenkinsSettings.JENKINS_DEPLOYMENT_SITE
+        self.tnlcm_callback = JenkinsSettings.TNLCM_CALLBACK
+        self.jenkins_pipeline = JenkinsSettings.JENKINS_PIPELINE
         try:
-            self.jenkins_client = Jenkins(self.jenkins_server, username=self.jenkins_user, password=self.jenkins_password)
+            self.jenkins_client = Jenkins(url=self.jenkins_url, username=self.jenkins_username, password=self.jenkins_password)
             self.jenkins_client.get_whoami()
         except RequestException:
             raise JenkinsConnectionError("Error establishing connection with Jenkins", 500)
@@ -64,10 +42,10 @@ class JenkinsHandler:
             "DEPLOYMENT_SITE": self.jenkins_deployment_site,
             "TNLCM_CALLBACK": self.tnlcm_callback,
             # OPTIONAL
-            "LIBRARY_URL": self.sixglibrary_handler.git_6glibrary_https_url,
-            "LIBRARY_BRANCH": self.sixglibrary_handler.git_6glibrary_branch or self.sixglibrary_handler.git_6glibrary_commit_id,
-            # "SITES_URL": self.sixgsandbox_sites_handler.git_6gsandbox_sites_https_url,
-            "SITES_BRANCH": self.sixgsandbox_sites_handler.git_6gsandbox_sites_branch,
+            "LIBRARY_URL": self.sixg_library_handler.github_6g_library_https_url,
+            "LIBRARY_BRANCH": self.sixg_library_handler.github_6g_library_branch or self.sixg_library_handler.github_6g_library_commit_id,
+            # "SITES_URL": self.sixg_sandbox_sites_handler.github_6g_sandbox_sites_https_url,
+            "SITES_BRANCH": self.sixg_sandbox_sites_handler.github_6g_sandbox_sites_branch,
             # "DEBUG": False
         }
         if custom_name:
@@ -76,8 +54,8 @@ class JenkinsHandler:
 
     def trial_network_deployment(self):
         """Trial network deployment starts"""
-        self.sixglibrary_handler.git_clone_6glibrary()
-        components_6glibrary = self.sixglibrary_handler.extract_components_6glibrary()
+        self.sixg_library_handler.git_clone_6g_library()
+        components_6glibrary = self.sixg_library_handler.extract_components_6g_library()
         tn_descriptor = self.trial_network.json_to_descriptor(self.trial_network.tn_sorted_descriptor)["trial_network"]
         for entity, entity_data in tn_descriptor.items():
             component_type = entity_data["type"]
@@ -86,10 +64,10 @@ class JenkinsHandler:
                 custom_name = entity_data["name"]
             log_handler.info(f"Start the deployment of the '{entity}' entity")
             if component_type not in components_6glibrary:
-                if self.sixglibrary_handler.git_6glibrary_branch:
-                    raise SixGLibraryComponentNotFound(f"Component '{component_type}' is not in '{self.sixglibrary_handler.git_6glibrary_branch}' branch of the 6G-Library", 404)
+                if self.sixg_library_handler.github_6g_library_branch:
+                    raise SixGLibraryComponentNotFound(f"Component '{component_type}' is not in '{self.sixg_library_handler.github_6g_library_branch}' branch of the 6G-Library", 404)
                 else:
-                    raise SixGLibraryComponentNotFound(f"Component '{component_type}' is not in commit_id '{self.sixglibrary_handler.git_6glibrary_commit_id}' of the 6G-Library", 404) 
+                    raise SixGLibraryComponentNotFound(f"Component '{component_type}' is not in commit_id '{self.sixg_library_handler.github_6g_library_commit_id}' of the 6G-Library", 404) 
             content = self.callback_handler.add_entity_input_parameters(entity, entity_data, self.jenkins_deployment_site)
             entity_path_temp_file = self.temp_file_handler.create_temp_file(content)
             if not os.path.exists(entity_path_temp_file):
@@ -98,7 +76,7 @@ class JenkinsHandler:
                 file = {"FILE": (entity_path_temp_file, component_temp_file)}
                 log_handler.info(f"Add jenkins parameters to the pipeline of the '{entity}' entity")
                 jenkins_build_job_url = self.jenkins_client.build_job_url(name=self.jenkins_pipeline, parameters=self._jenkins_parameters(component_type, custom_name))
-                response = post(jenkins_build_job_url, auth=(self.jenkins_user, self.jenkins_token), files=file)
+                response = post(jenkins_build_job_url, auth=(self.jenkins_username, self.jenkins_token), files=file)
                 log_handler.info(f"Deployment request code of the '{entity}' entity '{response.status_code}'")
                 if response.status_code != 201:
                     raise JenkinsResponseError(f"Error in the response received by Jenkins when trying to deploy the '{entity}' entity", response.status_code)

@@ -5,7 +5,8 @@ from tempfile import NamedTemporaryFile
 
 from core.logs.log_handler import log_handler
 
-TEMP_FILES_DIRECTORY = os.path.join(os.getcwd(), "core", "temp", "files")
+CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
+TEMP_FILES_DIRECTORY = os.path.join(CURRENT_DIRECTORY, "files")
 
 class TempFileHandler:
 

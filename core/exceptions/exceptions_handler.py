@@ -4,10 +4,9 @@ class CustomException(Exception):
         super().__init__(message)
         self.error_code = error_code
 
-class VariablesNotDefinedInEnvError(CustomException):
-    """Error thrown when the variables are not defined in the .env file"""
-    pass
-
+################################
+###### General exceptions ######
+################################
 class KeyNotFoundError(CustomException):
     """Error thrown when a key in a JSON or YAML is not found"""
     pass
@@ -28,7 +27,27 @@ class CustomFileNotFoundError(CustomException):
     """Error thrown when the file not found"""
     pass
 
-# GitHub exceptions
+################################
+#### Environment exceptions ####
+################################
+class UndefinedEnvVariableError(CustomException):
+    """Error thrown when the variables are undefined in the .env file"""
+    def __init__(self, missing_variables):
+        message = f"Set the value of the variables {', '.join(missing_variables)} in the .env file"
+        super().__init__(message, 500)
+
+class InvalidEnvVariableValueError(CustomException):
+    """Error thrown when the variable has a value that is not accepted"""
+    def __init__(self, message):
+        super().__init__(message, 500)
+
+class InvalidEmailError(CustomException):
+    """Error thrown when invalid format email"""
+    pass
+
+###############################
+###### GitHub exceptions ######
+###############################
 class CustomGitError(CustomException):
     """Base class for GitHub related exceptions"""
     pass
@@ -45,7 +64,13 @@ class GitPullError(CustomGitError):
     """Error thrown when a Git pull operation fails"""
     pass
 
-# MongoDB exceptions
+class GitRequiredFieldError(CustomGitError):
+    """Error thrown when only one field is required. Either git_branch or git_commit_id"""
+    pass
+
+################################
+###### MongoDB exceptions ######
+################################
 class CustomMongoDBException(CustomException):
     """Base class for MongoDB related exceptions"""
     pass
@@ -58,7 +83,9 @@ class MongoDBCollectionError(CustomMongoDBException):
     """Error thrown when a MongoDB collection operation fails"""
     pass
 
-# 6GLibrary exceptions
+###############################
+#### 6G-Library exceptions ####
+###############################
 class CustomSixGLibraryError(CustomException):
     """Base class for 6G-Library related exceptions"""
     pass
@@ -71,7 +98,9 @@ class SixGLibraryComponentNotFound(CustomSixGLibraryError):
     """Error thrown when a specific component is not found in the cloned repository"""
     pass
 
-# Trial Networks exceptions
+###############################
+## Trial Networks exceptions ##
+###############################
 class CustomTrialNetworkError(CustomException):
     """Base class for trial network related errors"""
     pass
@@ -84,16 +113,9 @@ class TrialNetworkEntityNotInDescriptorError(CustomTrialNetworkError):
     """Error thrown when the name of the dependency does not match the name of some entity defined in the descriptor"""
     pass
 
-# User exceptions
-class CustomUserError(CustomException):
-    """Base class for user related errors"""
-    pass
-
-class UserEmailInvalidError(CustomUserError):
-    """Error thrown when invalid format email"""
-    pass
-
-# Jenkins exceptions
+############################
+#### Jenkins exceptions ####
+############################
 class CustomJenkinsError(CustomException):
     """Base class for Jenkins related exceptions"""
     pass
