@@ -5,13 +5,13 @@
 ### Added
 
 - Integration with 6G-Sandbox-Sites repository.
+- State Machine.
 
 ### Changed
 
 - Python version to 3.12.3.
 - Descriptor schema.
 - Mongoengine as Mongo ORM.
-<!-- - API using Python and the FastAPI library. -->
 - Logs to check TNLCM behavior.
 - Rename folder src to core.
 - Libraries to latest versions.
