@@ -9,7 +9,7 @@ from mongoengine import Document, StringField, DateTimeField
 from core.logs.log_handler import log_handler
 from core.exceptions.exceptions_handler import InvalidFileExtensionError, InvalidContentFileError, TrialNetworkEntityNotInDescriptorError, TrialNetworkInvalidStatusError
 
-TN_STATE_MACHINE = ["suspended", "active"]
+TN_STATE_MACHINE = ["validated", "suspended", "active"]
 
 class TrialNetworkModel(Document):
     user_created = StringField(max_length=100)

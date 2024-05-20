@@ -24,7 +24,9 @@ trial_network_namespace = Namespace(
     }
 )
 
-##### ------ Trial Network ------ #####
+###############################
+######## Trial Network ########
+###############################
 @trial_network_namespace.route("")
 class CreateTrialNetwork(Resource):
 
@@ -48,7 +50,7 @@ class CreateTrialNetwork(Resource):
                 user_created=current_user.username
             )
             trial_network.set_tn_id(size=3, tn_id=tn_id)
-            trial_network.set_tn_state("suspended") # FIX: add validate state before suspend
+            trial_network.set_tn_state("validated")
             trial_network.set_tn_raw_descriptor(tn_descriptor_file)
             trial_network.set_tn_sorted_descriptor()
             trial_network.save()
@@ -96,7 +98,7 @@ class TrialNetwork(Resource):
                 return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the database")
             tn_state = trial_network.tn_state
             # TODO: State machine with checks
-            if tn_state == "suspended":
+            if tn_state == "validated" or tn_state == "suspended":
                 sixg_library_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id)
                 temp_file_handler = TempFileHandler()
                 sixg_sandbox_sites_handler = SixGSandboxSitesHandler()
@@ -107,7 +109,7 @@ class TrialNetwork(Resource):
                 trial_network.set_tn_state("active")
                 return {"message": "Trial network deployed with jenkins"}, 200
             elif tn_state == "active":
-                pass
+                trial_network.set_tn_state("suspended")
             else:
                 pass
         except CustomException as e:
@@ -161,7 +163,9 @@ class TrialNetworks(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
 
-##### ------ Trial Network Template ------ #####
+##############################
+### Trial Network Template ###
+##############################
 @trial_network_namespace.route("/template/<string:tn_id>")
 class CreateTrialNetworkTemplate(Resource):
 
