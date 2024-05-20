@@ -33,9 +33,9 @@ class SixGLibraryHandler:
         """Clone 6G-Library"""
         self.repository_handler.git_clone_repository()
 
-    def extract_input_part_component(self, components):
+    def get_input_part_component(self, components):
         """The input part of the components is extracted directly from the 6G-Library"""
-        log_handler.info("Extract input part of components from the 6G-Library")
+        log_handler.info("Get input part of components from the 6G-Library")
         input_part = {}
         for component in components:
             public_file = os.path.join(self.github_6g_library_local_directory, component, ".tnlcm", "public.yaml")
@@ -52,9 +52,9 @@ class SixGLibraryHandler:
                 input_part[component] = {}
         return input_part
 
-    def extract_metadata_part_component(self, components):
+    def get_metadata_part_component(self, components):
         """The metadata part of the components is extracted directly from the 6G-Library"""
-        log_handler.info("Extract metadata of components from the 6G-Library")
+        log_handler.info("Get metadata of components from the 6G-Library")
         metadata_part = {}
         for component in components:
             public_file = os.path.join(self.github_6g_library_local_directory, component, ".tnlcm", "public.yaml")
@@ -71,9 +71,9 @@ class SixGLibraryHandler:
                 metadata_part[component] = []
         return metadata_part
 
-    def extract_private_part_component(self, components):
+    def get_private_part_component(self, components):
         """The private part of the components is extracted directly from the 6G-Library"""
-        log_handler.info("Extract private part of components from the 6G-Library")
+        log_handler.info("Get private part of components from the 6G-Library")
         private_part = {}
         for component in components:
             private_file = os.path.join(self.github_6g_library_local_directory, component, "variables", "hypervisor", "one", "private.yaml")
@@ -90,9 +90,9 @@ class SixGLibraryHandler:
                 private_part[component] = {}
         return private_part
 
-    def extract_output_part_component(self, components):
+    def get_output_part_component(self, components):
         """The output part of the components is extracted directly from the 6G-Library"""
-        log_handler.info("Extract output part of components from the 6G-Library")
+        log_handler.info("Get output part of components from the 6G-Library")
         output_part = {}
         for component in components:
             public_file = os.path.join(self.github_6g_library_local_directory, component, ".tnlcm", "public.yaml")
@@ -109,9 +109,9 @@ class SixGLibraryHandler:
                 output_part[component] = []
         return output_part
 
-    def extract_parts_components(self):
-        """Extracts input, private, and dependencies parts of the components from the 6G-Library"""
-        log_handler.info("Extract parts of components from the 6G-Library")
+    def get_parts_components(self):
+        """Get input, private, and dependencies parts of the components from the 6G-Library"""
+        log_handler.info("Get parts of components from the 6G-Library")
         if not os.path.exists(self.github_6g_library_local_directory) or not os.path.exists(os.path.join(self.github_6g_library_local_directory, ".git")):
             if self.github_6g_library_branch:
                 raise SixGLibraryComponentsNotFound(f"No components in the '{self.github_6g_library_branch}' branch of 6G-Library", 404)
@@ -122,10 +122,10 @@ class SixGLibraryHandler:
                 if os.path.isdir(os.path.join(self.github_6g_library_local_directory, folder))
                 and folder not in SIXG_LIBRARY_EXCLUDE_FOLDERS]
 
-            input_part = self.extract_input_part_component(components)
-            # private_part = self.extract_private_part_component(components)
-            metadata_part = self.extract_metadata_part_component(components)
-            output_part = self.extract_output_part_component(components)
+            input_part = self.get_input_part_component(components)
+            # private_part = self.get_private_part_component(components)
+            metadata_part = self.get_metadata_part_component(components)
+            output_part = self.get_output_part_component(components)
 
             component_data = {}
             for component in components:
@@ -137,9 +137,9 @@ class SixGLibraryHandler:
                 }
             return component_data
 
-    def extract_components(self):
+    def get_components(self):
         """6G-Library components are extracted"""
-        log_handler.info("Extract components from the 6G-Library according to the folders stored in the repository")
+        log_handler.info("Get components from the 6G-Library according to the folders stored in the repository")
         if not os.path.exists(self.github_6g_library_local_directory) or not os.path.exists(os.path.join(self.github_6g_library_local_directory, ".git")):
             if self.github_6g_library_branch:
                 raise SixGLibraryComponentsNotFound(f"No components in the '{self.github_6g_library_branch}' branch of 6G-Library", 404)

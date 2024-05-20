@@ -93,11 +93,11 @@ class CallbackHandler:
         entity_type = entity_data["type"]
         if entity_type == "tn_bastion":
             self.sixg_sandbox_sites_handler.git_clone_6g_sandbox_sites()
-            entity_input["one_component_networks"] = [self.sixg_sandbox_sites_handler.extract_site_default_network_id(jenkins_deployment_site)] + self._get_vxlan_ids(entity_input["one_component_networks"])
+            entity_input["one_component_networks"] = [self.sixg_sandbox_sites_handler.get_site_default_network_id(jenkins_deployment_site)] + self._get_vxlan_ids(entity_input["one_component_networks"])
             entity_input["one_bastion_wireguard_allowed_networks"] = "192.168.199.0/24"
         elif entity_type == "vm_kvm_very_small" or entity_type == "vm_kvm_small" or entity_type == "vm_kvm_medium" or entity_type == "vm_kvm_large" or entity_type == "vm_kvm_extra_large":
             self.sixg_sandbox_sites_handler.git_clone_6g_sandbox_sites()
-            entity_input["one_component_networks"] = [self.sixg_sandbox_sites_handler.extract_site_public_network_id(jenkins_deployment_site)] + self._get_vxlan_ids(entity_input["one_component_networks"])
+            entity_input["one_component_networks"] = [self.sixg_sandbox_sites_handler.get_site_public_network_id(jenkins_deployment_site)] + self._get_vxlan_ids(entity_input["one_component_networks"])
         elif entity_type == "k8s_medium":
             entity_input["external_vnet_id"] = self._get_vxlan_ids(entity_input["external_vnet_id"])
             entity_input["internal_vnet_id"] = self._get_vxlan_ids(entity_input["internal_vnet_id"])
@@ -106,17 +106,17 @@ class CallbackHandler:
         return entity_input
 
     def _get_vxlan_ids(self, vxlan_paths):
-        """Extract vxlan ids"""
+        """Get vxlan ids"""
         vnets_id = []
         if isinstance(vxlan_paths, list):
             for vxlan_path in vxlan_paths:
-                vnets_id.append(self._extract_vxlan_id(vxlan_path))
+                vnets_id.append(self._get_vxlan_id(vxlan_path))
         else:
-            vnets_id.append(self._extract_vxlan_id(vxlan_paths))
+            vnets_id.append(self._get_vxlan_id(vxlan_paths))
         return vnets_id
 
-    def _extract_vxlan_id(self, vxlan_path):
-        """Return vxlan id"""
+    def _get_vxlan_id(self, vxlan_path):
+        """Get vxlan id"""
         log_handler.info(f"Get identifier of '{vxlan_path}' vxlan")
         entity_name, output, value_output = vxlan_path.split(".")
         tn_id = self.trial_network.tn_id

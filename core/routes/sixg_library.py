@@ -9,7 +9,7 @@ sixg_library_namespace = Namespace(
 )
 
 @sixg_library_namespace.route("/clone")
-class Clone6GLibrary(Resource):
+class Clone(Resource):
 
     parser_post = reqparse.RequestParser()
     parser_post.add_argument("branch", type=str, required=False)
@@ -33,7 +33,7 @@ class Clone6GLibrary(Resource):
             return abort(e.error_code, str(e))
 
 @sixg_library_namespace.route("/components/all")
-class AllPartsComponents6GLibrary(Resource):
+class AllPartsComponents(Resource):
 
     parser_get = reqparse.RequestParser()
     parser_get.add_argument("branch", type=str, required=False)
@@ -51,7 +51,7 @@ class AllPartsComponents6GLibrary(Resource):
 
             sixg_library_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id)
             sixg_library_handler.git_clone_6g_library()
-            components = sixg_library_handler.extract_parts_components()
+            components = sixg_library_handler.get_parts_components()
             if branch:
                 return {
                     "branch": branch,
@@ -71,7 +71,7 @@ class AllPartsComponents6GLibrary(Resource):
             return abort(e.error_code, str(e))
 
 @sixg_library_namespace.route("/components/input")
-class InputPartComponents6GLibrary(Resource):
+class InputPartComponents(Resource):
 
     parser_get = reqparse.RequestParser()
     parser_get.add_argument("branch", type=str, required=False)
@@ -89,8 +89,8 @@ class InputPartComponents6GLibrary(Resource):
 
             sixg_library_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id)
             sixg_library_handler.git_clone_6g_library()
-            components = sixg_library_handler.extract_components()
-            input_part_components = sixg_library_handler.extract_input_part_component(components)
+            components = sixg_library_handler.get_components()
+            input_part_components = sixg_library_handler.get_input_part_component(components)
             if branch:
                 return {
                     "branch": branch,
@@ -110,7 +110,7 @@ class InputPartComponents6GLibrary(Resource):
             return abort(e.error_code, str(e))
 
 @sixg_library_namespace.route("/components/output")
-class OutputPartComponents6GLibrary(Resource):
+class OutputPartComponents(Resource):
 
     parser_get = reqparse.RequestParser()
     parser_get.add_argument("branch", type=str, required=False)
@@ -128,8 +128,8 @@ class OutputPartComponents6GLibrary(Resource):
 
             sixg_library_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id)
             sixg_library_handler.git_clone_6g_library()
-            components = sixg_library_handler.extract_components()
-            output_part_components = sixg_library_handler.extract_output_part_component(components)
+            components = sixg_library_handler.get_components()
+            output_part_components = sixg_library_handler.get_output_part_component(components)
             if branch:
                 return {
                     "branch": branch,
@@ -149,7 +149,7 @@ class OutputPartComponents6GLibrary(Resource):
             return abort(e.error_code, str(e))
 
 @sixg_library_namespace.route("/components/private")
-class PrivatePartComponents6GLibrary(Resource):
+class PrivatePartComponents(Resource):
 
     parser_get = reqparse.RequestParser()
     parser_get.add_argument("branch", type=str, required=False)
@@ -167,8 +167,8 @@ class PrivatePartComponents6GLibrary(Resource):
 
             sixg_library_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id)
             sixg_library_handler.git_clone_6g_library()
-            components = sixg_library_handler.extract_components()
-            private_part_components = sixg_library_handler.extract_private_part_component(components)
+            components = sixg_library_handler.get_components()
+            private_part_components = sixg_library_handler.get_private_part_component(components)
             if branch:
                 return {
                     "branch": branch,
@@ -188,7 +188,7 @@ class PrivatePartComponents6GLibrary(Resource):
             return abort(e.error_code, str(e))
 
 @sixg_library_namespace.route("/components/metadata")
-class MetadataPartComponents6GLibrary(Resource):
+class MetadataPartComponents(Resource):
 
     parser_get = reqparse.RequestParser()
     parser_get.add_argument("branch", type=str, required=False)
@@ -206,8 +206,8 @@ class MetadataPartComponents6GLibrary(Resource):
 
             sixg_library_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id)
             sixg_library_handler.git_clone_6g_library()
-            components = sixg_library_handler.extract_components()
-            metadata_part_components = sixg_library_handler.extract_metadata_part_component(components)
+            components = sixg_library_handler.get_components()
+            metadata_part_components = sixg_library_handler.get_metadata_part_component(components)
             if branch:
                 return {
                     "branch": branch,
