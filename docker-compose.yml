@@ -1,7 +1,7 @@
 services:
 
   mongo:
-    container_name: ${MONGO_DATABASE}-${FLASK_ENV}
+    container_name: ${MONGO_DATABASE}
     image: mongo:7.0.9-jammy
     ports:
       - 27017:27017
@@ -14,7 +14,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
   
   mongo-express:
-    container_name: ${MONGO_DATABASE}-${FLASK_ENV}-frontend
+    container_name: ${MONGO_DATABASE}-frontend
     image: mongo-express:1.0.2-20-alpine3.19
     ports:
       - 8081:8081
