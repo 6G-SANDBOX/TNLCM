@@ -12,7 +12,7 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
-  
+
   mongo-express:
     container_name: ${MONGO_DATABASE}-frontend
     image: mongo-express:1.0.2-20-alpine3.19
