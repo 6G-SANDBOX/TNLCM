@@ -26,10 +26,10 @@ TNLCM has been designed as a modular application, with the intention of making c
 <details>
 <summary>Table of Contents</summary>
 
+- [:mag: 6G-Sandbox Toolkit](#mag-6g-sandbox-toolkit)
 - [:hammer\_and\_wrench: Stack](#hammer_and_wrench-stack)
 - [:open\_file\_folder: Project Structure](#open_file_folder-project-structure)
 - [:hourglass\_flowing\_sand: Current Status](#hourglass_flowing_sand-current-status)
-- [:mag: Overview of TNLCM and 6G-Library implementation](#mag-overview-of-tnlcm-and-6g-library-implementation)
 - [:rocket: Getting Started Locally](#rocket-getting-started-locally)
   - [:inbox\_tray: Download or clone repository](#inbox_tray-download-or-clone-repository)
   - [:wrench: Configure environment variables](#wrench-configure-environment-variables)
@@ -40,6 +40,12 @@ TNLCM has been designed as a modular application, with the intention of making c
 - [Appendices](#appendices)
   - [Appendix A: How to use Swagger UI](#appendix-a-how-to-use-swagger-ui)
 </details>
+
+## :mag: 6G-Sandbox Toolkit
+
+![TNLCM_LIFECYCLE](./static/TNLCM_6GLIBRARY.png)
+
+<p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 ## :hammer_and_wrench: Stack
 - [![Python][python-badge]][python-url] - Programming language.
@@ -88,12 +94,6 @@ TNLCM is currently able to deploy the following types of components correspondin
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
-## :mag: Overview of TNLCM and 6G-Library implementation
-
-![TNLCM_LIFECYCLE](./static/TNLCM_6GLIBRARY.png)
-
-<p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
-
 ## :rocket: Getting Started Locally
 
 > [!NOTE]
@@ -131,12 +131,10 @@ git clone https://github.com/6G-SANDBOX/TNLCM
 Create a `.env` file at the root level, using the structure and content provided in the [`.env.template`](../.env.template) file.
 
 Mandatory update the values of the following variables according to the platform:
-- `JENKINS_SERVER`
+- `JENKINS_IP`
 - `JENKINS_USER`
 - `JENKINS_PASSWORD`
 - `JENKINS_TOKEN`
-- `JENKINS_PIPELINE_FOLDER`
-- `JENKINS_PIPELINE_NAME`
 - `JENKINS_DEPLOYMENT_SITE`
 - `TNLCM_CALLBACK`
 - `GIT_6GSANDBOX_SITES_TOKEN`
