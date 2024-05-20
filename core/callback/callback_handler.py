@@ -123,7 +123,7 @@ class CallbackHandler:
         file_path = os.path.join(REPORT_DIRECTORY, f"{tn_id}-{entity_name}.json")
         with open(file_path, "r") as file:
             data = load(file)
-        if data[output][value_output] not in data[output]:
+        if value_output not in data[output]:
             raise KeyNotFoundError(f"Key '{value_output}' is missing in the file located in the path '{file_path}'", 404)
         identifier = data[output][value_output]
         log_handler.info(f"Identifier of vxlan '{entity_name}' is: '{identifier}'")
