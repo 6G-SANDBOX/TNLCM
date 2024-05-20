@@ -1,4 +1,4 @@
-var dbName = 'tnlcm-database';
+var dbName = process.env.MONGO_DATABASE;
 var trialNetworks = 'trial_networks';
 var trialNetworksTemplates = 'trial_networks_templates';
 var users = 'users';
