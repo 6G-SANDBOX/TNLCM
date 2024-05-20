@@ -19,6 +19,7 @@ class TrialNetworkModel(Document):
     tn_raw_descriptor = StringField()
     tn_sorted_descriptor = StringField()
     tn_report = StringField()
+    jenkins_pipeline = StringField()
 
     meta = {
         "db_alias": "tnlcm-database-alias",
@@ -79,6 +80,10 @@ class TrialNetworkModel(Document):
         with open(report_file, "r") as file:
             markdown_content = file.read()
         self.tn_report = markdown_content
+    
+    def set_jenkins_pipeline(self, jenkins_pipeline):
+        """Set pipeline use to deploy trial network"""
+        self.jenkins_pipeline = jenkins_pipeline
 
     def descriptor_to_json(self, descriptor):
         """Convert descriptor to json"""
@@ -102,7 +107,8 @@ class TrialNetworkModel(Document):
             "tn_date_created_utc": self.tn_date_created_utc.isoformat(),
             "tn_raw_descriptor": self.json_to_descriptor(self.tn_raw_descriptor),
             "tn_sorted_descriptor": self.json_to_descriptor(self.tn_sorted_descriptor),
-            "tn_report": self.tn_report
+            "tn_report": self.tn_report,
+            "jenkins_pipeline": self.jenkins_pipeline
         }
 
     def __repr__(self):

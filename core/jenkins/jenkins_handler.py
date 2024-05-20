@@ -11,7 +11,7 @@ from core.exceptions.exceptions_handler import JenkinsConnectionError, SixGLibra
 
 class JenkinsHandler:
 
-    def __init__(self, trial_network=None, sixg_library_handler=None, sixg_sandbox_sites_handler=None, temp_file_handler=None, callback_handler=None):
+    def __init__(self, trial_network=None, sixg_library_handler=None, sixg_sandbox_sites_handler=None, temp_file_handler=None, callback_handler=None, jenkins_pipeline=None):
         """Constructor"""
         self.trial_network = trial_network
         self.sixg_library_handler = sixg_library_handler
@@ -22,11 +22,9 @@ class JenkinsHandler:
         self.jenkins_username = JenkinsSettings.JENKINS_USERNAME
         self.jenkins_password = JenkinsSettings.JENKINS_PASSWORD
         self.jenkins_token = JenkinsSettings.JENKINS_TOKEN
-        self.jenkins_pipeline_folder = JenkinsSettings.JENKINS_PIPELINE_FOLDER
-        self.jenkins_pipeline_name = JenkinsSettings.JENKINS_PIPELINE_NAME
         self.jenkins_deployment_site = JenkinsSettings.JENKINS_DEPLOYMENT_SITE
         self.tnlcm_callback = JenkinsSettings.TNLCM_CALLBACK
-        self.jenkins_pipeline = JenkinsSettings.JENKINS_PIPELINE
+        self.jenkins_pipeline = jenkins_pipeline
         try:
             self.jenkins_client = Jenkins(url=self.jenkins_url, username=self.jenkins_username, password=self.jenkins_password)
             self.jenkins_client.get_whoami()
@@ -55,7 +53,7 @@ class JenkinsHandler:
     def trial_network_deployment(self):
         """Trial network deployment starts"""
         self.sixg_library_handler.git_clone_6g_library()
-        components_6glibrary = self.sixg_library_handler.extract_components_6g_library()
+        components_6glibrary = self.sixg_library_handler.get_components()
         tn_descriptor = self.trial_network.json_to_descriptor(self.trial_network.tn_sorted_descriptor)["trial_network"]
         for entity, entity_data in tn_descriptor.items():
             component_type = entity_data["type"]
@@ -91,3 +89,13 @@ class JenkinsHandler:
                     raise CustomFileNotFoundError(f"File with the results of the entity '{entity}' not found", 404)
             log_handler.info(f"End of deployment of entity '{entity}'")
         log_handler.info("All entities of the trial network are deployed")
+
+    def get_all_jobs(self):
+        """Return all the jobs/pipelines stored in Jenkins"""
+        all_jobs = self.jenkins_client.get_all_jobs()
+        fullnames = []
+       
+        for job in all_jobs:
+            if "fullname" in job and "jobs" not in job:
+                fullnames.append(job["fullname"])
+        return fullnames
