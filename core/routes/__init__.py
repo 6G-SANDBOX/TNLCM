@@ -1,4 +1,5 @@
 from .callback import callback_namespace
+from .jenkins import jenkins_namespace
 from .sixg_library import sixg_library_namespace
 from .trial_network import trial_network_namespace
 from .user import user_namespace
