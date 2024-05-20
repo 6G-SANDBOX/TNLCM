@@ -112,7 +112,8 @@ class TrialNetwork(Resource):
                 jenkins_handler.trial_network_deployment()
                 trial_network.set_tn_report(callback_handler.get_path_report_trial_network())
                 trial_network.set_tn_state("active")
-                return {"message": "Trial network deployed with jenkins"}, 200
+                trial_network.save()
+                return {"message": "Trial network actived"}, 200
             elif tn_state == "active":
                 trial_network.set_tn_state("suspended")
             else:
