@@ -105,6 +105,7 @@ TNLCM is currently able to deploy the following types of components correspondin
 > | Repository | Branch                                                                             |
 > | ---------- | ---------------------------------------------------------------------------------- |
 > | 6G-Library | [alt_architecture](https://github.com/6G-SANDBOX/6G-Library/tree/alt_architecture) |
+> | 6G-Sandbox-Sites | [alt_architecture](https://github.com/6G-SANDBOX/6G-Sandbox-Sites/tree/alt_architecture) |
 
 > [!WARNING]
 > In order to run TNLCM, the following tools are **required** to be deployed on the platforms:
