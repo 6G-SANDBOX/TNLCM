@@ -12,22 +12,26 @@ SIXG_LIBRARY_EXCLUDE_FOLDERS = [".git", ".global", ".vscode", "dummy-component",
 
 class SixGLibraryHandler:
 
-    def __init__(self, branch=None, commit_id=None):
+    def __init__(self, branch=None, commit_id=None, tag=None):
         """Constructor"""
         self.github_6g_library_https_url = SixGLibrarySettings.GITHUB_6G_LIBRARY_HTTPS_URL
         self.github_6g_library_repository_name = SixGLibrarySettings.GITHUB_6G_LIBRARY_REPOSITORY_NAME
         self.github_6g_library_local_directory = os.path.join(SIXG_LIBRARY_DIRECTORY, self.github_6g_library_repository_name)
         self.github_6g_library_branch = None
         self.github_6g_library_commit_id = None
-        if not branch and commit_id:
-            self.github_6g_library_commit_id = commit_id
-        elif branch and not commit_id:
+        self.github_6g_library_tag = None
+        self.github_6g_library_branch
+        if branch and not commit_id and not tag:
             self.github_6g_library_branch = branch
-        elif not branch and not commit_id:
+        elif not branch and commit_id and not tag:
+            self.github_6g_library_commit_id = commit_id
+        elif not branch and not commit_id and tag:
+            self.github_6g_library_tag = tag
+        elif not branch and not commit_id and not tag:
             self.github_6g_library_branch = SixGLibrarySettings.GITHUB_6G_LIBRARY_BRANCH
         else:
-            raise GitRequiredFieldError("Only one field is required. Either git_branch or git_commit_id", 400)
-        self.repository_handler = RepositoryHandler(github_https_url=self.github_6g_library_https_url, github_repository_name=self.github_6g_library_repository_name, github_branch=self.github_6g_library_branch, github_commit_id=self.github_6g_library_commit_id, github_local_directory=self.github_6g_library_local_directory)
+            raise GitRequiredFieldError("Only one field is required. Either branch, commit_id or tag", 400)
+        self.repository_handler = RepositoryHandler(github_https_url=self.github_6g_library_https_url, github_repository_name=self.github_6g_library_repository_name, github_branch=self.github_6g_library_branch, github_commit_id=self.github_6g_library_commit_id, github_tag=self.github_6g_library_tag, github_local_directory=self.github_6g_library_local_directory)
 
     def git_clone_6g_library(self):
         """Clone 6G-Library"""
@@ -149,3 +153,11 @@ class SixGLibraryHandler:
             return [folder for folder in os.listdir(self.github_6g_library_local_directory)
                 if os.path.isdir(os.path.join(self.github_6g_library_local_directory, folder))
                 and folder not in SIXG_LIBRARY_EXCLUDE_FOLDERS]
+    
+    def get_tags(self):
+        """Return 6G-Library tags"""
+        return self.repository_handler.get_tags()
+
+    def get_branches(self):
+        """Return 6G-Library branches"""
+        return self.repository_handler.get_branches()
