@@ -26,7 +26,7 @@ TNLCM has been designed as a modular application, with the intention of making c
 <details>
 <summary>Table of Contents</summary>
 
-- [:mag: 6G-Sandbox Toolkit](#mag-6g-sandbox-toolkit)
+- [:mag: Overview of TNLCM and 6G-Library implementation](#mag-overview-of-tnlcm-and-6g-library-implementation)
 - [:hammer\_and\_wrench: Stack](#hammer_and_wrench-stack)
 - [:open\_file\_folder: Project Structure](#open_file_folder-project-structure)
 - [:hourglass\_flowing\_sand: Current Status](#hourglass_flowing_sand-current-status)
@@ -41,7 +41,7 @@ TNLCM has been designed as a modular application, with the intention of making c
   - [Appendix A: How to use Swagger UI](#appendix-a-how-to-use-swagger-ui)
 </details>
 
-## :mag: 6G-Sandbox Toolkit
+## :mag: Overview of TNLCM and 6G-Library implementation
 
 ![TNLCM_LIFECYCLE](./static/TNLCM_6GLIBRARY.png)
 
@@ -100,7 +100,7 @@ TNLCM is currently able to deploy the following types of components correspondin
 > TNLCM is being developed on Windows 10 and has been tested on Windows 10 and Ubuntu in version 22.04.3 LTS.
 
 > [!TIP]
-> TNLCM frontend uses the following repository branches:
+> TNLCM uses the following repository branches:
 > 
 > | Repository | Branch                                                                             |
 > | ---------- | ---------------------------------------------------------------------------------- |
@@ -231,6 +231,7 @@ The TNLCM database consists of several collections that store important informat
 | `tn_raw_descriptor`    | The raw descriptor of the trial network.                    |
 | `tn_sorted_descriptor` | The sorted descriptor of the trial network.                 |
 | `tn_report`            | The report related to the trial network.                    |
+| `jenkins_pipeline`     | The pipeline used for the deployment of the descriptor.     |
 
 ### Collection `trial_networks_templates` <!-- omit in toc -->
 
