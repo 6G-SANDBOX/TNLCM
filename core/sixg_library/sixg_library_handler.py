@@ -20,7 +20,6 @@ class SixGLibraryHandler:
         self.github_6g_library_branch = None
         self.github_6g_library_commit_id = None
         self.github_6g_library_tag = None
-        self.github_6g_library_branch
         if branch and not commit_id and not tag:
             self.github_6g_library_branch = branch
         elif not branch and commit_id and not tag:
