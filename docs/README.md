@@ -26,26 +26,21 @@ TNLCM has been designed as a modular application, with the intention of making c
 <details>
 <summary>Table of Contents</summary>
 
-- [:mag: Overview of TNLCM and 6G-Library implementation](#mag-overview-of-tnlcm-and-6g-library-implementation)
 - [:hammer\_and\_wrench: Stack](#hammer_and_wrench-stack)
 - [:open\_file\_folder: Project Structure](#open_file_folder-project-structure)
+- [:mag: Overview of TNLCM and 6G-Library implementation](#mag-overview-of-tnlcm-and-6g-library-implementation)
+- [:arrows\_counterclockwise: State Machine](#arrows_counterclockwise-state-machine)
 - [:hourglass\_flowing\_sand: Current Status](#hourglass_flowing_sand-current-status)
 - [:rocket: Getting Started Locally](#rocket-getting-started-locally)
   - [:inbox\_tray: Download or clone repository](#inbox_tray-download-or-clone-repository)
   - [:wrench: Configure environment variables](#wrench-configure-environment-variables)
   - [:floppy\_disk: Create database](#floppy_disk-create-database)
   - [:snake: Create environment, install libraries and start](#snake-create-environment-install-libraries-and-start)
-- [Database Schema](#database-schema)
-- [Trial Network Descriptor Schema](#trial-network-descriptor-schema)
+- [:page\_facing\_up: Trial Network Descriptor Schema](#page_facing_up-trial-network-descriptor-schema)
 - [Appendices](#appendices)
   - [Appendix A: How to use Swagger UI](#appendix-a-how-to-use-swagger-ui)
+  - [Database Schema](#database-schema)
 </details>
-
-## :mag: Overview of TNLCM and 6G-Library implementation
-
-![TNLCM_LIFECYCLE](./static/TNLCM_6GLIBRARY.png)
-
-<p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 ## :hammer_and_wrench: Stack
 - [![Python][python-badge]][python-url] - Programming language.
@@ -86,6 +81,18 @@ TNLCM                        // main folder.
 └─ tests                     // folder that contains files related to testing the code.
 ```
 
+## :mag: Overview of TNLCM and 6G-Library implementation
+
+![TNLCM_LIFECYCLE](./static/TNLCM_6GLIBRARY.png)
+
+<p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
+
+## :arrows_counterclockwise: State Machine
+
+![StateMachine](./static/stateMachine.png)
+
+<p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
+
 ## :hourglass_flowing_sand: Current Status
 
 TNLCM is currently able to deploy the following types of components corresponding with the [6G-Library](https://github.com/6G-SANDBOX/6G-Library): **tn_vxlan**, **vxlan**, **tn_bastion**, **vm_kvm**, **k8s**, **open5gs**, **UERANSIM-gNB** and **UERANSIM-UE**.
@@ -116,6 +123,7 @@ TNLCM is currently able to deploy the following types of components correspondin
 > 
 > * Jenkins
 > * MinIO
+> * Ueransim
 
 ### :inbox_tray: Download or clone repository
 
@@ -216,53 +224,7 @@ A Swagger UI will be available at the url http://tnlcm-backend-ip:5000 where the
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
-## Database Schema
-
-The TNLCM database consists of several collections that store important information about trial networks, users, and verification tokens. Below is the description of each collection:
-
-### Collection `trial_networks` <!-- omit in toc -->
-
-| Field                  | Description                                                 |
-| ---------------------- | ----------------------------------------------------------- |
-| `user_created`         | The user who created the trial network.                     |
-| `tn_id`                | The ID of the trial network.                                |
-| `tn_state`             | The state of the trial network.                             |
-| `tn_date_created_utc`  | The date and time when the trial network was created (UTC). |
-| `tn_raw_descriptor`    | The raw descriptor of the trial network.                    |
-| `tn_sorted_descriptor` | The sorted descriptor of the trial network.                 |
-| `tn_report`            | The report related to the trial network.                    |
-| `jenkins_pipeline`     | The pipeline used for the deployment of the descriptor.     |
-
-### Collection `trial_networks_templates` <!-- omit in toc -->
-
-| Field                  | Description                                                          |
-| ---------------------- | -------------------------------------------------------------------- |
-| `user_created`         | The user who created the trial network template.                     |
-| `tn_id`                | The ID of the trial network template.                                |
-| `tn_date_created_utc`  | The date and time when the trial network template was created (UTC). |
-| `tn_raw_descriptor`    | The raw descriptor of the trial network template.                    |
-| `tn_sorted_descriptor` | The sorted descriptor of the trial network template.                 |
-
-### Collection `users` <!-- omit in toc -->
-
-| Field      | Description                                 |
-| ---------- | ------------------------------------------- |
-| `email`    | The email address of the user.              |
-| `username` | The username of the user.                   |
-| `password` | The password of the user (hashed).          |
-| `org`      | The organization to which the user belongs. |
-
-### Collection `verifications_tokens` <!-- omit in toc -->
-
-| Field                | Description                                           |
-| -------------------- | ----------------------------------------------------- |
-| `new_account_email`  | The email associated with the new account.            |
-| `verification_token` | The verification token generated for the new account. |
-| `creation_date`      | The creation date of the verification token.          |
-
-<p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
-
-## Trial Network Descriptor Schema
+## :page_facing_up: Trial Network Descriptor Schema
 > [!WARNING]
 > The format of Trial Network Descriptors has not been finalized and is expected to change in the future.
 
@@ -326,6 +288,52 @@ If the access token expires, it can be refreshed by using the refresh token. The
 ![refreshToken](./static/refreshToken.png)
 
 ![updateAccessToken](./static/updateAccessToken.png)
+
+<p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
+
+### Database Schema
+
+The TNLCM database consists of several collections that store important information about trial networks, users, and verification tokens. Below is the description of each collection:
+
+#### Collection `trial_networks` <!-- omit in toc -->
+
+| Field                  | Description                                                 |
+| ---------------------- | ----------------------------------------------------------- |
+| `user_created`         | The user who created the trial network.                     |
+| `tn_id`                | The ID of the trial network.                                |
+| `tn_state`             | The state of the trial network.                             |
+| `tn_date_created_utc`  | The date and time when the trial network was created (UTC). |
+| `tn_raw_descriptor`    | The raw descriptor of the trial network.                    |
+| `tn_sorted_descriptor` | The sorted descriptor of the trial network.                 |
+| `tn_report`            | The report related to the trial network.                    |
+| `jenkins_pipeline`     | The pipeline used for the deployment of the descriptor.     |
+
+#### Collection `trial_networks_templates` <!-- omit in toc -->
+
+| Field                  | Description                                                          |
+| ---------------------- | -------------------------------------------------------------------- |
+| `user_created`         | The user who created the trial network template.                     |
+| `tn_id`                | The ID of the trial network template.                                |
+| `tn_date_created_utc`  | The date and time when the trial network template was created (UTC). |
+| `tn_raw_descriptor`    | The raw descriptor of the trial network template.                    |
+| `tn_sorted_descriptor` | The sorted descriptor of the trial network template.                 |
+
+#### Collection `users` <!-- omit in toc -->
+
+| Field      | Description                                 |
+| ---------- | ------------------------------------------- |
+| `email`    | The email address of the user.              |
+| `username` | The username of the user.                   |
+| `password` | The password of the user (hashed).          |
+| `org`      | The organization to which the user belongs. |
+
+#### Collection `verifications_tokens` <!-- omit in toc -->
+
+| Field                | Description                                           |
+| -------------------- | ----------------------------------------------------- |
+| `new_account_email`  | The email associated with the new account.            |
+| `verification_token` | The verification token generated for the new account. |
+| `creation_date`      | The creation date of the verification token.          |
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
