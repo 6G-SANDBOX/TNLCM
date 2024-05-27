@@ -25,12 +25,13 @@ class UserModel(Document):
         return value
 
     def set_email(self, email):
+        """Update the email"""
         if not self._is_valid_email(email):
             raise InvalidEmailError("Invalid email entered", 400)
         self.email = email
         
     def _is_valid_email(self, email):
-        """Checks if the email entered by the user is valid"""
+        """Check if the email entered by the user is valid"""
         try:
             valid = validate_email(email)
             email = valid.email
