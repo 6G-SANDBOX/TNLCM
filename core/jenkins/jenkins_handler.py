@@ -11,7 +11,7 @@ from core.exceptions.exceptions_handler import JenkinsConnectionError, SixGLibra
 
 class JenkinsHandler:
 
-    def __init__(self, trial_network=None, sixg_library_handler=None, sixg_sandbox_sites_handler=None, temp_file_handler=None, callback_handler=None, jenkins_pipeline=None):
+    def __init__(self, trial_network=None, sixg_library_handler=None, sixg_sandbox_sites_handler=None, temp_file_handler=None, callback_handler=None, jenkins_deployment_site=None, jenkins_pipeline=None):
         """Constructor"""
         self.trial_network = trial_network
         self.sixg_library_handler = sixg_library_handler
@@ -22,8 +22,8 @@ class JenkinsHandler:
         self.jenkins_username = JenkinsSettings.JENKINS_USERNAME
         self.jenkins_password = JenkinsSettings.JENKINS_PASSWORD
         self.jenkins_token = JenkinsSettings.JENKINS_TOKEN
-        self.jenkins_deployment_site = JenkinsSettings.JENKINS_DEPLOYMENT_SITE
         self.tnlcm_callback = JenkinsSettings.TNLCM_CALLBACK
+        self.jenkins_deployment_site = jenkins_deployment_site
         self.jenkins_pipeline = jenkins_pipeline
         try:
             self.jenkins_client = Jenkins(url=self.jenkins_url, username=self.jenkins_username, password=self.jenkins_password)
@@ -53,7 +53,6 @@ class JenkinsHandler:
     def trial_network_deployment(self):
         """Trial network deployment starts"""
         self.sixg_library_handler.git_clone_6g_library()
-        components_6glibrary = self.sixg_library_handler.get_components()
         tn_descriptor = self.trial_network.json_to_descriptor(self.trial_network.tn_sorted_descriptor)["trial_network"]
         for entity, entity_data in tn_descriptor.items():
             component_type = entity_data["type"]
@@ -61,11 +60,6 @@ class JenkinsHandler:
             if "name" in entity_data:
                 custom_name = entity_data["name"]
             log_handler.info(f"Start the deployment of the '{entity}' entity")
-            if component_type not in components_6glibrary:
-                if self.sixg_library_handler.github_6g_library_branch:
-                    raise SixGLibraryComponentNotFound(f"Component '{component_type}' is not in '{self.sixg_library_handler.github_6g_library_branch}' branch of the 6G-Library", 404)
-                else:
-                    raise SixGLibraryComponentNotFound(f"Component '{component_type}' is not in commit_id '{self.sixg_library_handler.github_6g_library_commit_id}' of the 6G-Library", 404) 
             content = self.callback_handler.add_entity_input_parameters(entity, entity_data, self.jenkins_deployment_site)
             entity_path_temp_file = self.temp_file_handler.create_temp_file(content)
             if not os.path.exists(entity_path_temp_file):

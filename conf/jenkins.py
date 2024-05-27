@@ -1,9 +1,7 @@
 import os
 
 from core.logs.log_handler import log_handler
-from core.exceptions.exceptions_handler import UndefinedEnvVariableError, InvalidEnvVariableValueError
-
-JENKINS_DEPLOYMENT_SITES = ["uma", "athens", "fokus"]
+from core.exceptions.exceptions_handler import UndefinedEnvVariableError
 
 class JenkinsSettings:
     """Jenkins Settings"""
@@ -15,7 +13,6 @@ class JenkinsSettings:
     JENKINS_USERNAME = os.getenv("JENKINS_USERNAME")
     JENKINS_PASSWORD = os.getenv("JENKINS_PASSWORD")
     JENKINS_TOKEN = os.getenv("JENKINS_TOKEN")
-    JENKINS_DEPLOYMENT_SITE = os.getenv("JENKINS_DEPLOYMENT_SITE")
     TNLCM_CALLBACK = os.getenv("TNLCM_CALLBACK")
     missing_variables = []
     if not JENKINS_IP:
@@ -28,13 +25,8 @@ class JenkinsSettings:
         missing_variables.append("JENKINS_PASSWORD")
     if not JENKINS_TOKEN:
         missing_variables.append("JENKINS_TOKEN")
-    if not JENKINS_DEPLOYMENT_SITE:
-        missing_variables.append("JENKINS_DEPLOYMENT_SITE")
     if not TNLCM_CALLBACK:
         missing_variables.append("TNLCM_CALLBACK")
     if missing_variables:
         raise UndefinedEnvVariableError(missing_variables)
     JENKINS_URL = f"http://{JENKINS_IP}:{JENKINS_PORT}"
-    JENKINS_DEPLOYMENT_SITE = JENKINS_DEPLOYMENT_SITE.lower()
-    if JENKINS_DEPLOYMENT_SITE not in JENKINS_DEPLOYMENT_SITES:
-        raise InvalidEnvVariableValueError(f"The value of the variable 'JENKINS_DEPLOYMENT_SITE' should be {', '.join(JENKINS_DEPLOYMENT_SITES)} in the .env file")
