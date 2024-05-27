@@ -9,7 +9,7 @@ from mongoengine import Document, StringField, DateTimeField
 from core.logs.log_handler import log_handler
 from core.exceptions.exceptions_handler import InvalidFileExtensionError, InvalidContentFileError, TrialNetworkEntityNotInDescriptorError, TrialNetworkInvalidStatusError
 
-TN_STATE_MACHINE = ["validated", "suspended", "active"]
+TN_STATE_MACHINE = ["validated", "suspended", "activated"]
 
 class TrialNetworkModel(Document):
     user_created = StringField(max_length=100)
@@ -20,6 +20,7 @@ class TrialNetworkModel(Document):
     tn_sorted_descriptor = StringField()
     tn_report = StringField()
     jenkins_pipeline = StringField()
+    jenkins_deployment_site = StringField()
 
     meta = {
         "db_alias": "tnlcm-database-alias",
@@ -84,6 +85,10 @@ class TrialNetworkModel(Document):
     def set_jenkins_pipeline(self, jenkins_pipeline):
         """Set pipeline use to deploy trial network"""
         self.jenkins_pipeline = jenkins_pipeline
+
+    def set_jenkins_deployment_site(self, jenkins_deployment_site):
+        """Set deployment site to deploy trial network"""
+        self.jenkins_deployment_site = jenkins_deployment_site
 
     def descriptor_to_json(self, descriptor):
         """Convert descriptor to json"""

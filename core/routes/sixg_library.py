@@ -41,40 +41,99 @@ class AllPartsComponents(Resource):
     parser_get.add_argument("branch", type=str, required=False)
     parser_get.add_argument("commit_id", type=str, required=False)
     parser_get.add_argument("tag", type=str, required=False)
+    parser_get.add_argument("site", type=str, required=True)
 
     @sixg_library_namespace.expect(parser_get)
     def get(self):
         """
-        Return the components stored in the branch or commit_id of the 6G-Library repository
+        Return the components of a site stored in the branch or commit_id of the 6G-Library repository
         **Only one of the 3 available fields can be specified: branch, commit_id or tag. If neither is specified, the main branch will be used**
         """
         try:
             branch = self.parser_get.parse_args()["branch"]
             commit_id = self.parser_get.parse_args()["commit_id"]
             tag = self.parser_get.parse_args()["tag"]
+            site = self.parser_get.parse_args()["site"]
 
-            sixg_library_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id, tag=tag)
+            sixg_library_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id, tag=tag, site=site)
             sixg_library_handler.git_clone_6g_library()
-            components = sixg_library_handler.get_parts_components()
+            parts_components = sixg_library_handler.get_parts_components()
+            components = list(parts_components.keys())
             if branch:
                 return {
                     "branch": branch,
+                    "site": site,
                     "components": components
                     }, 200
             elif commit_id:
                 return {
                     "commit_id": commit_id,
+                    "site": site,
                     "components": components
                     }, 200
             elif tag:
                 return {
                     "tag": tag,
+                    "site": site,
                     "components": components
                     }, 200
             else:
                 return {
                     "branch": sixg_library_handler.github_6g_library_branch,
+                    "site": site,
                     "components": components
+                    }, 200
+        except CustomException as e:
+            return abort(e.error_code, str(e))
+
+@sixg_library_namespace.route("/components/metadata")
+class MetadataPartComponents(Resource):
+
+    parser_get = reqparse.RequestParser()
+    parser_get.add_argument("branch", type=str, required=False)
+    parser_get.add_argument("commit_id", type=str, required=False)
+    parser_get.add_argument("tag", type=str, required=False)
+    parser_get.add_argument("site", type=str, required=True)
+
+    @sixg_library_namespace.expect(parser_get)
+    def get(self):
+        """
+        Return the metadata part of the components to be specified
+        **Only one of the 3 available fields can be specified: branch, commit_id or tag. If neither is specified, the main branch will be used**
+        """
+        try:
+            branch = self.parser_get.parse_args()["branch"]
+            commit_id = self.parser_get.parse_args()["commit_id"]
+            tag = self.parser_get.parse_args()["tag"]
+            site = self.parser_get.parse_args()["site"]
+
+            sixg_library_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id, tag=tag, site=site)
+            sixg_library_handler.git_clone_6g_library()
+            parts_components = sixg_library_handler.get_parts_components()
+            metadata_part_components = {component: data["metadata"] for component, data in parts_components.items()}
+            if branch:
+                return {
+                    "branch": branch,
+                    "site": site,
+                    "metadata_part_components": metadata_part_components
+                    }, 200
+            elif commit_id:
+                return {
+                    "commit_id": commit_id,
+                    "site": site,
+                    "metadata_part_components": metadata_part_components
+                    }, 200
+            elif tag:
+                return {
+                    "tag": tag,
+                    "site": site,
+                    "metadata_part_components": metadata_part_components
+                    }, 200
+            else:
+                return {
+                    "branch": sixg_library_handler.github_6g_library_branch,
+                    "site": site,
+                    "metadata_part_components": metadata_part_components
                     }, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
@@ -86,6 +145,7 @@ class InputPartComponents(Resource):
     parser_get.add_argument("branch", type=str, required=False)
     parser_get.add_argument("commit_id", type=str, required=False)
     parser_get.add_argument("tag", type=str, required=False)
+    parser_get.add_argument("site", type=str, required=True)
 
     @sixg_library_namespace.expect(parser_get)
     def get(self):
@@ -97,29 +157,34 @@ class InputPartComponents(Resource):
             branch = self.parser_get.parse_args()["branch"]
             commit_id = self.parser_get.parse_args()["commit_id"]
             tag = self.parser_get.parse_args()["tag"]
+            site = self.parser_get.parse_args()["site"]
 
-            sixg_library_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id, tag=tag)
+            sixg_library_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id, tag=tag, site=site)
             sixg_library_handler.git_clone_6g_library()
-            components = sixg_library_handler.get_components()
-            input_part_components = sixg_library_handler.get_input_part_component(components)
+            parts_components = sixg_library_handler.get_parts_components()
+            input_part_components = {component: data["input"] for component, data in parts_components.items()}
             if branch:
                 return {
                     "branch": branch,
+                    "site": site,
                     "input_part_components": input_part_components
                     }, 200
             elif commit_id:
                 return {
                     "commit_id": commit_id,
+                    "site": site,
                     "input_part_components": input_part_components
                     }, 200
             elif tag:
                 return {
                     "tag": tag,
+                    "site": site,
                     "input_part_components": input_part_components
                     }, 200
             else:
                 return {
                     "branch": sixg_library_handler.github_6g_library_branch,
+                    "site": site,
                     "input_part_components": input_part_components
                     }, 200
         except CustomException as e:
@@ -132,6 +197,7 @@ class OutputPartComponents(Resource):
     parser_get.add_argument("branch", type=str, required=False)
     parser_get.add_argument("commit_id", type=str, required=False)
     parser_get.add_argument("tag", type=str, required=False)
+    parser_get.add_argument("site", type=str, required=False)
 
     @sixg_library_namespace.expect(parser_get)
     def get(self):
@@ -143,122 +209,35 @@ class OutputPartComponents(Resource):
             branch = self.parser_get.parse_args()["branch"]
             commit_id = self.parser_get.parse_args()["commit_id"]
             tag = self.parser_get.parse_args()["tag"]
+            site = self.parser_get.parse_args()["site"]
 
-            sixg_library_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id, tag=tag)
+            sixg_library_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id, tag=tag, site=site)
             sixg_library_handler.git_clone_6g_library()
-            components = sixg_library_handler.get_components()
-            output_part_components = sixg_library_handler.get_output_part_component(components)
+            parts_components = sixg_library_handler.get_parts_components()
+            output_part_components = {component: data["output"] for component, data in parts_components.items()}
             if branch:
                 return {
                     "branch": branch,
+                    "site": site,
                     "output_part_components": output_part_components
                     }, 200
             elif commit_id:
                 return {
                     "commit_id": commit_id,
+                    "site": site,
                     "output_part_components": output_part_components
                     }, 200
             elif tag:
                 return {
                     "tag": tag,
+                    "site": site,
                     "output_part_components": output_part_components
                     }, 200
             else:
                 return {
                     "branch": sixg_library_handler.github_6g_library_branch,
+                    "site": site,
                     "output_part_components": output_part_components
-                    }, 200
-        except CustomException as e:
-            return abort(e.error_code, str(e))
-
-@sixg_library_namespace.route("/components/private")
-class PrivatePartComponents(Resource):
-
-    parser_get = reqparse.RequestParser()
-    parser_get.add_argument("branch", type=str, required=False)
-    parser_get.add_argument("commit_id", type=str, required=False)
-    parser_get.add_argument("tag", type=str, required=False)
-
-    @sixg_library_namespace.expect(parser_get)
-    def get(self):
-        """
-        Return the private part of the components to be specified
-        **Only one of the 3 available fields can be specified: branch, commit_id or tag. If neither is specified, the main branch will be used**
-        """
-        try:
-            branch = self.parser_get.parse_args()["branch"]
-            commit_id = self.parser_get.parse_args()["commit_id"]
-            tag = self.parser_get.parse_args()["tag"]
-
-            sixg_library_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id, tag=tag)
-            sixg_library_handler.git_clone_6g_library()
-            components = sixg_library_handler.get_components()
-            private_part_components = sixg_library_handler.get_private_part_component(components)
-            if branch:
-                return {
-                    "branch": branch,
-                    "private_part_components": private_part_components
-                    }, 200
-            elif commit_id:
-                return {
-                    "commit_id": commit_id,
-                    "private_part_components": private_part_components
-                    }, 200
-            elif tag:
-                return {
-                    "tag": tag,
-                    "private_part_components": private_part_components
-                    }, 200
-            else:
-                return {
-                    "branch": sixg_library_handler.github_6g_library_branch,
-                    "private_part_components": private_part_components
-                    }, 200
-        except CustomException as e:
-            return abort(e.error_code, str(e))
-
-@sixg_library_namespace.route("/components/metadata")
-class MetadataPartComponents(Resource):
-
-    parser_get = reqparse.RequestParser()
-    parser_get.add_argument("branch", type=str, required=False)
-    parser_get.add_argument("commit_id", type=str, required=False)
-    parser_get.add_argument("tag", type=str, required=False)
-
-    @sixg_library_namespace.expect(parser_get)
-    def get(self):
-        """
-        Return the metadata part of the components to be specified
-        **Only one of the 3 available fields can be specified: branch, commit_id or tag. If neither is specified, the main branch will be used**
-        """
-        try:
-            branch = self.parser_get.parse_args()["branch"]
-            commit_id = self.parser_get.parse_args()["commit_id"]
-            tag = self.parser_get.parse_args()["tag"]
-
-            sixg_library_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id, tag=tag)
-            sixg_library_handler.git_clone_6g_library()
-            components = sixg_library_handler.get_components()
-            metadata_part_components = sixg_library_handler.get_metadata_part_component(components)
-            if branch:
-                return {
-                    "branch": branch,
-                    "metadata_part_components": metadata_part_components
-                    }, 200
-            elif commit_id:
-                return {
-                    "commit_id": commit_id,
-                    "metadata_part_components": metadata_part_components
-                    }, 200
-            elif tag:
-                return {
-                    "tag": tag,
-                    "metadata_part_components": metadata_part_components
-                    }, 200
-            else:
-                return {
-                    "branch": sixg_library_handler.github_6g_library_branch,
-                    "metadata_part_components": metadata_part_components
                     }, 200
         except CustomException as e:
             return abort(e.error_code, str(e))

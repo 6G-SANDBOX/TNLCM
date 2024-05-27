@@ -77,6 +77,7 @@ class TrialNetwork(Resource):
             return abort(e.error_code, str(e))
     
     parser_put = reqparse.RequestParser()
+    parser_put.add_argument("jenkins_deployment_site", type=str, required=True)
     parser_put.add_argument("github_6g_library_branch", type=str, required=False)
     parser_put.add_argument("github_6g_library_commit_id", type=str, required=False)
     parser_put.add_argument("jenkins_pipeline", type=str, required=False)
@@ -90,6 +91,7 @@ class TrialNetwork(Resource):
         Can specify a branch or a commit_id of the 6G-Library. **If nothing is specified, the main branch will be used.**
         """
         try:
+            jenkins_deployment_site = self.parser_put.parse_args()["jenkins_deployment_site"]
             github_6g_library_branch = self.parser_put.parse_args()["github_6g_library_branch"]
             github_6g_library_commit_id = self.parser_put.parse_args()["github_6g_library_commit_id"]
             jenkins_pipeline = self.parser_put.parse_args()["jenkins_pipeline"]
@@ -100,22 +102,24 @@ class TrialNetwork(Resource):
                 return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the database")
             tn_state = trial_network.tn_state
             # TODO: State machine with checks
-            if not jenkins_pipeline and tn_state == "validate":
+            if not jenkins_pipeline and tn_state == "validated":
                 return abort(400, "Jenkins pipeline required")
             if tn_state == "validated":
-                sixg_library_handler = SixGLibraryHandler(branch=github_6g_library_branch, commit_id=github_6g_library_commit_id)
+                sixg_library_handler = SixGLibraryHandler(branch=github_6g_library_branch, commit_id=github_6g_library_commit_id, site=jenkins_deployment_site)
                 temp_file_handler = TempFileHandler()
                 sixg_sandbox_sites_handler = SixGSandboxSitesHandler()
                 callback_handler = CallbackHandler(trial_network=trial_network, sixg_sandbox_sites_handler=sixg_sandbox_sites_handler)
                 trial_network.set_jenkins_pipeline(jenkins_pipeline)
-                jenkins_handler = JenkinsHandler(trial_network=trial_network, sixg_library_handler=sixg_library_handler, sixg_sandbox_sites_handler=sixg_sandbox_sites_handler, temp_file_handler=temp_file_handler, callback_handler=callback_handler, jenkins_pipeline=jenkins_pipeline)
+                trial_network.set_jenkins_deployment_site(jenkins_deployment_site)
+                jenkins_handler = JenkinsHandler(trial_network=trial_network, sixg_library_handler=sixg_library_handler, sixg_sandbox_sites_handler=sixg_sandbox_sites_handler, temp_file_handler=temp_file_handler, callback_handler=callback_handler, jenkins_deployment_site=jenkins_deployment_site, jenkins_pipeline=jenkins_pipeline)
                 jenkins_handler.trial_network_deployment()
                 trial_network.set_tn_report(callback_handler.get_path_report_trial_network())
-                trial_network.set_tn_state("active")
+                trial_network.set_tn_state("activated")
                 trial_network.save()
-                return {"message": "Trial network actived"}, 200
-            elif tn_state == "active":
+                return {"message": "Trial network activated"}, 200
+            elif tn_state == "activated":
                 trial_network.set_tn_state("suspended")
+                trial_network.save()
             else:
                 pass
         except CustomException as e:
