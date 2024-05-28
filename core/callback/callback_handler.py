@@ -91,17 +91,13 @@ class CallbackHandler:
         log_handler.info(f"Add input parameters to entity '{entity}'")
         entity_input = entity_data["input"]
         entity_type = entity_data["type"]
-        if entity_type == "tn_bastion":
+        if entity_type == "vm_kvm_very_small" or entity_type == "vm_kvm_small" or entity_type == "vm_kvm_medium" or entity_type == "vm_kvm_large" or entity_type == "vm_kvm_extra_large":
             self.sixg_sandbox_sites_handler.git_clone_6g_sandbox_sites()
-            entity_input["one_component_networks"] = [self.sixg_sandbox_sites_handler.get_site_default_network_id(jenkins_deployment_site)] + self._get_vxlan_ids(entity_input["one_component_networks"])
-            entity_input["one_bastion_wireguard_allowed_networks"] = "192.168.199.0/24"
-        elif entity_type == "vm_kvm_very_small" or entity_type == "vm_kvm_small" or entity_type == "vm_kvm_medium" or entity_type == "vm_kvm_large" or entity_type == "vm_kvm_extra_large":
-            self.sixg_sandbox_sites_handler.git_clone_6g_sandbox_sites()
-            entity_input["one_component_networks"] = [self.sixg_sandbox_sites_handler.get_site_public_network_id(jenkins_deployment_site)] + self._get_vxlan_ids(entity_input["one_component_networks"])
+            entity_input["one_vm_networks"] = [self.sixg_sandbox_sites_handler.get_site_public_network_id(jenkins_deployment_site)] + self._get_vxlan_ids(entity_input["one_vm_networks"])
         elif entity_type == "k8s_medium":
-            entity_input["external_vnet_id"] = self._get_vxlan_ids(entity_input["external_vnet_id"])
-            entity_input["internal_vnet_id"] = self._get_vxlan_ids(entity_input["internal_vnet_id"])
-        elif entity_type == "ueransim":
+            entity_input["one_k8s_external_vnet"] = self._get_vxlan_ids(entity_input["one_k8s_external_vnet"])
+            entity_input["one_k8s_internal_vnet"] = self._get_vxlan_ids(entity_input["one_k8s_internal_vnet"])
+        elif entity_type == "ueransim": # FIX
             entity_input["one_component_networks"] = self._get_vxlan_ids(entity_input["one_component_networks"])
         return entity_input
 

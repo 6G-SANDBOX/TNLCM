@@ -7,7 +7,7 @@ from requests.exceptions import RequestException
 
 from conf import JenkinsSettings
 from core.logs.log_handler import log_handler
-from core.exceptions.exceptions_handler import JenkinsConnectionError, SixGLibraryComponentNotFound, CustomFileNotFoundError, JenkinsResponseError, JenkinsComponentPipelineError
+from core.exceptions.exceptions_handler import JenkinsConnectionError, CustomFileNotFoundError, JenkinsResponseError, JenkinsComponentPipelineError
 
 class JenkinsHandler:
 

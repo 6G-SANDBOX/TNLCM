@@ -8,6 +8,4 @@ trial_network:
     type: "tn_bastion"
     dependencies:
       - "tn_vxlan"
-    input:
-      one_component_networks:
-        - "tn_vxlan.output.id"
+    input: {}
