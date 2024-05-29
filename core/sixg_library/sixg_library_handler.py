@@ -32,9 +32,6 @@ class SixGLibraryHandler:
             raise GitRequiredFieldError("Only one field is required. Either branch, commit_id or tag", 400)
         self.site = site
         self.repository_handler = RepositoryHandler(github_https_url=self.github_6g_library_https_url, github_repository_name=self.github_6g_library_repository_name, github_branch=self.github_6g_library_branch, github_commit_id=self.github_6g_library_commit_id, github_tag=self.github_6g_library_tag, github_local_directory=self.github_6g_library_local_directory)
-
-    def git_clone_6g_library(self):
-        """Clone 6G-Library"""
         self.repository_handler.git_clone_repository()
 
     def get_tags(self):

@@ -29,7 +29,6 @@ class Clone(Resource):
             tag = self.parser_post.parse_args()["tag"]
 
             sixg_sandbox_sites_handler = SixGSandboxSitesHandler(branch=branch, commit_id=commit_id, tag=tag)
-            sixg_sandbox_sites_handler.git_clone_6g_sandbox_sites()
             return {"message": "6G-Sandbox-Sites cloned"}, 201
         except CustomException as e:
             return abort(e.error_code, str(e))
@@ -53,7 +52,6 @@ class Sites(Resource):
             tag = self.parser_get.parse_args()["tag"]
 
             sixg_sandbox_sites_handler = SixGSandboxSitesHandler(branch=branch, commit_id=commit_id, tag=tag)
-            sixg_sandbox_sites_handler.git_clone_6g_sandbox_sites()
             return {"sites": sixg_sandbox_sites_handler.get_sites()}, 200
         except CustomException as e:
             return abort(e.error_code, str(e))

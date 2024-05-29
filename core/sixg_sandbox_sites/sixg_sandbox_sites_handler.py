@@ -30,9 +30,6 @@ class SixGSandboxSitesHandler():
             raise SixGSandboxSitesInvalidSiteError(f"The 'site' should be one: {', '.join(self.get_sites())}", 400)
         self.deployment_site = deployment_site
         self.repository_handler = RepositoryHandler(github_https_url=self.github_6g_sandbox_sites_https_url, github_repository_name=self.github_6g_sandbox_sites_repository_name, github_branch=self.github_6g_sandbox_sites_branch, github_commit_id=self.github_6g_sandbox_sites_commit_id, github_tag=self.github_6g_sandbox_sites_tag, github_local_directory=self.github_6g_sandbox_sites_local_directory)
-
-    def git_clone_6g_sandbox_sites(self):
-        """Clone 6G-Sandbox-Sites"""
         self.repository_handler.git_clone_repository()
 
     def get_sites(self):

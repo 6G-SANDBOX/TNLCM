@@ -29,7 +29,6 @@ class Clone(Resource):
             tag = self.parser_post.parse_args()["tag"]
 
             sixg_library_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id, tag=tag)
-            sixg_library_handler.git_clone_6g_library()
             return {"message": "6G-Library cloned"}, 201
         except CustomException as e:
             return abort(e.error_code, str(e))
@@ -56,7 +55,6 @@ class AllComponents(Resource):
             site = self.parser_get.parse_args()["site"]
 
             sixg_library_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id, tag=tag, site=site)
-            sixg_library_handler.git_clone_6g_library()
             parts_components = sixg_library_handler.get_parts_components()
             components = list(parts_components.keys())
             if branch:
@@ -108,7 +106,6 @@ class MetadataPartComponents(Resource):
             site = self.parser_get.parse_args()["site"]
 
             sixg_library_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id, tag=tag, site=site)
-            sixg_library_handler.git_clone_6g_library()
             parts_components = sixg_library_handler.get_parts_components()
             metadata_part_components = {component: data["metadata"] for component, data in parts_components.items()}
             if branch:
@@ -160,7 +157,6 @@ class InputPartComponents(Resource):
             site = self.parser_get.parse_args()["site"]
 
             sixg_library_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id, tag=tag, site=site)
-            sixg_library_handler.git_clone_6g_library()
             parts_components = sixg_library_handler.get_parts_components()
             input_part_components = {component: data["input"] for component, data in parts_components.items()}
             if branch:
@@ -212,7 +208,6 @@ class OutputPartComponents(Resource):
             site = self.parser_get.parse_args()["site"]
 
             sixg_library_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id, tag=tag, site=site)
-            sixg_library_handler.git_clone_6g_library()
             parts_components = sixg_library_handler.get_parts_components()
             output_part_components = {component: data["output"] for component, data in parts_components.items()}
             if branch:
@@ -251,7 +246,6 @@ class Tags(Resource):
         """
         try:
             sixg_library_handler = SixGLibraryHandler()
-            sixg_library_handler.git_clone_6g_library()
             return {"tags": sixg_library_handler.get_tags()}, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
@@ -265,7 +259,6 @@ class Branches(Resource):
         """
         try:
             sixg_library_handler = SixGLibraryHandler()
-            sixg_library_handler.git_clone_6g_library()
             return {"branches": sixg_library_handler.get_branches()}, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
