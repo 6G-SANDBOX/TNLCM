@@ -1,6 +1,6 @@
 import os
 
-from json import dump, load
+from json import dump
 from yaml import safe_load, YAMLError
 from base64 import b64decode
 
@@ -15,11 +15,10 @@ JENKINS_RESULT_KEYS = ["tn_id", "component_type", "custom_name", "success", "out
 
 class CallbackHandler:
 
-    def __init__(self, data=None, trial_network=None, sixg_sandbox_sites_handler=None):
+    def __init__(self, data=None, trial_network=None):
         """Constructor"""
         self.data = data
         self.trial_network = trial_network
-        self.sixg_sandbox_sites_handler = sixg_sandbox_sites_handler
         os.makedirs(REPORT_DIRECTORY, exist_ok=True)
 
     def save_pipeline_results(self):
@@ -86,45 +85,6 @@ class CallbackHandler:
         output_component = public_data["output"]
         return set(output_jenkins.keys()) == set(output_component.keys())
 
-    def add_entity_input_parameters(self, entity, entity_data, jenkins_deployment_site):
-        """Add parameters to the entity file"""
-        log_handler.info(f"Add input parameters to entity '{entity}'")
-        entity_input = entity_data["input"]
-        entity_type = entity_data["type"]
-        if entity_type == "vm_kvm_very_small" or entity_type == "vm_kvm_small" or entity_type == "vm_kvm_medium" or entity_type == "vm_kvm_large" or entity_type == "vm_kvm_extra_large":
-            self.sixg_sandbox_sites_handler.git_clone_6g_sandbox_sites()
-            entity_input["one_vm_networks"] = [self.sixg_sandbox_sites_handler.get_site_public_network_id(jenkins_deployment_site)] + self._get_vxlan_ids(entity_input["one_vm_networks"])
-        elif entity_type == "k8s_medium":
-            entity_input["one_k8s_external_vnet"] = self._get_vxlan_ids(entity_input["one_k8s_external_vnet"])
-            entity_input["one_k8s_internal_vnet"] = self._get_vxlan_ids(entity_input["one_k8s_internal_vnet"])
-        elif entity_type == "ueransim": # FIX
-            entity_input["one_component_networks"] = self._get_vxlan_ids(entity_input["one_component_networks"])
-        return entity_input
-
-    def _get_vxlan_ids(self, vxlan_paths):
-        """Get vxlan ids"""
-        vnets_id = []
-        if isinstance(vxlan_paths, list):
-            for vxlan_path in vxlan_paths:
-                vnets_id.append(self._get_vxlan_id(vxlan_path))
-        else:
-            vnets_id.append(self._get_vxlan_id(vxlan_paths))
-        return vnets_id
-
-    def _get_vxlan_id(self, vxlan_path):
-        """Get vxlan id"""
-        log_handler.info(f"Get identifier of '{vxlan_path}' vxlan")
-        entity_name, output, value_output = vxlan_path.split(".")
-        tn_id = self.trial_network.tn_id
-        file_path = os.path.join(REPORT_DIRECTORY, f"{tn_id}-{entity_name}.json")
-        with open(file_path, "r") as file:
-            data = load(file)
-        if value_output not in data[output]:
-            raise KeyNotFoundError(f"Key '{value_output}' is missing in the file located in the path '{file_path}'", 404)
-        identifier = data[output][value_output]
-        log_handler.info(f"Identifier of vxlan '{entity_name}' is: '{identifier}'")
-        return identifier
-    
     def get_path_report_trial_network(self):
         """Return path where report of trial network is stored"""
         path_report_trial_network = os.path.join(REPORT_DIRECTORY, f"{self.trial_network.tn_id}.md")
@@ -132,8 +92,8 @@ class CallbackHandler:
             raise CustomFileNotFoundError("Trial network report file has not been found", 404)
         return path_report_trial_network
     
-    def exists_path_entity_trial_network(self, entity):
+    def exists_path_entity_trial_network(self, entity_name):
         """Return true if exists entity file with information received by Jenkins"""
-        log_handler.info(f"Check whether the file of the '{entity}' entity has been created.")
-        path_entity_trial_network = os.path.join(REPORT_DIRECTORY, f"{self.trial_network.tn_id}-{entity}.json")
+        log_handler.info(f"Check whether the file of the '{entity_name}' entity has been created.")
+        path_entity_trial_network = os.path.join(REPORT_DIRECTORY, f"{self.trial_network.tn_id}-{entity_name}.json")
         return os.path.exists(path_entity_trial_network)
