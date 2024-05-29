@@ -30,12 +30,12 @@ class Clone(Resource):
 
             sixg_library_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id, tag=tag)
             sixg_library_handler.git_clone_6g_library()
-            return {"message": "6G-Library cloned"},  201
+            return {"message": "6G-Library cloned"}, 201
         except CustomException as e:
             return abort(e.error_code, str(e))
 
 @sixg_library_namespace.route("/components/all")
-class AllPartsComponents(Resource):
+class AllComponents(Resource):
 
     parser_get = reqparse.RequestParser()
     parser_get.add_argument("branch", type=str, required=False)

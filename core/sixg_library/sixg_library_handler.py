@@ -5,11 +5,10 @@ from yaml import safe_load, YAMLError
 from conf import SixGLibrarySettings
 from core.logs.log_handler import log_handler
 from core.repository.repository_handler import RepositoryHandler
-from core.exceptions.exceptions_handler import SixGLibraryComponentsNotFound, InvalidContentFileError, CustomFileNotFoundError, GitRequiredFieldError, KeyNotFoundError
+from core.exceptions.exceptions_handler import SixGLibraryComponentsNotFound, InvalidContentFileError, CustomFileNotFoundError, GitRequiredFieldError
 
 SIXG_LIBRARY_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 SIXG_LIBRARY_EXCLUDE_COMPONENTS = [".git", ".global", ".vscode", "dummy-component", "skel", "suggested_skel"]
-DEPLOYMENT_SITES = ["uma", "athens", "fokus"]
 
 class SixGLibraryHandler:
 
@@ -31,8 +30,6 @@ class SixGLibraryHandler:
             self.github_6g_library_branch = SixGLibrarySettings.GITHUB_6G_LIBRARY_BRANCH
         else:
             raise GitRequiredFieldError("Only one field is required. Either branch, commit_id or tag", 400)
-        if site not in DEPLOYMENT_SITES:
-            raise KeyNotFoundError(f"The 'site' should be {', '.join(DEPLOYMENT_SITES)}")
         self.site = site
         self.repository_handler = RepositoryHandler(github_https_url=self.github_6g_library_https_url, github_repository_name=self.github_6g_library_repository_name, github_branch=self.github_6g_library_branch, github_commit_id=self.github_6g_library_commit_id, github_tag=self.github_6g_library_tag, github_local_directory=self.github_6g_library_local_directory)
 
@@ -41,15 +38,15 @@ class SixGLibraryHandler:
         self.repository_handler.git_clone_repository()
 
     def get_tags(self):
-        """Return 6G-Library tags"""
+        """Return tags"""
         return self.repository_handler.get_tags()
 
     def get_branches(self):
-        """Return 6G-Library branches"""
+        """Return branches"""
         return self.repository_handler.get_branches()
     
     def get_parts_components(self):
-        """Return information about the components of a site in the 6G-Library"""
+        """Return information about the components of a site"""
         log_handler.info(f"Get input, output and metadata part of components in '{self.site}' site from the 6G-Library")
         if not os.path.exists(self.github_6g_library_local_directory) or not os.path.exists(os.path.join(self.github_6g_library_local_directory, ".git")):
             if self.github_6g_library_branch:
