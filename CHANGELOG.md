@@ -1,19 +1,28 @@
 # Changelog
 
-## [Unreleased]
+## [Unreleased] - YYYY-MM-DD
+
+### In progress
+
+- State Machine.
+- Define and apply trial networks descriptors templates.
+- Resource manager to control the availability of resources per platform​.
+- More components that generates trial networks descriptors.
 
 ### Added
 
 - Integration with 6G-Sandbox-Sites repository.
-- State Machine.
+- Deploy trial networks using specific pipelines/jobs.
+- Deploy trial networks using specific tags from 6G-Library.
+- Indicate the site where the Trial Network will be deployed.
 
 ### Changed
 
 - Python version to 3.12.3.
-- Descriptor schema.
+- Trial network descriptor schema.
 - Mongoengine as Mongo ORM.
 - Logs to check TNLCM behavior.
-- Rename folder src to core.
+- Rename folder `src` to `core`.
 - Libraries to latest versions.
 - Repository documentation.
 
