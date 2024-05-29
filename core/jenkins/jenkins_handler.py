@@ -55,7 +55,6 @@ class JenkinsHandler:
 
     def trial_network_deployment(self):
         """Trial network deployment starts"""
-        self.sixg_library_handler.git_clone_6g_library()
         tn_descriptor = self.trial_network.json_to_descriptor(self.trial_network.tn_sorted_descriptor)["trial_network"]
         for entity_name, entity_data in tn_descriptor.items():
             component_type = entity_data["type"]
