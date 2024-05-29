@@ -99,6 +99,17 @@ class SixGLibraryComponentNotFound(CustomSixGLibraryError):
     pass
 
 ###############################
+# 6G-Sandbox-Sites exceptions #
+###############################
+class CustomSixGSandboxSitesError(CustomException):
+    """Base class for 6G-Sandbox-Sites related exceptions"""
+    pass
+
+class SixGSandboxSitesInvalidSiteError(CustomSixGSandboxSitesError):
+    """Error thrown when site is invalid"""
+    pass
+
+###############################
 ## Trial Networks exceptions ##
 ###############################
 class CustomTrialNetworkError(CustomException):
@@ -130,4 +141,8 @@ class JenkinsResponseError(CustomJenkinsError):
 
 class JenkinsComponentPipelineError(CustomJenkinsError):
     """Error thrown when component pipeline has failed"""
+    pass
+
+class JenkinsInvalidJobError(CustomJenkinsError):
+    """Error thrown when job not in Jenkins"""
     pass
