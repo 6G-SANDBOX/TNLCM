@@ -58,7 +58,6 @@ TNLCM                        // main folder.
 ├─ .gitignore                // file specifying intentionally untracked files to ignore.
 ├─ app.py                    // main file that starts TNLCM.
 ├─ CHANGELOG.md              // file containing the changes made in each release.
-├─ config.py                 // configuration file.
 ├─ descriptors               // folder in which trial network descriptors templates are stored.
 ├─ docker-compose.yml        // file for create database.
 ├─ docs                      // folder in which all documentation is stored.
@@ -95,7 +94,7 @@ TNLCM                        // main folder.
 
 ## :hourglass_flowing_sand: Current Status
 
-TNLCM is currently able to deploy the following types of components corresponding with the [6G-Library](https://github.com/6G-SANDBOX/6G-Library): **tn_vxlan**, **vxlan**, **tn_bastion**, **vm_kvm**, **k8s**, **open5gs**, **UERANSIM-gNB** and **UERANSIM-UE**.
+TNLCM is currently able to deploy the following types of components corresponding with the [6G-Library](https://github.com/6G-SANDBOX/6G-Library): **tn_vxlan**, **vnet**, **tn_bastion**, **vm_kvm**, **k8s**, **open5gs**, **UERANSIM-gNB** and **UERANSIM-UE**.
 
 ![CurrentStatus](./static/currentStatus.png)
 
@@ -109,9 +108,9 @@ TNLCM is currently able to deploy the following types of components correspondin
 > [!TIP]
 > TNLCM uses the following repository branches:
 > 
-> | Repository | Branch                                                                             |
-> | ---------- | ---------------------------------------------------------------------------------- |
-> | 6G-Library | [alt_architecture](https://github.com/6G-SANDBOX/6G-Library/tree/alt_architecture) |
+> | Repository       | Branch                                                                                   |
+> | ---------------- | ---------------------------------------------------------------------------------------- |
+> | 6G-Library       | [alt_architecture](https://github.com/6G-SANDBOX/6G-Library/tree/alt_architecture)       |
 > | 6G-Sandbox-Sites | [alt_architecture](https://github.com/6G-SANDBOX/6G-Sandbox-Sites/tree/alt_architecture) |
 
 > [!WARNING]
@@ -123,7 +122,8 @@ TNLCM is currently able to deploy the following types of components correspondin
 > 
 > * Jenkins
 > * MinIO
-> * Ueransim
+> * OneKE: v1.27 or later
+> * Ueransim: v3.2.6 or later
 
 ### :inbox_tray: Download or clone repository
 
@@ -141,14 +141,13 @@ Create a `.env` file at the root level, using the structure and content provided
 
 Mandatory update the values of the following variables according to the platform:
 - `JENKINS_IP`
-- `JENKINS_USER`
+- `JENKINS_USERNAME`
 - `JENKINS_PASSWORD`
 - `JENKINS_TOKEN`
-- `JENKINS_DEPLOYMENT_SITE`
 - `TNLCM_CALLBACK`
-- `GIT_6GSANDBOX_SITES_TOKEN`
-- `MAIL_USERNAME`
-- `MAIL_PASSWORD`
+- `GITHUB_6G_SANDBOX_SITES_TOKEN`
+<!-- - `MAIL_USERNAME`
+- `MAIL_PASSWORD` -->
 
 Optionally, the value of the following variables can be updated:
 - `FLASK_ENV`
@@ -232,9 +231,9 @@ Trial Network Descriptors are yaml files with a set of expected fields and with 
 
 ```yaml
 trial_network:  # Mandatory, contains the description of all entities in the Trial Network
-  type-name:  # A unique identifier for each entity in the Trial Network
+  type-name:  # A unique identifier for each entity in the Trial Network (entity name)
     type:  # 6G-Library component type
-    name: # entity name
+    name: # custom name
     dependencies: # List of dependencies of the component with other components
       - {type}-{name}
       - ...
@@ -247,9 +246,11 @@ This repository contains a variety of descriptor templates:
 - [`02_descriptor.yml`](../descriptors/02_descriptor.yml)
 - [`03_descriptor.yml`](../descriptors/03_descriptor.yml)
 - [`04_descriptor.yml`](../descriptors/04_descriptor.yml)
+- [`05_descriptor.yml`](../descriptors/05_descriptor.yml)
+- [`06_descriptor.yml`](../descriptors/06_descriptor.yml)
 
 The first end-to-end trial network:
-- [`05_descriptor.yml`](../descriptors/05_descriptor.yml)
+- [`07_descriptor.yml`](../descriptors/07_descriptor.yml)
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
@@ -306,7 +307,8 @@ The TNLCM database consists of several collections that store important informat
 | `tn_raw_descriptor`    | The raw descriptor of the trial network.                    |
 | `tn_sorted_descriptor` | The sorted descriptor of the trial network.                 |
 | `tn_report`            | The report related to the trial network.                    |
-| `jenkins_pipeline`     | The pipeline used for the deployment of the descriptor.     |
+| `job_name`             | The pipeline used for the deployment of the descriptor.     |
+| `deployment_site`      | The site where the trial network has been deployed.         |
 
 #### Collection `trial_networks_templates` <!-- omit in toc -->
 
