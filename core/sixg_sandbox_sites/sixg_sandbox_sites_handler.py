@@ -26,11 +26,11 @@ class SixGSandboxSitesHandler():
             self.github_6g_sandbox_sites_branch = SixGSandboxSitesSettings.GITHUB_6G_SANDBOX_SITES_BRANCH
         else:
             raise GitRequiredFieldError("Only one field is required. Either branch, commit_id or tag", 400)
+        self.repository_handler = RepositoryHandler(github_https_url=self.github_6g_sandbox_sites_https_url, github_repository_name=self.github_6g_sandbox_sites_repository_name, github_branch=self.github_6g_sandbox_sites_branch, github_commit_id=self.github_6g_sandbox_sites_commit_id, github_tag=self.github_6g_sandbox_sites_tag, github_local_directory=self.github_6g_sandbox_sites_local_directory)
+        self.repository_handler.git_clone_repository()
         if deployment_site not in self.get_sites():
             raise SixGSandboxSitesInvalidSiteError(f"The 'site' should be one: {', '.join(self.get_sites())}", 400)
         self.deployment_site = deployment_site
-        self.repository_handler = RepositoryHandler(github_https_url=self.github_6g_sandbox_sites_https_url, github_repository_name=self.github_6g_sandbox_sites_repository_name, github_branch=self.github_6g_sandbox_sites_branch, github_commit_id=self.github_6g_sandbox_sites_commit_id, github_tag=self.github_6g_sandbox_sites_tag, github_local_directory=self.github_6g_sandbox_sites_local_directory)
-        self.repository_handler.git_clone_repository()
 
     def get_sites(self):
         """Return sites available to deploy trial networks"""

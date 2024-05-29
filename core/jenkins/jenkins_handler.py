@@ -29,9 +29,9 @@ class JenkinsHandler:
         except RequestException:
             raise JenkinsConnectionError("Error establishing connection with Jenkins", 500)
         self.job_name = job_name
-        if not self.job_name:
+        if not job_name:
             self.job_name = JenkinsSettings.JENKINS_JOB_NAME
-        if self.job_name not in self.get_all_jobs():
+        if job_name not in self.get_all_jobs():
             raise JenkinsInvalidJobError(f"The 'job_name' should be one: {', '.join(self.get_all_jobs())}", 400)
 
     def _jenkins_parameters(self, component_type, custom_name):
