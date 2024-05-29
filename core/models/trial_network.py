@@ -19,8 +19,8 @@ class TrialNetworkModel(Document):
     tn_raw_descriptor = StringField()
     tn_sorted_descriptor = StringField()
     tn_report = StringField()
-    jenkins_pipeline = StringField()
-    jenkins_deployment_site = StringField()
+    job_name = StringField()
+    deployment_site = StringField()
 
     meta = {
         "db_alias": "tnlcm-database-alias",
@@ -82,14 +82,14 @@ class TrialNetworkModel(Document):
             markdown_content = file.read()
         self.tn_report = markdown_content
     
-    def set_jenkins_pipeline(self, jenkins_pipeline):
+    def set_job_name(self, job_name):
         """Set pipeline use to deploy trial network"""
-        self.jenkins_pipeline = jenkins_pipeline
+        self.job_name = job_name
 
-    def set_jenkins_deployment_site(self, jenkins_deployment_site):
+    def set_deployment_site(self, deployment_site):
         """Set deployment site to deploy trial network"""
-        self.jenkins_deployment_site = jenkins_deployment_site
-
+        self.deployment_site = deployment_site
+    
     def descriptor_to_json(self, descriptor):
         """Convert descriptor to json"""
         return dumps(descriptor)
@@ -113,7 +113,8 @@ class TrialNetworkModel(Document):
             "tn_raw_descriptor": self.json_to_descriptor(self.tn_raw_descriptor),
             "tn_sorted_descriptor": self.json_to_descriptor(self.tn_sorted_descriptor),
             "tn_report": self.tn_report,
-            "jenkins_pipeline": self.jenkins_pipeline
+            "job_name": self.job_name,
+            "deployment_site": self.deployment_site
         }
 
     def __repr__(self):
