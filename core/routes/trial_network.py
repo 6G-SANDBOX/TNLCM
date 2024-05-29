@@ -118,7 +118,6 @@ class TrialNetwork(Resource):
                 temp_file_handler = TempFileHandler()
                 callback_handler = CallbackHandler(trial_network=trial_network)
                 jenkins_handler = JenkinsHandler(trial_network=trial_network, sixg_library_handler=sixg_library_handler, sixg_sandbox_sites_handler=sixg_sandbox_sites_handler, temp_file_handler=temp_file_handler, callback_handler=callback_handler, job_name=job_name)
-                sixg_library_handler.git_clone_6g_library()
                 jenkins_handler.trial_network_deployment()
                 trial_network.set_job_name(jenkins_handler.job_name)
                 trial_network.set_tn_report(callback_handler.get_path_report_trial_network())
