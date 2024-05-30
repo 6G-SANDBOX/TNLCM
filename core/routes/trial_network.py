@@ -40,6 +40,7 @@ class CreateTrialNetwork(Resource):
     def post(self):
         """
         Create and validate trial network
+        The tn_id can be specified if desired. **If nothing is specified, it will return a random tn_id.**
         """
         try:
             tn_id = self.parser_post.parse_args()["tn_id"]
@@ -119,8 +120,8 @@ class TrialNetwork(Resource):
                 temp_file_handler = TempFileHandler()
                 callback_handler = CallbackHandler(trial_network=trial_network)
                 jenkins_handler = JenkinsHandler(trial_network=trial_network, sixg_library_handler=sixg_library_handler, sixg_sandbox_sites_handler=sixg_sandbox_sites_handler, temp_file_handler=temp_file_handler, callback_handler=callback_handler, job_name=job_name)
-                jenkins_handler.trial_network_deployment()
                 trial_network.set_job_name(jenkins_handler.job_name)
+                jenkins_handler.trial_network_deployment()
                 trial_network.set_tn_report(callback_handler.get_path_report_trial_network())
                 trial_network.set_tn_state("activated")
                 trial_network.save()
