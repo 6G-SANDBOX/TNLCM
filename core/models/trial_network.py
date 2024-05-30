@@ -55,7 +55,7 @@ class TrialNetworkModel(Document):
             raise InvalidContentFileError("Trial network descriptor is not parsed correctly", 422)
 
     def set_tn_sorted_descriptor(self):
-        """Recursive method that returns the raw descriptor and a new descriptor sorted according to dependencies"""
+        """Recursive method that return the raw descriptor and a new descriptor sorted according to dependencies"""
         log_handler.info("Start order of the entities of the descriptor")
         entities = self.json_to_descriptor(self.tn_raw_descriptor)["trial_network"]
         ordered_entities = {}

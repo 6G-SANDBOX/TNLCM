@@ -15,7 +15,7 @@ class TempFileHandler:
         os.makedirs(TEMP_FILES_DIRECTORY, exist_ok=True)
 
     def create_temp_file(self, content):
-        """Returns the path including the temporary file name"""
+        """Return the path including the temporary file name"""
         log_handler.info("Create temporary file to send to Jenkins pipeline")
         with NamedTemporaryFile(delete=False, dir=TEMP_FILES_DIRECTORY, suffix=".yaml", mode="w") as temp_file:
             dump(content, temp_file, default_flow_style=False)
