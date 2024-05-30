@@ -7,7 +7,7 @@ flask-mail==0.10.0
 mongoengine==0.28.2
 waitress==3.0.0
 python-dotenv==1.0.1
-requests==2.32.2
+requests==2.32.3
 python-jenkins==1.8.2
 pyyaml==6.0.1
 gitpython==3.1.43
