@@ -3,6 +3,9 @@ import os
 from core.logs.log_handler import log_handler
 from core.exceptions.exceptions_handler import UndefinedEnvVariableError
 
+def str_to_bool(s):
+    return s.lower() in ["true", "1", "yes"]
+
 class JenkinsSettings:
     """Jenkins Settings"""
     
@@ -15,6 +18,7 @@ class JenkinsSettings:
     JENKINS_PASSWORD = os.getenv("JENKINS_PASSWORD")
     JENKINS_TOKEN = os.getenv("JENKINS_TOKEN")
     JENKINS_JOB_NAME = os.getenv("JENKINS_JOB_NAME")
+    JENKINS_DEBUG = os.getenv("JENKINS_DEBUG")
     TNLCM_CALLBACK = os.getenv("TNLCM_CALLBACK")
     missing_variables = []
     if not JENKINS_IP:
@@ -31,7 +35,10 @@ class JenkinsSettings:
         missing_variables.append("JENKINS_TOKEN")
     if not JENKINS_JOB_NAME:
         missing_variables.append("JENKINS_JOB_NAME")
+    if not JENKINS_DEBUG:
+        missing_variables.append("JENKINS_DEBUG")
     if not TNLCM_CALLBACK:
         missing_variables.append("TNLCM_CALLBACK")
     if missing_variables:
         raise UndefinedEnvVariableError(missing_variables)
+    JENKINS_DEBUG = str_to_bool(JENKINS_DEBUG)

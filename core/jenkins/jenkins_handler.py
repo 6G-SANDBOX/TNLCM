@@ -47,7 +47,7 @@ class JenkinsHandler:
             "LIBRARY_BRANCH": self.sixg_library_handler.github_6g_library_branch,
             # "SITES_URL": self.sixg_sandbox_sites_handler.github_6g_sandbox_sites_https_url,
             "SITES_BRANCH": self.sixg_sandbox_sites_handler.github_6g_sandbox_sites_branch,
-            # "DEBUG": False
+            "DEBUG": JenkinsSettings.JENKINS_DEBUG
         }
         if custom_name:
             parameters["CUSTOM_NAME"] = custom_name
