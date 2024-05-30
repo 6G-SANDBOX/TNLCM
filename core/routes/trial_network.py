@@ -114,6 +114,7 @@ class TrialNetwork(Resource):
             # TODO: State machine with checks
             if tn_state == "validated":
                 sixg_sandbox_sites_handler = SixGSandboxSitesHandler(branch=github_6g_sandbox_sites_branch, commit_id=github_6g_sandbox_sites_commit_id, tag=github_6g_sandbox_sites_tag, deployment_site=deployment_site)
+                trial_network.set_deployment_site(deployment_site)
                 sixg_library_handler = SixGLibraryHandler(branch=github_6g_library_branch, commit_id=github_6g_library_commit_id, tag=github_6g_library_tag, site=deployment_site)
                 temp_file_handler = TempFileHandler()
                 callback_handler = CallbackHandler(trial_network=trial_network)
