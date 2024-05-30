@@ -47,8 +47,9 @@ class CallbackHandler:
             output_jenkins = decoded_data["output"]
             markdown = decoded_data["markdown"]
             
-            if not self._is_output_correct(output_jenkins, component_type):
-                raise InvalidContentFileError("Output received by Jenkins does not match output from the 6G-Library", 500)
+            if success == "true":
+                if not self._is_output_correct(output_jenkins, component_type):
+                    raise InvalidContentFileError("Output received by Jenkins does not match output from the 6G-Library", 500)
             
             entity_file_name = f"{tn_id}-{component_type}-{custom_name}.json" if custom_name != "None" else f"{tn_id}-{component_type}.json"
             path_entity_file_name = os.path.join(REPORT_DIRECTORY, entity_file_name)
