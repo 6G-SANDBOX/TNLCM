@@ -285,6 +285,16 @@ The next step is to add the token in the green **Authorize** box. It is required
 
 Now, requests that involve having an access token can be made.
 
+To create a Trial Network, the following endpoint must be used:
+
+![createTN](./static/createTN.png)
+
+Once created, it will return a tn_id that will be required to deploy it.
+
+To deploy a trial network, the following endpoint must be used:
+
+![startTN](./static/startTN.png)
+
 If the access token expires, it can be refreshed by using the refresh token. The token in the green **Authorize** box must be updated with the refresh token and the post request must be made:
 
 ![refreshToken](./static/refreshToken.png)
@@ -292,6 +302,8 @@ If the access token expires, it can be refreshed by using the refresh token. The
 ![updateAccessToken](./static/updateAccessToken.png)
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
+
+When the request is made, it will return another access token that will need to be put back into the green **Authorize** box.
 
 ### Database Schema
 
