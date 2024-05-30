@@ -34,7 +34,7 @@ class JenkinsHandler:
         if job_name not in self.get_all_jobs():
             raise JenkinsInvalidJobError(f"The 'job_name' should be one: {', '.join(self.get_all_jobs())}", 400)
 
-    def _jenkins_parameters(self, component_type, custom_name):
+    def _jenkins_parameters(self, component_type, custom_name, debug):
         """Return a dictionary with the parameters for each component to be passed to the Jenkins pipeline"""
         parameters = {
             # MANDATORY
@@ -47,7 +47,7 @@ class JenkinsHandler:
             "LIBRARY_BRANCH": self.sixg_library_handler.github_6g_library_branch,
             # "SITES_URL": self.sixg_sandbox_sites_handler.github_6g_sandbox_sites_https_url,
             "SITES_BRANCH": self.sixg_sandbox_sites_handler.github_6g_sandbox_sites_branch,
-            "DEBUG": JenkinsSettings.JENKINS_DEBUG
+            "DEBUG": debug
         }
         if custom_name:
             parameters["CUSTOM_NAME"] = custom_name
@@ -61,6 +61,9 @@ class JenkinsHandler:
             custom_name = None
             if "name" in entity_data:
                 custom_name = entity_data["name"]
+            debug = False
+            if "debug" in entity_data:
+                debug = entity_data["debug"]
             log_handler.info(f"Start the deployment of the '{entity_name}' entity")
             entity_path_temp_file = self.temp_file_handler.create_temp_file(entity_data["input"])
             if not os.path.exists(entity_path_temp_file):
@@ -68,7 +71,7 @@ class JenkinsHandler:
             with open(entity_path_temp_file, "rb") as component_temp_file:
                 file = {"FILE": (entity_path_temp_file, component_temp_file)}
                 log_handler.info(f"Add jenkins parameters to the pipeline of the '{entity_name}' entity")
-                jenkins_build_job_url = self.jenkins_client.build_job_url(name=self.job_name, parameters=self._jenkins_parameters(component_type, custom_name))
+                jenkins_build_job_url = self.jenkins_client.build_job_url(name=self.job_name, parameters=self._jenkins_parameters(component_type, custom_name, debug))
                 response = post(jenkins_build_job_url, auth=(self.jenkins_username, self.jenkins_token), files=file)
                 log_handler.info(f"Deployment request code of the '{entity_name}' entity '{response.status_code}'")
                 if response.status_code != 201:
