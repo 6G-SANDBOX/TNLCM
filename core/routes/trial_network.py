@@ -33,6 +33,13 @@ class CreateTrialNetwork(Resource):
     parser_post = reqparse.RequestParser()
     parser_post.add_argument("tn_id", type=str, required=False)
     parser_post.add_argument("descriptor", location="files", type=FileStorage, required=True)
+    parser_post.add_argument("deployment_site", type=str, required=True)
+    parser_post.add_argument("github_6g_library_branch", type=str, required=False)
+    parser_post.add_argument("github_6g_library_commit_id", type=str, required=False)
+    parser_post.add_argument("github_6g_library_tag", type=str, required=False)
+    parser_post.add_argument("github_6g_sandbox_sites_branch", type=str, required=False)
+    parser_post.add_argument("github_6g_sandbox_sites_commit_id", type=str, required=False)
+    parser_post.add_argument("github_6g_sandbox_sites_tag", type=str, required=False)
 
     @trial_network_namespace.doc(security="Bearer Auth")
     @jwt_required()
@@ -40,20 +47,38 @@ class CreateTrialNetwork(Resource):
     def post(self):
         """
         Create and validate trial network
+        Can specify a branch, commit_id or tag of the 6G-Library. **If nothing is specified, the main branch will be used.**
+        Can specify a branch, commit_id or tag of the 6G-Sandbox-Sites. **If nothing is specified, the main branch will be used.**
         The tn_id can be specified if desired. **If nothing is specified, it will return a random tn_id.**
         """
         try:
             tn_id = self.parser_post.parse_args()["tn_id"]
             tn_descriptor_file = self.parser_post.parse_args()["descriptor"]
+            deployment_site = self.parser_post.parse_args()["deployment_site"]
+            github_6g_library_branch = self.parser_post.parse_args()["github_6g_library_branch"]
+            github_6g_library_commit_id = self.parser_post.parse_args()["github_6g_library_commit_id"]
+            github_6g_library_tag = self.parser_post.parse_args()["github_6g_library_tag"]
+            github_6g_sandbox_sites_branch = self.parser_post.parse_args()["github_6g_sandbox_sites_branch"]
+            github_6g_sandbox_sites_commit_id = self.parser_post.parse_args()["github_6g_sandbox_sites_commit_id"]
+            github_6g_sandbox_sites_tag = self.parser_post.parse_args()["github_6g_sandbox_sites_tag"]
 
             current_user = get_current_user_from_jwt(get_jwt_identity())
             trial_network = TrialNetworkModel(
                 user_created=current_user.username
             )
+            sixg_sandbox_sites_handler = SixGSandboxSitesHandler(branch=github_6g_sandbox_sites_branch, commit_id=github_6g_sandbox_sites_commit_id, tag=github_6g_sandbox_sites_tag)
+            sixg_sandbox_sites_handler.set_deployment_site(deployment_site)
+            sixg_library_handler = SixGLibraryHandler(branch=github_6g_library_branch, commit_id=github_6g_library_commit_id, tag=github_6g_library_tag, site=deployment_site)
+            parts_components = sixg_library_handler.get_parts_components()
+            components_available = list(parts_components.keys())
             trial_network.set_tn_id(size=3, tn_id=tn_id)
             trial_network.set_tn_state("validated")
             trial_network.set_tn_raw_descriptor(tn_descriptor_file)
             trial_network.set_tn_sorted_descriptor()
+            trial_network.set_deployment_site(deployment_site)
+            trial_network.check_descriptor_component_types_site(components_available)
+            trial_network.set_github_6g_library_branch(github_6g_library_branch)
+            trial_network.set_github_6g_sandbox_sites_branch(github_6g_sandbox_sites_branch)
             trial_network.save()
             return trial_network.to_dict(), 201
         except CustomException as e:
@@ -78,13 +103,6 @@ class TrialNetwork(Resource):
             return abort(e.error_code, str(e))
     
     parser_put = reqparse.RequestParser()
-    parser_put.add_argument("deployment_site", type=str, required=True)
-    parser_put.add_argument("github_6g_library_branch", type=str, required=False)
-    parser_put.add_argument("github_6g_library_commit_id", type=str, required=False)
-    parser_put.add_argument("github_6g_library_tag", type=str, required=False)
-    parser_put.add_argument("github_6g_sandbox_sites_branch", type=str, required=False)
-    parser_put.add_argument("github_6g_sandbox_sites_commit_id", type=str, required=False)
-    parser_put.add_argument("github_6g_sandbox_sites_tag", type=str, required=False)
     parser_put.add_argument("job_name", type=str, required=False)
 
     @trial_network_namespace.doc(security="Bearer Auth")
@@ -93,18 +111,9 @@ class TrialNetwork(Resource):
     def put(self, tn_id):
         """
         Play or suspend trial network
-        Can specify a branch, commit_id or tag of the 6G-Library. **If nothing is specified, the main branch will be used.**
-        Can specify a branch, commit_id or tag of the 6G-Sandbox-Sites. **If nothing is specified, the main branch will be used.**
         If nothing is specified in job_name, the 02_Trial_Network_Component job will be used.
         """
         try:
-            deployment_site = self.parser_put.parse_args()["deployment_site"]
-            github_6g_library_branch = self.parser_put.parse_args()["github_6g_library_branch"]
-            github_6g_library_commit_id = self.parser_put.parse_args()["github_6g_library_commit_id"]
-            github_6g_library_tag = self.parser_put.parse_args()["github_6g_library_tag"]
-            github_6g_sandbox_sites_branch = self.parser_put.parse_args()["github_6g_sandbox_sites_branch"]
-            github_6g_sandbox_sites_commit_id = self.parser_put.parse_args()["github_6g_sandbox_sites_commit_id"]
-            github_6g_sandbox_sites_tag = self.parser_put.parse_args()["github_6g_sandbox_sites_tag"]
             job_name = self.parser_put.parse_args()["job_name"]
             
             current_user = get_current_user_from_jwt(get_jwt_identity())
@@ -114,13 +123,11 @@ class TrialNetwork(Resource):
             tn_state = trial_network.tn_state
             # TODO: State machine with checks
             if tn_state == "validated":
-                sixg_sandbox_sites_handler = SixGSandboxSitesHandler(branch=github_6g_sandbox_sites_branch, commit_id=github_6g_sandbox_sites_commit_id, tag=github_6g_sandbox_sites_tag, deployment_site=deployment_site)
-                trial_network.set_deployment_site(deployment_site)
-                sixg_library_handler = SixGLibraryHandler(branch=github_6g_library_branch, commit_id=github_6g_library_commit_id, tag=github_6g_library_tag, site=deployment_site)
                 temp_file_handler = TempFileHandler()
                 callback_handler = CallbackHandler(trial_network=trial_network)
-                jenkins_handler = JenkinsHandler(trial_network=trial_network, sixg_library_handler=sixg_library_handler, sixg_sandbox_sites_handler=sixg_sandbox_sites_handler, temp_file_handler=temp_file_handler, callback_handler=callback_handler, job_name=job_name)
-                trial_network.set_job_name(jenkins_handler.job_name)
+                jenkins_handler = JenkinsHandler(trial_network=trial_network, temp_file_handler=temp_file_handler, callback_handler=callback_handler)
+                jenkins_handler.set_job_name(job_name)
+                trial_network.set_job_name(job_name)
                 jenkins_handler.trial_network_deployment()
                 trial_network.set_tn_report(callback_handler.get_path_report_trial_network())
                 trial_network.set_tn_state("activated")

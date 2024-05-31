@@ -124,6 +124,10 @@ class TrialNetworkEntityNotInDescriptorError(CustomTrialNetworkError):
     """Error thrown when the name of the dependency does not match the name of some entity defined in the descriptor"""
     pass
 
+class TrialNetworkInvalidComponentSite(CustomTrialNetworkError):
+    """Error thrown when component not available in site"""
+    pass
+
 ############################
 #### Jenkins exceptions ####
 ############################

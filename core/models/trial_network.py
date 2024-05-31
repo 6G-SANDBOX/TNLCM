@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from mongoengine import Document, StringField, DateTimeField
 
 from core.logs.log_handler import log_handler
-from core.exceptions.exceptions_handler import InvalidFileExtensionError, InvalidContentFileError, TrialNetworkEntityNotInDescriptorError, TrialNetworkInvalidStatusError
+from core.exceptions.exceptions_handler import InvalidFileExtensionError, InvalidContentFileError, TrialNetworkEntityNotInDescriptorError, TrialNetworkInvalidStatusError, TrialNetworkInvalidComponentSite
 
 TN_STATE_MACHINE = ["validated", "suspended", "activated"]
 
@@ -21,6 +21,8 @@ class TrialNetworkModel(Document):
     tn_report = StringField()
     job_name = StringField()
     deployment_site = StringField()
+    github_6g_library_branch = StringField()
+    github_6g_sandbox_sites_branch = StringField()
 
     meta = {
         "db_alias": "tnlcm-database-alias",
@@ -89,6 +91,22 @@ class TrialNetworkModel(Document):
     def set_deployment_site(self, deployment_site):
         """Set deployment site to deploy trial network"""
         self.deployment_site = deployment_site
+
+    def set_github_6g_library_branch(self, github_6g_library_branch):
+        """Set branch 6G-Library to be used for deploy trial network"""
+        self.github_6g_library_branch = github_6g_library_branch
+
+    def set_github_6g_sandbox_sites_branch(self, github_6g_sandbox_sites_branch):
+        """Set branch 6G-Sandbox-Sites to be used for deploy trial network"""
+        self.github_6g_sandbox_sites_branch = github_6g_sandbox_sites_branch
+
+    def check_descriptor_component_types_site(self, components_available):
+        """Check if all descriptor component types are present on the site"""
+        tn_descriptor = self.json_to_descriptor(self.tn_sorted_descriptor)["trial_network"]
+        for _, entity_data in tn_descriptor.items():
+            component_type = entity_data["type"]
+            if component_type not in components_available:
+                raise TrialNetworkInvalidComponentSite(f"Component '{component_type}' not available on the '{self.deployment_site}' site", 404)
     
     def descriptor_to_json(self, descriptor):
         """Convert descriptor to json"""
@@ -114,7 +132,9 @@ class TrialNetworkModel(Document):
             "tn_sorted_descriptor": self.json_to_descriptor(self.tn_sorted_descriptor),
             "tn_report": self.tn_report,
             "job_name": self.job_name,
-            "deployment_site": self.deployment_site
+            "deployment_site": self.deployment_site,
+            "github_6g_library_branch": self.github_6g_library_branch,
+            "github_6g_sandbox_sites_branch": self.github_6g_sandbox_sites_branch
         }
 
     def __repr__(self):

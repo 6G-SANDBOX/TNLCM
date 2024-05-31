@@ -11,11 +11,9 @@ from core.exceptions.exceptions_handler import JenkinsConnectionError, JenkinsIn
 
 class JenkinsHandler:
 
-    def __init__(self, trial_network=None, sixg_library_handler=None, sixg_sandbox_sites_handler=None, temp_file_handler=None, callback_handler=None, job_name=None):
+    def __init__(self, trial_network=None, temp_file_handler=None, callback_handler=None):
         """Constructor"""
         self.trial_network = trial_network
-        self.sixg_library_handler = sixg_library_handler
-        self.sixg_sandbox_sites_handler = sixg_sandbox_sites_handler
         self.temp_file_handler = temp_file_handler
         self.callback_handler = callback_handler
         self.jenkins_url = JenkinsSettings.JENKINS_URL
@@ -23,30 +21,32 @@ class JenkinsHandler:
         self.jenkins_password = JenkinsSettings.JENKINS_PASSWORD
         self.jenkins_token = JenkinsSettings.JENKINS_TOKEN
         self.tnlcm_callback = JenkinsSettings.TNLCM_CALLBACK
+        self.job_name = JenkinsSettings.JENKINS_JOB_NAME
         try:
             self.jenkins_client = Jenkins(url=self.jenkins_url, username=self.jenkins_username, password=self.jenkins_password)
             self.jenkins_client.get_whoami()
         except RequestException:
             raise JenkinsConnectionError("Error establishing connection with Jenkins", 500)
-        self.job_name = job_name
-        if not job_name:
-            self.job_name = JenkinsSettings.JENKINS_JOB_NAME
-        if job_name not in self.get_all_jobs():
-            raise JenkinsInvalidJobError(f"The 'job_name' should be one: {', '.join(self.get_all_jobs())}", 400)
 
+    def set_job_name(self, job_name):
+        """Set job name in case of is correct job"""
+        if job_name not in self.get_all_jobs():
+            raise JenkinsInvalidJobError(f"The 'job_name' should be one: {', '.join(self.get_all_jobs())}", 404)
+        self.job_name = job_name
+    
     def _jenkins_parameters(self, component_type, custom_name, debug):
         """Return a dictionary with the parameters for each component to be passed to the Jenkins pipeline"""
         parameters = {
             # MANDATORY
             "TN_ID": self.trial_network.tn_id,
             "COMPONENT_TYPE": component_type,
-            "DEPLOYMENT_SITE": self.sixg_sandbox_sites_handler.deployment_site,
+            "DEPLOYMENT_SITE": self.trial_network.deployment_site,
             "TNLCM_CALLBACK": self.tnlcm_callback,
             # OPTIONAL
-            "LIBRARY_URL": self.sixg_library_handler.github_6g_library_https_url,
-            "LIBRARY_BRANCH": self.sixg_library_handler.github_6g_library_branch,
+            # "LIBRARY_URL": self.sixg_library_handler.github_6g_library_https_url,
+            "LIBRARY_BRANCH": self.trial_network.github_6g_library_branch,
             # "SITES_URL": self.sixg_sandbox_sites_handler.github_6g_sandbox_sites_https_url,
-            "SITES_BRANCH": self.sixg_sandbox_sites_handler.github_6g_sandbox_sites_branch,
+            "SITES_BRANCH": self.trial_network.github_6g_sandbox_sites_branch,
             "DEBUG": debug
         }
         if custom_name:
