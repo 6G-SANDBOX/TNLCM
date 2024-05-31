@@ -64,10 +64,6 @@ class GitPullError(CustomGitError):
     """Error thrown when a Git pull operation fails"""
     pass
 
-class GitRequiredFieldError(CustomGitError):
-    """Error thrown when only one field is required. Either git_branch or git_commit_id"""
-    pass
-
 ################################
 ###### MongoDB exceptions ######
 ################################
