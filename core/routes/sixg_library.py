@@ -1,6 +1,7 @@
 from flask_restx import Namespace, Resource, abort, reqparse
 
 from core.sixg_library.sixg_library_handler import SixGLibraryHandler
+from core.sixg_sandbox_sites.sixg_sandbox_sites_handler import SixGSandboxSitesHandler
 from core.exceptions.exceptions_handler import CustomException
 
 sixg_library_namespace = Namespace(
@@ -53,7 +54,8 @@ class AllComponents(Resource):
             commit_id = self.parser_get.parse_args()["commit_id"]
             tag = self.parser_get.parse_args()["tag"]
             site = self.parser_get.parse_args()["site"]
-
+            
+            _ = SixGSandboxSitesHandler(deployment_site=site)
             sixg_library_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id, tag=tag, site=site)
             parts_components = sixg_library_handler.get_parts_components()
             components = list(parts_components.keys())
@@ -105,6 +107,7 @@ class MetadataPartComponents(Resource):
             tag = self.parser_get.parse_args()["tag"]
             site = self.parser_get.parse_args()["site"]
 
+            _ = SixGSandboxSitesHandler(deployment_site=site)
             sixg_library_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id, tag=tag, site=site)
             parts_components = sixg_library_handler.get_parts_components()
             metadata_part_components = {component: data["metadata"] for component, data in parts_components.items()}
@@ -156,6 +159,7 @@ class InputPartComponents(Resource):
             tag = self.parser_get.parse_args()["tag"]
             site = self.parser_get.parse_args()["site"]
 
+            _ = SixGSandboxSitesHandler(deployment_site=site)
             sixg_library_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id, tag=tag, site=site)
             parts_components = sixg_library_handler.get_parts_components()
             input_part_components = {component: data["input"] for component, data in parts_components.items()}
@@ -193,7 +197,7 @@ class OutputPartComponents(Resource):
     parser_get.add_argument("branch", type=str, required=False)
     parser_get.add_argument("commit_id", type=str, required=False)
     parser_get.add_argument("tag", type=str, required=False)
-    parser_get.add_argument("site", type=str, required=False)
+    parser_get.add_argument("site", type=str, required=True)
 
     @sixg_library_namespace.expect(parser_get)
     def get(self):
@@ -207,6 +211,7 @@ class OutputPartComponents(Resource):
             tag = self.parser_get.parse_args()["tag"]
             site = self.parser_get.parse_args()["site"]
 
+            _ = SixGSandboxSitesHandler(deployment_site=site)
             sixg_library_handler = SixGLibraryHandler(branch=branch, commit_id=commit_id, tag=tag, site=site)
             parts_components = sixg_library_handler.get_parts_components()
             output_part_components = {component: data["output"] for component, data in parts_components.items()}

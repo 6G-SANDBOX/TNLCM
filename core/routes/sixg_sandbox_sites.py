@@ -28,7 +28,7 @@ class Clone(Resource):
             commit_id = self.parser_post.parse_args()["commit_id"]
             tag = self.parser_post.parse_args()["tag"]
 
-            sixg_sandbox_sites_handler = SixGSandboxSitesHandler(branch=branch, commit_id=commit_id, tag=tag)
+            _ = SixGSandboxSitesHandler(branch=branch, commit_id=commit_id, tag=tag)
             return {"message": "6G-Sandbox-Sites cloned"}, 201
         except CustomException as e:
             return abort(e.error_code, str(e))
