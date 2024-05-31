@@ -249,6 +249,9 @@ This repository contains a variety of descriptor templates:
 - [`05_descriptor.yml`](../descriptors/05_descriptor.yml)
 - [`06_descriptor.yml`](../descriptors/06_descriptor.yml)
 - [`07_descriptor.yml`](../descriptors/07_descriptor.yml)
+- [`08_descriptor.yml`](../descriptors/08_descriptor.yml)
+- [`09_descriptor.yml`](../descriptors/09_descriptor.yml)
+- [`10_descriptor.yml`](../descriptors/10_descriptor.yml)
 
 The first end-to-end trial network:
 - [`08_descriptor.yml`](../descriptors/08_descriptor.yml)
@@ -311,17 +314,19 @@ The TNLCM database consists of several collections that store important informat
 
 #### Collection `trial_networks` <!-- omit in toc -->
 
-| Field                  | Description                                                 |
-| ---------------------- | ----------------------------------------------------------- |
-| `user_created`         | The user who created the trial network.                     |
-| `tn_id`                | The ID of the trial network.                                |
-| `tn_state`             | The state of the trial network.                             |
-| `tn_date_created_utc`  | The date and time when the trial network was created (UTC). |
-| `tn_raw_descriptor`    | The raw descriptor of the trial network.                    |
-| `tn_sorted_descriptor` | The sorted descriptor of the trial network.                 |
-| `tn_report`            | The report related to the trial network.                    |
-| `job_name`             | The pipeline used for the deployment of the descriptor.     |
-| `deployment_site`      | The site where the trial network has been deployed.         |
+| Field                            | Description                                                                             |
+| -------------------------------- | --------------------------------------------------------------------------------------- |
+| `user_created`                   | The user who created the trial network.                                                 |
+| `tn_id`                          | The ID of the trial network.                                                            |
+| `tn_state`                       | The state of the trial network.                                                         |
+| `tn_date_created_utc`            | The date and time when the trial network was created (UTC).                             |
+| `tn_raw_descriptor`              | The raw descriptor of the trial network.                                                |
+| `tn_sorted_descriptor`           | The sorted descriptor of the trial network.                                             |
+| `tn_report`                      | The report related to the trial network.                                                |
+| `job_name`                       | The pipeline used for the deployment of the descriptor.                                 |
+| `deployment_site`                | The site where the trial network has been deployed.                                     |
+| `github_6g_library_branch`       | The reference of 6G-Library (branch, commit or tag) used to deploy trial network.       |
+| `github_6g_sandbox_sites_branch` | The reference of 6G-Sandbox-Sites (branch, commit or tag) used to deploy trial network. |
 
 #### Collection `trial_networks_templates` <!-- omit in toc -->
 
@@ -362,8 +367,8 @@ The TNLCM database consists of several collections that store important informat
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 <!-- Urls, Shields and Badges -->
-[tnlcm-badge]: https://img.shields.io/badge/TNLCM-v0.1.0-blue
-[tnlcm-url]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.1.0
+[tnlcm-badge]: https://img.shields.io/badge/TNLCM-v0.2.0-blue
+[tnlcm-url]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.2.0
 [python-badge]: https://img.shields.io/badge/Python-3.12.3-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB
 [python-url]: https://www.python.org/downloads/release/python-3123/
 [flask-badge]: https://img.shields.io/badge/Flask-3.0.3-brightgreen?style=for-the-badge&logo=flask&logoColor=white&labelColor=000000
