@@ -12,23 +12,18 @@ sixg_sandbox_sites_namespace = Namespace(
 class Clone(Resource):
 
     parser_post = reqparse.RequestParser()
-    parser_post.add_argument("branch", type=str, required=False)
-    parser_post.add_argument("commit_id", type=str, required=False)
-    parser_post.add_argument("tag", type=str, required=False)
+    parser_post.add_argument("reference", type=str, required=True)
 
     @sixg_sandbox_sites_namespace.expect(parser_post)
     def post(self):
         """
-        Clone a branch, commit_id or tag from the 6G-Sandbox-Sites repository
-        **Clone the main branch of the default 6G-Sandbox-Sites if no fields are specified**
-        **Only one of the 3 available fields can be specified: branch, commit_id or tag**
+        Clone 6G-Sandbox-Sites repository
+        Can specify a branch, commit or tag of the 6G-Sandbox-Sites. **If nothing is specified, the main branch will be used.**
         """
         try:
-            branch = self.parser_post.parse_args()["branch"]
-            commit_id = self.parser_post.parse_args()["commit_id"]
-            tag = self.parser_post.parse_args()["tag"]
+            reference = self.parser_post.parse_args()["reference"]
 
-            _ = SixGSandboxSitesHandler(branch=branch, commit_id=commit_id, tag=tag)
+            _ = SixGSandboxSitesHandler(reference=reference)
             return {"message": "6G-Sandbox-Sites cloned"}, 201
         except CustomException as e:
             return abort(e.error_code, str(e))
@@ -37,9 +32,7 @@ class Clone(Resource):
 class Sites(Resource):
 
     parser_get = reqparse.RequestParser()
-    parser_get.add_argument("branch", type=str, required=False)
-    parser_get.add_argument("commit_id", type=str, required=False)
-    parser_get.add_argument("tag", type=str, required=False)
+    parser_get.add_argument("reference", type=str, required=True)
 
     @sixg_sandbox_sites_namespace.expect(parser_get)
     def get(self):
@@ -47,11 +40,9 @@ class Sites(Resource):
         Return the sites where trial networks can be deployed
         """
         try:
-            branch = self.parser_get.parse_args()["branch"]
-            commit_id = self.parser_get.parse_args()["commit_id"]
-            tag = self.parser_get.parse_args()["tag"]
+            reference = self.parser_get.parse_args()["reference"]
 
-            sixg_sandbox_sites_handler = SixGSandboxSitesHandler(branch=branch, commit_id=commit_id, tag=tag)
+            sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference=reference)
             return {"sites": sixg_sandbox_sites_handler.get_sites()}, 200
         except CustomException as e:
             return abort(e.error_code, str(e))

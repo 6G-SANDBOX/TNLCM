@@ -21,8 +21,8 @@ class TrialNetworkModel(Document):
     tn_report = StringField()
     job_name = StringField()
     deployment_site = StringField()
-    github_6g_library_branch = StringField()
-    github_6g_sandbox_sites_branch = StringField()
+    github_6g_library_reference = StringField()
+    github_6g_sandbox_sites_reference = StringField()
 
     meta = {
         "db_alias": "tnlcm-database-alias",
@@ -92,13 +92,13 @@ class TrialNetworkModel(Document):
         """Set deployment site to deploy trial network"""
         self.deployment_site = deployment_site
 
-    def set_github_6g_library_branch(self, github_6g_library_branch):
-        """Set branch 6G-Library to be used for deploy trial network"""
-        self.github_6g_library_branch = github_6g_library_branch
+    def set_github_6g_library_reference(self, github_6g_library_reference):
+        """Set reference 6G-Library to be used for deploy trial network"""
+        self.github_6g_library_reference = github_6g_library_reference
 
-    def set_github_6g_sandbox_sites_branch(self, github_6g_sandbox_sites_branch):
-        """Set branch 6G-Sandbox-Sites to be used for deploy trial network"""
-        self.github_6g_sandbox_sites_branch = github_6g_sandbox_sites_branch
+    def set_github_6g_sandbox_sites_reference(self, github_6g_sandbox_sites_reference):
+        """Set reference 6G-Sandbox-Sites to be used for deploy trial network"""
+        self.github_6g_sandbox_sites_reference = github_6g_sandbox_sites_reference
 
     def check_descriptor_component_types_site(self, components_available):
         """Check if all descriptor component types are present on the site"""
@@ -119,7 +119,10 @@ class TrialNetworkModel(Document):
     def to_dict(self):
         return {
             "user_created": self.user_created,
-            "tn_id": self.tn_id
+            "tn_id": self.tn_id,
+            "deployment_site": self.deployment_site,
+            "github_6g_library_reference": self.github_6g_library_reference,
+            "github_6g_sandbox_sites_reference": self.github_6g_sandbox_sites_reference
         }
     
     def to_dict_full(self):
@@ -133,8 +136,8 @@ class TrialNetworkModel(Document):
             "tn_report": self.tn_report,
             "job_name": self.job_name,
             "deployment_site": self.deployment_site,
-            "github_6g_library_branch": self.github_6g_library_branch,
-            "github_6g_sandbox_sites_branch": self.github_6g_sandbox_sites_branch
+            "github_6g_library_reference": self.github_6g_library_reference,
+            "github_6g_sandbox_sites_reference": self.github_6g_sandbox_sites_reference
         }
 
     def __repr__(self):
