@@ -44,9 +44,9 @@ class JenkinsHandler:
             "TNLCM_CALLBACK": self.tnlcm_callback,
             # OPTIONAL
             # "LIBRARY_URL": self.sixg_library_handler.github_6g_library_https_url,
-            "LIBRARY_BRANCH": self.trial_network.github_6g_library_branch,
+            "LIBRARY_BRANCH": self.trial_network.github_6g_library_reference,
             # "SITES_URL": self.sixg_sandbox_sites_handler.github_6g_sandbox_sites_https_url,
-            "SITES_BRANCH": self.trial_network.github_6g_sandbox_sites_branch,
+            "SITES_BRANCH": self.trial_network.github_6g_sandbox_sites_reference,
             "DEBUG": debug
         }
         if custom_name:
