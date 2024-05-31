@@ -64,13 +64,13 @@ class CreateTrialNetwork(Resource):
             parts_components = sixg_library_handler.get_parts_components()
             components_available = list(parts_components.keys())
             trial_network.set_tn_id(size=3, tn_id=tn_id)
-            trial_network.set_tn_state("validated")
             trial_network.set_tn_raw_descriptor(tn_descriptor_file)
             trial_network.set_tn_sorted_descriptor()
             trial_network.set_deployment_site(deployment_site)
             trial_network.check_descriptor_component_types_site(components_available)
             trial_network.set_github_6g_library_reference(github_6g_library_reference)
             trial_network.set_github_6g_sandbox_sites_reference(github_6g_sandbox_sites_reference)
+            trial_network.set_tn_state("validated")
             trial_network.save()
             return trial_network.to_dict(), 201
         except CustomException as e:
