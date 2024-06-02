@@ -29,12 +29,12 @@ class Clone(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
 
-@sixg_library_namespace.route("/components/all")
-class AllComponents(Resource):
+@sixg_library_namespace.route("/components/name")
+class NameComponents(Resource):
 
     parser_get = reqparse.RequestParser()
-    parser_get.add_argument("github_6g_library_reference", type=str, required=True)
-    parser_get.add_argument("github_6g_sandbox_sites_reference", type=str, required=True)
+    parser_get.add_argument("github_6g_library_reference", type=str, required=False)
+    parser_get.add_argument("github_6g_sandbox_sites_reference", type=str, required=False)
     parser_get.add_argument("site", type=str, required=True)
 
     @sixg_library_namespace.expect(parser_get)
@@ -63,12 +63,45 @@ class AllComponents(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
 
+@sixg_library_namespace.route("/components/all")
+class AllComponents(Resource):
+
+    parser_get = reqparse.RequestParser()
+    parser_get.add_argument("github_6g_library_reference", type=str, required=False)
+    parser_get.add_argument("github_6g_sandbox_sites_reference", type=str, required=False)
+    parser_get.add_argument("site", type=str, required=True)
+
+    @sixg_library_namespace.expect(parser_get)
+    def get(self):
+        """
+        Return the metadata and input part of components of a site stored in the branch or commit of the 6G-Library repository
+        Can specify a branch, commit or tag of the 6G-Library. **If nothing is specified, the main branch will be used.**
+        Can specify a branch, commit or tag of the 6G-Sandbox-Sites. **If nothing is specified, the main branch will be used.**
+        """
+        try:
+            github_6g_library_reference = self.parser_get.parse_args()["github_6g_library_reference"]
+            github_6g_sandbox_sites_reference = self.parser_get.parse_args()["github_6g_sandbox_sites_reference"]
+            site = self.parser_get.parse_args()["site"]
+
+            sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference=github_6g_sandbox_sites_reference)
+            sixg_sandbox_sites_handler.set_deployment_site(site)
+            sixg_library_handler = SixGLibraryHandler(reference=github_6g_library_reference, site=site)
+            parts_components = sixg_library_handler.get_parts_components()
+            return {
+                "github_6g_library_reference": github_6g_library_reference,
+                "github_6g_sandbox_sites_reference": github_6g_sandbox_sites_reference,
+                "site": site,
+                "parts_components": parts_components
+                }, 200
+        except CustomException as e:
+            return abort(e.error_code, str(e))
+
 @sixg_library_namespace.route("/components/metadata")
 class MetadataPartComponents(Resource):
 
     parser_get = reqparse.RequestParser()
-    parser_get.add_argument("github_6g_library_reference", type=str, required=True)
-    parser_get.add_argument("github_6g_sandbox_sites_reference", type=str, required=True)
+    parser_get.add_argument("github_6g_library_reference", type=str, required=False)
+    parser_get.add_argument("github_6g_sandbox_sites_reference", type=str, required=False)
     parser_get.add_argument("site", type=str, required=True)
 
     @sixg_library_namespace.expect(parser_get)
@@ -87,12 +120,12 @@ class MetadataPartComponents(Resource):
             sixg_sandbox_sites_handler.set_deployment_site(site)
             sixg_library_handler = SixGLibraryHandler(reference=github_6g_library_reference, site=site)
             parts_components = sixg_library_handler.get_parts_components()
-            metadata_part_components = {component: data["metadata"] for component, data in parts_components.items()}
+            metadata = {component: data["metadata"] for component, data in parts_components.items()}
             return {
                 "github_6g_library_reference": github_6g_library_reference,
                 "github_6g_sandbox_sites_reference": github_6g_sandbox_sites_reference,
                 "site": site,
-                "metadata_part_components": metadata_part_components
+                "metadata": metadata
                 }, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
@@ -101,8 +134,8 @@ class MetadataPartComponents(Resource):
 class InputPartComponents(Resource):
 
     parser_get = reqparse.RequestParser()
-    parser_get.add_argument("github_6g_library_reference", type=str, required=True)
-    parser_get.add_argument("github_6g_sandbox_sites_reference", type=str, required=True)
+    parser_get.add_argument("github_6g_library_reference", type=str, required=False)
+    parser_get.add_argument("github_6g_sandbox_sites_reference", type=str, required=False)
     parser_get.add_argument("site", type=str, required=True)
 
     @sixg_library_namespace.expect(parser_get)
@@ -121,12 +154,12 @@ class InputPartComponents(Resource):
             sixg_sandbox_sites_handler.set_deployment_site(site)
             sixg_library_handler = SixGLibraryHandler(reference=github_6g_library_reference, site=site)
             parts_components = sixg_library_handler.get_parts_components()
-            input_part_components = {component: data["input"] for component, data in parts_components.items()}
+            input = {component: data["input"] for component, data in parts_components.items()}
             return {
                 "github_6g_library_reference": github_6g_library_reference,
                 "github_6g_sandbox_sites_reference": github_6g_sandbox_sites_reference,
                 "site": site,
-                "input_part_components": input_part_components
+                "input": input
                 }, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
@@ -135,8 +168,8 @@ class InputPartComponents(Resource):
 class OutputPartComponents(Resource):
 
     parser_get = reqparse.RequestParser()
-    parser_get.add_argument("github_6g_library_reference", type=str, required=True)
-    parser_get.add_argument("github_6g_sandbox_sites_reference", type=str, required=True)
+    parser_get.add_argument("github_6g_library_reference", type=str, required=False)
+    parser_get.add_argument("github_6g_sandbox_sites_reference", type=str, required=False)
     parser_get.add_argument("site", type=str, required=True)
 
     @sixg_library_namespace.expect(parser_get)
@@ -155,12 +188,12 @@ class OutputPartComponents(Resource):
             sixg_sandbox_sites_handler.set_deployment_site(site)
             sixg_library_handler = SixGLibraryHandler(reference=github_6g_library_reference, site=site)
             parts_components = sixg_library_handler.get_parts_components()
-            output_part_components = {component: data["output"] for component, data in parts_components.items()}
+            output = {component: data["output"] for component, data in parts_components.items()}
             return {
                 "github_6g_library_reference": github_6g_library_reference,
                 "github_6g_sandbox_sites_reference": github_6g_sandbox_sites_reference,
                 "site": site,
-                "output_part_components": output_part_components
+                "output": output
                 }, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
