@@ -23,6 +23,10 @@ class InvalidContentFileError(CustomException):
     """Error thrown when file has semantic faults"""
     pass
 
+class InvalidPythonVersionError(CustomException):
+    """Error thrown when Python version not correct"""
+    pass
+
 class CustomFileNotFoundError(CustomException):
     """Error thrown when the file not found"""
     pass
