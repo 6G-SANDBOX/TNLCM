@@ -28,6 +28,32 @@ class Clone(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
 
+@sixg_sandbox_sites_namespace.route("/tags/")
+class Tags(Resource):
+
+    def get(self):
+        """
+        Return 6G-Sandbox-Sites tags
+        """
+        try:
+            sixg_library_handler = SixGSandboxSitesHandler()
+            return {"tags": sixg_library_handler.get_tags()}, 200
+        except CustomException as e:
+            return abort(e.error_code, str(e))
+
+@sixg_sandbox_sites_namespace.route("/branches/")
+class Branches(Resource):
+
+    def get(self):
+        """
+        Return 6G-Sandbox-Sites branches
+        """
+        try:
+            sixg_library_handler = SixGSandboxSitesHandler()
+            return {"branches": sixg_library_handler.get_branches()}, 200
+        except CustomException as e:
+            return abort(e.error_code, str(e))
+
 @sixg_sandbox_sites_namespace.route("/sites")
 class Sites(Resource):
 

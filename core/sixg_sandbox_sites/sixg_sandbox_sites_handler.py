@@ -25,6 +25,14 @@ class SixGSandboxSitesHandler():
             raise SixGSandboxSitesInvalidSiteError(f"The 'site' should be one: {', '.join(self.get_sites())}", 404)
         self.deployment_site = deployment_site
     
+    def get_tags(self):
+        """Return tags"""
+        return self.repository_handler.get_tags()
+
+    def get_branches(self):
+        """Return branches"""
+        return self.repository_handler.get_branches()
+
     def get_sites(self):
         """Return sites available to deploy trial networks"""
         return os.listdir(os.path.join(self.github_6g_sandbox_sites_local_directory, ".sites"))
