@@ -251,6 +251,7 @@ This repository contains a variety of descriptor templates:
 - [`07_descriptor.yml`](../descriptors/07_descriptor.yml)
 - [`08_descriptor.yml`](../descriptors/08_descriptor.yml)
 - [`09_descriptor.yml`](../descriptors/09_descriptor.yml)
+- [`10_descriptor.yml`](../descriptors/10_descriptor.yml)
 
 The first end-to-end trial network:
 - [`08_descriptor.yml`](../descriptors/08_descriptor.yml)
