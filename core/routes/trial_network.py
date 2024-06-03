@@ -113,13 +113,24 @@ class TrialNetwork(Resource):
             if not trial_network:
                 return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the database")
             tn_state = trial_network.tn_state
-            # TODO: State machine with checks
+            # TODO: State machine
             if tn_state == "validated":
                 temp_file_handler = TempFileHandler()
                 callback_handler = CallbackHandler(trial_network=trial_network)
                 jenkins_handler = JenkinsHandler(trial_network=trial_network, temp_file_handler=temp_file_handler, callback_handler=callback_handler)
                 jenkins_handler.set_job_name(job_name)
                 trial_network.set_job_name(job_name)
+                trial_network.save()
+                jenkins_handler.trial_network_deployment()
+                trial_network.set_tn_report(callback_handler.get_path_report_trial_network())
+                trial_network.set_tn_state("activated")
+                trial_network.save()
+                return {"message": "Trial network activated"}, 200
+            elif tn_state == "failed":
+                temp_file_handler = TempFileHandler()
+                callback_handler = CallbackHandler(trial_network=trial_network)
+                jenkins_handler = JenkinsHandler(trial_network=trial_network, temp_file_handler=temp_file_handler, callback_handler=callback_handler)
+                jenkins_handler.set_job_name(trial_network.job_name)
                 jenkins_handler.trial_network_deployment()
                 trial_network.set_tn_report(callback_handler.get_path_report_trial_network())
                 trial_network.set_tn_state("activated")

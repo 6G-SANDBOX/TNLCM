@@ -9,7 +9,7 @@ from mongoengine import Document, StringField, DateTimeField
 from core.logs.log_handler import log_handler
 from core.exceptions.exceptions_handler import InvalidFileExtensionError, InvalidContentFileError, TrialNetworkEntityNotInDescriptorError, TrialNetworkInvalidStatusError, TrialNetworkInvalidComponentSite
 
-TN_STATE_MACHINE = ["validated", "suspended", "activated"]
+TN_STATE_MACHINE = ["validated", "suspended", "activated", "failed"]
 
 class TrialNetworkModel(Document):
     user_created = StringField(max_length=100)
@@ -18,6 +18,7 @@ class TrialNetworkModel(Document):
     tn_date_created_utc = DateTimeField(default=datetime.now(timezone.utc))
     tn_raw_descriptor = StringField()
     tn_sorted_descriptor = StringField()
+    tn_deployed_descriptor = StringField()
     tn_report = StringField()
     job_name = StringField()
     deployment_site = StringField()
@@ -77,6 +78,7 @@ class TrialNetworkModel(Document):
         
         log_handler.info("End order of the entities of the descriptor")
         self.tn_sorted_descriptor = self.descriptor_to_json({"trial_network": ordered_entities})
+        self.tn_deployed_descriptor = self.descriptor_to_json({"trial_network": ordered_entities})
 
     def set_tn_report(self, report_file):
         """Update trial network report"""
@@ -99,6 +101,10 @@ class TrialNetworkModel(Document):
     def set_github_6g_sandbox_sites_reference(self, github_6g_sandbox_sites_reference):
         """Set reference 6G-Sandbox-Sites to be used for deploy trial network"""
         self.github_6g_sandbox_sites_reference = github_6g_sandbox_sites_reference
+
+    def set_tn_deployed_descriptor(self, tn_deployed_descriptor):
+        """Set deployed descriptor"""
+        self.tn_deployed_descriptor = tn_deployed_descriptor
 
     def check_descriptor_component_types_site(self, components_available):
         """Check if all descriptor component types are present on the site"""
