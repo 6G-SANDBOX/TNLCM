@@ -56,7 +56,6 @@ trial_network:
   ueransim-gnb:
     type: "ueransim"
     name: "gnb"
-    debug: True
     dependencies:
       - "tn_init"
       - "open5gs-core"
@@ -92,7 +91,7 @@ trial_network:
       one_ueransim_ue_key: "465B5CE8B199B49FAA5F0A2EE238A6BC"
       one_ueransim_ue_op: "E8ED289DEBA952E4283B54E88E6183CA"
       one_ueransim_ue_gnbSearchList: ""
-      one_ueransim_ue_session_apn: ""
+      one_ueransim_ue_session_apn: "internet"
       one_ueransim_ue_session_sst: "1"
       one_ueransim_ue_session_sd: "1"
       one_ueransim_ue_configured_nssai_sst: "1"
