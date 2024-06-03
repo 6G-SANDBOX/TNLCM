@@ -1,7 +1,7 @@
-# Pass
+# No pass
 trial_network:
 
-  tn_vxlan:
-    type: "tn_vxlan"
+  tn_test:
+    type: "tn_test"
     dependencies: []
     input: {}
