@@ -10,11 +10,11 @@ class TnlcmSettings:
 
     log_handler.info("Load TNLCM configuration")
 
-    current_python_version = sys.version_info[:3]
-    if current_python_version < PYTHON_MIN_REQUIRED:
-        raise InvalidPythonVersionError(f"Python {PYTHON_MIN_REQUIRED} or higher is required. Current version: {current_python_version}", 404)
-    
-    log_handler.info(f"Current Python version: {current_python_version}")
+    # current_python_version = sys.version_info[:3]
+    # if current_python_version < PYTHON_MIN_REQUIRED:
+    #     raise InvalidPythonVersionError(f"Python {PYTHON_MIN_REQUIRED} or higher is required. Current version: {current_python_version}", 404)
+
+    # log_handler.info(f"Current Python version: {current_python_version}")
     TITLE = "Trial Network Life Cycle Manager - TNLCM"
     VERSION = "0.2.0"
     DESCRIPTION = ("""
