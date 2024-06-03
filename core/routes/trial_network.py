@@ -110,6 +110,8 @@ class TrialNetwork(Resource):
             
             current_user = get_current_user_from_jwt(get_jwt_identity())
             trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
+            _ = SixGLibraryHandler(reference=trial_network.github_6g_library_reference)
+            _ = SixGSandboxSitesHandler(reference=trial_network.github_6g_sandbox_sites_reference)
             if not trial_network:
                 return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the database")
             tn_state = trial_network.tn_state
