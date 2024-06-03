@@ -43,10 +43,10 @@ api.add_namespace(trial_network_namespace, path="/tnlcm/trial-network")
 api.add_namespace(user_namespace, path="/tnlcm/user")
 api.add_namespace(verification_token_namespace, path="/tnlcm/verification-token")
 
-log_handler.info(f"Start Server Trial Network Life Cycle Manager (TNLCM) on http://0.0.0.0:{TnlcmSettings.PORT}")
+log_handler.info(f"Start Server Trial Network Life Cycle Manager (TNLCM) on http://0.0.0.0:{TnlcmSettings.TNLCM_PORT}")
 
 if __name__ == "__main__":
     if flask_env == "PRODUCTION":
-        serve(app, host="0.0.0.0", port=TnlcmSettings.PORT)
+        serve(app, host="0.0.0.0", port=TnlcmSettings.TNLCM_PORT)
     else:
-        app.run(host="0.0.0.0", port=TnlcmSettings.PORT)
+        app.run(host="0.0.0.0", port=TnlcmSettings.TNLCM_PORT)
