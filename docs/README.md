@@ -140,11 +140,11 @@ git clone https://github.com/6G-SANDBOX/TNLCM
 Create a `.env` file at the root level, using the structure and content provided in the [`.env.template`](../.env.template) file.
 
 Mandatory update the values of the following variables according to the platform:
-- `JENKINS_IP`
+- `TNLCM_HOST`
+- `JENKINS_HOST`
 - `JENKINS_USERNAME`
 - `JENKINS_PASSWORD`
 - `JENKINS_TOKEN`
-- `TNLCM_CALLBACK`
 - `GITHUB_6G_SANDBOX_SITES_TOKEN`
 <!-- - `MAIL_USERNAME`
 - `MAIL_PASSWORD` -->
@@ -252,6 +252,7 @@ This repository contains a variety of descriptor templates:
 - [`08_descriptor.yml`](../descriptors/08_descriptor.yml)
 - [`09_descriptor.yml`](../descriptors/09_descriptor.yml)
 - [`10_descriptor.yml`](../descriptors/10_descriptor.yml)
+- [`11_descriptor.yml`](../descriptors/11_descriptor.yml)
 
 The first end-to-end trial network:
 - [`08_descriptor.yml`](../descriptors/08_descriptor.yml)
