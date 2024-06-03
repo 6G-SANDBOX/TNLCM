@@ -56,7 +56,8 @@ class JenkinsHandler:
 
     def trial_network_deployment(self):
         """Trial network deployment starts"""
-        tn_descriptor = self.trial_network.json_to_descriptor(self.trial_network.tn_deployed_descriptor)["trial_network"]
+        tn_deployed_descriptor = self.trial_network.json_to_descriptor(self.trial_network.tn_deployed_descriptor)["trial_network"]
+        tn_descriptor = tn_deployed_descriptor.copy()
         for entity_name, entity_data in tn_descriptor.items():
             component_type = entity_data["type"]
             custom_name = None
@@ -92,8 +93,8 @@ class JenkinsHandler:
                     self.trial_network.set_tn_state("failed")
                     self.trial_network.save()
                     raise CustomFileNotFoundError(f"File with the results of the entity '{entity_name}' not found", 404)
-            del tn_descriptor[entity_name]
-            self.trial_network.set_tn_deployed_descriptor(tn_descriptor)
+            del tn_deployed_descriptor[entity_name]
+            self.trial_network.set_tn_deployed_descriptor(tn_deployed_descriptor)
             self.trial_network.save()
             log_handler.info(f"End of deployment of entity '{entity_name}'")
         log_handler.info("All entities of the trial network are deployed")
