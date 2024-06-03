@@ -104,7 +104,7 @@ class TrialNetworkModel(Document):
 
     def set_tn_deployed_descriptor(self, tn_deployed_descriptor):
         """Set deployed descriptor"""
-        self.tn_deployed_descriptor = tn_deployed_descriptor
+        self.tn_deployed_descriptor = self.descriptor_to_json({"trial_network": tn_deployed_descriptor})
 
     def check_descriptor_component_types_site(self, components_available):
         """Check if all descriptor component types are present on the site"""

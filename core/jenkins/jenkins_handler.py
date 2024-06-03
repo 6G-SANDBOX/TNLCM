@@ -33,6 +33,7 @@ class JenkinsHandler:
         if job_name not in self.get_all_jobs():
             raise JenkinsInvalidJobError(f"The 'job_name' should be one: {', '.join(self.get_all_jobs())}", 404)
         self.job_name = job_name
+        log_handler.info(f"Pipeline use to deploy trial network: '{self.job_name}'")
     
     def _jenkins_parameters(self, component_type, custom_name, debug):
         """Return a dictionary with the parameters for each component to be passed to the Jenkins pipeline"""
