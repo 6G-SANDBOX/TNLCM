@@ -1,0 +1,7 @@
+# No pass
+trial_network:
+
+  tn_test:
+    type: "tn_test"
+    dependencies: []
+    input: {}

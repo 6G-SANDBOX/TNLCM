@@ -1,7 +1,11 @@
-# No pass
+# Pass
 trial_network:
 
-  tn_test:
-    type: "tn_test"
+  tn_init:
+    type: "tn_init"
+    dependencies: []
+    input: {}
+  tsn:
+    type: "tsn"
     dependencies: []
     input: {}
