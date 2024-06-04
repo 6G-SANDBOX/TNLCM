@@ -126,13 +126,13 @@ class JenkinsHandler:
     
     def trial_network_destroy(self):
         """Trial network destroy starts"""
-        jenkins_build_job_url = self.jenkins_client.build_job_url(name=self.deployment_job_name, parameters=self._jenkins_destroy_parameters())
+        jenkins_build_job_url = self.jenkins_client.build_job_url(name=self.destroy_job_name, parameters=self._jenkins_destroy_parameters())
         response = post(jenkins_build_job_url, auth=(self.jenkins_username, self.jenkins_token))
         if response.status_code == 201:
-            last_build_number = self.jenkins_client.get_job_info(name=self.deployment_job_name)["nextBuildNumber"]
-            while last_build_number != self.jenkins_client.get_job_info(name=self.deployment_job_name)["lastCompletedBuild"]["number"]:
+            last_build_number = self.jenkins_client.get_job_info(name=self.destroy_job_name)["nextBuildNumber"]
+            while last_build_number != self.jenkins_client.get_job_info(name=self.destroy_job_name)["lastCompletedBuild"]["number"]:
                 sleep(15)
-            if self.jenkins_client.get_job_info(name=self.deployment_job_name)["lastSuccessfulBuild"]["number"] == last_build_number:
+            if self.jenkins_client.get_job_info(name=self.destroy_job_name)["lastSuccessfulBuild"]["number"] == last_build_number:
                 log_handler.info(f"Trial network '{self.trial_network.tn_id}' successfully destroyed")
 
     def get_all_jobs(self):
