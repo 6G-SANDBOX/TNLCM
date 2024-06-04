@@ -5,7 +5,7 @@ from requests import post
 from time import sleep
 from requests.exceptions import RequestException
 
-from conf import JenkinsSettings
+from conf import JenkinsSettings, TnlcmSettings
 from core.logs.log_handler import log_handler
 from core.exceptions.exceptions_handler import JenkinsConnectionError, JenkinsInvalidJobError, CustomFileNotFoundError, JenkinsResponseError, JenkinsComponentPipelineError
 
@@ -20,7 +20,7 @@ class JenkinsHandler:
         self.jenkins_username = JenkinsSettings.JENKINS_USERNAME
         self.jenkins_password = JenkinsSettings.JENKINS_PASSWORD
         self.jenkins_token = JenkinsSettings.JENKINS_TOKEN
-        self.tnlcm_callback = JenkinsSettings.TNLCM_CALLBACK
+        self.tnlcm_callback = TnlcmSettings.TNLCM_CALLBACK
         self.job_name = JenkinsSettings.JENKINS_JOB_NAME
         try:
             self.jenkins_client = Jenkins(url=self.jenkins_url, username=self.jenkins_username, password=self.jenkins_password)
