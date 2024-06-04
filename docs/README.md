@@ -94,7 +94,7 @@ TNLCM                        // main folder.
 
 ## :hourglass_flowing_sand: Current Status
 
-TNLCM is currently able to deploy the following types of components corresponding with the [6G-Library](https://github.com/6G-SANDBOX/6G-Library): **tn_vxlan**, **vnet**, **tn_bastion**, **vm_kvm**, **k8s**, **open5gs**, **UERANSIM-gNB** and **UERANSIM-UE**.
+TNLCM is currently able to deploy the following types of components corresponding with the [6G-Library](https://github.com/6G-SANDBOX/6G-Library): **tn_vxlan**, **tn_bastion**, **tn_init**, **vnet**, **tsn**, **vm_kvm**, **oneKE**, **open5gs**, **UERANSIM-gNB** and **UERANSIM-UE**.
 
 ![CurrentStatus](./static/currentStatus.png)
 
