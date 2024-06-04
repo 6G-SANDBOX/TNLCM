@@ -95,7 +95,7 @@ class TrialNetwork(Resource):
             return abort(e.error_code, str(e))
     
     parser_put = reqparse.RequestParser()
-    parser_put.add_argument("job_name", type=str, required=False)
+    parser_put.add_argument("deployment_job_name", type=str, required=False)
 
     @trial_network_namespace.doc(security="Bearer Auth")
     @jwt_required()
@@ -106,7 +106,7 @@ class TrialNetwork(Resource):
         If nothing is specified in job_name, the 02_Trial_Network_Component job will be used.
         """
         try:
-            job_name = self.parser_put.parse_args()["job_name"]
+            deployment_job_name = self.parser_put.parse_args()["deployment_job_name"]
             
             current_user = get_current_user_from_jwt(get_jwt_identity())
             trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
@@ -120,8 +120,8 @@ class TrialNetwork(Resource):
                 temp_file_handler = TempFileHandler()
                 callback_handler = CallbackHandler(trial_network=trial_network)
                 jenkins_handler = JenkinsHandler(trial_network=trial_network, temp_file_handler=temp_file_handler, callback_handler=callback_handler)
-                jenkins_handler.set_job_name(job_name)
-                trial_network.set_job_name(jenkins_handler.job_name)
+                jenkins_handler.set_deployment_job_name(deployment_job_name)
+                trial_network.set_deployment_job_name(jenkins_handler.deployment_job_name)
                 trial_network.save()
                 jenkins_handler.trial_network_deployment()
                 trial_network.set_tn_report(callback_handler.get_path_report_trial_network())
@@ -132,7 +132,7 @@ class TrialNetwork(Resource):
                 temp_file_handler = TempFileHandler()
                 callback_handler = CallbackHandler(trial_network=trial_network)
                 jenkins_handler = JenkinsHandler(trial_network=trial_network, temp_file_handler=temp_file_handler, callback_handler=callback_handler)
-                jenkins_handler.set_job_name(trial_network.job_name)
+                jenkins_handler.set_deployment_job_name(trial_network.deployment_job_name)
                 jenkins_handler.trial_network_deployment()
                 trial_network.set_tn_report(callback_handler.get_path_report_trial_network())
                 trial_network.set_tn_state("activated")
@@ -146,19 +146,29 @@ class TrialNetwork(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
 
+    parser_delete = reqparse.RequestParser()
+    parser_delete.add_argument("destroy_job_name", type=str, required=False)
+
     @trial_network_namespace.doc(security="Bearer Auth")
     @jwt_required()
+    @trial_network_namespace.expect(parser_delete)
     def delete(self, tn_id):
         """
         Delete trial network
         """
         try:
+            destroy_job_name = self.parser_delete.parse_args()["destroy_job_name"]
+
             current_user = get_current_user_from_jwt(get_jwt_identity())
             trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
             if not trial_network:
                 return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the database")
+            callback_handler = CallbackHandler(trial_network=trial_network)
+            jenkins_handler = JenkinsHandler(trial_network=trial_network, callback_handler=callback_handler)
+            jenkins_handler.set_destroy_job_name(destroy_job_name)
+            jenkins_handler.trial_network_destroy()
             trial_network.delete()
-            return {"message": f"The trial network with identifier '{tn_id}' has been removed from the database"}, 200
+            return {"message": f"The trial network with identifier '{tn_id}' has been removed"}, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
 

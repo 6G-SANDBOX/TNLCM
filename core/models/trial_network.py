@@ -20,7 +20,7 @@ class TrialNetworkModel(Document):
     tn_sorted_descriptor = StringField()
     tn_deployed_descriptor = StringField()
     tn_report = StringField()
-    job_name = StringField()
+    deployment_job_name = StringField()
     deployment_site = StringField()
     github_6g_library_reference = StringField()
     github_6g_sandbox_sites_reference = StringField()
@@ -86,9 +86,9 @@ class TrialNetworkModel(Document):
             markdown_content = file.read()
         self.tn_report = markdown_content
     
-    def set_job_name(self, job_name):
+    def set_deployment_job_name(self, deployment_job_name):
         """Set pipeline use to deploy trial network"""
-        self.job_name = job_name
+        self.deployment_job_name = deployment_job_name
 
     def set_deployment_site(self, deployment_site):
         """Set deployment site to deploy trial network"""
@@ -140,7 +140,7 @@ class TrialNetworkModel(Document):
             "tn_raw_descriptor": self.json_to_descriptor(self.tn_raw_descriptor),
             "tn_sorted_descriptor": self.json_to_descriptor(self.tn_sorted_descriptor),
             "tn_report": self.tn_report,
-            "job_name": self.job_name,
+            "deployment_job_name": self.deployment_job_name,
             "deployment_site": self.deployment_site,
             "github_6g_library_reference": self.github_6g_library_reference,
             "github_6g_sandbox_sites_reference": self.github_6g_sandbox_sites_reference

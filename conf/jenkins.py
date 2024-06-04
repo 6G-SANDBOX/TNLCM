@@ -17,7 +17,8 @@ class JenkinsSettings:
     JENKINS_USERNAME = os.getenv("JENKINS_USERNAME")
     JENKINS_PASSWORD = os.getenv("JENKINS_PASSWORD")
     JENKINS_TOKEN = os.getenv("JENKINS_TOKEN")
-    JENKINS_JOB_NAME = os.getenv("JENKINS_JOB_NAME")
+    JENKINS_DEPLOYMENT_JOB_NAME = os.getenv("JENKINS_DEPLOYMENT_JOB_NAME")
+    JENKINS_DESTROY_JOB_NAME = os.getenv("JENKINS_DESTROY_JOB_NAME")
     missing_variables = []
     if not JENKINS_HOST:
         missing_variables.append("JENKINS_HOST")
@@ -31,7 +32,9 @@ class JenkinsSettings:
         missing_variables.append("JENKINS_PASSWORD")
     if not JENKINS_TOKEN:
         missing_variables.append("JENKINS_TOKEN")
-    if not JENKINS_JOB_NAME:
-        missing_variables.append("JENKINS_JOB_NAME")
+    if not JENKINS_DEPLOYMENT_JOB_NAME:
+        missing_variables.append("JENKINS_DEPLOYMENT_JOB_NAME")
+    if not JENKINS_DESTROY_JOB_NAME:
+        missing_variables.append("JENKINS_DESTROY_JOB_NAME")
     if missing_variables:
         raise UndefinedEnvVariableError(missing_variables)
