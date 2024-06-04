@@ -121,7 +121,7 @@ class TrialNetwork(Resource):
                 callback_handler = CallbackHandler(trial_network=trial_network)
                 jenkins_handler = JenkinsHandler(trial_network=trial_network, temp_file_handler=temp_file_handler, callback_handler=callback_handler)
                 jenkins_handler.set_job_name(job_name)
-                trial_network.set_job_name(job_name)
+                trial_network.set_job_name(jenkins_handler.job_name)
                 trial_network.save()
                 jenkins_handler.trial_network_deployment()
                 trial_network.set_tn_report(callback_handler.get_path_report_trial_network())
