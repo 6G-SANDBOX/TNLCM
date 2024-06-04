@@ -51,13 +51,13 @@ class NameComponents(Resource):
 
             sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference=github_6g_sandbox_sites_reference)
             sixg_sandbox_sites_handler.set_deployment_site(site)
-            sixg_library_handler = SixGLibraryHandler(reference=github_6g_library_reference, site=site)
+            sixg_library_handler = SixGLibraryHandler(reference=github_6g_library_reference, site=sixg_sandbox_sites_handler.deployment_site)
             parts_components = sixg_library_handler.get_parts_components()
             components = list(parts_components.keys())
             return {
-                "github_6g_library_reference": github_6g_library_reference,
-                "github_6g_sandbox_sites_reference": github_6g_sandbox_sites_reference,
-                "site": site,
+                "github_6g_library_reference": sixg_library_handler.github_6g_library_reference,
+                "github_6g_sandbox_sites_reference": sixg_sandbox_sites_handler.github_6g_sandbox_sites_reference,
+                "site": sixg_sandbox_sites_handler.deployment_site,
                 "components": components
                 }, 200
         except CustomException as e:
@@ -85,12 +85,12 @@ class AllComponents(Resource):
 
             sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference=github_6g_sandbox_sites_reference)
             sixg_sandbox_sites_handler.set_deployment_site(site)
-            sixg_library_handler = SixGLibraryHandler(reference=github_6g_library_reference, site=site)
+            sixg_library_handler = SixGLibraryHandler(reference=github_6g_library_reference, site=sixg_sandbox_sites_handler.deployment_site)
             parts_components = sixg_library_handler.get_parts_components()
             return {
-                "github_6g_library_reference": github_6g_library_reference,
-                "github_6g_sandbox_sites_reference": github_6g_sandbox_sites_reference,
-                "site": site,
+                "github_6g_library_reference": sixg_library_handler.github_6g_library_reference,
+                "github_6g_sandbox_sites_reference": sixg_sandbox_sites_handler.github_6g_sandbox_sites_reference,
+                "site": sixg_sandbox_sites_handler.deployment_site,
                 "parts_components": parts_components
                 }, 200
         except CustomException as e:
@@ -118,13 +118,13 @@ class MetadataPartComponents(Resource):
 
             sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference=github_6g_sandbox_sites_reference)
             sixg_sandbox_sites_handler.set_deployment_site(site)
-            sixg_library_handler = SixGLibraryHandler(reference=github_6g_library_reference, site=site)
+            sixg_library_handler = SixGLibraryHandler(reference=github_6g_library_reference, site=sixg_sandbox_sites_handler.deployment_site)
             parts_components = sixg_library_handler.get_parts_components()
             metadata = {component: data["metadata"] for component, data in parts_components.items()}
             return {
-                "github_6g_library_reference": github_6g_library_reference,
-                "github_6g_sandbox_sites_reference": github_6g_sandbox_sites_reference,
-                "site": site,
+                "github_6g_library_reference": sixg_library_handler.github_6g_library_reference,
+                "github_6g_sandbox_sites_reference": sixg_sandbox_sites_handler.github_6g_sandbox_sites_reference,
+                "site": sixg_sandbox_sites_handler.deployment_site,
                 "metadata": metadata
                 }, 200
         except CustomException as e:
@@ -152,13 +152,13 @@ class InputPartComponents(Resource):
 
             sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference=github_6g_sandbox_sites_reference)
             sixg_sandbox_sites_handler.set_deployment_site(site)
-            sixg_library_handler = SixGLibraryHandler(reference=github_6g_library_reference, site=site)
+            sixg_library_handler = SixGLibraryHandler(reference=github_6g_library_reference, site=sixg_sandbox_sites_handler.deployment_site)
             parts_components = sixg_library_handler.get_parts_components()
             input = {component: data["input"] for component, data in parts_components.items()}
             return {
-                "github_6g_library_reference": github_6g_library_reference,
-                "github_6g_sandbox_sites_reference": github_6g_sandbox_sites_reference,
-                "site": site,
+                "github_6g_library_reference": sixg_library_handler.github_6g_library_reference,
+                "github_6g_sandbox_sites_reference": sixg_sandbox_sites_handler.github_6g_sandbox_sites_reference,
+                "site": sixg_sandbox_sites_handler.deployment_site,
                 "input": input
                 }, 200
         except CustomException as e:
@@ -186,13 +186,13 @@ class OutputPartComponents(Resource):
 
             sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference=github_6g_sandbox_sites_reference)
             sixg_sandbox_sites_handler.set_deployment_site(site)
-            sixg_library_handler = SixGLibraryHandler(reference=github_6g_library_reference, site=site)
+            sixg_library_handler = SixGLibraryHandler(reference=github_6g_library_reference, site=sixg_sandbox_sites_handler.deployment_site)
             parts_components = sixg_library_handler.get_parts_components()
             output = {component: data["output"] for component, data in parts_components.items()}
             return {
-                "github_6g_library_reference": github_6g_library_reference,
-                "github_6g_sandbox_sites_reference": github_6g_sandbox_sites_reference,
-                "site": site,
+                "github_6g_library_reference": sixg_library_handler.github_6g_library_reference,
+                "github_6g_sandbox_sites_reference": sixg_sandbox_sites_handler.github_6g_sandbox_sites_reference,
+                "site": sixg_sandbox_sites_handler.deployment_site,
                 "output": output
                 }, 200
         except CustomException as e:
