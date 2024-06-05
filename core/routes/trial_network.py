@@ -102,7 +102,7 @@ class TrialNetwork(Resource):
     @trial_network_namespace.expect(parser_put)
     def put(self, tn_id):
         """
-        Play or suspend trial network
+        State Machine: play or suspend trial network
         If nothing is specified in job_name, the 02_Trial_Network_Component job will be used.
         """
         try:
@@ -163,6 +163,9 @@ class TrialNetwork(Resource):
             trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
             if not trial_network:
                 return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the database")
+            tn_state = trial_network.tn_state
+            if tn_state != "validated":
+                return abort(400, f"Trial network cannot be destroyed")
             callback_handler = CallbackHandler(trial_network=trial_network)
             jenkins_handler = JenkinsHandler(trial_network=trial_network, callback_handler=callback_handler)
             jenkins_handler.set_destroy_job_name(destroy_job_name)
