@@ -8,7 +8,7 @@ from core.repository.repository_handler import RepositoryHandler
 from core.exceptions.exceptions_handler import SixGLibraryComponentsNotFound, InvalidContentFileError, CustomFileNotFoundError
 
 SIXG_LIBRARY_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
-SIXG_LIBRARY_EXCLUDE_COMPONENTS = [".git", ".global", ".vscode", "dummy-component"]
+SIXG_LIBRARY_EXCLUDE_COMPONENTS = [".git", ".global", ".vscode", ".dummy_component"]
 class SixGLibraryHandler:
 
     def __init__(self, reference=None, site=None):
