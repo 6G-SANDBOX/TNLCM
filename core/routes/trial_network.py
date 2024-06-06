@@ -89,7 +89,7 @@ class TrialNetwork(Resource):
             current_user = get_current_user_from_jwt(get_jwt_identity())
             trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
             if not trial_network:
-                return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the database")
+                return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}'")
             return trial_network.to_dict_full(), 200
         except CustomException as e:
             return abort(e.error_code, str(e))
@@ -103,7 +103,7 @@ class TrialNetwork(Resource):
     def put(self, tn_id):
         """
         State Machine: play or suspend trial network
-        If nothing is specified in job_name, the 02_Trial_Network_Component job will be used.
+        If nothing is specified in deployment_job_name, the **alt_architecture/TNLCM_MAIN_PIPELINE** job will be used.
         """
         try:
             deployment_job_name = self.parser_put.parse_args()["deployment_job_name"]
@@ -113,9 +113,8 @@ class TrialNetwork(Resource):
             _ = SixGLibraryHandler(reference=trial_network.github_6g_library_reference)
             _ = SixGSandboxSitesHandler(reference=trial_network.github_6g_sandbox_sites_reference)
             if not trial_network:
-                return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the database")
+                return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}'")
             tn_state = trial_network.tn_state
-            # TODO: State machine
             if tn_state == "validated":
                 temp_file_handler = TempFileHandler()
                 callback_handler = CallbackHandler(trial_network=trial_network)
@@ -138,6 +137,17 @@ class TrialNetwork(Resource):
                 trial_network.set_tn_state("activated")
                 trial_network.save()
                 return {"message": "Trial network activated"}, 200
+            elif tn_state == "destroyed":
+                trial_network.set_tn_deployed_descriptor()
+                trial_network.set_tn_state("validated")
+                temp_file_handler = TempFileHandler()
+                callback_handler = CallbackHandler(trial_network=trial_network)
+                jenkins_handler = JenkinsHandler(trial_network=trial_network, temp_file_handler=temp_file_handler, callback_handler=callback_handler)
+                jenkins_handler.set_deployment_job_name(trial_network.deployment_job_name)
+                jenkins_handler.trial_network_deployment()
+                trial_network.set_tn_report(callback_handler.get_path_report_trial_network())
+                trial_network.set_tn_state("activated")
+                trial_network.save()
             elif tn_state == "activated":
                 trial_network.set_tn_state("suspended")
                 trial_network.save()
@@ -155,6 +165,7 @@ class TrialNetwork(Resource):
     def delete(self, tn_id):
         """
         Delete trial network
+        If nothing is specified in destroy_job_name, the **alt_architecture/TN_DESTROY** job will be used.
         """
         try:
             destroy_job_name = self.parser_delete.parse_args()["destroy_job_name"]
@@ -162,15 +173,17 @@ class TrialNetwork(Resource):
             current_user = get_current_user_from_jwt(get_jwt_identity())
             trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
             if not trial_network:
-                return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the database")
+                return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}'")
             tn_state = trial_network.tn_state
-            if tn_state != "validated":
+            if tn_state != "activated":
                 return abort(400, f"Trial network cannot be destroyed")
             callback_handler = CallbackHandler(trial_network=trial_network)
             jenkins_handler = JenkinsHandler(trial_network=trial_network, callback_handler=callback_handler)
             jenkins_handler.set_destroy_job_name(destroy_job_name)
+            trial_network.set_destroy_job_name(jenkins_handler.destroy_job_name)
             jenkins_handler.trial_network_destroy()
-            trial_network.delete()
+            trial_network.set_tn_state("destroyed")
+            trial_network.save()
             return {"message": f"The trial network with identifier '{tn_id}' has been removed"}, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
@@ -186,7 +199,7 @@ class TrialNetworkReport(Resource):
             current_user = get_current_user_from_jwt(get_jwt_identity())
             trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
             if not trial_network:
-                return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}' in the database")
+                return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}'")
             return {"tn_report": trial_network.tn_report}, 200
         except CustomException as e:
             return abort(e.error_code, str(e))

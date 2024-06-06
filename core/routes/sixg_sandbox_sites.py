@@ -12,7 +12,7 @@ sixg_sandbox_sites_namespace = Namespace(
 class Clone(Resource):
 
     parser_post = reqparse.RequestParser()
-    parser_post.add_argument("reference", type=str, required=True)
+    parser_post.add_argument("reference", type=str, required=False)
 
     @sixg_sandbox_sites_namespace.expect(parser_post)
     def post(self):
@@ -58,12 +58,13 @@ class Branches(Resource):
 class Sites(Resource):
 
     parser_get = reqparse.RequestParser()
-    parser_get.add_argument("reference", type=str, required=True)
+    parser_get.add_argument("reference", type=str, required=False)
 
     @sixg_sandbox_sites_namespace.expect(parser_get)
     def get(self):
         """
         Return the sites where trial networks can be deployed
+        Can specify a branch, commit or tag of the 6G-Sandbox-Sites. **If nothing is specified, the main branch will be used.**
         """
         try:
             reference = self.parser_get.parse_args()["reference"]

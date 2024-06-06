@@ -95,6 +95,6 @@ class CallbackHandler:
     
     def exists_path_entity_trial_network(self, entity_name):
         """Return true if exists entity file with information received by Jenkins"""
-        log_handler.info(f"Check whether the file of the '{entity_name}' entity has been created.")
+        log_handler.info(f"Check whether the file of the '{entity_name}' entity has been created")
         path_entity_trial_network = os.path.join(REPORT_DIRECTORY, f"{self.trial_network.tn_id}-{entity_name}.json")
         return os.path.exists(path_entity_trial_network)

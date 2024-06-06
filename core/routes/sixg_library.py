@@ -13,7 +13,7 @@ sixg_library_namespace = Namespace(
 class Clone(Resource):
 
     parser_post = reqparse.RequestParser()
-    parser_post.add_argument("reference", type=str, required=True)
+    parser_post.add_argument("reference", type=str, required=False)
 
     @sixg_library_namespace.expect(parser_post)
     def post(self):

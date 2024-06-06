@@ -9,7 +9,7 @@ from mongoengine import Document, StringField, DateTimeField
 from core.logs.log_handler import log_handler
 from core.exceptions.exceptions_handler import InvalidFileExtensionError, InvalidContentFileError, TrialNetworkEntityNotInDescriptorError, TrialNetworkInvalidStatusError, TrialNetworkInvalidComponentSite
 
-TN_STATE_MACHINE = ["validated", "suspended", "activated", "failed"]
+TN_STATE_MACHINE = ["validated", "suspended", "activated", "failed", "destroyed"]
 
 class TrialNetworkModel(Document):
     user_created = StringField(max_length=100)
@@ -21,6 +21,7 @@ class TrialNetworkModel(Document):
     tn_deployed_descriptor = StringField()
     tn_report = StringField()
     deployment_job_name = StringField()
+    destroy_job_name = StringField()
     deployment_site = StringField()
     github_6g_library_reference = StringField()
     github_6g_sandbox_sites_reference = StringField()
@@ -89,6 +90,10 @@ class TrialNetworkModel(Document):
     def set_deployment_job_name(self, deployment_job_name):
         """Set pipeline use to deploy trial network"""
         self.deployment_job_name = deployment_job_name
+    
+    def set_destroy_job_name(self, destroy_job_name):
+        """Set pipeline use to destroy trial network"""
+        self.destroy_job_name = destroy_job_name
 
     def set_deployment_site(self, deployment_site):
         """Set deployment site to deploy trial network"""
@@ -102,9 +107,12 @@ class TrialNetworkModel(Document):
         """Set reference 6G-Sandbox-Sites to be used for deploy trial network"""
         self.github_6g_sandbox_sites_reference = github_6g_sandbox_sites_reference
 
-    def set_tn_deployed_descriptor(self, tn_deployed_descriptor):
+    def set_tn_deployed_descriptor(self, tn_deployed_descriptor=None):
         """Set deployed descriptor"""
-        self.tn_deployed_descriptor = self.descriptor_to_json({"trial_network": tn_deployed_descriptor})
+        if not tn_deployed_descriptor:
+            self.tn_deployed_descriptor = self.tn_sorted_descriptor
+        else:
+            self.tn_deployed_descriptor = self.descriptor_to_json({"trial_network": tn_deployed_descriptor})
 
     def check_descriptor_component_types_site(self, components_available):
         """Check if all descriptor component types are present on the site"""
@@ -139,8 +147,10 @@ class TrialNetworkModel(Document):
             "tn_date_created_utc": self.tn_date_created_utc.isoformat(),
             "tn_raw_descriptor": self.json_to_descriptor(self.tn_raw_descriptor),
             "tn_sorted_descriptor": self.json_to_descriptor(self.tn_sorted_descriptor),
+            "tn_deployed_descriptor": self.json_to_descriptor(self.tn_deployed_descriptor),
             "tn_report": self.tn_report,
             "deployment_job_name": self.deployment_job_name,
+            "destroy_job_name": self.destroy_job_name,
             "deployment_site": self.deployment_site,
             "github_6g_library_reference": self.github_6g_library_reference,
             "github_6g_sandbox_sites_reference": self.github_6g_sandbox_sites_reference

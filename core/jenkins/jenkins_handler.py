@@ -5,7 +5,7 @@ from requests import post
 from time import sleep
 from requests.exceptions import RequestException
 
-from conf import JenkinsSettings, TnlcmSettings
+from conf import JenkinsSettings, TnlcmSettings, SixGLibrarySettings, SixGSandboxSitesSettings
 from core.logs.log_handler import log_handler
 from core.exceptions.exceptions_handler import JenkinsConnectionError, JenkinsInvalidJobError, CustomFileNotFoundError, JenkinsResponseError, JenkinsComponentPipelineError
 
@@ -46,9 +46,9 @@ class JenkinsHandler:
             "DEPLOYMENT_SITE": self.trial_network.deployment_site,
             "TNLCM_CALLBACK": self.tnlcm_callback,
             # OPTIONAL
-            # "LIBRARY_URL": self.trial_network.github_6g_library_https_url,
+            "LIBRARY_URL": SixGLibrarySettings.GITHUB_6G_LIBRARY_HTTPS_URL,
             "LIBRARY_BRANCH": self.trial_network.github_6g_library_reference,
-            # "SITES_URL": self.trial_network.github_6g_sandbox_sites_https_url,
+            "SITES_URL": SixGSandboxSitesSettings.GITHUB_6G_SANDBOX_SITES_HTTPS_URL,
             "SITES_BRANCH": self.trial_network.github_6g_sandbox_sites_reference,
             "DEBUG": debug
         }
@@ -116,11 +116,11 @@ class JenkinsHandler:
             "DEPLOYMENT_SITE": self.trial_network.deployment_site,
             "TNLCM_CALLBACK": self.tnlcm_callback,
             # OPTIONAL
-            # "LIBRARY_URL": self.trial_network.github_6g_library_https_url,
+            "LIBRARY_URL": SixGLibrarySettings.GITHUB_6G_LIBRARY_HTTPS_URL,
             "LIBRARY_BRANCH": self.trial_network.github_6g_library_reference,
-            # "SITES_URL": self.trial_network.github_6g_sandbox_sites_https_url,
+            "SITES_URL": SixGSandboxSitesSettings.GITHUB_6G_SANDBOX_SITES_HTTPS_URL,
             "SITES_BRANCH": self.trial_network.github_6g_sandbox_sites_reference,
-            # "DEBUG": debug
+            # "DEBUG": true
         }
         return parameters
     
@@ -129,6 +129,7 @@ class JenkinsHandler:
         jenkins_build_job_url = self.jenkins_client.build_job_url(name=self.destroy_job_name, parameters=self._jenkins_destroy_parameters())
         response = post(jenkins_build_job_url, auth=(self.jenkins_username, self.jenkins_token))
         if response.status_code == 201:
+            log_handler.info(f"Start the destroyed of the '{self.trial_network.tn_id}' trial network")
             last_build_number = self.jenkins_client.get_job_info(name=self.destroy_job_name)["nextBuildNumber"]
             while last_build_number != self.jenkins_client.get_job_info(name=self.destroy_job_name)["lastCompletedBuild"]["number"]:
                 sleep(15)
