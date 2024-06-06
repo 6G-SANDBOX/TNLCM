@@ -51,33 +51,32 @@ TNLCM has been designed as a modular application, with the intention of making c
 ## :open_file_folder: Project Structure
 
 ```
-TNLCM                        // main folder.
-├─ .github                   // folder contains files and templates for GitHub workflow automation.
-│  ├─ CHANGELOG_TEMPLATE     // folder with template for changelog.
-│  └─ ISSUE_TEMPLATE         // folder with template for issue reporting.
+TNLCM/                       // main folder.
+├─ .github/                  // folder contains files and templates for GitHub workflow automation.
+│  ├─ CHANGELOG_TEMPLATE/    // folder with template for changelog.
+│  └─ ISSUE_TEMPLATE/        // folder with template for issue reporting.
 ├─ .gitignore                // file specifying intentionally untracked files to ignore.
 ├─ app.py                    // main file that starts TNLCM.
 ├─ CHANGELOG.md              // file containing the changes made in each release.
-├─ descriptors               // folder in which trial network descriptors templates are stored.
+├─ descriptors/              // folder in which trial network descriptors templates are stored.
 ├─ docker-compose.yml        // file for create database.
-├─ docs                      // folder in which all documentation is stored.
+├─ docs/                     // folder in which all documentation is stored.
 ├─ requirements.txt          // file containing the libraries and their versions.
-├─ conf                      // folder that handler the configuration files.
-├─ core                      // folder in which the developed code is stored.
-│  ├─ auth                   // folder that handler the authentication of users who have access.
-│  ├─ callback               // folder that handler the results received by Jenkins.
-│  ├─ database               // folder that handler the connection with MongoDB database using mongoengine.
-│  ├─ exceptions             // folder that handler the creation of custom exceptions.
-│  ├─ jenkins                // folder that handler the connection with Jenkins for tn deployment.
-│  ├─ logs                   // folder that handler the logs configuration.
-│  ├─ mail                   // folder that handler the configuration to use flask_mail.
-│  ├─ models                 // folder that contains the database models.
-│  ├─ repository             // folder that handler the connection to any repository.
-│  ├─ routes                 // folder that handler the API that is exposed.
-│  ├─ sixg_library           // folder that handler the connection to the 6G-Library repository.
-│  ├─ sixg_sandbox_sites     // folder that handler the connection to the 6G-Sandbox-Sites repository.
-│  └─ temp                   // folder that handler the creation of temporary files.
-└─ tests                     // folder that contains files related to testing the code.
+├─ conf/                     // folder that handler the configuration files.
+└─ core/                     // folder in which the developed code is stored.
+   ├─ auth/                  // folder that handler the authentication of users who have access.
+   ├─ callback/              // folder that handler the results received by Jenkins.
+   ├─ database/              // folder that handler the connection with MongoDB database using mongoengine.
+   ├─ exceptions/            // folder that handler the creation of custom exceptions.
+   ├─ jenkins/               // folder that handler the connection with Jenkins for tn deployment.
+   ├─ logs/                  // folder that handler the logs configuration.
+   ├─ mail/                  // folder that handler the configuration to use flask_mail.
+   ├─ models/                // folder that contains the database models.
+   ├─ repository/            // folder that handler the connection to any repository.
+   ├─ routes/                // folder that handler the API that is exposed.
+   ├─ sixg_library/          // folder that handler the connection to the 6G-Library repository.
+   ├─ sixg_sandbox_sites/    // folder that handler the connection to the 6G-Sandbox-Sites repository.
+   └─ temp/                  // folder that handler the creation of temporary files.
 ```
 
 ## :mag: Overview of TNLCM and 6G-Library implementation
@@ -108,10 +107,10 @@ TNLCM is currently able to deploy the following types of components correspondin
 > [!TIP]
 > TNLCM uses the following repository branches:
 > 
-> | Repository       | Branch                                                                                   |
-> | ---------------- | ---------------------------------------------------------------------------------------- |
-> | 6G-Library       | [alt_architecture](https://github.com/6G-SANDBOX/6G-Library/tree/alt_architecture)       |
-> | 6G-Sandbox-Sites | [alt_architecture](https://github.com/6G-SANDBOX/6G-Sandbox-Sites/tree/alt_architecture) |
+> | Repository       | Release                                                                      |
+> | ---------------- | ---------------------------------------------------------------------------- |
+> | 6G-Library       | [v0.2.0](https://github.com/6G-SANDBOX/6G-Library/releases/tag/v0.2.0)       |
+> | 6G-Sandbox-Sites | [v0.2.0](https://github.com/6G-SANDBOX/6G-Sandbox-Sites/releases/tag/v0.2.0) |
 
 > [!WARNING]
 > In order to run TNLCM, the following tools are **required** to be deployed on the platforms:
@@ -235,7 +234,7 @@ trial_network:  # Mandatory, contains the description of all entities in the Tri
     type:  # 6G-Library component type
     name: # Custom name
     dependencies: # List of dependencies of the component with other components
-      - {type}-{name}
+      - type-name
       - ...
     input: # Dictionary with the variables collected from the input part of the 6G-Library
       key: value
@@ -315,25 +314,26 @@ The TNLCM database consists of several collections that store important informat
 
 #### Collection `trial_networks` <!-- omit in toc -->
 
-| Field                            | Description                                                                             |
-| -------------------------------- | --------------------------------------------------------------------------------------- |
-| `user_created`                   | The user who created the trial network.                                                 |
-| `tn_id`                          | The ID of the trial network.                                                            |
-| `tn_state`                       | The state of the trial network.                                                         |
-| `tn_date_created_utc`            | The date and time when the trial network was created (UTC).                             |
-| `tn_raw_descriptor`              | The raw descriptor of the trial network.                                                |
-| `tn_sorted_descriptor`           | The sorted descriptor of the trial network.                                             |
-| `tn_report`                      | The report related to the trial network.                                                |
-| `job_name`                       | The pipeline used for the deployment of the descriptor.                                 |
-| `deployment_site`                | The site where the trial network has been deployed.                                     |
-| `github_6g_library_branch`       | The reference of 6G-Library (branch, commit or tag) used to deploy trial network.       |
-| `github_6g_sandbox_sites_branch` | The reference of 6G-Sandbox-Sites (branch, commit or tag) used to deploy trial network. |
+| Field                               | Description                                                                             |
+| ----------------------------------- | --------------------------------------------------------------------------------------- |
+| `user_created`                      | The user that created the trial network.                                                |
+| `tn_id`                             | The ID of the trial network.                                                            |
+| `tn_state`                          | The state of the trial network.                                                         |
+| `tn_date_created_utc`               | The date and time when the trial network was created (UTC).                             |
+| `tn_raw_descriptor`                 | The raw descriptor of the trial network.                                                |
+| `tn_sorted_descriptor`              | The sorted descriptor of the trial network.                                             |
+| `tn_deployed_descriptor`            | The current status of descriptor with the last entity deployed of the trial network.    |
+| `tn_report`                         | The report related to the trial network.                                                |
+| `deployment_job_name`               | The pipeline used for the deployment of the descriptor.                                 |
+| `deployment_site`                   | The site where the trial network has been deployed.                                     |
+| `github_6g_library_reference`       | The reference of 6G-Library (branch, commit or tag) used to deploy trial network.       |
+| `github_6g_sandbox_sites_reference` | The reference of 6G-Sandbox-Sites (branch, commit or tag) used to deploy trial network. |
 
 #### Collection `trial_networks_templates` <!-- omit in toc -->
 
 | Field                  | Description                                                          |
 | ---------------------- | -------------------------------------------------------------------- |
-| `user_created`         | The user who created the trial network template.                     |
+| `user_created`         | The user that created the trial network template.                    |
 | `tn_id`                | The ID of the trial network template.                                |
 | `tn_date_created_utc`  | The date and time when the trial network template was created (UTC). |
 | `tn_raw_descriptor`    | The raw descriptor of the trial network template.                    |
