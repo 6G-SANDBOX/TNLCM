@@ -11,7 +11,6 @@ trial_network:
     dependencies:
       - "tn_init"
     input:
-      one_vm_username: "test"
-      one_vm_password: "test"
+      one_vm_kvm_size: "small" # extra_large, large, medium, small, very_small
       one_vm_networks:
         - "tn_vxlan"
