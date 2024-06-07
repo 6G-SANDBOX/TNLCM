@@ -8,7 +8,7 @@ from core.repository.repository_handler import RepositoryHandler
 from core.exceptions.exceptions_handler import SixGLibraryComponentsNotFound, InvalidContentFileError, CustomFileNotFoundError
 
 SIXG_LIBRARY_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
-SIXG_LIBRARY_EXCLUDE_COMPONENTS = [".git", ".global", ".vscode", ".dummy_component"]
+
 class SixGLibraryHandler:
 
     def __init__(self, reference=None, site=None):
@@ -39,7 +39,7 @@ class SixGLibraryHandler:
         else:
             components_data = {}
             for component in os.listdir(self.github_6g_library_local_directory):
-                if os.path.isdir(os.path.join(self.github_6g_library_local_directory, component)) and component not in SIXG_LIBRARY_EXCLUDE_COMPONENTS:
+                if not component.startswith('.') and os.path.isdir(os.path.join(self.github_6g_library_local_directory, component)):
                     public_file = os.path.join(self.github_6g_library_local_directory, component, ".tnlcm", "public.yaml")
                     if not os.path.exists(public_file):
                         raise CustomFileNotFoundError(f"File '{public_file}' not found", 404)
