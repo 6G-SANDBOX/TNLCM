@@ -22,8 +22,8 @@ class RepositoryHandler:
             if os.path.exists(os.path.join(self.github_local_directory, ".git")):
                 try:
                     self.repo = Repo(self.github_local_directory)
+                    self._pull()
                     self._git_checkout_repository()
-                    self._pull_branch()
                 except InvalidGitRepositoryError:
                     raise GitCloneError(f"The '{self.github_local_directory}' directory is not a GitHub repository", 500)
             else:
@@ -52,11 +52,10 @@ class RepositoryHandler:
         except GitCommandError:
             raise GitCheckoutError(f"Reference '{self.github_reference}' is not in '{self.github_repository_name}' repository", 404)
 
-    def _pull_branch(self):
+    def _pull(self):
         """Check if the repository has been updated and applies a git pull in case of changes"""
-        if self.github_reference in self.get_branches():
-            log_handler.info(f"Pull is executed in '{self.github_repository_name}' repository located in '{self.github_local_directory}' folder")
-            self.repo.remotes.origin.pull()
+        log_handler.info(f"Pull is executed in '{self.github_repository_name}' repository located in '{self.github_local_directory}' folder")
+        self.repo.remotes.origin.pull()
 
     def get_tags(self):
         """Return repository tags"""
