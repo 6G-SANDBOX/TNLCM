@@ -22,19 +22,20 @@ class RepositoryHandler:
             if os.path.exists(os.path.join(self.github_local_directory, ".git")):
                 try:
                     self.repo = Repo(self.github_local_directory)
-                    self._pull()
-                    self._git_checkout_repository()
+                    self._git_pull()
+                    self._git_checkout()
+                    self._git_pull()
                 except InvalidGitRepositoryError:
                     raise GitCloneError(f"The '{self.github_local_directory}' directory is not a GitHub repository", 500)
             else:
-                self._clone_repository()
-                self._git_checkout_repository()
+                self._git_clone()
+                self._git_checkout()
         else:
             os.makedirs(self.github_local_directory)
-            self._clone_repository()
-            self._git_checkout_repository()
+            self._git_clone()
+            self._git_checkout()
 
-    def _clone_repository(self):
+    def _git_clone(self):
         """Clone repository"""
         try:
             log_handler.info(f"Clone '{self.github_repository_name}' repository into '{self.github_local_directory}'")
@@ -42,7 +43,7 @@ class RepositoryHandler:
         except InvalidGitRepositoryError:
             raise GitCloneError(f"Cannot clone because the '{self.github_https_url}' url is not a GitHub repository", 500)
 
-    def _git_checkout_repository(self):
+    def _git_checkout(self):
         """Checkout to branch, commit or tag"""
         if not self.repo:
             raise GitCloneError(f"Clone '{self.github_repository_name}' repository first", 500)
@@ -52,10 +53,11 @@ class RepositoryHandler:
         except GitCommandError:
             raise GitCheckoutError(f"Reference '{self.github_reference}' is not in '{self.github_repository_name}' repository", 404)
 
-    def _pull(self):
+    def _git_pull(self):
         """Check if the repository has been updated and applies a git pull in case of changes"""
-        log_handler.info(f"Pull is executed in '{self.github_repository_name}' repository located in '{self.github_local_directory}' folder")
-        self.repo.remotes.origin.pull()
+        if not self.repo.head.is_detached:
+            log_handler.info(f"Pull is executed in '{self.github_repository_name}' repository located in '{self.github_local_directory}' folder")
+            self.repo.remotes.origin.pull()
 
     def get_tags(self):
         """Return repository tags"""
