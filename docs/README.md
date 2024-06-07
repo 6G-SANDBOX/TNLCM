@@ -327,8 +327,8 @@ The TNLCM database consists of several collections that store important informat
 | `deployment_job_name`               | The pipeline used for the deployment of the descriptor.                                 |
 | `destroy_job_name`                  | The pipeline used for destroy a trial network.                                          |
 | `deployment_site`                   | The site where the trial network has been deployed.                                     |
-| `github_6g_library_reference`       | The reference of 6G-Library (branch, commit or tag) used to deploy trial network.       |
-| `github_6g_sandbox_sites_reference` | The reference of 6G-Sandbox-Sites (branch, commit or tag) used to deploy trial network. |
+| `github_6g_library_commit_id`       | The commit id of 6G-Library (branch, commit or tag) used to deploy trial network.       |
+| `github_6g_sandbox_sites_commit_id` | The commid id of 6G-Sandbox-Sites (branch, commit or tag) used to deploy trial network. |
 
 #### Collection `trial_networks_templates` <!-- omit in toc -->
 

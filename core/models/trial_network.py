@@ -23,8 +23,8 @@ class TrialNetworkModel(Document):
     deployment_job_name = StringField()
     destroy_job_name = StringField()
     deployment_site = StringField()
-    github_6g_library_reference = StringField()
-    github_6g_sandbox_sites_reference = StringField()
+    github_6g_library_commit_id = StringField()
+    github_6g_sandbox_sites_commit_id = StringField()
 
     meta = {
         "db_alias": "tnlcm-database-alias",
@@ -99,13 +99,13 @@ class TrialNetworkModel(Document):
         """Set deployment site to deploy trial network"""
         self.deployment_site = deployment_site
 
-    def set_github_6g_library_reference(self, github_6g_library_reference):
-        """Set reference 6G-Library to be used for deploy trial network"""
-        self.github_6g_library_reference = github_6g_library_reference
+    def set_github_6g_library_commit_id(self, github_6g_library_commit_id):
+        """Set commit id from 6G-Library to be used for deploy trial network"""
+        self.github_6g_library_commit_id = github_6g_library_commit_id
 
-    def set_github_6g_sandbox_sites_reference(self, github_6g_sandbox_sites_reference):
-        """Set reference 6G-Sandbox-Sites to be used for deploy trial network"""
-        self.github_6g_sandbox_sites_reference = github_6g_sandbox_sites_reference
+    def set_github_6g_sandbox_sites_commit_id(self, github_6g_sandbox_sites_commit_id):
+        """Set commit id from 6G-Sandbox-Sites to be used for deploy trial network"""
+        self.github_6g_sandbox_sites_commit_id = github_6g_sandbox_sites_commit_id
 
     def set_tn_deployed_descriptor(self, tn_deployed_descriptor=None):
         """Set deployed descriptor"""
@@ -135,8 +135,8 @@ class TrialNetworkModel(Document):
             "user_created": self.user_created,
             "tn_id": self.tn_id,
             "deployment_site": self.deployment_site,
-            "github_6g_library_reference": self.github_6g_library_reference,
-            "github_6g_sandbox_sites_reference": self.github_6g_sandbox_sites_reference
+            "github_6g_library_commit_id": self.github_6g_library_commit_id,
+            "github_6g_sandbox_sites_commit_id": self.github_6g_sandbox_sites_commit_id
         }
     
     def to_dict_full(self):
@@ -152,8 +152,8 @@ class TrialNetworkModel(Document):
             "deployment_job_name": self.deployment_job_name,
             "destroy_job_name": self.destroy_job_name,
             "deployment_site": self.deployment_site,
-            "github_6g_library_reference": self.github_6g_library_reference,
-            "github_6g_sandbox_sites_reference": self.github_6g_sandbox_sites_reference
+            "github_6g_library_commit_id": self.github_6g_library_commit_id,
+            "github_6g_sandbox_sites_commit_id": self.github_6g_sandbox_sites_commit_id
         }
 
     def __repr__(self):

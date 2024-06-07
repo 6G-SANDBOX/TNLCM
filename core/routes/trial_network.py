@@ -34,8 +34,10 @@ class CreateTrialNetwork(Resource):
     parser_post.add_argument("tn_id", type=str, required=False)
     parser_post.add_argument("descriptor", location="files", type=FileStorage, required=True)
     parser_post.add_argument("deployment_site", type=str, required=True)
-    parser_post.add_argument("github_6g_library_reference", type=str, required=False)
-    parser_post.add_argument("github_6g_sandbox_sites_reference", type=str, required=False)
+    parser_post.add_argument("github_6g_library_reference_type", type=str, required=True, choices=("branch", "commit", "tag"))
+    parser_post.add_argument("github_6g_library_reference_value", type=str, required=True)
+    parser_post.add_argument("github_6g_sandbox_sites_reference_type", type=str, required=True, choices=("branch", "commit", "tag"))
+    parser_post.add_argument("github_6g_sandbox_sites_reference_value", type=str, required=True)
 
     @trial_network_namespace.doc(security="Bearer Auth")
     @jwt_required()
@@ -51,25 +53,26 @@ class CreateTrialNetwork(Resource):
             tn_id = self.parser_post.parse_args()["tn_id"]
             tn_descriptor_file = self.parser_post.parse_args()["descriptor"]
             deployment_site = self.parser_post.parse_args()["deployment_site"]
-            github_6g_library_reference = self.parser_post.parse_args()["github_6g_library_reference"]
-            github_6g_sandbox_sites_reference = self.parser_post.parse_args()["github_6g_sandbox_sites_reference"]
+            github_6g_library_reference_type = self.parser_post.parse_args()["github_6g_library_reference_type"]
+            github_6g_library_reference_value = self.parser_post.parse_args()["github_6g_library_reference_value"]
+            github_6g_sandbox_sites_reference_type = self.parser_post.parse_args()["github_6g_sandbox_sites_reference_type"]
+            github_6g_sandbox_sites_reference_value = self.parser_post.parse_args()["github_6g_sandbox_sites_reference_value"]
 
             current_user = get_current_user_from_jwt(get_jwt_identity())
             trial_network = TrialNetworkModel(
                 user_created=current_user.username
             )
-            sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference=github_6g_sandbox_sites_reference)
+            sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type=github_6g_sandbox_sites_reference_type, reference_value=github_6g_sandbox_sites_reference_value)
             sixg_sandbox_sites_handler.set_deployment_site(deployment_site)
-            sixg_library_handler = SixGLibraryHandler(reference=github_6g_library_reference, site=sixg_sandbox_sites_handler.deployment_site)
-            parts_components = sixg_library_handler.get_parts_components()
-            components_available = list(parts_components.keys())
+            site_available_components = sixg_sandbox_sites_handler.get_site_available_components()
+            sixg_library_handler = SixGLibraryHandler(reference_type=github_6g_library_reference_type, reference_value=github_6g_library_reference_value)
             trial_network.set_tn_id(size=3, tn_id=tn_id)
             trial_network.set_tn_raw_descriptor(tn_descriptor_file)
             trial_network.set_tn_sorted_descriptor()
             trial_network.set_deployment_site(sixg_sandbox_sites_handler.deployment_site)
-            trial_network.check_descriptor_component_types_site(components_available)
-            trial_network.set_github_6g_library_reference(sixg_library_handler.github_6g_library_reference)
-            trial_network.set_github_6g_sandbox_sites_reference(sixg_sandbox_sites_handler.github_6g_sandbox_sites_reference)
+            trial_network.check_descriptor_component_types_site(site_available_components)
+            trial_network.set_github_6g_library_commit_id(sixg_library_handler.github_6g_library_commit_id)
+            trial_network.set_github_6g_sandbox_sites_commit_id(sixg_sandbox_sites_handler.github_6g_sandbox_sites_commit_id)
             trial_network.set_tn_state("validated")
             trial_network.save()
             return trial_network.to_dict(), 201
@@ -110,8 +113,7 @@ class TrialNetwork(Resource):
             
             current_user = get_current_user_from_jwt(get_jwt_identity())
             trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
-            _ = SixGLibraryHandler(reference=trial_network.github_6g_library_reference)
-            _ = SixGSandboxSitesHandler(reference=trial_network.github_6g_sandbox_sites_reference)
+            
             if not trial_network:
                 return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}'")
             tn_state = trial_network.tn_state

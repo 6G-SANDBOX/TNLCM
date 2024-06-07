@@ -13,18 +13,25 @@ sixg_library_namespace = Namespace(
 class Clone(Resource):
 
     parser_post = reqparse.RequestParser()
-    parser_post.add_argument("reference", type=str, required=False)
+    parser_post.add_argument("reference_type", type=str, required=True, choices=("branch", "commit", "tag"))
+    parser_post.add_argument("reference_value", type=str, required=True)
 
     @sixg_library_namespace.expect(parser_post)
     def post(self):
         """
         Clone 6G-Library repository
-        Can specify a branch, commit or tag of the 6G-Library. **If nothing is specified, the main branch will be used.**
+        Can specify a branch, commit or tag of the 6G-Library.
         """
         try:
-            reference = self.parser_post.parse_args()["reference"]
-
-            _ = SixGLibraryHandler(reference=reference)
+            reference_type = self.parser_post.parse_args()["reference_type"]
+            reference_value = self.parser_post.parse_args()["reference_value"]
+            if reference_type == "branch":
+                reference_value = f"refs/heads/{reference_value}"
+            elif reference_type == "commit":
+                reference_value = reference_value
+            elif reference_type == "tag":
+                reference_value = f"refs/tags/{reference_value}"
+            _ = SixGLibraryHandler(reference_type=reference_type, reference_value=reference_value)
             return {"message": "6G-Library cloned"}, 201
         except CustomException as e:
             return abort(e.error_code, str(e))
@@ -33,32 +40,28 @@ class Clone(Resource):
 class NameComponents(Resource):
 
     parser_get = reqparse.RequestParser()
-    parser_get.add_argument("github_6g_library_reference", type=str, required=False)
-    parser_get.add_argument("github_6g_sandbox_sites_reference", type=str, required=False)
+    parser_get.add_argument("github_6g_sandbox_sites_reference_type", type=str, required=True, choices=("branch", "commit", "tag"))
+    parser_get.add_argument("github_6g_sandbox_sites_reference_value", type=str, required=True)
     parser_get.add_argument("site", type=str, required=True)
 
     @sixg_library_namespace.expect(parser_get)
     def get(self):
         """
-        Return the components of a site stored in the branch or commit of the 6G-Library repository
-        Can specify a branch, commit or tag of the 6G-Library. **If nothing is specified, the main branch will be used.**
-        Can specify a branch, commit or tag of the 6G-Sandbox-Sites. **If nothing is specified, the main branch will be used.**
+        Return the components available on a site
+        Can specify a branch, commit or tag of the 6G-Sandbox-Sites.
         """
         try:
-            github_6g_library_reference = self.parser_get.parse_args()["github_6g_library_reference"]
-            github_6g_sandbox_sites_reference = self.parser_get.parse_args()["github_6g_sandbox_sites_reference"]
+            github_6g_sandbox_sites_reference_type = self.parser_get.parse_args()["github_6g_sandbox_sites_reference_type"]
+            github_6g_sandbox_sites_reference_value = self.parser_get.parse_args()["github_6g_sandbox_sites_reference_value"]
             site = self.parser_get.parse_args()["site"]
 
-            sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference=github_6g_sandbox_sites_reference)
+            sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type=github_6g_sandbox_sites_reference_type, reference_value=github_6g_sandbox_sites_reference_value)
             sixg_sandbox_sites_handler.set_deployment_site(site)
-            sixg_library_handler = SixGLibraryHandler(reference=github_6g_library_reference, site=sixg_sandbox_sites_handler.deployment_site)
-            parts_components = sixg_library_handler.get_parts_components()
-            components = list(parts_components.keys())
+            site_available_components = sixg_sandbox_sites_handler.get_site_available_components()
             return {
-                "github_6g_library_reference": sixg_library_handler.github_6g_library_reference,
-                "github_6g_sandbox_sites_reference": sixg_sandbox_sites_handler.github_6g_sandbox_sites_reference,
+                "github_6g_sandbox_sites_commit_id": sixg_sandbox_sites_handler.github_6g_sandbox_sites_commit_id,
                 "site": sixg_sandbox_sites_handler.deployment_site,
-                "components": components
+                "components": site_available_components
                 }, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
@@ -67,29 +70,34 @@ class NameComponents(Resource):
 class AllComponents(Resource):
 
     parser_get = reqparse.RequestParser()
-    parser_get.add_argument("github_6g_library_reference", type=str, required=False)
-    parser_get.add_argument("github_6g_sandbox_sites_reference", type=str, required=False)
+    parser_get.add_argument("github_6g_library_reference_type", type=str, required=True, choices=("branch", "commit", "tag"))
+    parser_get.add_argument("github_6g_library_reference_value", type=str, required=True)
+    parser_get.add_argument("github_6g_sandbox_sites_reference_type", type=str, required=True, choices=("branch", "commit", "tag"))
+    parser_get.add_argument("github_6g_sandbox_sites_reference_value", type=str, required=True)
     parser_get.add_argument("site", type=str, required=True)
 
     @sixg_library_namespace.expect(parser_get)
     def get(self):
         """
-        Return the metadata and input part of components of a site stored in the branch or commit of the 6G-Library repository
-        Can specify a branch, commit or tag of the 6G-Library. **If nothing is specified, the main branch will be used.**
-        Can specify a branch, commit or tag of the 6G-Sandbox-Sites. **If nothing is specified, the main branch will be used.**
+        Return the metadata, input and output part of components of a site stored in the branch, commit or tag of the 6G-Library repository
+        Can specify a branch, commit or tag of the 6G-Library.
+        Can specify a branch, commit or tag of the 6G-Sandbox-Sites.
         """
         try:
-            github_6g_library_reference = self.parser_get.parse_args()["github_6g_library_reference"]
-            github_6g_sandbox_sites_reference = self.parser_get.parse_args()["github_6g_sandbox_sites_reference"]
+            github_6g_library_reference_type = self.parser_get.parse_args()["github_6g_library_reference_type"]
+            github_6g_library_reference_value = self.parser_get.parse_args()["github_6g_library_reference_value"]
+            github_6g_sandbox_sites_reference_type = self.parser_get.parse_args()["github_6g_sandbox_sites_reference_type"]
+            github_6g_sandbox_sites_reference_value = self.parser_get.parse_args()["github_6g_sandbox_sites_reference_value"]
             site = self.parser_get.parse_args()["site"]
 
-            sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference=github_6g_sandbox_sites_reference)
+            sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type=github_6g_sandbox_sites_reference_type, reference_value=github_6g_sandbox_sites_reference_value)
             sixg_sandbox_sites_handler.set_deployment_site(site)
-            sixg_library_handler = SixGLibraryHandler(reference=github_6g_library_reference, site=sixg_sandbox_sites_handler.deployment_site)
-            parts_components = sixg_library_handler.get_parts_components()
+            site_available_components = sixg_sandbox_sites_handler.get_site_available_components()
+            sixg_library_handler = SixGLibraryHandler(reference_type=github_6g_library_reference_type, reference_value=github_6g_library_reference_value)
+            parts_components = sixg_library_handler.get_parts_components(site=sixg_sandbox_sites_handler.deployment_site, site_available_components=site_available_components)
             return {
-                "github_6g_library_reference": sixg_library_handler.github_6g_library_reference,
-                "github_6g_sandbox_sites_reference": sixg_sandbox_sites_handler.github_6g_sandbox_sites_reference,
+                "github_6g_library_commit_id": sixg_library_handler.github_6g_library_commit_id,
+                "github_6g_sandbox_sites_commit_id": sixg_sandbox_sites_handler.github_6g_sandbox_sites_commit_id,
                 "site": sixg_sandbox_sites_handler.deployment_site,
                 "parts_components": parts_components
                 }, 200
@@ -100,30 +108,35 @@ class AllComponents(Resource):
 class MetadataPartComponents(Resource):
 
     parser_get = reqparse.RequestParser()
-    parser_get.add_argument("github_6g_library_reference", type=str, required=False)
-    parser_get.add_argument("github_6g_sandbox_sites_reference", type=str, required=False)
+    parser_get.add_argument("github_6g_library_reference_type", type=str, required=True, choices=("branch", "commit", "tag"))
+    parser_get.add_argument("github_6g_library_reference_value", type=str, required=True)
+    parser_get.add_argument("github_6g_sandbox_sites_reference_type", type=str, required=True, choices=("branch", "commit", "tag"))
+    parser_get.add_argument("github_6g_sandbox_sites_reference_value", type=str, required=True)
     parser_get.add_argument("site", type=str, required=True)
 
     @sixg_library_namespace.expect(parser_get)
     def get(self):
         """
-        Return the metadata part of the components to be specified
-        Can specify a branch, commit or tag of the 6G-Library. **If nothing is specified, the main branch will be used.**
-        Can specify a branch, commit or tag of the 6G-Sandbox-Sites. **If nothing is specified, the main branch will be used.**
+        Return the metadata part of the components of a site stored in the branch, commit or tag of the 6G-Library repository
+        Can specify a branch, commit or tag of the 6G-Library.
+        Can specify a branch, commit or tag of the 6G-Sandbox-Sites.
         """
         try:
-            github_6g_library_reference = self.parser_get.parse_args()["github_6g_library_reference"]
-            github_6g_sandbox_sites_reference = self.parser_get.parse_args()["github_6g_sandbox_sites_reference"]
+            github_6g_library_reference_type = self.parser_get.parse_args()["github_6g_library_reference_type"]
+            github_6g_library_reference_value = self.parser_get.parse_args()["github_6g_library_reference_value"]
+            github_6g_sandbox_sites_reference_type = self.parser_get.parse_args()["github_6g_sandbox_sites_reference_type"]
+            github_6g_sandbox_sites_reference_value = self.parser_get.parse_args()["github_6g_sandbox_sites_reference_value"]
             site = self.parser_get.parse_args()["site"]
 
-            sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference=github_6g_sandbox_sites_reference)
+            sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type=github_6g_sandbox_sites_reference_type, reference_value=github_6g_sandbox_sites_reference_value)
             sixg_sandbox_sites_handler.set_deployment_site(site)
-            sixg_library_handler = SixGLibraryHandler(reference=github_6g_library_reference, site=sixg_sandbox_sites_handler.deployment_site)
-            parts_components = sixg_library_handler.get_parts_components()
+            site_available_components = sixg_sandbox_sites_handler.get_site_available_components()
+            sixg_library_handler = SixGLibraryHandler(reference_type=github_6g_library_reference_type, reference_value=github_6g_library_reference_value)
+            parts_components = sixg_library_handler.get_parts_components(site=sixg_sandbox_sites_handler.deployment_site, site_available_components=site_available_components)
             metadata = {component: data["metadata"] for component, data in parts_components.items()}
             return {
-                "github_6g_library_reference": sixg_library_handler.github_6g_library_reference,
-                "github_6g_sandbox_sites_reference": sixg_sandbox_sites_handler.github_6g_sandbox_sites_reference,
+                "github_6g_library_commit_id": sixg_library_handler.github_6g_library_commit_id,
+                "github_6g_sandbox_sites_commit_id": sixg_sandbox_sites_handler.github_6g_sandbox_sites_commit_id,
                 "site": sixg_sandbox_sites_handler.deployment_site,
                 "metadata": metadata
                 }, 200
@@ -134,30 +147,35 @@ class MetadataPartComponents(Resource):
 class InputPartComponents(Resource):
 
     parser_get = reqparse.RequestParser()
-    parser_get.add_argument("github_6g_library_reference", type=str, required=False)
-    parser_get.add_argument("github_6g_sandbox_sites_reference", type=str, required=False)
+    parser_get.add_argument("github_6g_library_reference_type", type=str, required=True, choices=("branch", "commit", "tag"))
+    parser_get.add_argument("github_6g_library_reference_value", type=str, required=True)
+    parser_get.add_argument("github_6g_sandbox_sites_reference_type", type=str, required=True, choices=("branch", "commit", "tag"))
+    parser_get.add_argument("github_6g_sandbox_sites_reference_value", type=str, required=True)
     parser_get.add_argument("site", type=str, required=True)
 
     @sixg_library_namespace.expect(parser_get)
     def get(self):
         """
-        Return the input part of the components to be specified
-        Can specify a branch, commit or tag of the 6G-Library. **If nothing is specified, the main branch will be used.**
-        Can specify a branch, commit or tag of the 6G-Sandbox-Sites. **If nothing is specified, the main branch will be used.**
+        Return the input part of the components of a site stored in the branch, commit or tag of the 6G-Library repository
+        Can specify a branch, commit or tag of the 6G-Library.
+        Can specify a branch, commit or tag of the 6G-Sandbox-Sites.
         """
         try:
-            github_6g_library_reference = self.parser_get.parse_args()["github_6g_library_reference"]
-            github_6g_sandbox_sites_reference = self.parser_get.parse_args()["github_6g_sandbox_sites_reference"]
+            github_6g_library_reference_type = self.parser_get.parse_args()["github_6g_library_reference_type"]
+            github_6g_library_reference_value = self.parser_get.parse_args()["github_6g_library_reference_value"]
+            github_6g_sandbox_sites_reference_type = self.parser_get.parse_args()["github_6g_sandbox_sites_reference_type"]
+            github_6g_sandbox_sites_reference_value = self.parser_get.parse_args()["github_6g_sandbox_sites_reference_value"]
             site = self.parser_get.parse_args()["site"]
 
-            sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference=github_6g_sandbox_sites_reference)
+            sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type=github_6g_sandbox_sites_reference_type, reference_value=github_6g_sandbox_sites_reference_value)
             sixg_sandbox_sites_handler.set_deployment_site(site)
-            sixg_library_handler = SixGLibraryHandler(reference=github_6g_library_reference, site=sixg_sandbox_sites_handler.deployment_site)
-            parts_components = sixg_library_handler.get_parts_components()
+            site_available_components = sixg_sandbox_sites_handler.get_site_available_components()
+            sixg_library_handler = SixGLibraryHandler(reference_type=github_6g_library_reference_type, reference_value=github_6g_library_reference_value)
+            parts_components = sixg_library_handler.get_parts_components(site=sixg_sandbox_sites_handler.deployment_site, site_available_components=site_available_components)
             input = {component: data["input"] for component, data in parts_components.items()}
             return {
-                "github_6g_library_reference": sixg_library_handler.github_6g_library_reference,
-                "github_6g_sandbox_sites_reference": sixg_sandbox_sites_handler.github_6g_sandbox_sites_reference,
+                "github_6g_library_commit_id": sixg_library_handler.github_6g_library_commit_id,
+                "github_6g_sandbox_sites_commit_id": sixg_sandbox_sites_handler.github_6g_sandbox_sites_commit_id,
                 "site": sixg_sandbox_sites_handler.deployment_site,
                 "input": input
                 }, 200
@@ -168,30 +186,35 @@ class InputPartComponents(Resource):
 class OutputPartComponents(Resource):
 
     parser_get = reqparse.RequestParser()
-    parser_get.add_argument("github_6g_library_reference", type=str, required=False)
-    parser_get.add_argument("github_6g_sandbox_sites_reference", type=str, required=False)
+    parser_get.add_argument("github_6g_library_reference_type", type=str, required=True, choices=("branch", "commit", "tag"))
+    parser_get.add_argument("github_6g_library_reference_value", type=str, required=True)
+    parser_get.add_argument("github_6g_sandbox_sites_reference_type", type=str, required=True, choices=("branch", "commit", "tag"))
+    parser_get.add_argument("github_6g_sandbox_sites_reference_value", type=str, required=True)
     parser_get.add_argument("site", type=str, required=True)
 
     @sixg_library_namespace.expect(parser_get)
     def get(self):
         """
-        Return the output part of the components to be specified
-        Can specify a branch, commit or tag of the 6G-Library. **If nothing is specified, the main branch will be used.**
-        Can specify a branch, commit or tag of the 6G-Sandbox-Sites. **If nothing is specified, the main branch will be used.**
+        Return the output part of the components of a site stored in the branch, commit or tag of the 6G-Library repository
+        Can specify a branch, commit or tag of the 6G-Library.
+        Can specify a branch, commit or tag of the 6G-Sandbox-Sites.
         """
         try:
-            github_6g_library_reference = self.parser_get.parse_args()["github_6g_library_reference"]
-            github_6g_sandbox_sites_reference = self.parser_get.parse_args()["github_6g_sandbox_sites_reference"]
+            github_6g_library_reference_type = self.parser_get.parse_args()["github_6g_library_reference_type"]
+            github_6g_library_reference_value = self.parser_get.parse_args()["github_6g_library_reference_value"]
+            github_6g_sandbox_sites_reference_type = self.parser_get.parse_args()["github_6g_sandbox_sites_reference_type"]
+            github_6g_sandbox_sites_reference_value = self.parser_get.parse_args()["github_6g_sandbox_sites_reference_value"]
             site = self.parser_get.parse_args()["site"]
 
-            sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference=github_6g_sandbox_sites_reference)
+            sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type=github_6g_sandbox_sites_reference_type, reference_value=github_6g_sandbox_sites_reference_value)
             sixg_sandbox_sites_handler.set_deployment_site(site)
-            sixg_library_handler = SixGLibraryHandler(reference=github_6g_library_reference, site=sixg_sandbox_sites_handler.deployment_site)
-            parts_components = sixg_library_handler.get_parts_components()
+            site_available_components = sixg_sandbox_sites_handler.get_site_available_components()
+            sixg_library_handler = SixGLibraryHandler(reference_type=github_6g_library_reference_type, reference_value=github_6g_library_reference_value)
+            parts_components = sixg_library_handler.get_parts_components(site=sixg_sandbox_sites_handler.deployment_site, site_available_components=site_available_components)
             output = {component: data["output"] for component, data in parts_components.items()}
             return {
-                "github_6g_library_reference": sixg_library_handler.github_6g_library_reference,
-                "github_6g_sandbox_sites_reference": sixg_sandbox_sites_handler.github_6g_sandbox_sites_reference,
+                "github_6g_library_commit_id": sixg_library_handler.github_6g_library_commit_id,
+                "github_6g_sandbox_sites_commit_id": sixg_sandbox_sites_handler.github_6g_sandbox_sites_commit_id,
                 "site": sixg_sandbox_sites_handler.deployment_site,
                 "output": output
                 }, 200
