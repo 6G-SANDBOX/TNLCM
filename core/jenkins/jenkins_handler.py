@@ -47,9 +47,9 @@ class JenkinsHandler:
             "TNLCM_CALLBACK": self.tnlcm_callback,
             # OPTIONAL
             "LIBRARY_URL": SixGLibrarySettings.GITHUB_6G_LIBRARY_HTTPS_URL,
-            "LIBRARY_BRANCH": self.trial_network.github_6g_library_reference,
+            "LIBRARY_BRANCH": self.trial_network.github_6g_library_commit_id,
             "SITES_URL": SixGSandboxSitesSettings.GITHUB_6G_SANDBOX_SITES_HTTPS_URL,
-            "SITES_BRANCH": self.trial_network.github_6g_sandbox_sites_reference,
+            "SITES_BRANCH": self.trial_network.github_6g_sandbox_sites_commit_id,
             "DEBUG": debug
         }
         if custom_name:
@@ -117,9 +117,9 @@ class JenkinsHandler:
             "TNLCM_CALLBACK": self.tnlcm_callback,
             # OPTIONAL
             "LIBRARY_URL": SixGLibrarySettings.GITHUB_6G_LIBRARY_HTTPS_URL,
-            "LIBRARY_BRANCH": self.trial_network.github_6g_library_reference,
+            "LIBRARY_BRANCH": self.trial_network.github_6g_library_commit_id,
             "SITES_URL": SixGSandboxSitesSettings.GITHUB_6G_SANDBOX_SITES_HTTPS_URL,
-            "SITES_BRANCH": self.trial_network.github_6g_sandbox_sites_reference,
+            "SITES_BRANCH": self.trial_network.github_6g_sandbox_sites_commit_id,
             # "DEBUG": true
         }
         return parameters
