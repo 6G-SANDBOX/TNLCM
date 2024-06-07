@@ -139,7 +139,6 @@ class TrialNetwork(Resource):
                 return {"message": "Trial network activated"}, 200
             elif tn_state == "destroyed":
                 trial_network.set_tn_deployed_descriptor()
-                trial_network.set_tn_state("validated")
                 temp_file_handler = TempFileHandler()
                 callback_handler = CallbackHandler(trial_network=trial_network)
                 jenkins_handler = JenkinsHandler(trial_network=trial_network, temp_file_handler=temp_file_handler, callback_handler=callback_handler)
@@ -148,6 +147,7 @@ class TrialNetwork(Resource):
                 trial_network.set_tn_report(callback_handler.get_path_report_trial_network())
                 trial_network.set_tn_state("activated")
                 trial_network.save()
+                return {"message": "Trial network activated"}, 200
             elif tn_state == "activated":
                 trial_network.set_tn_state("suspended")
                 trial_network.save()
