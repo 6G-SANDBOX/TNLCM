@@ -25,6 +25,7 @@ class Clone(Resource):
         try:
             reference_type = self.parser_post.parse_args()["reference_type"]
             reference_value = self.parser_post.parse_args()["reference_value"]
+            
             if reference_type == "branch":
                 reference_value = f"refs/heads/{reference_value}"
             elif reference_type == "commit":

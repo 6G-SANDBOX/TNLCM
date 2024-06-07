@@ -45,8 +45,8 @@ class CreateTrialNetwork(Resource):
     def post(self):
         """
         Create and validate trial network
-        Can specify a branch, commit or tag of the 6G-Library. **If nothing is specified, the main branch will be used.**
-        Can specify a branch, commit or tag of the 6G-Sandbox-Sites. **If nothing is specified, the main branch will be used.**
+        Can specify a branch, commit or tag of the 6G-Library.
+        Can specify a branch, commit or tag of the 6G-Sandbox-Sites.
         The tn_id can be specified if desired. **If nothing is specified, it will return a random tn_id.**
         """
         try:

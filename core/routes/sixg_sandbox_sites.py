@@ -34,6 +34,7 @@ class Clone(Resource):
         try:
             reference_type = self.parser_post.parse_args()["reference_type"]
             reference_value = self.parser_post.parse_args()["reference_value"]
+
             if reference_type == "branch":
                 reference_value = f"refs/heads/{reference_value}"
             elif reference_type == "commit":
@@ -49,7 +50,8 @@ class Clone(Resource):
 class Sites(Resource):
 
     parser_get = reqparse.RequestParser()
-    parser_get.add_argument("reference", type=str, required=False)
+    parser_get.add_argument("reference_type", type=str, required=True, choices=("branch", "commit", "tag"))
+    parser_get.add_argument("reference_value", type=str, required=True)
 
     @sixg_sandbox_sites_namespace.doc(security="Bearer Auth")
     @jwt_required()
@@ -60,9 +62,10 @@ class Sites(Resource):
         Can specify a branch, commit or tag of the 6G-Sandbox-Sites.
         """
         try:
-            reference = self.parser_get.parse_args()["reference"]
+            reference_type = self.parser_get.parse_args()["reference_type"]
+            reference_value = self.parser_get.parse_args()["reference_value"]
 
-            sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference=reference)
+            sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type=reference_type, reference_value=reference_value)
             return {"sites": sixg_sandbox_sites_handler.get_sites()}, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
