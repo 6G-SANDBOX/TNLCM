@@ -105,7 +105,7 @@ TNLCM is currently able to deploy the following types of components correspondin
 > TNLCM is being developed on Windows 10 and has been tested on Windows 10 and Ubuntu in version 22.04.3 LTS.
 
 > [!TIP]
-> TNLCM uses the following repository branches:
+> TNLCM uses the following repository releases:
 > 
 > | Repository       | Release                                                                      |
 > | ---------------- | ---------------------------------------------------------------------------- |
