@@ -29,7 +29,7 @@ class Clone(Resource):
                 reference_value = f"refs/heads/{reference_value}"
             elif reference_type == "commit":
                 reference_value = reference_value
-            elif reference_type == "tag":
+            else:
                 reference_value = f"refs/tags/{reference_value}"
             _ = SixGLibraryHandler(reference_type=reference_type, reference_value=reference_value)
             return {"message": "6G-Library cloned"}, 201
