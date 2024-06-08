@@ -59,10 +59,11 @@ class NameComponents(Resource):
             sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type=github_6g_sandbox_sites_reference_type, reference_value=github_6g_sandbox_sites_reference_value)
             sixg_sandbox_sites_handler.set_deployment_site(site)
             site_available_components = sixg_sandbox_sites_handler.get_site_available_components()
+            list_site_available_components = list(site_available_components.keys())
             return {
                 "github_6g_sandbox_sites_commit_id": sixg_sandbox_sites_handler.github_6g_sandbox_sites_commit_id,
                 "site": sixg_sandbox_sites_handler.deployment_site,
-                "components": site_available_components
+                "components": list_site_available_components
                 }, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
@@ -94,8 +95,9 @@ class AllComponents(Resource):
             sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type=github_6g_sandbox_sites_reference_type, reference_value=github_6g_sandbox_sites_reference_value)
             sixg_sandbox_sites_handler.set_deployment_site(site)
             site_available_components = sixg_sandbox_sites_handler.get_site_available_components()
+            list_site_available_components = list(site_available_components.keys())
             sixg_library_handler = SixGLibraryHandler(reference_type=github_6g_library_reference_type, reference_value=github_6g_library_reference_value)
-            parts_components = sixg_library_handler.get_parts_components(site=sixg_sandbox_sites_handler.deployment_site, site_available_components=site_available_components)
+            parts_components = sixg_library_handler.get_parts_components(site=sixg_sandbox_sites_handler.deployment_site, list_site_available_components=list_site_available_components)
             return {
                 "github_6g_library_commit_id": sixg_library_handler.github_6g_library_commit_id,
                 "github_6g_sandbox_sites_commit_id": sixg_sandbox_sites_handler.github_6g_sandbox_sites_commit_id,
@@ -132,8 +134,9 @@ class MetadataPartComponents(Resource):
             sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type=github_6g_sandbox_sites_reference_type, reference_value=github_6g_sandbox_sites_reference_value)
             sixg_sandbox_sites_handler.set_deployment_site(site)
             site_available_components = sixg_sandbox_sites_handler.get_site_available_components()
+            list_site_available_components = list(site_available_components.keys())
             sixg_library_handler = SixGLibraryHandler(reference_type=github_6g_library_reference_type, reference_value=github_6g_library_reference_value)
-            parts_components = sixg_library_handler.get_parts_components(site=sixg_sandbox_sites_handler.deployment_site, site_available_components=site_available_components)
+            parts_components = sixg_library_handler.get_parts_components(site=sixg_sandbox_sites_handler.deployment_site, list_site_available_components=list_site_available_components)
             metadata = {component: data["metadata"] for component, data in parts_components.items()}
             return {
                 "github_6g_library_commit_id": sixg_library_handler.github_6g_library_commit_id,
@@ -171,8 +174,9 @@ class InputPartComponents(Resource):
             sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type=github_6g_sandbox_sites_reference_type, reference_value=github_6g_sandbox_sites_reference_value)
             sixg_sandbox_sites_handler.set_deployment_site(site)
             site_available_components = sixg_sandbox_sites_handler.get_site_available_components()
+            list_site_available_components = list(site_available_components.keys())
             sixg_library_handler = SixGLibraryHandler(reference_type=github_6g_library_reference_type, reference_value=github_6g_library_reference_value)
-            parts_components = sixg_library_handler.get_parts_components(site=sixg_sandbox_sites_handler.deployment_site, site_available_components=site_available_components)
+            parts_components = sixg_library_handler.get_parts_components(site=sixg_sandbox_sites_handler.deployment_site, list_site_available_components=list_site_available_components)
             input = {component: data["input"] for component, data in parts_components.items()}
             return {
                 "github_6g_library_commit_id": sixg_library_handler.github_6g_library_commit_id,
@@ -210,8 +214,9 @@ class OutputPartComponents(Resource):
             sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type=github_6g_sandbox_sites_reference_type, reference_value=github_6g_sandbox_sites_reference_value)
             sixg_sandbox_sites_handler.set_deployment_site(site)
             site_available_components = sixg_sandbox_sites_handler.get_site_available_components()
+            list_site_available_components = list(site_available_components.keys())
             sixg_library_handler = SixGLibraryHandler(reference_type=github_6g_library_reference_type, reference_value=github_6g_library_reference_value)
-            parts_components = sixg_library_handler.get_parts_components(site=sixg_sandbox_sites_handler.deployment_site, site_available_components=site_available_components)
+            parts_components = sixg_library_handler.get_parts_components(site=sixg_sandbox_sites_handler.deployment_site, list_site_available_components=list_site_available_components)
             output = {component: data["output"] for component, data in parts_components.items()}
             return {
                 "github_6g_library_commit_id": sixg_library_handler.github_6g_library_commit_id,

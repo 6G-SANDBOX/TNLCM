@@ -65,16 +65,17 @@ class CreateTrialNetwork(Resource):
             sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type=github_6g_sandbox_sites_reference_type, reference_value=github_6g_sandbox_sites_reference_value)
             sixg_sandbox_sites_handler.set_deployment_site(deployment_site)
             site_available_components = sixg_sandbox_sites_handler.get_site_available_components()
+            list_site_available_components = list(site_available_components.keys())
             sixg_library_handler = SixGLibraryHandler(reference_type=github_6g_library_reference_type, reference_value=github_6g_library_reference_value)
             trial_network.set_tn_id(size=3, tn_id=tn_id)
             trial_network.set_tn_raw_descriptor(tn_descriptor_file)
             trial_network.set_tn_sorted_descriptor()
             trial_network.set_deployment_site(sixg_sandbox_sites_handler.deployment_site)
-            trial_network.check_descriptor_component_types_site(site_available_components)
+            trial_network.validate_descriptor(list_site_available_components) # validate
             trial_network.set_github_6g_library_commit_id(sixg_library_handler.github_6g_library_commit_id)
             trial_network.set_github_6g_sandbox_sites_commit_id(sixg_sandbox_sites_handler.github_6g_sandbox_sites_commit_id)
             trial_network.set_tn_state("validated")
-            trial_network.save()
+            trial_network.save() # create
             return trial_network.to_dict(), 201
         except CustomException as e:
             return abort(e.error_code, str(e))
@@ -113,9 +114,10 @@ class TrialNetwork(Resource):
             
             current_user = get_current_user_from_jwt(get_jwt_identity())
             trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
-            
             if not trial_network:
                 return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}'")
+            
+            # TODO: Add resource manager checks
             tn_state = trial_network.tn_state
             if tn_state == "validated":
                 temp_file_handler = TempFileHandler()

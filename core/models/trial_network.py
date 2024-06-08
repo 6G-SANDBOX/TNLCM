@@ -114,7 +114,7 @@ class TrialNetworkModel(Document):
         else:
             self.tn_deployed_descriptor = self.descriptor_to_json({"trial_network": tn_deployed_descriptor})
 
-    def check_descriptor_component_types_site(self, components_available):
+    def validate_descriptor(self, components_available): # TODO: update with better checks
         """Check if all descriptor component types are present on the site"""
         tn_descriptor = self.json_to_descriptor(self.tn_sorted_descriptor)["trial_network"]
         for _, entity_data in tn_descriptor.items():

@@ -48,10 +48,10 @@ class SixGSandboxSitesHandler():
                 values_data = safe_load(f)
             except YAMLError:
                 raise InvalidContentFileError(f"File '{values_file}' is not parsed correctly", 422)
-        if "site_available_components" not in values_data:
-            raise InvalidContentFileError(f"File '{values_file}' does not contain the 'site_available_components' key", 422)
+        if not values_data or "site_available_components" not in values_data:
+            return {}
         site_available_components = values_data["site_available_components"]
-        return list(site_available_components.keys())
+        return site_available_components
 
     def get_sites(self):
         """Return sites available to deploy trial networks"""

@@ -32,11 +32,11 @@ class SixGLibraryHandler:
         """Return branches"""
         return self.repository_handler.get_branches()
     
-    def get_parts_components(self, site, site_available_components):
+    def get_parts_components(self, site, list_site_available_components):
         """Return the metadata, inputs and outputs of the components of a specific site"""
         log_handler.info(f"Get metadata, input and output part of components of a '{site}' site from the 6G-Library")
         components_data = {}
-        for component in site_available_components:
+        for component in list_site_available_components:
             if not os.path.isdir(os.path.join(self.github_6g_library_local_directory, component)):
                 raise SixGLibraryComponentsNotFound(f"No components in commit '{self.github_6g_library_commit_id}' of 6G-Library", 404) 
             if os.path.isdir(os.path.join(self.github_6g_library_local_directory, component)):
