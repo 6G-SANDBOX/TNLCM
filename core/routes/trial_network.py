@@ -67,11 +67,13 @@ class CreateTrialNetwork(Resource):
             site_available_components = sixg_sandbox_sites_handler.get_site_available_components()
             list_site_available_components = list(site_available_components.keys())
             sixg_library_handler = SixGLibraryHandler(reference_type=github_6g_library_reference_type, reference_value=github_6g_library_reference_value)
+            parts_components = sixg_library_handler.get_parts_components(site=sixg_sandbox_sites_handler.deployment_site, list_site_available_components=list_site_available_components)
+            input = {component: data["input"] for component, data in parts_components.items()}
             trial_network.set_tn_id(size=3, tn_id=tn_id)
             trial_network.set_tn_raw_descriptor(tn_descriptor_file)
             trial_network.set_tn_sorted_descriptor()
             trial_network.set_deployment_site(sixg_sandbox_sites_handler.deployment_site)
-            trial_network.validate_descriptor(list_site_available_components) # validate
+            # trial_network.validate_descriptor(list_site_available_components, input) # validate
             trial_network.set_github_6g_library_commit_id(sixg_library_handler.github_6g_library_commit_id)
             trial_network.set_github_6g_sandbox_sites_commit_id(sixg_sandbox_sites_handler.github_6g_sandbox_sites_commit_id)
             trial_network.set_tn_state("validated")
@@ -117,7 +119,7 @@ class TrialNetwork(Resource):
             if not trial_network:
                 return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}'")
             
-            # TODO: Add resource manager checks
+            # TODO: Add resource manager
             tn_state = trial_network.tn_state
             if tn_state == "validated":
                 temp_file_handler = TempFileHandler()
@@ -126,6 +128,10 @@ class TrialNetwork(Resource):
                 jenkins_handler.set_deployment_job_name(deployment_job_name)
                 trial_network.set_deployment_job_name(jenkins_handler.deployment_job_name)
                 trial_network.save()
+                sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type="commit", reference_value=trial_network.github_6g_sandbox_sites_commit_id)
+                sixg_sandbox_sites_handler.set_deployment_site(trial_network.deployment_site)
+                tn_sorted_descriptor = trial_network.json_to_descriptor(trial_network.tn_sorted_descriptor)["trial_network"]
+                sixg_sandbox_sites_handler.apply_resource_manager(tn_id, tn_sorted_descriptor)
                 jenkins_handler.trial_network_deployment()
                 trial_network.set_tn_report(callback_handler.get_path_report_trial_network())
                 trial_network.set_tn_state("activated")
@@ -198,7 +204,9 @@ class TrialNetworkReport(Resource):
     @trial_network_namespace.doc(security="Bearer Auth")
     @jwt_required()
     def get(self, tn_id):
-        """Return the report generated after the execution of the entities of a trial network"""
+        """
+        Return the report generated after the execution of the entities of a trial network
+        """
         try:
             current_user = get_current_user_from_jwt(get_jwt_identity())
             trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()

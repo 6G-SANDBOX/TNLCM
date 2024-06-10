@@ -31,6 +31,9 @@ class CustomFileNotFoundError(CustomException):
     """Error thrown when the file not found"""
     pass
 
+class NoResourcesAvailable(CustomException):
+    """Error thrown when no resources available"""
+
 ################################
 #### Environment exceptions ####
 ################################
@@ -124,8 +127,12 @@ class TrialNetworkEntityNotInDescriptorError(CustomTrialNetworkError):
     """Error thrown when the name of the dependency does not match the name of some entity defined in the descriptor"""
     pass
 
-class TrialNetworkInvalidComponentSite(CustomTrialNetworkError):
+class TrialNetworkInvalidComponentSiteError(CustomTrialNetworkError):
     """Error thrown when component not available in site"""
+    pass
+
+class TrialNetworkInvalidInputComponentError(CustomTrialNetworkError):
+    """Error thrown when input part of component is incorrect"""
     pass
 
 ############################

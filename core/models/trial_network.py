@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from mongoengine import Document, StringField, DateTimeField
 
 from core.logs.log_handler import log_handler
-from core.exceptions.exceptions_handler import InvalidFileExtensionError, InvalidContentFileError, TrialNetworkEntityNotInDescriptorError, TrialNetworkInvalidStatusError, TrialNetworkInvalidComponentSite
+from core.exceptions.exceptions_handler import InvalidFileExtensionError, InvalidContentFileError, TrialNetworkEntityNotInDescriptorError, TrialNetworkInvalidStatusError, TrialNetworkInvalidComponentSiteError, TrialNetworkInvalidInputComponentError
 
 TN_STATE_MACHINE = ["validated", "suspended", "activated", "failed", "destroyed"]
 
@@ -114,13 +114,43 @@ class TrialNetworkModel(Document):
         else:
             self.tn_deployed_descriptor = self.descriptor_to_json({"trial_network": tn_deployed_descriptor})
 
-    def validate_descriptor(self, components_available): # TODO: update with better checks
-        """Check if all descriptor component types are present on the site"""
+    def _validate_input_part(input_sixglibrary_component, input_component):
+        """
+        2) Check if the component contains the inputs correctly
+            2.1) Check that the fields that are mandatory are present
+            2.2) The type of the fields is verified
+                2.2.1) If it is a choice, it is checked that it is within the possible values
+                2.2.2) If it is str, int, list
+                2.2.3) If it is a component
+            2.3) It is checked the fields that are required_when
+        """
+        log_handler.info("Start input part validation")
+        if len(input_sixglibrary_component) != len(input_component):
+            raise TrialNetworkInvalidInputComponentError("Length of inputs do not match", 400)
+        log_handler.info("Length of 6G-Library and descriptor inputs match")
+        # 2.1) Check that the fields that are mandatory are present
+        for key, value in input_component.items():
+            # TODO:
+            pass
+        log_handler.info("End input part validation")
+
+    def validate_descriptor(self, list_site_available_components, input):
+        """
+        Validate descriptor:
+        1) Check if the component exists on the site where the component is to be deployed
+        2) Check if the component contains the inputs correctly
+        """
+        log_handler.info("Start descriptor validation")
         tn_descriptor = self.json_to_descriptor(self.tn_sorted_descriptor)["trial_network"]
         for _, entity_data in tn_descriptor.items():
             component_type = entity_data["type"]
-            if component_type not in components_available:
-                raise TrialNetworkInvalidComponentSite(f"Component '{component_type}' not available on the '{self.deployment_site}' site", 404)
+            if component_type not in list_site_available_components:
+                raise TrialNetworkInvalidComponentSiteError(f"Component '{component_type}' not available on the '{self.deployment_site}' site", 404)
+            log_handler.info(f"Component '{component_type}' is on '{self.deployment_site}' site")
+            input_sixglibrary_component = input[component_type]
+            input_component = entity_data["input"]
+            self._validate_input_part(input_sixglibrary_component, input_component)
+            log_handler.info("End descriptor validation")
     
     def descriptor_to_json(self, descriptor):
         """Convert descriptor to json"""
