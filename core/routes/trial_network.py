@@ -4,6 +4,7 @@ from werkzeug.datastructures import FileStorage
 
 from core.auth.auth import get_current_user_from_jwt
 from core.callback.callback_handler import CallbackHandler
+from core.resource_manager.resource_manager import ResourceManagerHandler
 from core.jenkins.jenkins_handler import JenkinsHandler
 from core.models import TrialNetworkModel, TrialNetworkTemplateModel
 from core.sixg_library.sixg_library_handler import SixGLibraryHandler
@@ -119,7 +120,6 @@ class TrialNetwork(Resource):
             if not trial_network:
                 return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}'")
             
-            # TODO: Add resource manager
             tn_state = trial_network.tn_state
             if tn_state == "validated":
                 temp_file_handler = TempFileHandler()
@@ -130,8 +130,8 @@ class TrialNetwork(Resource):
                 trial_network.save()
                 sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type="commit", reference_value=trial_network.github_6g_sandbox_sites_commit_id)
                 sixg_sandbox_sites_handler.set_deployment_site(trial_network.deployment_site)
-                tn_sorted_descriptor = trial_network.json_to_descriptor(trial_network.tn_sorted_descriptor)["trial_network"]
-                sixg_sandbox_sites_handler.apply_resource_manager(tn_id, tn_sorted_descriptor)
+                resource_manager_handler = ResourceManagerHandler(trial_network=trial_network, sixg_sandbox_sites_handler=sixg_sandbox_sites_handler)
+                resource_manager_handler.apply_resource_manager()
                 jenkins_handler.trial_network_deployment()
                 trial_network.set_tn_report(callback_handler.get_path_report_trial_network())
                 trial_network.set_tn_state("activated")
@@ -148,17 +148,21 @@ class TrialNetwork(Resource):
                 trial_network.save()
                 return {"message": "Trial network activated"}, 200
             elif tn_state == "destroyed":
-                trial_network.set_tn_deployed_descriptor()
                 temp_file_handler = TempFileHandler()
                 callback_handler = CallbackHandler(trial_network=trial_network)
                 jenkins_handler = JenkinsHandler(trial_network=trial_network, temp_file_handler=temp_file_handler, callback_handler=callback_handler)
                 jenkins_handler.set_deployment_job_name(trial_network.deployment_job_name)
+                sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type="commit", reference_value=trial_network.github_6g_sandbox_sites_commit_id)
+                sixg_sandbox_sites_handler.set_deployment_site(trial_network.deployment_site)
+                resource_manager_handler = ResourceManagerHandler(trial_network=trial_network, sixg_sandbox_sites_handler=sixg_sandbox_sites_handler)
+                resource_manager_handler.apply_resource_manager()
                 jenkins_handler.trial_network_deployment()
                 trial_network.set_tn_report(callback_handler.get_path_report_trial_network())
                 trial_network.set_tn_state("activated")
                 trial_network.save()
                 return {"message": "Trial network activated"}, 200
             elif tn_state == "activated":
+                # TODO: see what to do with trial network resources
                 trial_network.set_tn_state("suspended")
                 trial_network.save()
             else: # tn_state == "suspended"
@@ -178,6 +182,7 @@ class TrialNetwork(Resource):
         If nothing is specified in destroy_job_name, the **alt_architecture/TN_DESTROY** job will be used.
         """
         try:
+            # TODO: release resources when the trial network is destroyed
             destroy_job_name = self.parser_delete.parse_args()["destroy_job_name"]
 
             current_user = get_current_user_from_jwt(get_jwt_identity())
@@ -192,6 +197,7 @@ class TrialNetwork(Resource):
             jenkins_handler.set_destroy_job_name(destroy_job_name)
             trial_network.set_destroy_job_name(jenkins_handler.destroy_job_name)
             jenkins_handler.trial_network_destroy()
+            trial_network.set_tn_deployed_descriptor()
             trial_network.set_tn_state("destroyed")
             trial_network.save()
             return {"message": f"The trial network with identifier '{tn_id}' has been removed"}, 200

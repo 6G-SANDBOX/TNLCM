@@ -3,9 +3,8 @@ import os
 from yaml import safe_load, YAMLError
 
 from conf import SixGSandboxSitesSettings
-from core.models.resource_manager import ResourceManagerModel
 from core.repository.repository_handler import RepositoryHandler
-from core.exceptions.exceptions_handler import SixGSandboxSitesInvalidSiteError, InvalidContentFileError, CustomFileNotFoundError, NoResourcesAvailable
+from core.exceptions.exceptions_handler import SixGSandboxSitesInvalidSiteError, InvalidContentFileError, CustomFileNotFoundError
 
 SIXG_SANDBOX_SITES_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
@@ -53,45 +52,6 @@ class SixGSandboxSitesHandler():
             return {}
         site_available_components = values_data["site_available_components"]
         return site_available_components
-
-    def _sixg_sandbox_sites_component_resources(self, component_type):
-        """Get component resources from 6G-Sandbox-Sites repository"""
-        site_available_components = self.get_site_available_components()
-        sixg_sandbox_sites_component_resources = site_available_components[component_type]
-        quantity = 0
-        ttl = ""
-        if sixg_sandbox_sites_component_resources and "quantity" in sixg_sandbox_sites_component_resources:
-            quantity = sixg_sandbox_sites_component_resources["quantity"]
-        if sixg_sandbox_sites_component_resources and "ttl" in sixg_sandbox_sites_component_resources:
-            ttl = sixg_sandbox_sites_component_resources["ttl"]
-        return quantity, ttl
-    
-    def _tnlcm_component_resources(self, component_type):
-        """Get component used by TNLCM"""
-        tnlcm_component_resources = ResourceManagerModel.objects(site=self.deployment_site, component=component_type).first()
-        quantity = 0
-        ttl = ""
-        if tnlcm_component_resources:
-            quantity = tnlcm_component_resources.quantity
-            ttl = tnlcm_component_resources.ttl
-        return quantity, ttl
-
-    def apply_resource_manager(self, tn_id, tn_sorted_descriptor):
-        """Apply resource manager to check availability resource"""
-        for _, entity_data in tn_sorted_descriptor.items():
-            component_type = entity_data["type"]
-            sixg_sandbox_sites_component_quantity, sixg_sandbox_sites_component_ttl = self._sixg_sandbox_sites_component_resources(component_type)
-            if sixg_sandbox_sites_component_quantity > 0:
-                tnlcm_quantity, _ = self._tnlcm_component_resources(component_type)
-                if sixg_sandbox_sites_component_quantity == tnlcm_quantity:
-                    raise NoResourcesAvailable(f"Component '{component_type}' is not available on the '{self.deployment_site}' platform", 400)
-                tnlcm_component_resources = ResourceManagerModel.objects(site=self.deployment_site, component=component_type).first()
-                if not tnlcm_component_resources:
-                    tnlcm_component_resources = ResourceManagerModel(site=self.deployment_site, tn_ids=[tn_id], component=component_type, quantity=1, ttl=sixg_sandbox_sites_component_ttl)
-                else:
-                    tnlcm_component_resources.tn_ids.append(tn_id)
-                    tnlcm_component_resources.quantity += 1
-                tnlcm_component_resources.save()
 
     def get_sites(self):
         """Return sites available to deploy trial networks"""

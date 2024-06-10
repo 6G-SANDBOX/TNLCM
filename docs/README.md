@@ -73,6 +73,7 @@ TNLCM/                       // main folder.
    ├─ mail/                  // folder that handler the configuration to use flask_mail.
    ├─ models/                // folder that contains the database models.
    ├─ repository/            // folder that handler the connection to any repository.
+   ├─ resource_manager/      // folder that handler the resource manager.
    ├─ routes/                // folder that handler the API that is exposed.
    ├─ sixg_library/          // folder that handler the connection to the 6G-Library repository.
    ├─ sixg_sandbox_sites/    // folder that handler the connection to the 6G-Sandbox-Sites repository.
@@ -356,6 +357,16 @@ The TNLCM database consists of several collections that store important informat
 | `new_account_email`  | The email associated with the new account.            |
 | `verification_token` | The verification token generated for the new account. |
 | `creation_date`      | The creation date of the verification token.          |
+
+#### Collection `resource_manager` <!-- omit in toc -->
+
+| Field       | Description                                                      |
+| ----------- | ---------------------------------------------------------------- |
+| `site`      | The site where the trial network has been deployed.              |
+| `tn_ids`    | List with tn_id that use the component.                          |
+| `component` | The component over which the resources are controlled            |
+| `quantity`  | The amount of component available.                               |
+| `ttl`       | The amount of time the component can be used in a trial network. |
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
