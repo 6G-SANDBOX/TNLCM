@@ -28,7 +28,6 @@ class RepositoryHandler:
             if os.path.exists(os.path.join(self.github_local_directory, ".git")):
                 try:
                     self.repo = Repo(self.github_local_directory)
-                    print(self.repo)
                 except InvalidGitRepositoryError:
                     raise GitCloneError(f"The '{self.github_local_directory}' directory is not a GitHub repository", 500)
             else:
@@ -61,14 +60,8 @@ class RepositoryHandler:
 
     def _set_commit_id(self):
         """Set last commit id associated to branch or tag"""
-        if self.github_reference_type == "branch":
-            self.github_commit_id = self.repo.head.commit.hexsha
-            log_handler.info(f"The latest commit of the '{self.github_reference_value}' '{self.github_reference_type}' is '{self.github_commit_id}'")
-        elif self.github_reference_type == "tag":
-            self.github_commit_id = self.repo.head.commit.hexsha
-            log_handler.info(f"The latest commit of the '{self.github_reference_value}' '{self.github_reference_type}' is '{self.github_commit_id}'")
-        else:
-            self.github_commit_id = self.github_reference_value
+        self.github_commit_id = self.repo.head.commit.hexsha
+        log_handler.info(f"The latest commit of the '{self.github_reference_value}' '{self.github_reference_type}' is '{self.github_commit_id}'")
 
     def get_tags(self):
         """Return repository tags"""
