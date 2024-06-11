@@ -182,7 +182,6 @@ class TrialNetwork(Resource):
         If nothing is specified in destroy_job_name, the **alt_architecture/TN_DESTROY** job will be used.
         """
         try:
-            # TODO: release resources when the trial network is destroyed
             destroy_job_name = self.parser_delete.parse_args()["destroy_job_name"]
 
             current_user = get_current_user_from_jwt(get_jwt_identity())
@@ -197,6 +196,8 @@ class TrialNetwork(Resource):
             jenkins_handler.set_destroy_job_name(destroy_job_name)
             trial_network.set_destroy_job_name(jenkins_handler.destroy_job_name)
             jenkins_handler.trial_network_destroy()
+            resource_manager_handler = ResourceManagerHandler(trial_network=trial_network)
+            resource_manager_handler.release_resource_manager()
             trial_network.set_tn_deployed_descriptor()
             trial_network.set_tn_state("destroyed")
             trial_network.save()
