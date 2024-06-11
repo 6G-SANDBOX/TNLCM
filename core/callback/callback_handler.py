@@ -86,6 +86,8 @@ class CallbackHandler:
         output_component = public_data["output"]
         if output_component and len(component_type) > 0 and output_jenkins and len(output_jenkins) > 0:
             return set(output_jenkins.keys()) == set(output_component.keys())
+        if not output_component and len(output_jenkins) == 0:
+            return True
         return False
 
     def get_path_report_trial_network(self):
