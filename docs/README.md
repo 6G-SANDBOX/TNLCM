@@ -363,8 +363,7 @@ The TNLCM database consists of several collections that store important informat
 | Field       | Description                                                      |
 | ----------- | ---------------------------------------------------------------- |
 | `site`      | The site where the trial network has been deployed.              |
-| `tn_ids`    | List with tn_id that use the component.                          |
-| `component` | The component over which the resources are controlled            |
+| `component` | The component over which the resources are controlled.           |
 | `quantity`  | The amount of component available.                               |
 | `ttl`       | The amount of time the component can be used in a trial network. |
 
