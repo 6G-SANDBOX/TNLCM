@@ -133,8 +133,9 @@ class JenkinsHandler:
             last_build_number = self.jenkins_client.get_job_info(name=self.destroy_job_name)["nextBuildNumber"]
             while last_build_number != self.jenkins_client.get_job_info(name=self.destroy_job_name)["lastCompletedBuild"]["number"]:
                 sleep(15)
-            if self.jenkins_client.get_job_info(name=self.destroy_job_name)["lastSuccessfulBuild"]["number"] == last_build_number:
-                log_handler.info(f"Trial network '{self.trial_network.tn_id}' successfully destroyed")
+            if self.jenkins_client.get_job_info(name=self.destroy_job_name)["lastSuccessfulBuild"]["number"] != last_build_number:
+                raise JenkinsComponentPipelineError(f"Pipeline for destroy '{self.trial_network.tn_id}' trial network has failed", 500)
+            log_handler.info(f"Trial network '{self.trial_network.tn_id}' successfully destroyed")
 
     def get_all_jobs(self):
         """Return all the jobs/pipelines stored in Jenkins"""
