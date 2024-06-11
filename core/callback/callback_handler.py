@@ -84,7 +84,9 @@ class CallbackHandler:
         if "output" not in public_data:
             raise KeyNotFoundError(f"Key 'output' is missing in the file located in the path '{public_file}'", 404)
         output_component = public_data["output"]
-        return set(output_jenkins.keys()) == set(output_component.keys())
+        if output_component and output_jenkins:
+            return set(output_jenkins.keys()) == set(output_component.keys())
+        return False
 
     def get_path_report_trial_network(self):
         """Return path where report of trial network is stored"""
