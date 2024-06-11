@@ -1,21 +1,20 @@
-from mongoengine import Document, StringField, IntField, ListField
+from mongoengine import Document, StringField, IntField
 
 class ResourceManagerModel(Document):
-    site = StringField()
-    tn_ids = ListField()
-    component = StringField(default=[], unique=True)
+    site = StringField(unique=True)
+    component = StringField(unique=True)
     quantity = IntField()
     ttl = StringField() # maybe FloatField
 
     meta = {
         "db_alias": "tnlcm-database-alias",
         "collection": "resource_manager"
-    }      
+    }
             
     def to_dict(self):
         return {
             "site": self.site,
-            "tn_ids": self.tn_ids,
+            "tn_id": self.tn_id,
             "component": self.component,
             "quantity": self.quantity,
             "ttl": self.ttl
