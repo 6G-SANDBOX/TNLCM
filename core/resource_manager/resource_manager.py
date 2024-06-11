@@ -52,5 +52,6 @@ class ResourceManagerHandler():
         for _, entity_data in tn_descriptor.items():
             component_type = entity_data["type"]
             tnlcm_component_resources = ResourceManagerModel.objects(site=self.trial_network.deployment_site, component=component_type).first()
-            tnlcm_component_resources.quantity -= 1
-            tnlcm_component_resources.save()
+            if tnlcm_component_resources:
+                tnlcm_component_resources.quantity -= 1
+                tnlcm_component_resources.save()
