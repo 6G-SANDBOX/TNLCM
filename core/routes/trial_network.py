@@ -74,11 +74,11 @@ class CreateTrialNetwork(Resource):
             trial_network.set_tn_raw_descriptor(tn_descriptor_file)
             trial_network.set_tn_sorted_descriptor()
             trial_network.set_deployment_site(sixg_sandbox_sites_handler.deployment_site)
-            # trial_network.validate_descriptor(list_site_available_components, input) # validate
+            trial_network.validate_descriptor(list_site_available_components, input)
             trial_network.set_github_6g_library_commit_id(sixg_library_handler.github_6g_library_commit_id)
             trial_network.set_github_6g_sandbox_sites_commit_id(sixg_sandbox_sites_handler.github_6g_sandbox_sites_commit_id)
             trial_network.set_tn_state("validated")
-            trial_network.save() # create
+            trial_network.save()
             return trial_network.to_dict(), 201
         except CustomException as e:
             return abort(e.error_code, str(e))

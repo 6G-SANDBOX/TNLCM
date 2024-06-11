@@ -50,12 +50,14 @@ class SixGLibraryHandler:
                         raise InvalidContentFileError(f"File '{public_file}' is not parsed correctly", 422)
                 metadata_part = {}
                 input_part = {}
-                output_part = []
-                if "metadata" in public_data:
+                output_part = {}
+                if not public_data:
+                    raise InvalidContentFileError(f"File '{public_file}' is empty", 422)
+                if "metadata" in public_data and public_data["metadata"]:
                     metadata_part = public_data["metadata"]
-                if "input" in public_data:
+                if "input" in public_data and public_data["input"]:
                     input_part = public_data["input"]
-                if "output" in public_data:
+                if "output" in public_data and public_data["output"]:
                     output_part = public_data["output"]
                 components_data[component] = {
                     "metadata": metadata_part,

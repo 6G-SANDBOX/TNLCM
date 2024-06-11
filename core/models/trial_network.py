@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from mongoengine import Document, StringField, DateTimeField
 
 from core.logs.log_handler import log_handler
-from core.exceptions.exceptions_handler import InvalidFileExtensionError, InvalidContentFileError, TrialNetworkEntityNotInDescriptorError, TrialNetworkInvalidStatusError, TrialNetworkInvalidComponentSiteError, TrialNetworkInvalidInputComponentError
+from core.exceptions.exceptions_handler import InvalidFileExtensionError, InvalidContentFileError, TrialNetworkEntityNotInDescriptorError, TrialNetworkInvalidStatusError, TrialNetworkInvalidComponentSiteError,TrialNetworkInvalidInputComponentError
 
 TN_STATE_MACHINE = ["validated", "suspended", "activated", "failed", "destroyed"]
 
@@ -114,8 +114,24 @@ class TrialNetworkModel(Document):
         else:
             self.tn_deployed_descriptor = self.descriptor_to_json({"trial_network": tn_deployed_descriptor})
 
-    def _validate_input_part(input_sixglibrary_component, input_component):
+    def _required_when(self, component_type, input_sixglibrary_component, input_descriptor_component):
         """
+        2.1) Check that the fields that are mandatory are present
+        """
+        log_handler.info("Start mandatory fields validation")
+        if len(input_sixglibrary_component) == 0 and len(input_descriptor_component) > 0:
+            raise TrialNetworkInvalidInputComponentError(f"Input part of '{component_type}' component should be: '{input_sixglibrary_component}'", 400)
+        if len(input_sixglibrary_component) > 0:
+            for input_sixglibrary_key, input_sixglibrary_value in input_sixglibrary_component.items():
+                sixglibrary_required_when = input_sixglibrary_value["required_when"]
+                if sixglibrary_required_when and input_sixglibrary_key not in input_descriptor_component:
+                    raise TrialNetworkInvalidInputComponentError(f"Field '{input_sixglibrary_key}' is mandatory in descriptor", 400)
+        log_handler.info("End mandatory fields validation")
+
+    def validate_descriptor(self, list_site_available_components, input):
+        """
+        Validate descriptor:
+        1) Check if the component exists on the site where the component is to be deployed
         2) Check if the component contains the inputs correctly
             2.1) Check that the fields that are mandatory are present
             2.2) The type of the fields is verified
@@ -123,22 +139,6 @@ class TrialNetworkModel(Document):
                 2.2.2) If it is str, int, list
                 2.2.3) If it is a component
             2.3) It is checked the fields that are required_when
-        """
-        log_handler.info("Start input part validation")
-        if len(input_sixglibrary_component) != len(input_component):
-            raise TrialNetworkInvalidInputComponentError("Length of inputs do not match", 400)
-        log_handler.info("Length of 6G-Library and descriptor inputs match")
-        # 2.1) Check that the fields that are mandatory are present
-        for key, value in input_component.items():
-            # TODO:
-            pass
-        log_handler.info("End input part validation")
-
-    def validate_descriptor(self, list_site_available_components, input):
-        """
-        Validate descriptor:
-        1) Check if the component exists on the site where the component is to be deployed
-        2) Check if the component contains the inputs correctly
         """
         log_handler.info("Start descriptor validation")
         tn_descriptor = self.json_to_descriptor(self.tn_sorted_descriptor)["trial_network"]
@@ -148,9 +148,10 @@ class TrialNetworkModel(Document):
                 raise TrialNetworkInvalidComponentSiteError(f"Component '{component_type}' not available on the '{self.deployment_site}' site", 404)
             log_handler.info(f"Component '{component_type}' is on '{self.deployment_site}' site")
             input_sixglibrary_component = input[component_type]
-            input_component = entity_data["input"]
-            self._validate_input_part(input_sixglibrary_component, input_component)
-            log_handler.info("End descriptor validation")
+            input_descriptor_component = entity_data["input"]
+            self._required_when(component_type, input_sixglibrary_component, input_descriptor_component)
+            # self._validate_input_part(input_sixglibrary_component, input_descriptor_component)
+        log_handler.info("End descriptor validation")
     
     def descriptor_to_json(self, descriptor):
         """Convert descriptor to json"""
