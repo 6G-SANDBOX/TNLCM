@@ -1,3 +1,4 @@
+from core.logs.log_handler import log_handler
 from core.models.resource_manager import ResourceManagerModel
 from core.exceptions.exceptions_handler import NoResourcesAvailable
 
@@ -31,6 +32,7 @@ class ResourceManagerHandler():
 
     def apply_resource_manager(self):
         """Apply resource manager to check availability resource"""
+        log_handler.info("Start apply resource manager")
         tn_descriptor = self.trial_network.json_to_descriptor(self.trial_network.tn_sorted_descriptor)["trial_network"]
         for _, entity_data in tn_descriptor.items():
             component_type = entity_data["type"]
@@ -45,9 +47,11 @@ class ResourceManagerHandler():
                 else:
                     tnlcm_component_resources.quantity += 1
                 tnlcm_component_resources.save()
+        log_handler.info("End apply resource manager")
     
     def release_resource_manager(self):
         """Release resources when destroy or suspend trial network"""
+        log_handler.info("Start apply release resource manager")
         tn_descriptor = self.trial_network.json_to_descriptor(self.trial_network.tn_sorted_descriptor)["trial_network"]
         for _, entity_data in tn_descriptor.items():
             component_type = entity_data["type"]
@@ -55,3 +59,4 @@ class ResourceManagerHandler():
             if tnlcm_component_resources:
                 tnlcm_component_resources.quantity -= 1
                 tnlcm_component_resources.save()
+        log_handler.info("End release resource manager")
