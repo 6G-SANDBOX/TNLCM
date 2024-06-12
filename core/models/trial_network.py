@@ -113,7 +113,7 @@ class TrialNetworkModel(Document):
             self.tn_deployed_descriptor = self.tn_sorted_descriptor
         else:
             self.tn_deployed_descriptor = self.descriptor_to_json({"trial_network": tn_deployed_descriptor})
-
+    
     def _validate_input_part(self, component_type, input_sixg_library_component, input_descriptor_component):
         """
         2.1) Check that the fields that are mandatory are present
@@ -124,12 +124,12 @@ class TrialNetworkModel(Document):
         if len(input_sixg_library_component) > 0:
             for input_sixg_library_key, input_sixg_library_value in input_sixg_library_component.items():
                 sixg_library_required_when = input_sixg_library_value["required_when"]
-                if sixg_library_required_when and input_sixg_library_key not in input_descriptor_component:
-                    raise TrialNetworkInvalidInputError(f"Component '{component_type}'. Field '{input_sixg_library_key}' is mandatory in descriptor", 422)
+                if not isinstance(sixg_library_required_when, bool) and not isinstance(sixg_library_required_when, str):
+                    raise TrialNetworkInvalidInputError(f"Component '{component_type}'. The 'required_when' condition for the '{input_sixg_library_key}' input field must be either a bool or a str representing a logical condition.", 422)
+                if eval(str(sixg_library_required_when), {}, input_descriptor_component) and input_sixg_library_key not in input_descriptor_component:
+                    raise TrialNetworkInvalidInputError(f"Component '{component_type}'. Field '{input_sixg_library_key}' is mandatory in descriptor when condition '{sixg_library_required_when}' is met", 422)
                 if input_sixg_library_key in input_descriptor_component:
-                    sixg_library_type = input_sixg_library_value["type"] # FIX
-                    # if not isinstance(input_descriptor_component[input_sixg_library_key], sixg_library_type):
-                    #     raise TrialNetworkInvalidInputError(f"Component '{component_type}'. Type of the '{input_sixg_library_key}' field must be '{sixg_library_type}'")
+                    sixg_library_type = input_sixg_library_value["type"]
                     if "choices" in input_sixg_library_value:
                         sixg_library_choices = input_sixg_library_value["choices"]
                         if not input_descriptor_component[input_sixg_library_key] in sixg_library_choices:
