@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from mongoengine import Document, StringField, DateTimeField
 
 from core.logs.log_handler import log_handler
-from core.exceptions.exceptions_handler import InvalidFileExtensionError, InvalidContentFileError, TrialNetworkEntityNotInDescriptorError
+from core.exceptions.exceptions_handler import InvalidFileExtensionError, InvalidContentFileError, TrialNetworkInvalidDescriptorError
 
 class TrialNetworkTemplateModel(Document):
     user_created = StringField(max_length=100)
@@ -50,7 +50,7 @@ class TrialNetworkTemplateModel(Document):
 
         def dfs(entity):
             if entity not in entities.keys():
-                raise TrialNetworkEntityNotInDescriptorError("Name of the dependency does not match the name of some entity defined in the descriptor", 404)
+                raise TrialNetworkInvalidDescriptorError("Name of the dependency does not match the name of some entity defined in the descriptor", 404)
             if entity in ordered_entities:
                 return
             if "dependencies" in entities[entity]:
