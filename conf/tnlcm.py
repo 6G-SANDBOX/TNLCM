@@ -2,7 +2,7 @@ import os
 import sys
 
 from core.logs.log_handler import log_handler
-from core.exceptions.exceptions_handler import InvalidPythonVersionError, UndefinedEnvVariableError
+from core.exceptions.exceptions_handler import UndefinedEnvVariableError
 
 PYTHON_MIN_REQUIRED = (3, 12, 3)
 
@@ -11,11 +11,6 @@ class TnlcmSettings:
 
     log_handler.info("Load TNLCM configuration")
 
-    # current_python_version = sys.version_info[:3]
-    # if current_python_version < PYTHON_MIN_REQUIRED:
-    #     raise InvalidPythonVersionError(f"Python {PYTHON_MIN_REQUIRED} or higher is required. Current version: {current_python_version}", 404)
-
-    # log_handler.info(f"Current Python version: {current_python_version}")
     TNLCM_HOST = os.getenv("TNLCM_HOST")
     TNLCM_PORT = os.getenv("TNLCM_PORT")
     TNLCM_CALLBACK = os.getenv("TNLCM_CALLBACK")

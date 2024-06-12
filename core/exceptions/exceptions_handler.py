@@ -23,10 +23,6 @@ class InvalidContentFileError(CustomException):
     """Error thrown when file has semantic faults"""
     pass
 
-class InvalidPythonVersionError(CustomException):
-    """Error thrown when Python version not correct"""
-    pass
-
 class CustomFileNotFoundError(CustomException):
     """Error thrown when the file not found"""
     pass
@@ -123,16 +119,8 @@ class TrialNetworkInvalidStatusError(CustomTrialNetworkError):
     """Error thrown when an invalid status of trial network is provided"""
     pass
 
-class TrialNetworkEntityNotInDescriptorError(CustomTrialNetworkError):
-    """Error thrown when the name of the dependency does not match the name of some entity defined in the descriptor"""
-    pass
-
-class TrialNetworkInvalidComponentSiteError(CustomTrialNetworkError):
-    """Error thrown when component not available in site"""
-    pass
-
-class TrialNetworkInvalidInputError(CustomTrialNetworkError):
-    """Error thrown when input part of component is incorrect"""
+class TrialNetworkInvalidDescriptorError(CustomTrialNetworkError):
+    """Error thrown when descriptor is incorrect"""
     pass
 
 ############################
