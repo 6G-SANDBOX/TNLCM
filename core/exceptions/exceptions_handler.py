@@ -131,7 +131,7 @@ class TrialNetworkInvalidComponentSiteError(CustomTrialNetworkError):
     """Error thrown when component not available in site"""
     pass
 
-class TrialNetworkInvalidInputComponentError(CustomTrialNetworkError):
+class TrialNetworkInvalidInputError(CustomTrialNetworkError):
     """Error thrown when input part of component is incorrect"""
     pass
 
