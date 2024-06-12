@@ -1,3 +1,5 @@
+import re
+
 from werkzeug.utils import secure_filename
 from json import dumps, loads
 from yaml import safe_load, YAMLError
@@ -7,9 +9,11 @@ from datetime import datetime, timezone
 from mongoengine import Document, StringField, DateTimeField
 
 from core.logs.log_handler import log_handler
-from core.exceptions.exceptions_handler import InvalidFileExtensionError, InvalidContentFileError, TrialNetworkEntityNotInDescriptorError, TrialNetworkInvalidStatusError, TrialNetworkInvalidComponentSiteError, TrialNetworkInvalidInputError
+from core.exceptions.exceptions_handler import InvalidFileExtensionError, InvalidContentFileError, TrialNetworkInvalidStatusError, TrialNetworkInvalidDescriptorError
 
 TN_STATE_MACHINE = ["validated", "suspended", "activated", "failed", "destroyed"]
+COMPONENTS_EXCLUDE_CUSTOM_NAME = ["tn_vxlan", "tn_bastion", "tn_init", "tsn"]
+REQUIRED_FIELDS_DESCRIPTOR = ["type", "dependencies", "input"]
 
 class TrialNetworkModel(Document):
     user_created = StringField(max_length=100)
@@ -52,8 +56,6 @@ class TrialNetworkModel(Document):
                 tn_raw_descriptor = safe_load(tn_descriptor_file.stream)
             else:
                 raise InvalidFileExtensionError("Invalid descriptor format. Only 'yml' or 'yaml' files will be further processed", 422)
-            if len(tn_raw_descriptor.keys()) > 1 or not "trial_network" in tn_raw_descriptor.keys():
-                raise InvalidContentFileError("Trial network descriptor is not parsed correctly", 422)
             self.tn_raw_descriptor = self.descriptor_to_json(tn_raw_descriptor)
         except YAMLError:
             raise InvalidContentFileError("Trial network descriptor is not parsed correctly", 422)
@@ -66,7 +68,7 @@ class TrialNetworkModel(Document):
 
         def dfs(entity):
             if entity not in entities.keys():
-                raise TrialNetworkEntityNotInDescriptorError("Name of the dependency does not match the name of some entity defined in the descriptor", 404)
+                raise TrialNetworkInvalidDescriptorError("Name of the dependency does not match the name of some entity defined in the descriptor", 404)
             if entity in ordered_entities:
                 return
             if "dependencies" in entities[entity]:
@@ -113,33 +115,19 @@ class TrialNetworkModel(Document):
             self.tn_deployed_descriptor = self.tn_sorted_descriptor
         else:
             self.tn_deployed_descriptor = self.descriptor_to_json({"trial_network": tn_deployed_descriptor})
-    
-    def _validate_input_part(self, component_type, input_sixg_library_component, input_descriptor_component):
-        """
-        2.1) Check that the fields that are mandatory are present
-        """
-        log_handler.info(f"Start the validation of the mandatory fields of the '{component_type}' component")
-        if len(input_sixg_library_component) == 0 and len(input_descriptor_component) > 0:
-            raise TrialNetworkInvalidInputError(f"Invalid input part of '{component_type}' component", 422)
-        if len(input_sixg_library_component) > 0:
-            for input_sixg_library_key, input_sixg_library_value in input_sixg_library_component.items():
-                sixg_library_required_when = input_sixg_library_value["required_when"]
-                if not isinstance(sixg_library_required_when, bool) and not isinstance(sixg_library_required_when, str):
-                    raise TrialNetworkInvalidInputError(f"Component '{component_type}'. The 'required_when' condition for the '{input_sixg_library_key}' input field must be either a bool or a str representing a logical condition.", 422)
-                if eval(str(sixg_library_required_when), {}, input_descriptor_component) and input_sixg_library_key not in input_descriptor_component:
-                    raise TrialNetworkInvalidInputError(f"Component '{component_type}'. Field '{input_sixg_library_key}' is mandatory in descriptor when condition '{sixg_library_required_when}' is met", 422)
-                if input_sixg_library_key in input_descriptor_component:
-                    sixg_library_type = input_sixg_library_value["type"]
-                    if "choices" in input_sixg_library_value:
-                        sixg_library_choices = input_sixg_library_value["choices"]
-                        if not input_descriptor_component[input_sixg_library_key] in sixg_library_choices:
-                            raise TrialNetworkInvalidInputError(f"Component '{component_type}'. Value of the '{input_sixg_library_key}' field must be '{sixg_library_choices}'", 422)
-        log_handler.info(f"End the validation of the mandatory fields of the '{component_type}' component")
 
     def validate_descriptor(self, list_site_available_components, input):
         """
         Validate descriptor:
-        1) Check if the component exists on the site where the component is to be deployed
+        1) Check if the descriptor follows the correct scheme
+            1.1) It starts with trial_network and there is only that key
+            1.2) Entity names are not empty
+            1.3) Check that each entity has a type, dependencies, input and name part if required
+            1.4) Check that the value of each part is a correct object (str, list and dict)
+            1.5) Check that the value of the type is a component type of the 6G-Library
+            1.6) Check whether custom name is required or not depending on the component type
+            1.7) Check that custom name has valid characters: a-z, A-Z, 0-9 and _
+            1.8) Check that the entity name follows the format: type-name
         2) Check if the component contains the inputs correctly
             2.1) Check that the fields that are mandatory are present
             2.2) The type of the fields is verified
@@ -149,15 +137,61 @@ class TrialNetworkModel(Document):
             2.3) It is checked the fields that are required_when
         """
         log_handler.info(f"Start validation of the trial network descriptor '{self.tn_id}'")
-        tn_descriptor = self.json_to_descriptor(self.tn_sorted_descriptor)["trial_network"]
-        for _, entity_data in tn_descriptor.items():
+        tn_raw_descriptor = self.json_to_descriptor(self.tn_raw_descriptor)
+        if len(tn_raw_descriptor.keys()) > 1 or "trial_network" not in tn_raw_descriptor:
+            raise TrialNetworkInvalidDescriptorError("Trial network descriptor must start with 'trial_network' key", 422)
+        tn_descriptor = tn_raw_descriptor["trial_network"]
+        for entity_name, entity_data in tn_descriptor.items():
+            if len(entity_name) <= 0:
+                raise TrialNetworkInvalidDescriptorError(f"There is an empty entity name in the trial network", 422)
+            if not isinstance(entity_data, dict) or len(entity_data) == 0 or not set(REQUIRED_FIELDS_DESCRIPTOR).issubset(entity_data.keys()):
+                raise TrialNetworkInvalidDescriptorError(f"Following fields are required in each entity of the descriptor: {', '.join(REQUIRED_FIELDS_DESCRIPTOR)}", 422)
+            for rfd in REQUIRED_FIELDS_DESCRIPTOR:
+                if rfd == "type" and not isinstance(entity_data[rfd], str):
+                    raise TrialNetworkInvalidDescriptorError(f"Value of the '{rfd}' key must be a string in the '{entity_name}' entity of the descriptor", 422)
+                elif rfd == "dependencies" and not isinstance(entity_data[rfd], list):
+                    raise TrialNetworkInvalidDescriptorError(f"Value of the '{rfd}' key must be a list in the '{entity_name}' entity of the descriptor", 422)
+                elif rfd == "input" and not isinstance(entity_data[rfd], dict):
+                    raise TrialNetworkInvalidDescriptorError(f"Value of the '{rfd}' key must be a dictionary in the '{entity_name}' entity of the descriptor", 422)
             component_type = entity_data["type"]
             if component_type not in list_site_available_components:
-                raise TrialNetworkInvalidComponentSiteError(f"Component '{component_type}' not available on the '{self.deployment_site}' site", 404)
+                raise TrialNetworkInvalidDescriptorError(f"Component '{component_type}' not available on the '{self.deployment_site}' site", 404)
             log_handler.info(f"Component '{component_type}' is on '{self.deployment_site}' site")
+            custom_name = None
+            if component_type not in COMPONENTS_EXCLUDE_CUSTOM_NAME:
+                if "name" not in entity_data:
+                    raise TrialNetworkInvalidDescriptorError(f"Key 'name' is required in definition of '{entity_name}' in descriptor", 422)
+                custom_name = entity_data["name"]
+            if not custom_name and entity_name not in COMPONENTS_EXCLUDE_CUSTOM_NAME:
+                raise TrialNetworkInvalidDescriptorError(f"Entity name has to be equal to the name of one of the following types {', '.join(COMPONENTS_EXCLUDE_CUSTOM_NAME)}", 422)
+            if custom_name:
+                if not isinstance(custom_name, str):
+                    raise TrialNetworkInvalidDescriptorError("Entity name field has to be a string", 422)
+                pattern = re.compile(r"^[a-zA-Z0-9_]+$")
+                if not pattern.match(custom_name):
+                    raise TrialNetworkInvalidDescriptorError(f"Entity name field has to be a string between a-z, A-Z, 0-9 or _", 422)
+                if entity_name != f"{component_type}-{custom_name}":
+                    raise TrialNetworkInvalidDescriptorError(f"Entity name has to be in the following format: type-name", 422)
             input_sixg_library_component = input[component_type]
             input_descriptor_component = entity_data["input"]
-            self._validate_input_part(component_type, input_sixg_library_component, input_descriptor_component)
+            if len(input_sixg_library_component) == 0 and len(input_descriptor_component) > 0:
+                raise TrialNetworkInvalidDescriptorError(f"Invalid input part of '{component_type}' component", 422)
+            if len(input_sixg_library_component) > 0:
+                for input_sixg_library_key, input_sixg_library_value in input_sixg_library_component.items():
+                    sixg_library_required_when = input_sixg_library_value["required_when"]
+                    if not isinstance(sixg_library_required_when, bool) and not isinstance(sixg_library_required_when, str):
+                        raise TrialNetworkInvalidDescriptorError(f"Component '{component_type}'. The 'required_when' condition for the '{input_sixg_library_key}' input field must be either a bool or a str representing a logical condition.", 422)
+                    if eval(str(sixg_library_required_when), {}, input_descriptor_component) and input_sixg_library_key not in input_descriptor_component:
+                        raise TrialNetworkInvalidDescriptorError(f"Component '{component_type}'. Field '{input_sixg_library_key}' is mandatory in descriptor when condition '{sixg_library_required_when}' is met", 422)
+                    if input_sixg_library_key in input_descriptor_component:
+                        sixg_library_type = input_sixg_library_value["type"]
+                        # Maybe map is required because the type will be in str, like this 'str'
+                        # if not isinstance(input_descriptor_component[input_sixg_library_key], sixg_library_type):
+                        #     raise TrialNetworkInvalidDescriptorError(f"Component '{component_type}'. Type of the '{input_sixg_library_key}' field must be '{sixg_library_type}'")
+                        if "choices" in input_sixg_library_value:
+                            sixg_library_choices = input_sixg_library_value["choices"]
+                            if not input_descriptor_component[input_sixg_library_key] in sixg_library_choices:
+                                raise TrialNetworkInvalidDescriptorError(f"Component '{component_type}'. Value of the '{input_sixg_library_key}' field must be '{sixg_library_choices}'", 422)
         log_handler.info(f"End validation of the trial network descriptor '{self.tn_id}'")
 
     def descriptor_to_json(self, descriptor):
