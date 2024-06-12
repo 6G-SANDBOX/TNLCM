@@ -133,7 +133,7 @@ class TrialNetworkModel(Document):
                     if "choices" in input_sixg_library_value:
                         sixg_library_choices = input_sixg_library_value["choices"]
                         if not input_descriptor_component[input_sixg_library_key] in sixg_library_choices:
-                            raise TrialNetworkInvalidInputError(f"Component '{component_type}'. Value of the '{input_sixg_library_key}' field must be '{sixg_library_choices}'")
+                            raise TrialNetworkInvalidInputError(f"Component '{component_type}'. Value of the '{input_sixg_library_key}' field must be '{sixg_library_choices}'", 422)
         log_handler.info(f"End the validation of the mandatory fields of the '{component_type}' component")
 
     def validate_descriptor(self, list_site_available_components, input):
