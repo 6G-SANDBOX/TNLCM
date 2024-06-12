@@ -72,9 +72,9 @@ class CreateTrialNetwork(Resource):
             input = {component: data["input"] for component, data in parts_components.items()}
             trial_network.set_tn_id(size=3, tn_id=tn_id)
             trial_network.set_tn_raw_descriptor(tn_descriptor_file)
-            trial_network.set_tn_sorted_descriptor()
             trial_network.set_deployment_site(sixg_sandbox_sites_handler.deployment_site)
             trial_network.validate_descriptor(list_site_available_components, input)
+            trial_network.set_tn_sorted_descriptor()
             trial_network.set_github_6g_library_commit_id(sixg_library_handler.github_6g_library_commit_id)
             trial_network.set_github_6g_sandbox_sites_commit_id(sixg_sandbox_sites_handler.github_6g_sandbox_sites_commit_id)
             trial_network.set_tn_state("validated")
