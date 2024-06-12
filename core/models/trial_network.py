@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from mongoengine import Document, StringField, DateTimeField
 
 from core.logs.log_handler import log_handler
-from core.exceptions.exceptions_handler import InvalidFileExtensionError, InvalidContentFileError, TrialNetworkEntityNotInDescriptorError, TrialNetworkInvalidStatusError, TrialNetworkInvalidComponentSiteError, TrialNetworkInvalidInputComponentError
+from core.exceptions.exceptions_handler import InvalidFileExtensionError, InvalidContentFileError, TrialNetworkEntityNotInDescriptorError, TrialNetworkInvalidStatusError, TrialNetworkInvalidComponentSiteError, TrialNetworkInvalidInputError
 
 TN_STATE_MACHINE = ["validated", "suspended", "activated", "failed", "destroyed"]
 
@@ -120,12 +120,20 @@ class TrialNetworkModel(Document):
         """
         log_handler.info(f"Start the validation of the mandatory fields of the '{component_type}' component")
         if len(input_sixg_library_component) == 0 and len(input_descriptor_component) > 0:
-            raise TrialNetworkInvalidInputComponentError(f"Input part of '{component_type}' component should be: '{input_sixg_library_component}'", 422)
+            raise TrialNetworkInvalidInputError(f"Invalid input part of '{component_type}' component", 422)
         if len(input_sixg_library_component) > 0:
             for input_sixg_library_key, input_sixg_library_value in input_sixg_library_component.items():
                 sixg_library_required_when = input_sixg_library_value["required_when"]
                 if sixg_library_required_when and input_sixg_library_key not in input_descriptor_component:
-                    raise TrialNetworkInvalidInputComponentError(f"Field '{input_sixg_library_key}' is mandatory in descriptor", 422)
+                    raise TrialNetworkInvalidInputError(f"Component '{component_type}'. Field '{input_sixg_library_key}' is mandatory in descriptor", 422)
+                if input_sixg_library_key in input_descriptor_component:
+                    sixg_library_type = input_sixg_library_value["type"] # FIX
+                    # if not isinstance(input_descriptor_component[input_sixg_library_key], sixg_library_type):
+                    #     raise TrialNetworkInvalidInputError(f"Component '{component_type}'. Type of the '{input_sixg_library_key}' field must be '{sixg_library_type}'")
+                    if "choices" in input_sixg_library_value:
+                        sixg_library_choices = input_sixg_library_value["choices"]
+                        if not input_descriptor_component[input_sixg_library_key] in sixg_library_choices:
+                            raise TrialNetworkInvalidInputError(f"Component '{component_type}'. Value of the '{input_sixg_library_key}' field must be '{sixg_library_choices}'")
         log_handler.info(f"End the validation of the mandatory fields of the '{component_type}' component")
 
     def validate_descriptor(self, list_site_available_components, input):
@@ -151,7 +159,7 @@ class TrialNetworkModel(Document):
             input_descriptor_component = entity_data["input"]
             self._validate_input_part(component_type, input_sixg_library_component, input_descriptor_component)
         log_handler.info(f"End validation of the trial network descriptor '{self.tn_id}'")
-    
+
     def descriptor_to_json(self, descriptor):
         """Convert descriptor to json"""
         return dumps(descriptor)
