@@ -3,9 +3,6 @@ import os
 from core.logs.log_handler import log_handler
 from core.exceptions.exceptions_handler import UndefinedEnvVariableError
 
-def str_to_bool(s):
-    return s.lower() in ["true", "1", "yes"]
-
 class JenkinsSettings:
     """Jenkins Settings"""
     
