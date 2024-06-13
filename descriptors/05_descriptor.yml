@@ -12,5 +12,5 @@ trial_network:
       - "tn_init"
     input:
       one_vm_kvm_size: "small" # extra_large, large, medium, small, very_small
-      one_vm_networks:
+      one_vm_kvm_networks:
         - "tn_vxlan"
