@@ -117,6 +117,7 @@ class TrialNetworkModel(Document):
             self.tn_deployed_descriptor = self.descriptor_to_json({"trial_network": tn_deployed_descriptor})
 
     def _logical_expression(self, list_site_available_components, expression, tn_descriptor, component_name):
+        """In case the type is a logical expression. For example: tn_vxlan or vnet"""
         def eval_part(part):
             part = part.strip()
             cn = component_name
@@ -139,6 +140,14 @@ class TrialNetworkModel(Document):
                 return True
 
         return False
+    
+    def _validate_list_of_networks(self, list_site_available_components, list_expression, tn_descriptor, component_list):
+        """Validates a list of networks with logical expression. For example: list[tn_vxlan or vnet]"""
+        for component_name in component_list:
+            if not isinstance(component_name, str):
+                raise TrialNetworkInvalidDescriptorError(f"Component name '{component_name}' in the list must be a string", 422)
+            if not self._logical_expression(list_site_available_components, list_expression, tn_descriptor, component_name):
+                raise TrialNetworkInvalidDescriptorError(f"Component '{component_name}' in the list does not match the type '{list_expression}'", 422)
 
     def validate_descriptor(self, list_site_available_components, input):
         """
@@ -217,23 +226,26 @@ class TrialNetworkModel(Document):
                             "dict": dict,
                         }
                         component_name = input_descriptor_component[input_sixg_library_key]
-                        if sixg_library_type not in type_mapping and sixg_library_type not in list_site_available_components and not self._logical_expression(list_site_available_components, sixg_library_type, tn_descriptor, component_name):
-                            raise TrialNetworkInvalidDescriptorError(f"Component '{component_type}'. Unknown type '{sixg_library_type}' for the '{input_sixg_library_key}' field", 422)
-                        if sixg_library_type in type_mapping:
-                            if not isinstance(input_descriptor_component[input_sixg_library_key], type_mapping[sixg_library_type]):
-                                raise TrialNetworkInvalidDescriptorError(f"Component '{component_type}'. Type of the '{input_sixg_library_key}' field must be '{sixg_library_type}'", 422)
-                        elif sixg_library_type in list_site_available_components:
-                            if not isinstance(component_name, str):
-                                raise TrialNetworkInvalidDescriptorError(f"Component '{component_type}'. The '{input_sixg_library_key}' field must be a string referring to a component name", 422)
-                            if component_name not in tn_descriptor:
-                                raise TrialNetworkInvalidDescriptorError(f"Component '{component_type}'. The component name '{component_name}' referenced in '{input_sixg_library_key}' does not exist in the descriptor", 422)
-                            if "type" not in tn_descriptor[component_name]:
-                                raise TrialNetworkInvalidDescriptorError(f"Component '{component_type}'. The referenced component '{component_name}' must have a 'type' field", 422)
-                            if not tn_descriptor[component_name]["type"]:
-                                raise TrialNetworkInvalidDescriptorError(f"Component '{component_type}'. The 'type' field of the referenced component '{component_name}' cannot be empty", 422)
-                            if tn_descriptor[component_name]["type"] != sixg_library_type:
-                                raise TrialNetworkInvalidDescriptorError(f"Component '{component_type}'. The component name '{component_name}' referenced in '{input_sixg_library_key}' must be of type '{sixg_library_type}'", 422)
-                        
+                        if sixg_library_type.startswith("list[") and sixg_library_type.endswith("]"):
+                            list_expression = sixg_library_type[5:-1]
+                            self._validate_list_of_networks(list_site_available_components, list_expression, tn_descriptor, component_name)
+                        else:
+                            if sixg_library_type not in type_mapping and sixg_library_type not in list_site_available_components and not self._logical_expression(list_site_available_components, sixg_library_type, tn_descriptor, component_name):
+                                raise TrialNetworkInvalidDescriptorError(f"Component '{component_type}'. Unknown type '{sixg_library_type}' for the '{input_sixg_library_key}' field", 422)
+                            if sixg_library_type in type_mapping:
+                                if not isinstance(input_descriptor_component[input_sixg_library_key], type_mapping[sixg_library_type]):
+                                    raise TrialNetworkInvalidDescriptorError(f"Component '{component_type}'. Type of the '{input_sixg_library_key}' field must be '{sixg_library_type}'", 422)
+                            elif sixg_library_type in list_site_available_components:
+                                if not isinstance(component_name, str):
+                                    raise TrialNetworkInvalidDescriptorError(f"Component '{component_type}'. The '{input_sixg_library_key}' field must be a string referring to a component name", 422)
+                                if component_name not in tn_descriptor:
+                                    raise TrialNetworkInvalidDescriptorError(f"Component '{component_type}'. The component name '{component_name}' referenced in '{input_sixg_library_key}' does not exist in the descriptor", 422)
+                                if "type" not in tn_descriptor[component_name]:
+                                    raise TrialNetworkInvalidDescriptorError(f"Component '{component_type}'. The referenced component '{component_name}' must have a 'type' field", 422)
+                                if not tn_descriptor[component_name]["type"]:
+                                    raise TrialNetworkInvalidDescriptorError(f"Component '{component_type}'. The 'type' field of the referenced component '{component_name}' cannot be empty", 422)
+                                if tn_descriptor[component_name]["type"] != sixg_library_type:
+                                    raise TrialNetworkInvalidDescriptorError(f"Component '{component_type}'. The component name '{component_name}' referenced in '{input_sixg_library_key}' must be of type '{sixg_library_type}'", 422)
                         if "choices" in input_sixg_library_value:
                             sixg_library_choices = input_sixg_library_value["choices"]
                             if not input_descriptor_component[input_sixg_library_key] in sixg_library_choices:
