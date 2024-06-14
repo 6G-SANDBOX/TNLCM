@@ -1,30 +1,39 @@
 # Changelog
 
-## [Unreleased] - YYYY-MM-DD
-
-### In progress
+## [Unrelease] - YYYY-MM-DD
 
 - State Machine.
-- Define and apply trial networks descriptors templates.
-- Resource manager to control the availability of resources per platform​.
-- More components that generates trial networks descriptors.
+
+### [v0.2.0] - 2024-06-0
 
 ### Added
 
+- Resource Manager to control the availability of resources per platform​.
+- Descriptor validation.
 - Integration with 6G-Sandbox-Sites repository.
+- Integration with 6G-Library [v0.2.0](https://github.com/6G-SANDBOX/6G-Library/releases/tag/v0.2.0).
 - Deploy trial networks using specific pipelines/jobs.
-- Deploy trial networks using specific tags from 6G-Library.
+- Deploy trial networks using specific branch or tags from 6G-Library.
+- Destroy trial networks using specific pipelines/jobs.
 - Indicate the site where the Trial Network will be deployed.
+- Trial networks only can have components from correct site.
+- [`11 descriptor files`](./descriptors/) that each platform must pass or not pass as a test.
 
 ### Changed
 
 - Python version to 3.12.3.
-- Trial network descriptor schema.
+- MongoDB version to 7.0.11.
+- Trial network descriptor schema. Two new fields name and type. Also debug can included for Jenkins pipeline.
 - Mongoengine as Mongo ORM.
 - Logs to check TNLCM behavior.
 - Rename folder `src` to `core`.
 - Libraries to latest versions.
 - Repository documentation.
+- Endpoints that define the API.
+
+### Removed
+
+- First integration with pytest.
 
 ## [v0.1.0] - 2024-05-16
 
@@ -32,13 +41,13 @@
 
 - Different descriptors defining different trial networks.
 - Detailed documentation including different sections about TNLCM.
-- API using Python and the Flask-RESTX library.
+- API using Python and the [Flask-RESTX](https://flask-restx.readthedocs.io/en/latest/) library.
 - Routes for callback, sixglibrary, trial networks, users and verification.
 - Docker compose for MongoDB database to manage the TNs.
 - Integration with [6G-Library](https://github.com/6G-SANDBOX/6G-Library).
 - Connection with Jenkins for the deployment of different components. Currently 8 types of components are running: tn_vxlan, tn_bastion, vm_kvm, vxlan, k8s, open5gs, UERANSIM-gNB and UERANSIM-UE.
 - Logs to check TNLCM behavior.
-- First integration with tests.
+- First integration with pytest.
 
 ### Changed
 
@@ -48,5 +57,5 @@
 
 - Frontend implementation.
 
-[unreleased]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.1.0...HEAD
+[v0.2.0]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.2.0
 [v0.1.0]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.1.0
