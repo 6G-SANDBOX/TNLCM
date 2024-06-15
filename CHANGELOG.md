@@ -4,7 +4,7 @@
 
 - State Machine.
 
-### [v0.2.0] - 2024-06-0
+### [v0.2.0] - 2024-06-XX
 
 ### Added
 
@@ -12,11 +12,11 @@
 - Descriptor validation.
 - Integration with 6G-Sandbox-Sites repository.
 - Integration with 6G-Library [v0.2.0](https://github.com/6G-SANDBOX/6G-Library/releases/tag/v0.2.0).
+- Deploy trial networks using specific branch, commit or tags from 6G-Library.
 - Deploy trial networks using specific pipelines/jobs.
-- Deploy trial networks using specific branch or tags from 6G-Library.
 - Destroy trial networks using specific pipelines/jobs.
-- Indicate the site where the Trial Network will be deployed.
-- Trial networks only can have components from correct site.
+- Indicate the site where the trial network will be deployed. Connection to the site is required.
+- Only components that are available on the indicated site can be deployed.
 - [`11 descriptor files`](./descriptors/) that each platform must pass or not pass as a test.
 
 ### Changed
@@ -44,7 +44,7 @@
 - API using Python and the [Flask-RESTX](https://flask-restx.readthedocs.io/en/latest/) library.
 - Routes for callback, sixglibrary, trial networks, users and verification.
 - Docker compose for MongoDB database to manage the TNs.
-- Integration with [6G-Library](https://github.com/6G-SANDBOX/6G-Library).
+- Integration with 6G-Library [v0.1.0](https://github.com/6G-SANDBOX/6G-Library/releases/tag/v0.1.0).
 - Connection with Jenkins for the deployment of different components. Currently 8 types of components are running: tn_vxlan, tn_bastion, vm_kvm, vxlan, k8s, open5gs, UERANSIM-gNB and UERANSIM-UE.
 - Logs to check TNLCM behavior.
 - First integration with pytest.
