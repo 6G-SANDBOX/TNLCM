@@ -70,7 +70,7 @@ TNLCM/                       // main folder.
    ├─ exceptions/            // folder that handler the creation of custom exceptions.
    ├─ jenkins/               // folder that handler the connection with Jenkins for tn deployment.
    ├─ logs/                  // folder that handler the logs configuration.
-   ├─ mail/                  // folder that handler the configuration to use flask_mail.
+   ├─ mail/                  // folder that handler the configuration to use flask mail library.
    ├─ models/                // folder that contains the database models.
    ├─ repository/            // folder that handler the connection to any repository.
    ├─ resource_manager/      // folder that handler the resource manager.
