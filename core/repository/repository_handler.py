@@ -54,7 +54,7 @@ class RepositoryHandler:
 
     def _git_pull(self):
         """Check if the repository has been updated and applies a git pull in case of changes"""
-        if self.github_reference_type == "branch": # not self.repo.head.is_detached
+        if not self.repo.head.is_detached:
             log_handler.info(f"Pull is executed in '{self.github_repository_name}' repository located in '{self.github_local_directory}' folder")
             self.repo.remotes.origin.pull()
 
