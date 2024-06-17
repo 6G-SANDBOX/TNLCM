@@ -51,19 +51,19 @@ class InvalidEmailError(CustomException):
 ###############################
 ###### GitHub exceptions ######
 ###############################
-class CustomGitError(CustomException):
+class CustomGitException(CustomException):
     """Base class for GitHub related exceptions"""
     pass
 
-class GitCloneError(CustomGitError):
+class GitCloneError(CustomGitException):
     """Error thrown when a Git clone operation fails"""
     pass
 
-class GitCheckoutError(CustomGitError):
+class GitCheckoutError(CustomGitException):
     """Error thrown when a Git checkout operation fails"""
     pass
 
-class GitPullError(CustomGitError):
+class GitPullError(CustomGitException):
     """Error thrown when a Git pull operation fails"""
     pass
 
@@ -85,63 +85,59 @@ class MongoDBCollectionError(CustomMongoDBException):
 ###############################
 #### 6G-Library exceptions ####
 ###############################
-class CustomSixGLibraryError(CustomException):
+class CustomSixGLibraryException(CustomException):
     """Base class for 6G-Library related exceptions"""
     pass
 
-class SixGLibraryComponentsNotFound(CustomSixGLibraryError):
+class SixGLibraryComponentsNotFoundError(CustomSixGLibraryException):
     """Error thrown when no components are found in the cloned repository"""
-    pass
-
-class SixGLibraryComponentNotFound(CustomSixGLibraryError):
-    """Error thrown when a specific component is not found in the cloned repository"""
     pass
 
 ###############################
 # 6G-Sandbox-Sites exceptions #
 ###############################
-class CustomSixGSandboxSitesError(CustomException):
+class CustomSixGSandboxSitesException(CustomException):
     """Base class for 6G-Sandbox-Sites related exceptions"""
     pass
 
-class SixGSandboxSitesInvalidSiteError(CustomSixGSandboxSitesError):
+class SixGSandboxSitesInvalidSiteError(CustomSixGSandboxSitesException):
     """Error thrown when site is invalid"""
     pass
 
 ###############################
 ## Trial Networks exceptions ##
 ###############################
-class CustomTrialNetworkError(CustomException):
+class CustomTrialNetworkException(CustomException):
     """Base class for trial network related errors"""
     pass
 
-class TrialNetworkInvalidStatusError(CustomTrialNetworkError):
+class TrialNetworkInvalidStatusError(CustomTrialNetworkException):
     """Error thrown when an invalid status of trial network is provided"""
     pass
 
-class TrialNetworkInvalidDescriptorError(CustomTrialNetworkError):
+class TrialNetworkInvalidDescriptorError(CustomTrialNetworkException):
     """Error thrown when descriptor is incorrect"""
     pass
 
 ############################
 #### Jenkins exceptions ####
 ############################
-class CustomJenkinsError(CustomException):
+class CustomJenkinsException(CustomException):
     """Base class for Jenkins related exceptions"""
     pass
 
-class JenkinsConnectionError(CustomJenkinsError):
+class JenkinsConnectionError(CustomJenkinsException):
     """Error thrown when unable to establish connection to Jenkins"""
     pass
 
-class JenkinsResponseError(CustomJenkinsError):
+class JenkinsResponseError(CustomJenkinsException):
     """Error thrown when request response is unsuccessful"""
     pass
 
-class JenkinsComponentPipelineError(CustomJenkinsError):
+class JenkinsComponentPipelineError(CustomJenkinsException):
     """Error thrown when component pipeline has failed"""
     pass
 
-class JenkinsInvalidJobError(CustomJenkinsError):
+class JenkinsInvalidJobError(CustomJenkinsException):
     """Error thrown when job not in Jenkins"""
     pass

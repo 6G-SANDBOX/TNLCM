@@ -5,7 +5,7 @@ from yaml import safe_load, YAMLError
 from conf import SixGLibrarySettings
 from core.logs.log_handler import log_handler
 from core.repository.repository_handler import RepositoryHandler
-from core.exceptions.exceptions_handler import SixGLibraryComponentsNotFound, InvalidContentFileError, CustomFileNotFoundError
+from core.exceptions.exceptions_handler import SixGLibraryComponentsNotFoundError, InvalidContentFileError, CustomFileNotFoundError
 
 SIXG_LIBRARY_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
@@ -38,7 +38,7 @@ class SixGLibraryHandler:
         components_data = {}
         for component in list_site_available_components:
             if not os.path.isdir(os.path.join(self.github_6g_library_local_directory, component)):
-                raise SixGLibraryComponentsNotFound(f"No components in commit '{self.github_6g_library_commit_id}' of 6G-Library", 404) 
+                raise SixGLibraryComponentsNotFoundError(f"No components in commit '{self.github_6g_library_commit_id}' of 6G-Library", 404) 
             if os.path.isdir(os.path.join(self.github_6g_library_local_directory, component)):
                 public_file = os.path.join(self.github_6g_library_local_directory, component, ".tnlcm", "public.yaml")
                 if not os.path.exists(public_file):
