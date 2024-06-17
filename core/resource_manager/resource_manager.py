@@ -9,7 +9,7 @@ class ResourceManagerHandler():
         self.sixg_sandbox_sites_handler = sixg_sandbox_sites_handler
 
     def _sixg_sandbox_sites_component_resources(self, component_type):
-        """Get component resources from 6G-Sandbox-Sites repository"""
+        """Return component resources from 6G-Sandbox-Sites repository"""
         site_available_components = self.sixg_sandbox_sites_handler.get_site_available_components()
         sixg_sandbox_sites_component_resources = site_available_components[component_type]
         quantity = 0
@@ -21,13 +21,13 @@ class ResourceManagerHandler():
         return quantity, ttl
     
     def _tnlcm_component_resources(self, component_type):
-        """Get component used by TNLCM"""
+        """Return component information used by TNLCM"""
         tnlcm_component_resources = ResourceManagerModel.objects(site=self.trial_network.deployment_site, component=component_type).first()
         quantity = 0
         ttl = ""
         if tnlcm_component_resources:
-            quantity = tnlcm_component_resources.quantity
-            ttl = tnlcm_component_resources.ttl
+            quantity = tnlcm_component_resources["quantity"]
+            ttl = tnlcm_component_resources["ttl"]
         return quantity, ttl
 
     def apply_resource_manager(self):
