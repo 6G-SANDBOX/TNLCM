@@ -11,7 +11,12 @@ SIXG_SANDBOX_SITES_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 class SixGSandboxSitesHandler():
 
     def __init__(self, reference_type=None, reference_value=None):
-        """Constructor"""
+        """
+        Constructor
+        
+        :param reference_type: type of reference (branch, tag, commit) to checkout, ``str``
+        :param reference_value: value of the reference (branch name, tag name, commit ID) to checkout, ``str``
+        """
         self.github_6g_sandbox_sites_https_url = SixGSandboxSitesSettings.GITHUB_6G_SANDBOX_SITES_HTTPS_URL
         self.github_6g_sandbox_sites_repository_name = SixGSandboxSitesSettings.GITHUB_6G_SANDBOX_SITES_REPOSITORY_NAME
         self.github_6g_sandbox_sites_local_directory = os.path.join(SIXG_SANDBOX_SITES_DIRECTORY, self.github_6g_sandbox_sites_repository_name)
@@ -25,21 +30,31 @@ class SixGSandboxSitesHandler():
         self.github_6g_sandbox_sites_commit_id = self.repository_handler.github_commit_id
 
     def set_deployment_site(self, deployment_site):
-        """Set deployment site in case of is correct site"""
+        """
+        Set deployment site to deploy trial network
+        
+        :param deployment_site: trial network deployment site, ``str``
+        """
         if deployment_site not in self.get_sites():
             raise SixGSandboxSitesInvalidSiteError(f"The 'site' should be one: {', '.join(self.get_sites())}", 404)
         self.deployment_site = deployment_site
     
     def get_tags(self):
-        """Return tags"""
+        """
+        Return tags
+        """
         return self.repository_handler.get_tags()
 
     def get_branches(self):
-        """Return branches"""
+        """
+        Return branches
+        """
         return self.repository_handler.get_branches()
 
     def get_site_available_components(self):
-        """Return list with components available on a site"""
+        """
+        Return list with components available on a site
+        """
         values_file = os.path.join(self.github_6g_sandbox_sites_local_directory, ".sites", self.deployment_site, "values.yaml")
         if not os.path.exists(values_file):
             raise CustomFileNotFoundError(f"File '{values_file}' not found", 404)
@@ -54,5 +69,7 @@ class SixGSandboxSitesHandler():
         return site_available_components
 
     def get_sites(self):
-        """Return sites available to deploy trial networks"""
+        """
+        Return sites available to deploy trial networks
+        """
         return os.listdir(os.path.join(self.github_6g_sandbox_sites_local_directory, ".sites"))

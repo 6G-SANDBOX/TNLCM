@@ -16,13 +16,20 @@ JENKINS_RESULT_KEYS = ["tn_id", "component_type", "custom_name", "success", "out
 class CallbackHandler:
 
     def __init__(self, data=None, trial_network=None):
-        """Constructor"""
+        """
+        Constructor
+
+        :param data: result sent by Jenkins after the deployment of a component, ``dict``
+        :param trial_network: model of the trial network to be deployed, ``TrialNetworkModel``
+        """
         self.data = data
         self.trial_network = trial_network
         os.makedirs(REPORT_DIRECTORY, exist_ok=True)
 
     def save_pipeline_results(self):
-        """Save decoded deployment information of each component received by Jenkins"""
+        """
+        Save decoded deployment information of each component received by Jenkins
+        """
         try:
             log_handler.info("Save entity deployment results received by Jenkins")
             missing_keys = [key for key in JENKINS_RESULT_KEYS if key not in self.data]
@@ -71,7 +78,12 @@ class CallbackHandler:
             raise CustomUnicodeDecodeError("Unicode decoding error", 401)
 
     def _is_output_correct(self, output_jenkins, component_type):
-        """Return true if output received by Jenkins is the same as the output of the 6G-Library"""
+        """
+        Return true if output received by Jenkins is the same as the output of the 6G-Library
+        
+        :param output_jenkins: data received by Jenkins, ``dict``
+        :param component_type: data expected to be received indicated by the 6G-Library, ``dict``
+        """
         log_handler.info("Check if output received by Jenkins is the same as the output of the 6G-Library")
         public_file = os.path.join(SIXG_LIBRARY_DIRECTORY, SixGLibrarySettings.GITHUB_6G_LIBRARY_REPOSITORY_NAME, component_type, ".tnlcm", "public.yaml")
         if not os.path.exists(public_file):
@@ -91,14 +103,18 @@ class CallbackHandler:
         return False
 
     def get_path_report_trial_network(self):
-        """Return path where report of trial network is stored"""
+        """
+        Return path where report of trial network is stored
+        """
         path_report_trial_network = os.path.join(REPORT_DIRECTORY, f"{self.trial_network.tn_id}.md")
         if not os.path.exists(path_report_trial_network):
             raise CustomFileNotFoundError("Trial network report file has not been found", 404)
         return path_report_trial_network
     
     def exists_path_entity_trial_network(self, entity_name):
-        """Return true if exists entity file with information received by Jenkins"""
+        """
+        Return true if exists entity file with information received by Jenkins
+        """
         log_handler.info(f"Check whether the file of the '{entity_name}' entity has been created")
         path_entity_trial_network = os.path.join(REPORT_DIRECTORY, f"{self.trial_network.tn_id}-{entity_name}.json")
         return os.path.exists(path_entity_trial_network)

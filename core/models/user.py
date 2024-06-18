@@ -16,7 +16,7 @@ class UserModel(Document):
     }
 
     def set_password(self, secret):
-        """Update the password to hash"""
+        """Set the password to hash"""
         self.password = generate_password_hash(secret, method="pbkdf2")
 
     def check_password(self, secret):
@@ -25,7 +25,7 @@ class UserModel(Document):
         return value
 
     def set_email(self, email):
-        """Update the email"""
+        """Set the email"""
         if not self._is_valid_email(email):
             raise InvalidEmailError("Invalid email entered", 400)
         self.email = email

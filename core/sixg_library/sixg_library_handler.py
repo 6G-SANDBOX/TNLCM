@@ -12,7 +12,12 @@ SIXG_LIBRARY_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 class SixGLibraryHandler:
 
     def __init__(self, reference_type=None, reference_value=None):
-        """Constructor"""
+        """
+        Constructor
+        
+        :param reference_type: type of reference (branch, tag, commit) to checkout, ``str``
+        :param reference_value: value of the reference (branch name, tag name, commit ID) to checkout, ``str``
+        """
         self.github_6g_library_https_url = SixGLibrarySettings.GITHUB_6G_LIBRARY_HTTPS_URL
         self.github_6g_library_repository_name = SixGLibrarySettings.GITHUB_6G_LIBRARY_REPOSITORY_NAME
         self.github_6g_library_local_directory = os.path.join(SIXG_LIBRARY_DIRECTORY, self.github_6g_library_repository_name)
@@ -25,15 +30,24 @@ class SixGLibraryHandler:
         self.github_6g_library_commit_id = self.repository_handler.github_commit_id
 
     def get_tags(self):
-        """Return tags"""
+        """
+        Return tags
+        """
         return self.repository_handler.get_tags()
 
     def get_branches(self):
-        """Return branches"""
+        """
+        Return branches
+        """
         return self.repository_handler.get_branches()
     
     def get_parts_components(self, site, list_site_available_components):
-        """Return the metadata, inputs and outputs of the components of a specific site"""
+        """
+        Return the metadata, inputs and outputs of the components of a specific site
+        
+        :param site: specific site for which components data is to be retrieved, ``str``
+        :param list_site_available_components: list of components available on a site, ``list[str]``
+        """
         log_handler.info(f"Get metadata, input and output part of components of a '{site}' site from the 6G-Library")
         components_data = {}
         for component in list_site_available_components:

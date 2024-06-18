@@ -36,20 +36,34 @@ class TrialNetworkModel(Document):
     }
 
     def set_tn_id(self, size=6, chars=ascii_lowercase+digits, tn_id=None):
-        """Generate random tn_id using [a-z][0-9]"""
+        """
+        Generate and set a random tn_id using characters [a-z][0-9]
+        
+        :param size: length of the generated part of the tn_id, excluding the initial character (default: 6), ``int``
+        :param chars: characters to use for generating the tn_id (default: lowercase letters and digits), ``str``
+        :param tn_id: an optional tn_id to set. If not provided, a random tn_id will be generated, ``str``
+        """
         if not tn_id:
             self.tn_id = choice(ascii_lowercase) + ''.join(choice(chars) for _ in range(size))
         else:
             self.tn_id = tn_id
 
     def set_tn_state(self, tn_state):
-        """Set state of trial network"""
+        """
+        Set state of trial network
+        
+        :param tn_state: new state to set for the trial network, ``str``
+        """
         if tn_state not in TN_STATE_MACHINE:
             raise TrialNetworkInvalidStatusError(f"Trial network '{tn_state}' state not found", 404)
         self.tn_state = tn_state
 
     def set_tn_raw_descriptor(self, tn_descriptor_file):
-        """Check the descriptor file is well constructed and its extension is yaml or yml"""
+        """
+        Set the trial network raw descriptor from a file.
+        
+        :param tn_descriptor_file: descriptor file containing YAML data, ``werkzeug.datastructures.FileStorage``
+        """
         try:
             filename = secure_filename(tn_descriptor_file.filename)
             if '.' in filename and filename.split('.')[-1].lower() in ["yml", "yaml"]:
@@ -61,7 +75,9 @@ class TrialNetworkModel(Document):
             raise InvalidContentFileError("Trial network descriptor is not parsed correctly", 422)
 
     def set_tn_sorted_descriptor(self):
-        """Recursive method that return the raw descriptor and a new descriptor sorted according to dependencies"""
+        """
+        Recursive method that return the raw descriptor and a new descriptor sorted according to dependencies
+        """
         log_handler.info("Start order of the entities of the descriptor")
         entities = self.json_to_descriptor(self.tn_raw_descriptor)["trial_network"]
         ordered_entities = {}
@@ -84,40 +100,75 @@ class TrialNetworkModel(Document):
         self.tn_deployed_descriptor = self.descriptor_to_json({"trial_network": ordered_entities})
 
     def set_tn_report(self, report_file):
-        """Update trial network report"""
+        """
+        Set the trial network report from a markdown file
+
+        :param report_file: path to the markdown report file, ``str``
+        """
         with open(report_file, "r") as file:
             markdown_content = file.read()
         self.tn_report = markdown_content
     
     def set_deployment_job_name(self, deployment_job_name):
-        """Set pipeline use to deploy trial network"""
+        """
+        Set pipeline use to deploy trial network
+        
+        :param deployment_job_name: new name of the deployment job, ``str``
+        """
         self.deployment_job_name = deployment_job_name
     
     def set_destroy_job_name(self, destroy_job_name):
-        """Set pipeline use to destroy trial network"""
+        """
+        Set pipeline use to destroy trial network
+        
+        :param destroy_job_name: new name of the destroy job, ``str``
+        """
         self.destroy_job_name = destroy_job_name
 
     def set_deployment_site(self, deployment_site):
-        """Set deployment site to deploy trial network"""
+        """
+        Set deployment site to deploy trial network
+        
+        :param deployment_site: trial network deployment site, ``str``
+        """
         self.deployment_site = deployment_site
 
     def set_github_6g_library_commit_id(self, github_6g_library_commit_id):
-        """Set commit id from 6G-Library to be used for deploy trial network"""
+        """
+        Set commit id from 6G-Library to be used for deploy trial network
+        
+        :param github_6g_library_commit_id: commit ID from 6G-Library, ``str``
+        """
         self.github_6g_library_commit_id = github_6g_library_commit_id
 
     def set_github_6g_sandbox_sites_commit_id(self, github_6g_sandbox_sites_commit_id):
-        """Set commit id from 6G-Sandbox-Sites to be used for deploy trial network"""
+        """
+        Set commit id from 6G-Sandbox-Sites to be used for deploy trial network
+        
+        :param github_6g_sandbox_sites_commit_id: commit ID from 6G-Sandbox-Sites, ``str``
+        """
         self.github_6g_sandbox_sites_commit_id = github_6g_sandbox_sites_commit_id
 
     def set_tn_deployed_descriptor(self, tn_deployed_descriptor=None):
-        """Set deployed descriptor"""
+        """
+        Set deployed descriptor
+        
+        :param tn_deployed_descriptor: deployed descriptor, ``str``
+        """
         if not tn_deployed_descriptor:
             self.tn_deployed_descriptor = self.tn_sorted_descriptor
         else:
             self.tn_deployed_descriptor = self.descriptor_to_json({"trial_network": tn_deployed_descriptor})
 
-    def _logical_expression(self, list_site_available_components, expression, tn_descriptor, component_name):
-        """In case the type is a logical expression. For example: tn_vxlan or vnet"""
+    def _logical_expression(self, list_site_available_components, bool_expresion, tn_descriptor, component_name):
+        """
+        In case the type is a logical expression. For example: tn_vxlan or vnet
+        
+        :param list_site_available_components: list of components available on a site, ``list[str]``
+        :param bool_expresion: bool expresion to evaluate, ``bool``
+        :param tn_descriptor: trial network sorted descriptor, ``dict``
+        :param component_name: component name that is in input part of descriptor, ``str``
+        """
         def eval_part(part):
             part = part.strip()
             cn = component_name
@@ -134,20 +185,27 @@ class TrialNetworkModel(Document):
                 raise TrialNetworkInvalidDescriptorError(f"The 'type' field of the component '{cn}' cannot be empty", 422)
             return tn_descriptor[cn]["type"] == part
 
-        parts = expression.split(" or ")
+        parts = bool_expresion.split(" or ")
         for part in parts:
             if eval_part(part):
                 return True
 
         return False
     
-    def _validate_list_of_networks(self, list_site_available_components, list_expression, tn_descriptor, component_list):
-        """Validates a list of networks with logical expression. For example: list[tn_vxlan or vnet]"""
+    def _validate_list_of_networks(self, list_site_available_components, bool_expresion, tn_descriptor, component_list):
+        """
+        Validates a list of networks with logical expression. For example: list[tn_vxlan or vnet]
+        
+        :param list_site_available_components: list of components available on a site, ``list[str]``
+        :param bool_expresion: bool expresion to evaluate, ``bool``
+        :param tn_descriptor: trial network sorted descriptor, ``dict``
+        :param component_list: list of components that are in input part of descriptor, ``list[str]``
+        """
         for component_name in component_list:
             if not isinstance(component_name, str):
                 raise TrialNetworkInvalidDescriptorError(f"Component name '{component_name}' in the list must be a string", 422)
-            if not self._logical_expression(list_site_available_components, list_expression, tn_descriptor, component_name):
-                raise TrialNetworkInvalidDescriptorError(f"Component '{component_name}' in the list does not match the type '{list_expression}'", 422)
+            if not self._logical_expression(list_site_available_components, bool_expresion, tn_descriptor, component_name):
+                raise TrialNetworkInvalidDescriptorError(f"Component '{component_name}' in the list does not match the type '{bool_expresion}'", 422)
 
     def validate_descriptor(self, list_site_available_components, input):
         """
@@ -168,6 +226,9 @@ class TrialNetworkModel(Document):
                 2.2.2) If it is str, int, list\n
                 2.2.3) If it is a component\n
             2.3) It is checked the fields that are required_when\n
+
+        :param list_site_available_components: list of components available on a site, ``list[str]``
+        :param input: correct input from the 6G-Library, ``dict``
         """
         log_handler.info(f"Start validation of the trial network descriptor '{self.tn_id}'")
         tn_raw_descriptor = self.json_to_descriptor(self.tn_raw_descriptor)
@@ -227,8 +288,8 @@ class TrialNetworkModel(Document):
                         }
                         component_name = input_descriptor_component[input_sixg_library_key]
                         if sixg_library_type.startswith("list[") and sixg_library_type.endswith("]"):
-                            list_expression = sixg_library_type[5:-1]
-                            self._validate_list_of_networks(list_site_available_components, list_expression, tn_descriptor, component_name)
+                            bool_expresion = sixg_library_type[5:-1]
+                            self._validate_list_of_networks(list_site_available_components, bool_expresion, tn_descriptor, component_name)
                         else:
                             if sixg_library_type not in type_mapping and sixg_library_type not in list_site_available_components and not self._logical_expression(list_site_available_components, sixg_library_type, tn_descriptor, component_name):
                                 raise TrialNetworkInvalidDescriptorError(f"Component '{component_type}'. Unknown type '{sixg_library_type}' for the '{input_sixg_library_key}' field", 422)
@@ -253,11 +314,19 @@ class TrialNetworkModel(Document):
         log_handler.info(f"End validation of the trial network descriptor '{self.tn_id}'")
 
     def descriptor_to_json(self, descriptor):
-        """Convert descriptor to json"""
+        """
+        Convert descriptor to json
+
+        :param descriptor: trial network descriptor, ``Object``
+        """
         return dumps(descriptor)
 
     def json_to_descriptor(self, descriptor):
-        """Convert descriptor in json to Python object"""
+        """
+        Convert descriptor in json to Python object
+
+        :param descriptor: trial network descriptor, ``json``
+        """
         return loads(descriptor)
 
     def to_dict(self):

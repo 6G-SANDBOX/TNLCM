@@ -12,7 +12,13 @@ from core.exceptions.exceptions_handler import JenkinsConnectionError, JenkinsIn
 class JenkinsHandler:
 
     def __init__(self, trial_network=None, temp_file_handler=None, callback_handler=None):
-        """Constructor"""
+        """
+        Constructor
+
+        :param trial_network: model of the trial network to be deployed, ``TrialNetworkModel``
+        :param temp_file_handler: handler to create temporary files, ``TempFileHandler``
+        :param callback_handler: handler to save results obtained by Jenkins, ``CallbackHandler``
+        """
         self.trial_network = trial_network
         self.temp_file_handler = temp_file_handler
         self.callback_handler = callback_handler
@@ -30,7 +36,11 @@ class JenkinsHandler:
             raise JenkinsConnectionError("Error establishing connection with Jenkins", 500)
 
     def set_deployment_job_name(self, deployment_job_name):
-        """Set deployment job name in case of is correct job"""
+        """
+        Set deployment job name in case of is correct job
+        
+        :param deployment_job_name: new name of the deployment job, ``str``
+        """
         if deployment_job_name and deployment_job_name not in self.get_all_jobs():
             raise JenkinsInvalidJobError(f"The 'deployment_job_name' should be one: {', '.join(self.get_all_jobs())}", 404)
         if deployment_job_name:
@@ -38,7 +48,13 @@ class JenkinsHandler:
         log_handler.info(f"Pipeline use to deploy trial network: '{self.deployment_job_name}'")
     
     def _jenkins_deployment_parameters(self, component_type, custom_name, debug):
-        """Return a dictionary with the parameters for each component to be passed to the deployment pipeline"""
+        """
+        Return a dictionary with the parameters for each component to be passed to the deployment pipeline
+        
+        :param component_type: type part of the descriptor file, ``str``
+        :param custom_name: name part of the descriptor file, ``str``
+        :param debug: debug part of the descriptor file (optional), ``str``
+        """
         parameters = {
             # MANDATORY
             "TN_ID": self.trial_network.tn_id,
@@ -57,7 +73,9 @@ class JenkinsHandler:
         return parameters
 
     def trial_network_deployment(self):
-        """Trial network deployment starts"""
+        """
+        Trial network deployment starts
+        """
         tn_deployed_descriptor = self.trial_network.json_to_descriptor(self.trial_network.tn_deployed_descriptor)["trial_network"]
         tn_descriptor = tn_deployed_descriptor.copy()
         for entity_name, entity_data in tn_descriptor.items():
@@ -101,7 +119,11 @@ class JenkinsHandler:
         log_handler.info("All entities of the trial network are deployed")
 
     def set_destroy_job_name(self, destroy_job_name):
-        """Set destroy job name in case of is correct job"""
+        """
+        Set destroy job name in case of is correct job
+        
+        :param destroy_job_name: new name of the destroy job, ``str``
+        """
         if destroy_job_name and destroy_job_name not in self.get_all_jobs():
             raise JenkinsInvalidJobError(f"The 'destroy_job_name' should be one: {', '.join(self.get_all_jobs())}", 404)
         if destroy_job_name:
@@ -109,7 +131,9 @@ class JenkinsHandler:
         log_handler.info(f"Pipeline use to destroy trial network: '{self.destroy_job_name}'")
     
     def _jenkins_destroy_parameters(self):
-        """Return a dictionary with the parameters for each component to be passed to the destroy pipeline"""
+        """
+        Return a dictionary with the parameters for each component to be passed to the destroy pipeline
+        """
         parameters = {
             # MANDATORY
             "TN_ID": self.trial_network.tn_id,
@@ -125,7 +149,9 @@ class JenkinsHandler:
         return parameters
     
     def trial_network_destroy(self):
-        """Trial network destroy starts"""
+        """
+        Trial network destroy starts
+        """
         jenkins_build_job_url = self.jenkins_client.build_job_url(name=self.destroy_job_name, parameters=self._jenkins_destroy_parameters())
         response = post(jenkins_build_job_url, auth=(self.jenkins_username, self.jenkins_token))
         if response.status_code == 201:
@@ -138,5 +164,7 @@ class JenkinsHandler:
             log_handler.info(f"Trial network '{self.trial_network.tn_id}' successfully destroyed")
 
     def get_all_jobs(self):
-        """Return all the jobs/pipelines stored in Jenkins"""
+        """
+        Return all the jobs/pipelines stored in Jenkins
+        """
         return [job["fullname"] for job in self.jenkins_client.get_all_jobs() if "fullname" in job and "jobs" not in job]
