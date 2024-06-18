@@ -1,15 +1,16 @@
 # Changelog
 
-## [Unrelease] - YYYY-MM-DD
-
-- State Machine.
-
 ### [v0.2.0] - 2024-06-XX
 
 ### Added
 
 - Resource Manager to control the availability of resources per platform​.
 - Descriptor validation.
+- Initial version of state machine. Available method:
+  - validated
+  - activated
+  - failed
+  - destroyed
 - Integration with 6G-Sandbox-Sites repository.
 - Integration with 6G-Library [v0.2.0](https://github.com/6G-SANDBOX/6G-Library/releases/tag/v0.2.0).
 - Deploy trial networks using specific branch, commit or tags from 6G-Library.
@@ -45,7 +46,15 @@
 - Routes for callback, sixglibrary, trial networks, users and verification.
 - Docker compose for MongoDB database to manage the TNs.
 - Integration with 6G-Library [v0.1.0](https://github.com/6G-SANDBOX/6G-Library/releases/tag/v0.1.0).
-- Connection with Jenkins for the deployment of different components. Currently 8 types of components are running: tn_vxlan, tn_bastion, vm_kvm, vxlan, k8s, open5gs, UERANSIM-gNB and UERANSIM-UE.
+- Connection with Jenkins for the deployment of different components. Currently 8 types of components are running: 
+  - tn_vxlan
+  - tn_bastion
+  - vm_kvm
+  - vxlan
+  - k8s_medium
+  - open5gs
+  - UERANSIM-gNB
+  - UERANSIM-UE
 - Logs to check TNLCM behavior.
 - First integration with pytest.
 
