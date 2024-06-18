@@ -23,7 +23,7 @@
 
 - Python version to 3.12.3.
 - MongoDB version to 7.0.11.
-- Trial network descriptor schema. Two new fields name and type. Also debug can included for Jenkins pipeline.
+- Trial network descriptor schema. Two new fields name and type. Also debug can included for Jenkins pipeline (optional).
 - Mongoengine as Mongo ORM.
 - Logs to check TNLCM behavior.
 - Rename folder `src` to `core`.
