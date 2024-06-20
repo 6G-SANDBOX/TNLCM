@@ -4,7 +4,9 @@ from core.logs.log_handler import log_handler
 from conf import MailSettings, MongoDBSettings
 
 class Config(object):
-    """Flask Settings"""
+    """
+    Flask Settings
+    """
     
     log_handler.info("Load Flask configuration")
     DEBUG = False

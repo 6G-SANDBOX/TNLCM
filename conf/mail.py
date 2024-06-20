@@ -6,10 +6,15 @@ from core.logs.log_handler import log_handler
 from core.exceptions.exceptions_handler import UndefinedEnvVariableError, InvalidEmailError
 
 def str_to_bool(s):
+    """
+    Convert string to bool
+    """
     return s.lower() in ["true", "1", "yes"]
 
 class MailSettings:
-    """Mail Settings"""
+    """
+    Mail Settings
+    """
 
     log_handler.info("Load Mail configuration")
 

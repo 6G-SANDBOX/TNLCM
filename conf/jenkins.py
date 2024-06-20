@@ -4,7 +4,9 @@ from core.logs.log_handler import log_handler
 from core.exceptions.exceptions_handler import UndefinedEnvVariableError
 
 class JenkinsSettings:
-    """Jenkins Settings"""
+    """
+    Jenkins Settings
+    """
     
     log_handler.info("Load Jenkins configuration")
 

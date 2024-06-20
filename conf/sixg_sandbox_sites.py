@@ -5,7 +5,9 @@ from core.logs.log_handler import log_handler
 from core.exceptions.exceptions_handler import UndefinedEnvVariableError, GitCloneError
 
 class SixGSandboxSitesSettings:
-    """6G-Sandbox-Sites Settings"""
+    """
+    6G-Sandbox-Sites Settings
+    """
 
     log_handler.info("Load 6G-Sandbox-Sites configuration")
 

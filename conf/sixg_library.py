@@ -5,7 +5,9 @@ from core.logs.log_handler import log_handler
 from core.exceptions.exceptions_handler import UndefinedEnvVariableError, GitCloneError
 
 class SixGLibrarySettings:
-    """6G-Library Settings"""
+    """
+    6G-Library Settings
+    """
 
     log_handler.info("Load 6G-Library configuration")
 

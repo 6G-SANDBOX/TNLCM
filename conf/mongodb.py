@@ -4,7 +4,9 @@ from core.logs.log_handler import log_handler
 from core.exceptions.exceptions_handler import UndefinedEnvVariableError
 
 class MongoDBSettings:
-    """MongoDB Settings"""
+    """
+    MongoDB Settings
+    """
 
     log_handler.info("Load MongoDB configuration")
 

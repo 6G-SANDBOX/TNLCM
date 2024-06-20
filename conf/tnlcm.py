@@ -7,7 +7,9 @@ from core.exceptions.exceptions_handler import UndefinedEnvVariableError
 PYTHON_MIN_REQUIRED = (3, 12, 3)
 
 class TnlcmSettings:
-    """TNLCM Settings"""
+    """
+    TNLCM Settings
+    """
 
     log_handler.info("Load TNLCM configuration")
 
