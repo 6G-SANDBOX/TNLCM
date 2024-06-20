@@ -6,7 +6,7 @@
 
 - Resource Manager to control the availability of resources per platform​.
 - Descriptor validation.
-- Initial version of state machine. Available method:
+- Initial version of state machine. Available methods:
   - validated
   - activated
   - failed
@@ -22,7 +22,7 @@
 
 ### Changed
 
-- Python version to 3.12.3.
+- Python version to 3.12.4.
 - MongoDB version to 7.0.11.
 - Trial network descriptor schema. Two new fields name and type. Also debug can included for Jenkins pipeline (optional).
 - Mongoengine as Mongo ORM.
