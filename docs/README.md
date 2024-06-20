@@ -381,8 +381,8 @@ The TNLCM database consists of several collections that store important informat
 <!-- Urls, Shields and Badges -->
 [tnlcm-badge]: https://img.shields.io/badge/TNLCM-v0.2.0-blue
 [tnlcm-url]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.2.0
-[python-badge]: https://img.shields.io/badge/Python-3.12.3-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB
-[python-url]: https://www.python.org/downloads/release/python-3123/
+[python-badge]: https://img.shields.io/badge/Python-3.12.4-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB
+[python-url]: https://www.python.org/downloads/release/python-3124/
 [flask-badge]: https://img.shields.io/badge/Flask-3.0.3-brightgreen?style=for-the-badge&logo=flask&logoColor=white&labelColor=000000
 [flask-url]: https://flask.palletsprojects.com/en/3.0.x/
 [mongodb-badge]: https://img.shields.io/badge/MongoDB-7.0.11-green?style=for-the-badge&logo=mongodb&logoColor=white&labelColor=47A248
