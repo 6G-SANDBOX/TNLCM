@@ -8,7 +8,7 @@ from core.exceptions.exceptions_handler import GitCloneError, GitCheckoutError
 
 class RepositoryHandler:
 
-    def __init__(self, github_https_url, github_repository_name, github_local_directory, github_reference_type, github_reference_value):
+    def __init__(self, github_https_url, github_repository_name, github_local_directory, github_reference_type, github_reference_value, github_token=None):
         """
         Constructor
         
@@ -17,12 +17,17 @@ class RepositoryHandler:
         :param github_local_directory: local directory where the repository will be cloned, ``str``        
         :param github_reference_type: type of reference (branch, tag, commit) to checkout, ``str``
         :param github_reference_value: value of the reference (branch name, tag name, commit ID) to checkout, ``str``
+        :param github_token: value of token in case of private repository, ``str``
         """
         self.github_https_url = github_https_url
         self.github_repository_name = github_repository_name
         self.github_local_directory = github_local_directory
         self.github_reference_type = github_reference_type
         self.github_reference_value = github_reference_value
+        self.github_token = None
+        if github_token:
+            self.github_token = github_token
+            self.github_https_url = github_https_url.replace("https://", f"https://{github_token}@")
         self.repo = None
         self.github_commit_id = None
         self.git_clone_repository()
