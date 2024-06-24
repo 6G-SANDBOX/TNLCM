@@ -27,8 +27,8 @@ class JenkinsHandler:
         self.jenkins_password = JenkinsSettings.JENKINS_PASSWORD
         self.jenkins_token = JenkinsSettings.JENKINS_TOKEN
         self.tnlcm_callback = TnlcmSettings.TNLCM_CALLBACK
-        self.deployment_job_name = JenkinsSettings.JENKINS_DEPLOYMENT_JOB_NAME
-        self.destroy_job_name = JenkinsSettings.JENKINS_DESTROY_JOB_NAME
+        self.deployment_job_name = JenkinsSettings.JENKINS_JOB_DEPLOY
+        self.destroy_job_name = JenkinsSettings.JENKINS_JOB_DESTROY
         try:
             self.jenkins_client = Jenkins(url=self.jenkins_url, username=self.jenkins_username, password=self.jenkins_password)
             self.jenkins_client.get_whoami()

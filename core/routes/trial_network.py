@@ -110,7 +110,7 @@ class TrialNetwork(Resource):
     def put(self, tn_id):
         """
         State Machine: play or suspend trial network
-        If nothing is specified in deployment_job_name, the **alt_architecture/TNLCM_MAIN_PIPELINE** job will be used.
+        If nothing is specified in deployment_job_name, the **TN_DEPLOY** job will be used.
         """
         try:
             deployment_job_name = self.parser_put.parse_args()["deployment_job_name"]
@@ -179,7 +179,7 @@ class TrialNetwork(Resource):
     def delete(self, tn_id):
         """
         Delete trial network
-        If nothing is specified in destroy_job_name, the **alt_architecture/TN_DESTROY** job will be used.
+        If nothing is specified in destroy_job_name, the **TN_DESTROY** job will be used.
         """
         try:
             destroy_job_name = self.parser_delete.parse_args()["destroy_job_name"]
@@ -188,6 +188,7 @@ class TrialNetwork(Resource):
             trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
             if not trial_network:
                 return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}'")
+            
             tn_state = trial_network.tn_state
             if tn_state != "activated":
                 return abort(400, f"Trial network cannot be destroyed")
@@ -205,7 +206,7 @@ class TrialNetwork(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
 
-@trial_network_namespace.route("/report/<string:tn_id>") 
+@trial_network_namespace.route("/report/<string:tn_id>")
 class TrialNetworkReport(Resource):
 
     @trial_network_namespace.doc(security="Bearer Auth")
