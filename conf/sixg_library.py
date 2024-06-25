@@ -12,10 +12,13 @@ class SixGLibrarySettings:
     log_handler.info("Load 6G-Library configuration")
 
     GITHUB_6G_LIBRARY_HTTPS_URL = os.getenv("GITHUB_6G_LIBRARY_HTTPS_URL")
+    GITHUB_6G_LIBRARY_BRANCH = os.getenv("GITHUB_6G_LIBRARY_BRANCH")
     GITHUB_6G_LIBRARY_REPOSITORY_NAME = os.getenv("GITHUB_6G_LIBRARY_REPOSITORY_NAME")
     missing_variables = []
     if not GITHUB_6G_LIBRARY_HTTPS_URL:
         missing_variables.append("GITHUB_6G_LIBRARY_HTTPS_URL")
+    if not GITHUB_6G_LIBRARY_BRANCH:
+        missing_variables.append("GITHUB_6G_LIBRARY_BRANCH")
     if not GITHUB_6G_LIBRARY_REPOSITORY_NAME:
         missing_variables.append("GITHUB_6G_LIBRARY_REPOSITORY_NAME")
     if missing_variables:
