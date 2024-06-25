@@ -23,9 +23,12 @@ class SixGLibraryHandler:
         self.github_6g_library_local_directory = os.path.join(SIXG_LIBRARY_DIRECTORY, self.github_6g_library_repository_name)
         self.github_6g_library_reference_type = reference_type
         self.github_6g_library_reference_value = reference_value
-        if not reference_type and not reference_value:
-            self.github_6g_library_reference_type = "branch"
-            self.github_6g_library_reference_value = SixGLibrarySettings.GITHUB_6G_LIBRARY_BRANCH
+        if reference_type == "branch":
+            self.github_6g_library_reference_value = f"refs/heads/{reference_value}"
+        elif reference_type == "commit":
+            self.github_6g_library_reference_value = reference_value
+        else:
+            self.github_6g_library_reference_value = f"refs/tags/{reference_value}"
         self.repository_handler = RepositoryHandler(github_https_url=self.github_6g_library_https_url, github_repository_name=self.github_6g_library_repository_name, github_local_directory=self.github_6g_library_local_directory, github_reference_type=self.github_6g_library_reference_type, github_reference_value=self.github_6g_library_reference_value)
         self.github_6g_library_commit_id = self.repository_handler.github_commit_id
 

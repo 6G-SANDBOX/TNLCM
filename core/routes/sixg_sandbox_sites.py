@@ -35,12 +35,6 @@ class Clone(Resource):
             reference_type = self.parser_post.parse_args()["reference_type"]
             reference_value = self.parser_post.parse_args()["reference_value"]
 
-            if reference_type == "branch":
-                reference_value = f"refs/heads/{reference_value}"
-            elif reference_type == "commit":
-                reference_value = reference_value
-            else:
-                reference_value = f"refs/tags/{reference_value}"
             _ = SixGSandboxSitesHandler(reference_type=reference_type, reference_value=reference_value)
             return {"message": "6G-Sandbox-Sites cloned"}, 201
         except CustomException as e:
