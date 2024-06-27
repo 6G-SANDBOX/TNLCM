@@ -30,7 +30,11 @@ class RepositoryHandler:
             self.github_https_url = github_https_url.replace("https://", f"https://{github_token}@")
         self.repo = None
         self.github_commit_id = None
-        self.git_clone_repository()
+        isFirstTime = self.git_clone_repository()
+        if not isFirstTime:
+            default_branch = self._get_default_branch()
+            self.git_checkout_repository(default_branch=default_branch)
+            self._git_pull()
         self.git_checkout_repository()
         self._git_pull()
         self._set_commit_id()
@@ -39,6 +43,7 @@ class RepositoryHandler:
         """
         Apply git clone
         """
+        isFirstTime = False
         if os.path.exists(self.github_local_directory):
             if os.path.exists(os.path.join(self.github_local_directory, ".git")):
                 try:
@@ -47,9 +52,12 @@ class RepositoryHandler:
                     raise GitCloneError(f"The '{self.github_local_directory}' directory is not a GitHub repository", 500)
             else:
                 self._git_clone()
+                isFirstTime = True
         else:
             os.makedirs(self.github_local_directory)
             self._git_clone()
+            isFirstTime = True
+        return isFirstTime
 
     def _git_clone(self):
         """
@@ -61,15 +69,20 @@ class RepositoryHandler:
         except InvalidGitRepositoryError:
             raise GitCloneError(f"Cannot clone because the '{self.github_https_url}' url is not a GitHub repository", 500)
 
-    def git_checkout_repository(self):
-        """
-        Checkout to branch, commit or tag
-        """
+    def git_checkout_repository(self, default_branch=None):
+        """Checkout to commit or default branch"""
         try:
-            log_handler.info(f"Apply checkout to '{self.github_reference_type}' '{self.github_reference_value}' of '{self.github_repository_name}' repository")
-            self.repo.git.checkout(self.github_reference_value, "--")
+            if not default_branch:
+                log_handler.info(f"Apply checkout to '{self.github_reference_type}' '{self.github_reference_value}' of '{self.github_repository_name}' repository")
+                self.repo.git.checkout(self.github_reference_value, "--")
+            else:
+                log_handler.info(f"Apply checkout to '{default_branch}' branch of '{self.github_repository_name}' repository")
+                self.repo.git.checkout(default_branch, "--")
         except GitCommandError:
-            raise GitCheckoutError(f"'{self.github_reference_type}' '{self.github_commit_id}' is not in '{self.github_repository_name}' repository", 404)
+            if not default_branch:
+                raise GitCheckoutError(f"'{self.github_reference_type}' '{self.github_commit_id}' is not in '{self.github_repository_name}' repository", 404)
+            else:
+                raise GitCheckoutError(f"Branch '{default_branch}' is not in '{self.github_repository_name}' repository", 404)
 
     def _git_pull(self):
         """
@@ -78,6 +91,19 @@ class RepositoryHandler:
         if self.github_reference_type == "branch":
             log_handler.info(f"Pull is executed in '{self.github_repository_name}' repository located in '{self.github_local_directory}' folder")
             self.repo.remotes.origin.pull()
+
+    def _get_default_branch(self):
+        """Return the default branch of the repository"""
+        git = self.repo.git
+        default_branch_info = git.remote("show", self.github_https_url).split("\n")
+        default_branch = ""
+        for info in default_branch_info:
+            if "HEAD branch" in info:
+                default_branch = info.split(":")[1].strip()
+                break
+        if default_branch == "":
+            default_branch = "master"
+        return default_branch
 
     def _set_commit_id(self):
         """
