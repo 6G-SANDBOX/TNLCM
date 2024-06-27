@@ -30,8 +30,7 @@ class RepositoryHandler:
             self.github_https_url = github_https_url.replace("https://", f"https://{github_token}@")
         self.repo = None
         self.github_commit_id = None
-        isFirstTime = self.git_clone_repository()
-        if not isFirstTime:
+        if not self.git_clone_repository():
             default_branch = self._get_default_branch()
             self.git_checkout_repository(default_branch=default_branch)
             self._git_pull(default_branch=default_branch)
@@ -43,7 +42,6 @@ class RepositoryHandler:
         """
         Apply git clone
         """
-        isFirstTime = False
         if os.path.exists(self.github_local_directory):
             if os.path.exists(os.path.join(self.github_local_directory, ".git")):
                 try:
@@ -52,12 +50,12 @@ class RepositoryHandler:
                     raise GitCloneError(f"The '{self.github_local_directory}' directory is not a GitHub repository", 500)
             else:
                 self._git_clone()
-                isFirstTime = True
+                return True
         else:
             os.makedirs(self.github_local_directory)
             self._git_clone()
-            isFirstTime = True
-        return isFirstTime
+            return True
+        return False
 
     def _git_clone(self):
         """
