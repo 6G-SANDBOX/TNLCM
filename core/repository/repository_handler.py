@@ -34,7 +34,7 @@ class RepositoryHandler:
         if not isFirstTime:
             default_branch = self._get_default_branch()
             self.git_checkout_repository(default_branch=default_branch)
-            self._git_pull()
+            self._git_pull(default_branch=default_branch)
         self.git_checkout_repository()
         self._git_pull()
         self._set_commit_id()
@@ -84,11 +84,15 @@ class RepositoryHandler:
             else:
                 raise GitCheckoutError(f"Branch '{default_branch}' is not in '{self.github_repository_name}' repository", 404)
 
-    def _git_pull(self):
+    def _git_pull(self, default_branch=None):
         """
         Check if the repository has been updated and applies a git pull in case of changes
         """
-        if self.github_reference_type == "branch":
+        if not default_branch:
+            if self.github_reference_type == "branch":
+                log_handler.info(f"Pull is executed in '{self.github_repository_name}' repository located in '{self.github_local_directory}' folder")
+                self.repo.remotes.origin.pull()
+        else:
             log_handler.info(f"Pull is executed in '{self.github_repository_name}' repository located in '{self.github_local_directory}' folder")
             self.repo.remotes.origin.pull()
 
