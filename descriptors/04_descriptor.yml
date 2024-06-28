@@ -1,0 +1,18 @@
+# Result: pass
+trial_network:
+
+  tn_init:
+    type: "tn_init"
+    dependencies: []
+    input: {}
+  vnet-private_vnet_oneKE:
+    type: "vnet"
+    name: "private_vnet_oneKE"
+    dependencies:
+      - "tn_init"
+    input:
+      one_vnet_first_ip: "10.10.10.1"
+      one_vnet_netmask: "255.255.255.0"
+      one_vnet_address_size: 100
+      one_vnet_gw: "10.10.10.1"
+      one_vnet_dns: "1.1.1.1"
