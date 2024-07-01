@@ -50,7 +50,7 @@ class SixGSandboxSitesHandler():
             with open(decrypted_values_file, "w") as f:
                 f.write(data)
         except AnsibleError:
-            raise SixGSandboxSitesDecryptError(f"Password use to decrypt file'{values_file}' incorrect")
+            raise SixGSandboxSitesDecryptError(f"Password use to decrypt file'{values_file}' incorrect", 500)
         
     def set_deployment_site(self, deployment_site):
         """
