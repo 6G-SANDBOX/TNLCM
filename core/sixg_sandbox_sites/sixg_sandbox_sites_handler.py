@@ -1,6 +1,6 @@
 import os
 
-from yaml import safe_load, YAMLError
+from yaml import safe_load, YAMLError, safe_dump
 from ansible_vault import Vault
 from ansible.errors import AnsibleError
 
@@ -48,7 +48,7 @@ class SixGSandboxSitesHandler():
             data = vault.load(open(values_file).read())
             decrypted_values_file = os.path.join(self.github_6g_sandbox_sites_local_directory, ".sites", self.deployment_site, "values_decrypt.yaml")
             with open(decrypted_values_file, "w") as f:
-                f.write(data)
+                safe_dump(data, f)
         except AnsibleError as e:
             raise SixGSandboxSitesDecryptError(e, 500)
         
