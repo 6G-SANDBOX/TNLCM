@@ -104,6 +104,10 @@ class SixGSandboxSitesInvalidSiteError(CustomSixGSandboxSitesException):
     """Error thrown when site is invalid"""
     pass
 
+class SixGSandboxSitesDecryptError(CustomSixGSandboxSitesException):
+    """Errror thrown when sites file can not descrypt"""
+    pass
+
 ###############################
 ## Trial Networks exceptions ##
 ###############################

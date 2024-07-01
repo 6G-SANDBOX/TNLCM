@@ -2,10 +2,11 @@ import os
 
 from yaml import safe_load, YAMLError
 from ansible_vault import Vault
+from ansible.errors import AnsibleError
 
 from conf import SixGSandboxSitesSettings
 from core.repository.repository_handler import RepositoryHandler
-from core.exceptions.exceptions_handler import SixGSandboxSitesInvalidSiteError, InvalidContentFileError, CustomFileNotFoundError
+from core.exceptions.exceptions_handler import SixGSandboxSitesInvalidSiteError, InvalidContentFileError, CustomFileNotFoundError, SixGSandboxSitesDecryptError
 
 SIXG_SANDBOX_SITES_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
@@ -41,13 +42,16 @@ class SixGSandboxSitesHandler():
         """
         Decrypt values.yaml file of site stored in 6G-Sandbox-Sites repository
         """
-        vault = Vault(SixGSandboxSitesSettings.ANSIBLE_VAULT)
-        values_file = os.path.join(self.github_6g_sandbox_sites_local_directory, ".sites", self.deployment_site, "values.yaml")
-        data = vault.load(open(values_file).read())
-        decrypted_values_file = os.path.join(self.github_6g_sandbox_sites_local_directory, ".sites", self.deployment_site, "values_decrypt.yaml")
-        with open(decrypted_values_file, "w") as f:
-            f.write(data)
-    
+        try:
+            vault = Vault(SixGSandboxSitesSettings.ANSIBLE_VAULT)
+            values_file = os.path.join(self.github_6g_sandbox_sites_local_directory, ".sites", self.deployment_site, "values.yaml")
+            data = vault.load(open(values_file).read())
+            decrypted_values_file = os.path.join(self.github_6g_sandbox_sites_local_directory, ".sites", self.deployment_site, "values_decrypt.yaml")
+            with open(decrypted_values_file, "w") as f:
+                f.write(data)
+        except AnsibleError:
+            raise SixGSandboxSitesDecryptError(f"Password use to decrypt file'{values_file}' incorrect")
+        
     def set_deployment_site(self, deployment_site):
         """
         Set deployment site to deploy trial network
@@ -75,7 +79,7 @@ class SixGSandboxSitesHandler():
         """
         Return list with components available on a site
         """
-        values_file = os.path.join(self.github_6g_sandbox_sites_local_directory, ".sites", self.deployment_site, "values.yaml")
+        values_file = os.path.join(self.github_6g_sandbox_sites_local_directory, ".sites", self.deployment_site, "values_decrypt.yaml")
         if not os.path.exists(values_file):
             raise CustomFileNotFoundError(f"File '{values_file}' not found", 404)
         with open(values_file, "rt", encoding="utf8") as f:
