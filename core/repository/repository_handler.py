@@ -46,6 +46,7 @@ class RepositoryHandler:
             if os.path.exists(os.path.join(self.github_local_directory, ".git")):
                 try:
                     self.repo = Repo(self.github_local_directory)
+                    self.repo.git.clean("df")
                 except InvalidGitRepositoryError:
                     raise GitCloneError(f"The '{self.github_local_directory}' directory is not a GitHub repository", 500)
             else:
