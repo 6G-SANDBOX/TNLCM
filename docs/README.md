@@ -108,8 +108,8 @@ TNLCM is currently able to deploy the following types of components correspondin
 > 
 > | Repository       | Release                                                                      |
 > | ---------------- | ---------------------------------------------------------------------------- |
-> | 6G-Library       | [v0.2.0](https://github.com/6G-SANDBOX/6G-Library/releases/tag/v0.2.0)       |
-> | 6G-Sandbox-Sites | [v0.2.0](https://github.com/6G-SANDBOX/6G-Sandbox-Sites/releases/tag/v0.2.0) |
+> | 6G-Library       | [v0.2.1](https://github.com/6G-SANDBOX/6G-Library/releases/tag/v0.2.1)       |
+> | 6G-Sandbox-Sites | [v0.2.1](https://github.com/6G-SANDBOX/6G-Sandbox-Sites/releases/tag/v0.2.1) |
 
 > [!WARNING]
 > In order to run TNLCM, the following tools are **required** to be deployed on the platforms:
@@ -378,8 +378,8 @@ The TNLCM database consists of several collections that store important informat
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 <!-- Urls, Shields and Badges -->
-[tnlcm-badge]: https://img.shields.io/badge/TNLCM-v0.2.0-blue
-[tnlcm-url]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.2.0
+[tnlcm-badge]: https://img.shields.io/badge/TNLCM-v0.2.1-blue
+[tnlcm-url]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.2.1
 [python-badge]: https://img.shields.io/badge/Python-3.12.4-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB
 [python-url]: https://www.python.org/downloads/release/python-3124/
 [flask-badge]: https://img.shields.io/badge/Flask-3.0.3-brightgreen?style=for-the-badge&logo=flask&logoColor=white&labelColor=000000
