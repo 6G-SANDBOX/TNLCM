@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.2.1] - 2024-07-01
+
+### Added
+
+- Decrypt values.yaml file of site stored in 6G-Sandbox-Sites repository.
+
 ## [v0.2.0] - 2024-06-28
 
 ### Added
@@ -66,5 +72,6 @@
 
 - Frontend implementation.
 
+[v0.2.1]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.2.1
 [v0.2.0]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.2.0
 [v0.1.0]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.1.0

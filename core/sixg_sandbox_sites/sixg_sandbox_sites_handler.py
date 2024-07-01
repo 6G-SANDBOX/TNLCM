@@ -1,6 +1,7 @@
 import os
 
 from yaml import safe_load, YAMLError
+from ansible_vault import Vault
 
 from conf import SixGSandboxSitesSettings
 from core.repository.repository_handler import RepositoryHandler
@@ -36,6 +37,17 @@ class SixGSandboxSitesHandler():
         self.repository_handler = RepositoryHandler(github_https_url=self.github_6g_sandbox_sites_https_url, github_repository_name=self.github_6g_sandbox_sites_repository_name, github_local_directory=self.github_6g_sandbox_sites_local_directory, github_reference_type=self.github_6g_sandbox_sites_reference_type, github_reference_value=self.github_6g_sandbox_sites_reference_value, github_token=self.github_6g_sandbox_sites_token)
         self.github_6g_sandbox_sites_commit_id = self.repository_handler.github_commit_id
 
+    def _decrypt_site(self):
+        """
+        Decrypt values.yaml file of site stored in 6G-Sandbox-Sites repository
+        """
+        vault = Vault(SixGSandboxSitesSettings.ANSIBLE_VAULT)
+        values_file = os.path.join(self.github_6g_sandbox_sites_local_directory, ".sites", self.deployment_site, "values.yaml")
+        data = vault.load(open(values_file).read())
+        decrypted_values_file = os.path.join(self.github_6g_sandbox_sites_local_directory, ".sites", self.deployment_site, "values_decrypt.yaml")
+        with open(decrypted_values_file, "w") as f:
+            f.write(data)
+    
     def set_deployment_site(self, deployment_site):
         """
         Set deployment site to deploy trial network
@@ -45,6 +57,7 @@ class SixGSandboxSitesHandler():
         if deployment_site not in self.get_sites():
             raise SixGSandboxSitesInvalidSiteError(f"The 'site' should be one: {', '.join(self.get_sites())}", 404)
         self.deployment_site = deployment_site
+        self._decrypt_site()
     
     def get_tags(self):
         """
@@ -79,4 +92,4 @@ class SixGSandboxSitesHandler():
         """
         Return sites available to deploy trial networks
         """
-        return os.listdir(os.path.join(self.github_6g_sandbox_sites_local_directory, ".sites"))
+        return [site for site in os.listdir(os.path.join(self.github_6g_sandbox_sites_local_directory, ".sites")) if not site.startswith(".")]
