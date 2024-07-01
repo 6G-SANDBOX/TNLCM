@@ -49,8 +49,8 @@ class SixGSandboxSitesHandler():
             decrypted_values_file = os.path.join(self.github_6g_sandbox_sites_local_directory, ".sites", self.deployment_site, "values_decrypt.yaml")
             with open(decrypted_values_file, "w") as f:
                 f.write(data)
-        except AnsibleError:
-            raise SixGSandboxSitesDecryptError(f"Password use to decrypt file'{values_file}' incorrect", 500)
+        except AnsibleError as e:
+            raise SixGSandboxSitesDecryptError(e, 500)
         
     def set_deployment_site(self, deployment_site):
         """
