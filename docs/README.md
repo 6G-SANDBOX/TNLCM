@@ -108,8 +108,8 @@ TNLCM is currently able to deploy the following types of components correspondin
 > 
 > | Repository       | Release                                                                      |
 > | ---------------- | ---------------------------------------------------------------------------- |
-> | 6G-Library       | [v0.2.1](https://github.com/6G-SANDBOX/6G-Library/releases/tag/v0.2.1)       |
-> | 6G-Sandbox-Sites | [v0.2.1](https://github.com/6G-SANDBOX/6G-Sandbox-Sites/releases/tag/v0.2.1) |
+> | 6G-Library       | [v0.2.0](https://github.com/6G-SANDBOX/6G-Library/releases/tag/v0.2.0)       |
+> | 6G-Sandbox-Sites | [v0.2.0](https://github.com/6G-SANDBOX/6G-Sandbox-Sites/releases/tag/v0.2.0) |
 
 > [!WARNING]
 > In order to run TNLCM, the following tools are **required** to be deployed on the platforms:
