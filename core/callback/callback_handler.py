@@ -71,7 +71,7 @@ class CallbackHandler:
             path_report_trial_network = os.path.join(REPORT_DIRECTORY, report_trial_network_name)
 
             with open(path_report_trial_network, "a") as report_trial_network:
-                report_trial_network.write(markdown)
+                report_trial_network.write(markdown + "\n")
 
             log_handler.info(f"'Markdown' of the '{entity}' entity save in the report file '{report_trial_network_name}' located in the path '{path_report_trial_network}'")               
         except UnicodeDecodeError:
