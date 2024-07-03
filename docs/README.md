@@ -37,7 +37,7 @@ TNLCM has been designed as a modular application, with the intention of making c
 - [:page\_facing\_up: Trial Network Descriptor Schema](#page_facing_up-trial-network-descriptor-schema)
 - [Appendices](#appendices)
   - [Appendix A: How to use Swagger UI](#appendix-a-how-to-use-swagger-ui)
-  - [Database Schema](#database-schema)
+  - [Appendix B: Database Schema](#appendix-b-database-schema)
 </details>
 
 ## :hammer_and_wrench: Stack
@@ -120,8 +120,8 @@ TNLCM is currently able to deploy the following types of components correspondin
 > 
 > * Jenkins
 > * MinIO
-> * OneKE: v1.27 or later
-> * Ueransim: v3.2.6 or later
+> * OneKE: v1.27 or v1.29
+> * Ueransim: v3.2.6
 
 ### :inbox_tray: Download or clone repository
 
@@ -308,7 +308,7 @@ If the access token expires, it can be refreshed by using the refresh token. The
 
 When the request is made, it will return another access token that will need to be put back into the green **Authorize** box.
 
-### Database Schema
+### Appendix B: Database Schema
 
 The TNLCM database consists of several collections that store important information about trial networks, users, and verification tokens. Below is the description of each collection:
 
