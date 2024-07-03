@@ -101,7 +101,7 @@ TNLCM is currently able to deploy the following types of components correspondin
 ## :rocket: Getting Started Locally
 
 > [!NOTE]
-> TNLCM is being developed on Windows 10 and has been tested on Windows 10 and Ubuntu in version 22.04.3 LTS.
+> TNLCM is being developed and tested on Ubuntu in version 22.04.3 LTS.
 
 > [!TIP]
 > TNLCM uses the following repository releases:
@@ -158,7 +158,6 @@ Optionally, the value of the following variables can be updated:
 > [!IMPORTANT]
 > This step requires **Docker** :whale: to be installed on the machine.
 
-- [Windows](https://docs.docker.com/desktop/install/windows-install/)
 - [Linux](https://docs.docker.com/desktop/install/linux-install/)
 
 Once Docker is installed, open a terminal where the `docker-compose.yml` file is stored (usually inside the TNLCM project) and execute the commands:
@@ -185,19 +184,6 @@ A MongoDB dashboard will be available at the url http://mongodb-frontend-ip:8081
 > This step requires **Python** to be installed on the machine.
 
 The environment must be created inside the TNLCM folder:
-
-- Windows
-
-  ```sh
-  # Create environment
-  python -m venv venv
-
-  # Activate environment
-  ./venv/Scripts/activate.ps1
-
-  # Install libraries
-  pip install -r requirements.txt
-  ```
 
 - Linux
 
