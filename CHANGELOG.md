@@ -1,17 +1,12 @@
 # Changelog
 
-## [v0.2.1] - 2024-07-01
-
-### Added
-
-- Decrypt values.yaml file of site stored in 6G-Sandbox-Sites repository.
-
-## [v0.2.0] - 2024-06-28
+## [v0.2.0] - 2024-07-03
 
 ### Added
 
 - Resource Manager to control the availability of resources per platform​.
 - Descriptor validation.
+- Ansible vault to decrypt files of site stored in 6G-Sandbox-Sites repository.
 - Initial version of state machine. Available methods:
   - validated
   - activated
@@ -28,8 +23,9 @@
 
 ### Changed
 
+- TNLCM is only available on Linux.
 - Python version to 3.12.4.
-- MongoDB version to 7.0.11.
+- MongoDB version to 7.0.12.
 - Trial network descriptor schema. Two new fields name and type. Also debug can included for Jenkins pipeline (optional).
 - Mongoengine as Mongo ORM.
 - Logs to check TNLCM behavior.
