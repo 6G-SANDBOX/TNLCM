@@ -40,14 +40,14 @@ class SixGSandboxSitesHandler():
 
     def _decrypt_site(self):
         """
-        Decrypt values.yaml file of site stored in 6G-Sandbox-Sites repository
+        Decrypt core.yaml file of site stored in 6G-Sandbox-Sites repository
         """
         try:
             vault = Vault(SixGSandboxSitesSettings.ANSIBLE_VAULT)
-            values_file = os.path.join(self.github_6g_sandbox_sites_local_directory, ".sites", self.deployment_site, "values.yaml")
-            data = vault.load(open(values_file).read())
-            decrypted_values_file = os.path.join(self.github_6g_sandbox_sites_local_directory, ".sites", self.deployment_site, "values_decrypt.yaml")
-            with open(decrypted_values_file, "w") as f:
+            core_file = os.path.join(self.github_6g_sandbox_sites_local_directory, self.deployment_site, "core.yaml")
+            data = vault.load(open(core_file).read())
+            decrypted_core_file = os.path.join(self.github_6g_sandbox_sites_local_directory, self.deployment_site, "core_decrypt.yaml")
+            with open(decrypted_core_file, "w") as f:
                 safe_dump(data, f)
         except AnsibleError as e:
             raise SixGSandboxSitesDecryptError(e, 500)
@@ -79,21 +79,21 @@ class SixGSandboxSitesHandler():
         """
         Return list with components available on a site
         """
-        values_file = os.path.join(self.github_6g_sandbox_sites_local_directory, ".sites", self.deployment_site, "values_decrypt.yaml")
-        if not os.path.exists(values_file):
-            raise CustomFileNotFoundError(f"File '{values_file}' not found", 404)
-        with open(values_file, "rt", encoding="utf8") as f:
+        decrypted_core_file = os.path.join(self.github_6g_sandbox_sites_local_directory, self.deployment_site, "core_decrypt.yaml")
+        if not os.path.exists(decrypted_core_file):
+            raise CustomFileNotFoundError(f"File '{decrypted_core_file}' not found", 404)
+        with open(decrypted_core_file, "rt", encoding="utf8") as f:
             try:
-                values_data = safe_load(f)
+                data = safe_load(f)
             except YAMLError:
-                raise InvalidContentFileError(f"File '{values_file}' is not parsed correctly", 422)
-        if not values_data or "site_available_components" not in values_data:
+                raise InvalidContentFileError(f"File '{decrypted_core_file}' is not parsed correctly", 422)
+        if not data or "site_available_components" not in data:
             return {}
-        site_available_components = values_data["site_available_components"]
+        site_available_components = data["site_available_components"]
         return site_available_components
 
     def get_sites(self):
         """
         Return sites available to deploy trial networks
         """
-        return [site for site in os.listdir(os.path.join(self.github_6g_sandbox_sites_local_directory, ".sites")) if not site.startswith(".")]
+        return [site for site in os.listdir(self.github_6g_sandbox_sites_local_directory) if not site.startswith(".")]
