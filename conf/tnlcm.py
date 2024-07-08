@@ -4,8 +4,6 @@ import sys
 from core.logs.log_handler import log_handler
 from core.exceptions.exceptions_handler import UndefinedEnvVariableError
 
-PYTHON_MIN_REQUIRED = (3, 12, 3)
-
 class TnlcmSettings:
     """
     TNLCM Settings

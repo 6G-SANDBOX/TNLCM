@@ -106,10 +106,10 @@ TNLCM is currently able to deploy the following types of components correspondin
 > [!TIP]
 > TNLCM uses the following repository releases:
 > 
-> | Repository       | Release                                                                      |
-> | ---------------- | ---------------------------------------------------------------------------- |
-> | 6G-Library       | [v0.2.0](https://github.com/6G-SANDBOX/6G-Library/releases/tag/v0.2.0)       |
-> | 6G-Sandbox-Sites | [v0.2.0](https://github.com/6G-SANDBOX/6G-Sandbox-Sites/releases/tag/v0.2.0) |
+> | Repository       | Branch | Release                                                                      |
+> | ---------------- | ------ | ---------------------------------------------------------------------------- |
+> | 6G-Library       | -      | [v0.2.0](https://github.com/6G-SANDBOX/6G-Library/releases/tag/v0.2.0)       |
+> | 6G-Sandbox-Sites | main   | -                                                                            |
 
 > [!WARNING]
 > In order to run TNLCM, the following tools are **required** to be deployed on the platforms:
@@ -160,13 +160,14 @@ Optionally, the value of the following variables can be updated:
 
 - [Linux](https://docs.docker.com/desktop/install/linux-install/)
 
-Once Docker is installed, open a terminal where the `docker-compose.yml` file is stored (usually inside the TNLCM project) and execute the commands:
+Once Docker is installed, open a terminal where the [`docker-compose.yml`](../docker-compose.yml) file is stored (usually inside the TNLCM project) and execute the commands:
 
 ```sh
 docker compose build
 ```
 
 Flag **-d** can be added to raise the containers in background:
+
 ```sh
 docker compose up -d
 ```
