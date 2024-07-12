@@ -1,18 +1,18 @@
 # Changelog
 
-## [v0.2.0] - 2024-07-03
+## [v0.2.0] - 2024-07-XX
 
 ### Added
 
 - Resource Manager to control the availability of resources per platform​.
 - Descriptor validation.
-- Ansible vault to decrypt files of site stored in 6G-Sandbox-Sites repository.
 - Initial version of state machine. Available methods:
   - validated
   - activated
   - failed
   - destroyed
 - Integration with 6G-Sandbox-Sites repository.
+- Ansible vault to decrypt files of site stored in 6G-Sandbox-Sites repository.
 - Integration with 6G-Library [v0.2.0](https://github.com/6G-SANDBOX/6G-Library/releases/tag/v0.2.0).
 - Deploy trial networks using specific branch, commit or tags from 6G-Library.
 - Deploy trial networks using specific pipelines/jobs.
@@ -23,7 +23,7 @@
 
 ### Changed
 
-- TNLCM is only available on Linux.
+- TNLCM is **only** available on Linux.
 - Python version to 3.12.4.
 - MongoDB version to 7.0.12.
 - Trial network descriptor schema. Two new fields name and type. Also debug can included for Jenkins pipeline (optional).
@@ -68,5 +68,5 @@
 
 - Frontend implementation.
 
-[v0.2.0]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.2.0
+[v0.2.0]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.1.0...v0.2.0
 [v0.1.0]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.1.0
