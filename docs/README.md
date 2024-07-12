@@ -216,9 +216,9 @@ A Swagger UI will be available at the url http://tnlcm-backend-ip:5000 where the
 Trial Network Descriptors are yaml files with a set of expected fields and with the following structure:
 
 ```yaml
-trial_network:  # Mandatory, contains the description of all entities in the Trial Network
-  type-name:  # A unique identifier for each entity in the Trial Network (entity name)
-    type:  # 6G-Library component type
+trial_network: # Mandatory, contains the description of all entities in the Trial Network
+  type-name: # A unique identifier for each entity in the Trial Network (entity name)
+    type: # 6G-Library component type
     name: # Custom name
     dependencies: # List of dependencies of the component with other components
       - type-name
