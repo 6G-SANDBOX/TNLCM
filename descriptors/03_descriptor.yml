@@ -1,7 +1,7 @@
 # Result: pass
 trial_network:
 
-  tn_vxlan:
-    type: "tn_vxlan"
+  tn_init:
+    type: "tn_init"
     dependencies: []
     input: {}

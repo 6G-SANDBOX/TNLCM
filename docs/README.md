@@ -9,9 +9,7 @@
   <!-- [![MIT License][license-shield]][license-url] -->
   <!-- [![LinkedIn][linkedin-shield]][linkedin-url] -->
 
-  <a href="https://github.com/6G-SANDBOX/TNLCM"><img src="./images/TNLCM_LOGO.png" width="80" title="TNLCM"></a>
-
-  # Trial Network Life Cycle Manager - TNLCM <!-- omit in toc -->
+  <a href="https://github.com/6G-SANDBOX/TNLCM"><img src="./static/TNLCM.png" width="350" title="TNLCM"></a>
 
   [![TNLCM][tnlcm-badge]][tnlcm-url]
 
@@ -28,80 +26,102 @@ TNLCM has been designed as a modular application, with the intention of making c
 
 - [:hammer\_and\_wrench: Stack](#hammer_and_wrench-stack)
 - [:open\_file\_folder: Project Structure](#open_file_folder-project-structure)
-- [:hourglass\_flowing\_sand: Current Status](#hourglass_flowing_sand-current-status)
 - [:mag: Overview of TNLCM and 6G-Library implementation](#mag-overview-of-tnlcm-and-6g-library-implementation)
-- [:rocket: Getting Started](#rocket-getting-started)
+- [:arrows\_counterclockwise: State Machine](#arrows_counterclockwise-state-machine)
+- [:hourglass\_flowing\_sand: Current Status](#hourglass_flowing_sand-current-status)
+- [:rocket: Getting Started Locally](#rocket-getting-started-locally)
   - [:inbox\_tray: Download or clone repository](#inbox_tray-download-or-clone-repository)
   - [:wrench: Configure environment variables](#wrench-configure-environment-variables)
   - [:floppy\_disk: Create database](#floppy_disk-create-database)
   - [:snake: Create environment, install libraries and start](#snake-create-environment-install-libraries-and-start)
-- [Database Schema](#database-schema)
-- [Trial Network Descriptor Schema](#trial-network-descriptor-schema)
+- [:page\_facing\_up: Trial Network Descriptor Schema](#page_facing_up-trial-network-descriptor-schema)
 - [Appendices](#appendices)
   - [Appendix A: How to use Swagger UI](#appendix-a-how-to-use-swagger-ui)
+  - [Appendix B: Database Schema](#appendix-b-database-schema)
 </details>
 
 ## :hammer_and_wrench: Stack
 - [![Python][python-badge]][python-url] - Programming language.
-- [![Flask][flask-badge]][flask-url] - Python micro framework for web applications to expose the API.
+- [![Flask][flask-badge]][flask-url] - Python framework for web applications to expose the API.
 - [![MongoDB][mongodb-badge]][mongodb-url] - NoSQL database designed to store Trial Networks.
 - [![Docker][docker-badge]][docker-url] - Platform for running database applications.
 
 ## :open_file_folder: Project Structure
 
 ```
-TNLCM                        // main folder.
-├─ .github                   // folder contains files and templates for GitHub workflow automation.
-│  ├─ CHANGELOG_TEMPLATE     // template for changelog.
-│  └─ ISSUE_TEMPLATE         // template for issue reporting.
+TNLCM/                       // main folder.
+├─ .github/                  // folder contains files and templates for GitHub workflow automation.
+│  ├─ CHANGELOG_TEMPLATE/    // folder with template for changelog.
+│  └─ ISSUE_TEMPLATE/        // folder with template for issue reporting.
 ├─ .gitignore                // file specifying intentionally untracked files to ignore.
 ├─ app.py                    // main file that starts TNLCM.
 ├─ CHANGELOG.md              // file containing the changes made in each release.
-├─ config.py                 // configuration file.
-├─ descriptors               // folder in which trial network descriptors templates are stored.
+├─ descriptors/              // folder in which trial network descriptors templates are stored.
 ├─ docker-compose.yml        // file for create database.
-├─ docs                      // folder in which all documentation is stored.
+├─ docs/                     // folder in which all documentation is stored.
 ├─ requirements.txt          // file containing the libraries and their versions.
-├─ src                       // folder in which the developed code is stored.
-│  ├─ auth                   // folder that handle the authentication of users who have access.
-│  ├─ callback               // folder that handle the connection with Jenkins for tn deployment.
-│  ├─ database               // folder that handle the connection with MongoDB database.
-│  ├─ exceptions             // folder that handle the creation of custom exceptions.
-│  ├─ logs                   // folder that handle log creation.
-│  ├─ repository             // folder that handle the connection to any repository.
-│  ├─ routes                 // folder that handle the API that is exposed.
-│  ├─ sixglibrary            // folder that handle the connection to the 6G-Library.
-│  ├─ temp                   // folder that handle the creation of temporary files.
-│  ├─ trial_network          // folder that handle the trial networks.
-│  └─ verification           // folder that handle the users verification to check the access.
-└─ tests                     // folder that contains files related to testing the code.
+├─ conf/                     // folder that handler the configuration files.
+└─ core/                     // folder in which the developed code is stored.
+   ├─ auth/                  // folder that handler the authentication of users who have access.
+   ├─ callback/              // folder that handler the results received by Jenkins.
+   ├─ database/              // folder that handler the connection with MongoDB database using mongoengine.
+   ├─ exceptions/            // folder that handler the creation of custom exceptions.
+   ├─ jenkins/               // folder that handler the connection with Jenkins for tn deployment.
+   ├─ logs/                  // folder that handler the logs configuration.
+   ├─ mail/                  // folder that handler the configuration to use flask mail library.
+   ├─ models/                // folder that contains the database models.
+   ├─ repository/            // folder that handler the connection to any repository.
+   ├─ resource_manager/      // folder that handler the resource manager.
+   ├─ routes/                // folder that handler the API that is exposed.
+   ├─ sixg_library/          // folder that handler the connection to the 6G-Library repository.
+   ├─ sixg_sandbox_sites/    // folder that handler the connection to the 6G-Sandbox-Sites repository.
+   └─ temp/                  // folder that handler the creation of temporary files.
 ```
-
-## :hourglass_flowing_sand: Current Status
-
-TNLCM is currently able to deploy the following types of components corresponding with the [6G-Library](https://github.com/6G-SANDBOX/6G-Library): **tn_vxlan**, **vxlan**, **tn_bastion**, **vm_kvm**, **k8s**, **open5gs**, **UERANSIM-gNB** and **UERANSIM-UE**.
-
-![CurrentStatus](./images/currentStatus.png)
-
-<p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 ## :mag: Overview of TNLCM and 6G-Library implementation
 
-![TNLCM_LIFECYCLE](./images/TNLCM_6GLIBRARY.png)
+![TNLCM_LIFECYCLE](./static/TNLCM_6GLIBRARY.png)
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
-## :rocket: Getting Started
+## :arrows_counterclockwise: State Machine
 
-> [!WARNING]
-> The following tools are required to be deployed on platforms:
-> 
-> * Jenkins (Mandatory)
-> * OpenNebula (Mandatory)
-> * MinIO (Mandatory)
+![StateMachine](./static/stateMachine.png)
+
+<p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
+
+## :hourglass_flowing_sand: Current Status
+
+TNLCM is currently able to deploy the following types of components corresponding with the [6G-Library](https://github.com/6G-SANDBOX/6G-Library): **tn_vxlan**, **tn_bastion**, **tn_init**, **vnet**, **tsn**, **vm_kvm**, **oneKE**, **open5gs**, **UERANSIM-gNB** and **UERANSIM-UE**.
+
+![CurrentStatus](./static/currentStatus.png)
+
+<p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
+
+## :rocket: Getting Started Locally
 
 > [!NOTE]
-> TNLCM has been tested on Windows 10 and Ubuntu 22.04.3 LTS.
+> TNLCM is being developed and tested on Ubuntu in version 22.04.3 LTS.
+
+> [!TIP]
+> TNLCM uses the following repository releases:
+> 
+> | Repository       | Branch | Release                                                                      |
+> | ---------------- | ------ | ---------------------------------------------------------------------------- |
+> | 6G-Library       | -      | [v0.2.0](https://github.com/6G-SANDBOX/6G-Library/releases/tag/v0.2.0)       |
+> | 6G-Sandbox-Sites | main   | -                                                                            |
+
+> [!WARNING]
+> In order to run TNLCM, the following tools are **required** to be deployed on the platforms:
+>
+> * OpenNebula: v6.6.3 or later
+>
+> From [OpenNebula Marketplace](https://marketplace.mobilesandbox.cloud:9443/appliance):
+> 
+> * Jenkins
+> * MinIO
+> * OneKE: v1.27 or v1.29
+> * Ueransim: v3.2.6
 
 ### :inbox_tray: Download or clone repository
 
@@ -118,15 +138,14 @@ git clone https://github.com/6G-SANDBOX/TNLCM
 Create a `.env` file at the root level, using the structure and content provided in the [`.env.template`](../.env.template) file.
 
 Mandatory update the values of the following variables according to the platform:
-- `JENKINS_SERVER`
-- `JENKINS_USER`
+- `TNLCM_HOST`
+- `JENKINS_HOST`
+- `JENKINS_USERNAME`
 - `JENKINS_PASSWORD`
 - `JENKINS_TOKEN`
-- `JENKINS_PIPELINE_NAME`
-- `JENKINS_DEPLOYMENT_SITE`
-- `CALLBACK_URL`
-- `MAIL_USERNAME`
-- `MAIL_PASSWORD`
+- `ANSIBLE_VAULT`
+<!-- - `MAIL_USERNAME`
+- `MAIL_PASSWORD` -->
 
 Optionally, the value of the following variables can be updated:
 - `FLASK_ENV`
@@ -138,16 +157,16 @@ Optionally, the value of the following variables can be updated:
 > [!IMPORTANT]
 > This step requires **Docker** :whale: to be installed on the machine.
 
-- [Windows](https://docs.docker.com/desktop/install/windows-install/)
 - [Linux](https://docs.docker.com/desktop/install/linux-install/)
 
-Once Docker is installed, open a terminal where the `docker-compose.yml` file is stored (usually inside the TNLCM project) and execute the commands:
+Once Docker is installed, open a terminal where the [`docker-compose.yml`](../docker-compose.yml) file is stored (usually inside the TNLCM project) and execute the commands:
 
 ```sh
 docker compose build
 ```
 
-Flag **-d** can be added to raise the container in background:
+Flag **-d** can be added to raise the containers in background:
+
 ```sh
 docker compose up -d
 ```
@@ -157,7 +176,7 @@ A MongoDB dashboard will be available at the url http://mongodb-frontend-ip:8081
 > [!NOTE]
 > User and password to access to the MongoDB dashboard are the values indicated in the variables `ME_CONFIG_BASICAUTH_USERNAME` and `ME_CONFIG_BASICAUTH_PASSWORD` of the `.env` file. By default, the values indicated in the [`.env.template`](../.env.template) file are used.
 
-![dashboardMongoDB](./images/dashboardMongoDB.png)
+![dashboardMongoDB](./static/dashboardMongoDB.png)
 
 ### :snake: Create environment, install libraries and start
 
@@ -165,19 +184,6 @@ A MongoDB dashboard will be available at the url http://mongodb-frontend-ip:8081
 > This step requires **Python** to be installed on the machine.
 
 The environment must be created inside the TNLCM folder:
-
-- Windows
-
-  ```sh
-  # Create environment
-  python -m venv venv
-
-  # Activate environment
-  ./venv/Scripts/activate.ps1
-
-  # Install libraries
-  pip install -r requirements.txt
-  ```
 
 - Linux
 
@@ -202,74 +208,39 @@ A Swagger UI will be available at the url http://tnlcm-backend-ip:5000 where the
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
-## Database Schema
-
-The TNLCM database consists of several collections that store important information about trial networks, users, and verification tokens. Below is the description of each collection:
-
-### Collection `trial_networks` <!-- omit in toc -->
-
-| Field                   | Description                                                 |
-|-------------------------|-------------------------------------------------------------|
-| `user_created`          | The user who created the trial network.                     |
-| `tn_id`                 | The ID of the trial network.                                |
-| `tn_date_created_utc`   | The date and time when the trial network was created (UTC). |
-| `tn_status`             | The current status of the trial network.                    |
-| `tn_raw_descriptor`     | The raw descriptor of the trial network.                    |
-| `tn_sorted_descriptor`  | The sorted descriptor of the trial network.                 |
-| `tn_report`             | The report related to the trial network.                    |
-
-### Collection `trial_networks_templates` <!-- omit in toc -->
-
-| Field                   | Description                                                         |
-|-------------------------|---------------------------------------------------------------------|
-| `user_created`          | The user who created the trial network template.                    |
-| `tn_id`                 | The ID of the trial network template.                               |
-| `tn_date_created_utc`   | The date and time when the trial network template was created (UTC).|
-| `tn_raw_descriptor`     | The raw descriptor of the trial network template.                   |
-| `tn_sorted_descriptor`  | The sorted descriptor of the trial network template.                |
-
-### Collection `users` <!-- omit in toc -->
-
-| Field      | Description                                       |
-|------------|---------------------------------------------------|
-| `email`    | The email address of the user.                    |
-| `username` | The username of the user.                         |
-| `password` | The password of the user (hashed).                |
-| `org`      | The organization to which the user belongs.       |
-
-### Collection `verifications_tokens` <!-- omit in toc -->
-
-| Field                  | Description                                             |
-|------------------------|---------------------------------------------------------|
-| `new_account_email`    | The email associated with the new account.              |
-| `verification_token`   | The verification token generated for the new account.   |
-| `creation_date`        | The creation date of the verification token.            |
-
-<p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
-
-## Trial Network Descriptor Schema
+## :page_facing_up: Trial Network Descriptor Schema
 > [!WARNING]
 > The format of Trial Network Descriptors has not been finalized and is expected to change in the future.
 
 Trial Network Descriptors are yaml files with a set of expected fields and with the following structure:
 
 ```yaml
-trial_network:  # Mandatory, contains the description of all entities in the Trial Network
-  <Entity1>:  # A unique identifier for each entity in the Trial Network
-    type:  # A type of component
-    depends_on: # List of dependencies of the component with other components
-      - <EntityN>
+trial_network: # Mandatory, contains the description of all entities in the Trial Network
+  type-name: # A unique identifier for each entity in the Trial Network (entity name)
+    type: # 6G-Library component type
+    name: # Custom name
+    dependencies: # List of dependencies of the component with other components
+      - type-name
       - ...
-    public: # Necessary variables collected from the public part of the 6G-Library
-      ...
+    input: # Dictionary with the variables collected from the input part of the 6G-Library
+      key: value
 ```
 
 This repository contains a variety of descriptor templates:
 - [`01_descriptor.yml`](../descriptors/01_descriptor.yml)
 - [`02_descriptor.yml`](../descriptors/02_descriptor.yml)
+- [`03_descriptor.yml`](../descriptors/03_descriptor.yml)
+- [`04_descriptor.yml`](../descriptors/04_descriptor.yml)
+- [`05_descriptor.yml`](../descriptors/05_descriptor.yml)
+- [`06_descriptor.yml`](../descriptors/06_descriptor.yml)
+- [`07_descriptor.yml`](../descriptors/07_descriptor.yml)
+- [`08_descriptor.yml`](../descriptors/08_descriptor.yml)
+- [`09_descriptor.yml`](../descriptors/09_descriptor.yml)
+- [`10_descriptor.yml`](../descriptors/10_descriptor.yml)
+- [`11_descriptor.yml`](../descriptors/11_descriptor.yml)
 
 The first end-to-end trial network:
-- [`03_descriptor_e2e.yml`](../descriptors/03_descriptor_e2e.yml)
+- [`08_descriptor.yml`](../descriptors/08_descriptor.yml)
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
@@ -279,57 +250,129 @@ The first end-to-end trial network:
 
 The API set forth in the TNLCM is as follows:
 
-![api](./images/api.png)
+![api](./static/api.png)
 
 If it is the first time using the API it is necessary to create a user. A verification code is required, so it is necessary to enter a valid email address that can be accessed:
 
-![requestVerificationToken](./images/requestVerificationToken.png)
+![requestVerificationToken](./static/requestVerificationToken.png)
 
 Once the registration code is obtained, proceed to the user registration using the email and the code previously employed:
 
-![registerUser](./images/registerUser.png)
+![registerUser](./static/registerUser.png)
 
 Once the user has been created or if it has been previously created, add the user and its password in the green **Authorize** box:
 
-![addUser](./images/addUser.png)
+![addUser](./static/addUser.png)
 
 Once the user has been added, an access token and its refresh token can be generated. This access token has a duration of 45 minutes (can be modified):
 
-![tokens](./images/obtainTokens.png)
+![tokens](./static/obtainTokens.png)
 
 The next step is to add the token in the green **Authorize** box. It is required to put the word **Bearer**, a space and then the token. An example is shown:
 
-![accessToken](./images/accessToken.png)
+![accessToken](./static/accessToken.png)
 
 Now, requests that involve having an access token can be made.
 
+To create a Trial Network, the following endpoint must be used:
+
+![createTN](./static/createTN.png)
+
+Once created, it will return a tn_id that will be required to deploy it.
+
+To deploy a trial network, the following endpoint must be used:
+
+![startTN](./static/startTN.png)
+
 If the access token expires, it can be refreshed by using the refresh token. The token in the green **Authorize** box must be updated with the refresh token and the post request must be made:
 
-![refreshToken](./images/refreshToken.png)
+![refreshToken](./static/refreshToken.png)
 
-![updateAccessToken](./images/updateAccessToken.png)
+![updateAccessToken](./static/updateAccessToken.png)
+
+<p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
+
+When the request is made, it will return another access token that will need to be put back into the green **Authorize** box.
+
+### Appendix B: Database Schema
+
+The TNLCM database consists of several collections that store important information about trial networks, users, and verification tokens. Below is the description of each collection:
+
+#### Collection `trial_networks` <!-- omit in toc -->
+
+| Field                               | Description                                                                             |
+| ----------------------------------- | --------------------------------------------------------------------------------------- |
+| `user_created`                      | The user that created the trial network.                                                |
+| `tn_id`                             | The ID of the trial network.                                                            |
+| `tn_state`                          | The state of the trial network.                                                         |
+| `tn_date_created_utc`               | The date and time when the trial network was created (UTC).                             |
+| `tn_raw_descriptor`                 | The raw descriptor of the trial network.                                                |
+| `tn_sorted_descriptor`              | The sorted descriptor of the trial network.                                             |
+| `tn_deployed_descriptor`            | The current status of descriptor with the last entity deployed of the trial network.    |
+| `tn_report`                         | The report related to the trial network.                                                |
+| `deployment_job_name`               | The pipeline used for the deployment of the descriptor.                                 |
+| `destroy_job_name`                  | The pipeline used for destroy a trial network.                                          |
+| `deployment_site`                   | The site where the trial network has been deployed.                                     |
+| `github_6g_library_commit_id`       | The commit id of 6G-Library (branch, commit or tag) used to deploy trial network.       |
+| `github_6g_sandbox_sites_commit_id` | The commid id of 6G-Sandbox-Sites (branch, commit or tag) used to deploy trial network. |
+
+#### Collection `trial_networks_templates` <!-- omit in toc -->
+
+| Field                  | Description                                                          |
+| ---------------------- | -------------------------------------------------------------------- |
+| `user_created`         | The user that created the trial network template.                    |
+| `tn_id`                | The ID of the trial network template.                                |
+| `tn_date_created_utc`  | The date and time when the trial network template was created (UTC). |
+| `tn_raw_descriptor`    | The raw descriptor of the trial network template.                    |
+| `tn_sorted_descriptor` | The sorted descriptor of the trial network template.                 |
+
+#### Collection `users` <!-- omit in toc -->
+
+| Field      | Description                                 |
+| ---------- | ------------------------------------------- |
+| `email`    | The email address of the user.              |
+| `username` | The username of the user.                   |
+| `password` | The password of the user (hashed).          |
+| `org`      | The organization to which the user belongs. |
+
+#### Collection `verifications_tokens` <!-- omit in toc -->
+
+| Field                | Description                                           |
+| -------------------- | ----------------------------------------------------- |
+| `new_account_email`  | The email associated with the new account.            |
+| `verification_token` | The verification token generated for the new account. |
+| `creation_date`      | The creation date of the verification token.          |
+
+#### Collection `resource_manager` <!-- omit in toc -->
+
+| Field       | Description                                                      |
+| ----------- | ---------------------------------------------------------------- |
+| `site`      | The site where the trial network has been deployed.              |
+| `component` | The component over which the resources are controlled.           |
+| `quantity`  | The amount of component available.                               |
+| `ttl`       | The amount of time the component can be used in a trial network. |
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 ## :construction_worker: Development Team <!-- omit in toc -->
 
-| Photo | Name | Email | GitHub | Linkedin |
-| :---: | :--: | :---: | :----: | :------: |
+|                               Photo                                |        Name         |      Email      |                                                                        GitHub                                                                        |                                                                                      Linkedin                                                                                       |
+| :----------------------------------------------------------------: | :-----------------: | :-------------: | :--------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
 | <img src="https://github.com/CarlosAndreo.png?size=50" width=50px> | Carlos Andreo López | c.andreo@uma.es | <a href="https://github.com/CarlosAndreo"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="https://www.linkedin.com/in/carlos-andreo-lópez-66734b22a/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
-| <img src="https://github.com/NaniteBased.png?size=50" width=50px> | Bruno García García | - | <a href="https://github.com/NaniteBased"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="https://itis.uma.es/personal/bruno-garcia-garcia/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
+| <img src="https://github.com/NaniteBased.png?size=50" width=50px>  | Bruno García García |        -        | <a href="https://github.com/NaniteBased"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a>  |     <a href="https://itis.uma.es/personal/bruno-garcia-garcia/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a>      |
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 <!-- Urls, Shields and Badges -->
-[tnlcm-badge]: https://img.shields.io/badge/TNLCM-v0.1.0-blue
-[tnlcm-url]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.1.0
-[python-badge]: https://img.shields.io/badge/Python-3.12.2-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB
-[python-url]: https://www.python.org/downloads/release/python-3122/
+[tnlcm-badge]: https://img.shields.io/badge/TNLCM-v0.2.0-blue
+[tnlcm-url]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.2.0
+[python-badge]: https://img.shields.io/badge/Python-3.12.4-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB
+[python-url]: https://www.python.org/downloads/release/python-3124/
 [flask-badge]: https://img.shields.io/badge/Flask-3.0.3-brightgreen?style=for-the-badge&logo=flask&logoColor=white&labelColor=000000
 [flask-url]: https://flask.palletsprojects.com/en/3.0.x/
-[mongodb-badge]: https://img.shields.io/badge/MongoDB-7.0.8-green?style=for-the-badge&logo=mongodb&logoColor=white&labelColor=47A248
+[mongodb-badge]: https://img.shields.io/badge/MongoDB-7.0.12-green?style=for-the-badge&logo=mongodb&logoColor=white&labelColor=47A248
 [mongodb-url]: https://www.mongodb.com/
-[docker-badge]: https://img.shields.io/badge/Docker-26.0.0-6AB7FF?style=for-the-badge&logo=docker&logoColor=white&labelColor=2496ED
+[docker-badge]: https://img.shields.io/badge/Docker-25.0.4-6AB7FF?style=for-the-badge&logo=docker&logoColor=white&labelColor=2496ED
 [docker-url]: https://www.docker.com/
 [contributors-shield]: https://img.shields.io/github/contributors/6G-SANDBOX/TNLCM.svg?style=for-the-badge
 [contributors-url]: https://github.com/6G-SANDBOX/TNLCM/graphs/contributors

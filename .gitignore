@@ -120,6 +120,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
+.env.dev
 .env
 .venv
 env/
@@ -159,8 +160,12 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 .idea/
 
+# Vscode
+.vscode/
+
 # TNLCM
-src/callback/reports/
-src/temp/files/
-src/logs/executions/
-src/repository/6glibrary/
+core/callback/reports/
+core/temp/files/
+core/logs/executions/
+core/sixg_library/6G-Library/
+core/sixg_sandbox_sites/6G-Sandbox-Sites/
