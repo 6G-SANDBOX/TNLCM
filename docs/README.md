@@ -219,6 +219,7 @@ trial_network: # Mandatory, contains the description of all entities in the Tria
   type-name: # A unique identifier for each entity in the Trial Network (entity name)
     type: # 6G-Library component type
     name: # Custom name
+    debug: # Optional param to debug component in Jenkins. Possible values true/false
     dependencies: # List of dependencies of the component with other components
       - type-name
       - ...
