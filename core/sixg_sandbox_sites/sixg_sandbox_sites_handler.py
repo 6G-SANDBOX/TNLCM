@@ -21,7 +21,6 @@ class SixGSandboxSitesHandler():
         """
         self.github_6g_sandbox_sites_https_url = SixGSandboxSitesSettings.GITHUB_6G_SANDBOX_SITES_HTTPS_URL
         self.github_6g_sandbox_sites_repository_name = SixGSandboxSitesSettings.GITHUB_6G_SANDBOX_SITES_REPOSITORY_NAME
-        self.github_6g_sandbox_sites_token = SixGSandboxSitesSettings.GITHUB_6G_SANDBOX_SITES_TOKEN
         self.github_6g_sandbox_sites_local_directory = os.path.join(SIXG_SANDBOX_SITES_DIRECTORY, self.github_6g_sandbox_sites_repository_name)
         self.github_6g_sandbox_sites_reference_type = reference_type
         self.github_6g_sandbox_sites_reference_value = reference_value
@@ -35,7 +34,7 @@ class SixGSandboxSitesHandler():
             self.github_6g_sandbox_sites_reference_type = "branch"
             self.github_6g_sandbox_sites_reference_value = SixGSandboxSitesSettings.GITHUB_6G_SANDBOX_SITES_BRANCH
         self.deployment_site = None
-        self.repository_handler = RepositoryHandler(github_https_url=self.github_6g_sandbox_sites_https_url, github_repository_name=self.github_6g_sandbox_sites_repository_name, github_local_directory=self.github_6g_sandbox_sites_local_directory, github_reference_type=self.github_6g_sandbox_sites_reference_type, github_reference_value=self.github_6g_sandbox_sites_reference_value, github_token=self.github_6g_sandbox_sites_token)
+        self.repository_handler = RepositoryHandler(github_https_url=self.github_6g_sandbox_sites_https_url, github_repository_name=self.github_6g_sandbox_sites_repository_name, github_local_directory=self.github_6g_sandbox_sites_local_directory, github_reference_type=self.github_6g_sandbox_sites_reference_type, github_reference_value=self.github_6g_sandbox_sites_reference_value)
         self.github_6g_sandbox_sites_commit_id = self.repository_handler.github_commit_id
 
     def _decrypt_site(self):

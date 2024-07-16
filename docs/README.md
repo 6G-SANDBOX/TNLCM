@@ -143,7 +143,6 @@ Mandatory update the values of the following variables according to the platform
 - `JENKINS_USERNAME`
 - `JENKINS_PASSWORD`
 - `JENKINS_TOKEN`
-- `GITHUB_6G_SANDBOX_SITES_TOKEN`
 - `ANSIBLE_VAULT`
 <!-- - `MAIL_USERNAME`
 - `MAIL_PASSWORD` -->
