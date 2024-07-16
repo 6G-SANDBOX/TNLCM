@@ -101,7 +101,7 @@ class JenkinsHandler:
                     self.trial_network.save()
                     raise JenkinsResponseError(f"Error in the response received by Jenkins when trying to deploy the '{entity_name}' entity", response.status_code)
                 last_build_number = self.jenkins_client.get_job_info(name=self.deployment_job_name)["nextBuildNumber"]
-                while not self.jenkins_client.get_job_info(name=self.deployment_job_name)["lastCompletedBuild"]["number"]:
+                while self.jenkins_client.get_job_info(name=self.deployment_job_name)["lastCompletedBuild"]["number"] is None:
                     sleep(15)
                 while last_build_number != self.jenkins_client.get_job_info(name=self.deployment_job_name)["lastCompletedBuild"]["number"]:
                     sleep(15)
