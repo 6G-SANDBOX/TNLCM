@@ -1,19 +1,11 @@
 from flask_restx import Namespace, Resource, abort, reqparse
-from flask_jwt_extended import jwt_required
 
 from core.sixg_sandbox_sites.sixg_sandbox_sites_handler import SixGSandboxSitesHandler
 from core.exceptions.exceptions_handler import CustomException
 
 sixg_sandbox_sites_namespace = Namespace(
     name="6G-Sandbox-Sites",
-    description="Namespace for TNLCM integration with 6G-Sandbox-Sites",
-    authorizations={
-        "Bearer Auth": {
-            "type": "apiKey",
-            "in": "header",
-            "name": "Authorization"
-        }
-    }
+    description="Namespace for TNLCM integration with 6G-Sandbox-Sites"
 )
 
 @sixg_sandbox_sites_namespace.route("/clone")
@@ -23,8 +15,6 @@ class Clone(Resource):
     parser_post.add_argument("reference_type", type=str, required=True, choices=("branch", "commit", "tag"))
     parser_post.add_argument("reference_value", type=str, required=True)
 
-    @sixg_sandbox_sites_namespace.doc(security="Bearer Auth")
-    @jwt_required()
     @sixg_sandbox_sites_namespace.expect(parser_post)
     def post(self):
         """
@@ -47,8 +37,6 @@ class Sites(Resource):
     parser_get.add_argument("reference_type", type=str, required=True, choices=("branch", "commit", "tag"))
     parser_get.add_argument("reference_value", type=str, required=True)
 
-    @sixg_sandbox_sites_namespace.doc(security="Bearer Auth")
-    @jwt_required()
     @sixg_sandbox_sites_namespace.expect(parser_get)
     def get(self):
         """
@@ -67,8 +55,6 @@ class Sites(Resource):
 @sixg_sandbox_sites_namespace.route("/tags/")
 class Tags(Resource):
 
-    @sixg_sandbox_sites_namespace.doc(security="Bearer Auth")
-    @jwt_required()
     def get(self):
         """
         Return 6G-Sandbox-Sites tags
@@ -82,8 +68,6 @@ class Tags(Resource):
 @sixg_sandbox_sites_namespace.route("/branches/")
 class Branches(Resource):
 
-    @sixg_sandbox_sites_namespace.doc(security="Bearer Auth")
-    @jwt_required()
     def get(self):
         """
         Return 6G-Sandbox-Sites branches
