@@ -157,7 +157,7 @@ Optionally, the value of the following variables can be updated:
 > [!IMPORTANT]
 > This step requires **Docker** :whale: to be installed on the machine.
 
-- [Linux](https://docs.docker.com/desktop/install/linux-install/)
+- [Linux](https://docs.docker.com/engine/install/ubuntu/)
 
 Once Docker is installed, open a terminal where the [`docker-compose.yml`](../docker-compose.yml) file is stored (usually inside the TNLCM project) and execute the commands:
 
