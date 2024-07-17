@@ -6,9 +6,12 @@ services:
     ports:
       - 27017:27017
     volumes:
-      - data:/var/lib/mongodb_data
+      - mongo-data:/data/db
+      - mongo-config:/data/configdb
       - ./core/database/tnlcm-structure.js:/docker-entrypoint-initdb.d/tnlcm-structure.js
     restart: unless-stopped
+    networks:
+      - mongo-network
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
@@ -20,6 +23,8 @@ services:
     ports:
       - 8081:8081
     restart: unless-stopped
+    networks:
+      - mongo-network
     depends_on:
       - mongo
     environment:
@@ -30,4 +35,9 @@ services:
       ME_CONFIG_BASICAUTH_PASSWORD: ${ME_CONFIG_BASICAUTH_PASSWORD}
 
 volumes:
-  data:
+  mongo-data:
+  mongo-config:
+
+networks:
+  mongo-network:
+    driver: bridge

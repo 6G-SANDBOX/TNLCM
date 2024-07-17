@@ -1,6 +1,6 @@
 # Changelog
 
-## [v0.2.0] - 2024-07-16
+## [v0.2.0] - 2024-07-17
 
 ### Added
 
@@ -37,6 +37,10 @@
 ### Removed
 
 - First integration with pytest.
+
+### Fixed
+
+- Mongo volumes in docker compose file.
 
 ## [v0.1.0] - 2024-05-16
 

@@ -38,6 +38,7 @@ TNLCM has been designed as a modular application, with the intention of making c
 - [Appendices](#appendices)
   - [Appendix A: How to use Swagger UI](#appendix-a-how-to-use-swagger-ui)
   - [Appendix B: Database Schema](#appendix-b-database-schema)
+  - [Appendix C: TNLCM OpenNebula Appliance](#appendix-c-tnlcm-opennebula-appliance)
 </details>
 
 ## :hammer_and_wrench: Stack
@@ -157,13 +158,9 @@ Optionally, the value of the following variables can be updated:
 > [!IMPORTANT]
 > This step requires **Docker** :whale: to be installed on the machine.
 
-- [Linux](https://docs.docker.com/desktop/install/linux-install/)
+- [Linux](https://docs.docker.com/engine/install/ubuntu/)
 
-Once Docker is installed, open a terminal where the [`docker-compose.yml`](../docker-compose.yml) file is stored (usually inside the TNLCM project) and execute the commands:
-
-```sh
-docker compose build
-```
+Once Docker is installed, open a terminal where the [`docker-compose.yml`](../docker-compose.yml) file is stored (usually inside the TNLCM project) and execute the command:
 
 Flag **-d** can be added to raise the containers in background:
 
@@ -352,6 +349,12 @@ The TNLCM database consists of several collections that store important informat
 | `component` | The component over which the resources are controlled.           |
 | `quantity`  | The amount of component available.                               |
 | `ttl`       | The amount of time the component can be used in a trial network. |
+
+<p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
+
+### Appendix C: TNLCM OpenNebula Appliance
+
+In the [marketplace-community](https://github.com/6G-SANDBOX/marketplace-community/wiki/tnlcm) repository, which is a fork of OpenNebula, detailed information about the TNLCM appliance can be found.
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
