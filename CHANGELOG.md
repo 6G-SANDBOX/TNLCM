@@ -38,6 +38,10 @@
 
 - First integration with pytest.
 
+### Fixed
+
+- Mongo volumes in docker compose file.
+
 ## [v0.1.0] - 2024-05-16
 
 ### Added
