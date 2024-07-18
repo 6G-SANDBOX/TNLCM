@@ -162,11 +162,11 @@ Optionally, the value of the following variables can be updated:
 
 Once Docker is installed, open a terminal where the [`docker-compose.yml`](../docker-compose.yml) file is stored (usually inside the TNLCM project) and execute the command:
 
-Flag **-d** can be added to raise the containers in background:
-
 ```sh
 docker compose up -d
 ```
+
+Flag **-d** can be added to raise the containers in background.
 
 A MongoDB dashboard will be available at the url http://mongodb-frontend-ip:8081 where the database can be managed.
 
@@ -213,14 +213,14 @@ Trial Network Descriptors are yaml files with a set of expected fields and with 
 
 ```yaml
 trial_network: # Mandatory, contains the description of all entities in the Trial Network
-  type-name: # A unique identifier for each entity in the Trial Network (entity name)
-    type: # 6G-Library component type
-    name: # Custom name
-    debug: # Optional param to debug component in Jenkins. Possible values true/false
-    dependencies: # List of dependencies of the component with other components
+  type-name: # Mandatory, a unique identifier for each entity in the Trial Network (entity name)
+    type: # Mandatory, 6G-Library component type
+    name: # Mandatory, custom name. Not use character \- or \.
+    debug: # Optional, param to debug component in Jenkins. Possible values true or false
+    dependencies: # Mandatory, list of dependencies of the component with other components
       - type-name
       - ...
-    input: # Dictionary with the variables collected from the input part of the 6G-Library
+    input: # Mandatory, dictionary with the variables collected from the input part of the 6G-Library
       key: value
 ```
 
