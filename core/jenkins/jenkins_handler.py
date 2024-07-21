@@ -136,7 +136,7 @@ class JenkinsHandler:
         """
         Return a dictionary with the parameters for each component to be passed to the destroy pipeline
         """
-        parameters = {
+        return {
             # MANDATORY
             "TN_ID": self.trial_network.tn_id,
             "DEPLOYMENT_SITE": self.trial_network.deployment_site,
@@ -148,16 +148,12 @@ class JenkinsHandler:
             "SITES_BRANCH": self.trial_network.github_6g_sandbox_sites_commit_id,
             # "DEBUG": true
         }
-        return parameters
     
     def trial_network_destroy(self):
         """
         Trial network destroy starts
         """
-        jenkins_build_job_url = self.jenkins_client.build_job_url(name=self.destroy_job_name, parameters=self._jenkins_destroy_parameters())
-        response = post(jenkins_build_job_url, auth=(self.jenkins_username, self.jenkins_token))
-        if response.status_code != 201:
-            raise JenkinsResponseError(f"Error in the response received by Jenkins when trying to destroy '{self.trial_network.tn_id}' trial network", response.status_code)
+        self.jenkins_client.build_job(name=self.destroy_job_name, parameters=self._jenkins_destroy_parameters(), token=self.jenkins_token)
         log_handler.info(f"Start the destroyed of the '{self.trial_network.tn_id}' trial network")
         last_build_number = self.jenkins_client.get_job_info(name=self.destroy_job_name)["nextBuildNumber"]
         while not self.jenkins_client.get_job_info(name=self.destroy_job_name)["lastCompletedBuild"]:
