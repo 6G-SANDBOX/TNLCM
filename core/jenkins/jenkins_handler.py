@@ -156,16 +156,17 @@ class JenkinsHandler:
         """
         jenkins_build_job_url = self.jenkins_client.build_job_url(name=self.destroy_job_name, parameters=self._jenkins_destroy_parameters())
         response = post(jenkins_build_job_url, auth=(self.jenkins_username, self.jenkins_token))
-        if response.status_code == 201:
-            log_handler.info(f"Start the destroyed of the '{self.trial_network.tn_id}' trial network")
-            last_build_number = self.jenkins_client.get_job_info(name=self.destroy_job_name)["nextBuildNumber"]
-            while not self.jenkins_client.get_job_info(name=self.destroy_job_name)["lastCompletedBuild"]:
-                sleep(15)
-            while last_build_number != self.jenkins_client.get_job_info(name=self.destroy_job_name)["lastCompletedBuild"]["number"]:
-                sleep(15)
-            if self.jenkins_client.get_job_info(name=self.destroy_job_name)["lastSuccessfulBuild"]["number"] != last_build_number:
-                raise JenkinsComponentPipelineError(f"Pipeline for destroy '{self.trial_network.tn_id}' trial network has failed", 500)
-            log_handler.info(f"Trial network '{self.trial_network.tn_id}' successfully destroyed")
+        if response.status_code != 201:
+            raise JenkinsResponseError(f"Error in the response received by Jenkins when trying to destroy '{self.trial_network.tn_id}' trial network", response.status_code)
+        log_handler.info(f"Start the destroyed of the '{self.trial_network.tn_id}' trial network")
+        last_build_number = self.jenkins_client.get_job_info(name=self.destroy_job_name)["nextBuildNumber"]
+        while not self.jenkins_client.get_job_info(name=self.destroy_job_name)["lastCompletedBuild"]:
+            sleep(15)
+        while last_build_number != self.jenkins_client.get_job_info(name=self.destroy_job_name)["lastCompletedBuild"]["number"]:
+            sleep(15)
+        if self.jenkins_client.get_job_info(name=self.destroy_job_name)["lastSuccessfulBuild"]["number"] != last_build_number:
+            raise JenkinsComponentPipelineError(f"Pipeline for destroy '{self.trial_network.tn_id}' trial network has failed", 500)
+        log_handler.info(f"Trial network '{self.trial_network.tn_id}' successfully destroyed")
 
     def get_all_jobs(self):
         """
