@@ -101,7 +101,7 @@ class JenkinsHandler:
                     self.trial_network.save()
                     raise JenkinsResponseError(f"Error in the response received by Jenkins when trying to deploy the '{entity_name}' entity", response.status_code)
                 last_build_number = self.jenkins_client.get_job_info(name=self.deployment_job_name)["nextBuildNumber"]
-                while self.jenkins_client.get_job_info(name=self.deployment_job_name)["lastCompletedBuild"]["number"] is None:
+                while not self.jenkins_client.get_job_info(name=self.deployment_job_name)["lastCompletedBuild"]:
                     sleep(15)
                 while last_build_number != self.jenkins_client.get_job_info(name=self.deployment_job_name)["lastCompletedBuild"]["number"]:
                     sleep(15)
@@ -159,6 +159,8 @@ class JenkinsHandler:
         if response.status_code == 201:
             log_handler.info(f"Start the destroyed of the '{self.trial_network.tn_id}' trial network")
             last_build_number = self.jenkins_client.get_job_info(name=self.destroy_job_name)["nextBuildNumber"]
+            while not self.jenkins_client.get_job_info(name=self.destroy_job_name)["lastCompletedBuild"]:
+                sleep(15)
             while last_build_number != self.jenkins_client.get_job_info(name=self.destroy_job_name)["lastCompletedBuild"]["number"]:
                 sleep(15)
             if self.jenkins_client.get_job_info(name=self.destroy_job_name)["lastSuccessfulBuild"]["number"] != last_build_number:
