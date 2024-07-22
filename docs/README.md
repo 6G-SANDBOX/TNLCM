@@ -288,9 +288,9 @@ If the access token expires, it can be refreshed by using the refresh token. The
 
 ![updateAccessToken](./static/updateAccessToken.png)
 
-<p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
-
 When the request is made, it will return another access token that will need to be put back into the green **Authorize** box.
+
+<p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 ### Appendix B: Database Schema
 
