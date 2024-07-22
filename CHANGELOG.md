@@ -1,5 +1,16 @@
 # Changelog
 
+## [v0.2.1] - 2024-07-22
+
+### Changed
+
+- Docker version to 27.0.3.
+
+### Fixed
+
+- Launch a trial network when there are no builds of the job yet in Jenkins.
+- Destroy a trial network when there are no builds of the job yet in Jenkins.
+
 ## [v0.2.0] - 2024-07-18
 
 ### Added
@@ -72,5 +83,6 @@
 
 - Frontend implementation.
 
+[v0.2.1]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.2.0...v0.2.1
 [v0.2.0]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.1.0...v0.2.0
 [v0.1.0]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.1.0
