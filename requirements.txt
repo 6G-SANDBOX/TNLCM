@@ -5,7 +5,7 @@ flask-jwt-extended==4.6.0
 flask-mail==0.10.0
 waitress==3.0.0
 python-dotenv==1.0.1
-werkzeug==3.0.3
+werkzeug==3.0.4
 requests==2.32.3
 mongoengine==0.28.2
 python-jenkins==1.8.2
