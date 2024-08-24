@@ -370,7 +370,7 @@ In the [marketplace-community](https://github.com/6G-SANDBOX/marketplace-communi
 <!-- Urls, Shields and Badges -->
 [tnlcm-badge]: https://img.shields.io/badge/TNLCM-v0.2.1-blue
 [tnlcm-url]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.2.1
-[python-badge]: https://img.shields.io/badge/Python-3.12.4-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB
+[python-badge]: https://img.shields.io/badge/Python-3.12.5-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB
 [python-url]: https://www.python.org/downloads/release/python-3124/
 [flask-badge]: https://img.shields.io/badge/Flask-3.0.3-brightgreen?style=for-the-badge&logo=flask&logoColor=white&labelColor=000000
 [flask-url]: https://flask.palletsprojects.com/en/3.0.x/
