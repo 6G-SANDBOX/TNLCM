@@ -25,7 +25,7 @@ class TnlcmSettings:
         raise UndefinedEnvVariableError(missing_variables)
     
     TITLE = "Trial Network Life Cycle Manager - TNLCM"
-    VERSION = "0.2.1"
+    VERSION = "0.2.2"
     DESCRIPTION = ("""
     Welcome to the Trial Network Life Cycle Manager (TNLCM) API! This powerful tool facilitates the management and orchestration of network life cycles, designed specifically for the cutting-edge 6G Sandbox project.
 
