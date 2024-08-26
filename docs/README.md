@@ -58,7 +58,7 @@ TNLCM/                       // main folder.
 ├─ app.py                    // main file that starts TNLCM.
 ├─ CHANGELOG.md              // file containing the changes made in each release.
 ├─ descriptors/              // folder in which trial network descriptors templates are stored.
-├─ docker-compose.yml        // file for create database.
+├─ docker-compose.yaml       // file for create database.
 ├─ docs/                     // folder in which all documentation is stored.
 ├─ requirements.txt          // file containing the libraries and their versions.
 ├─ conf/                     // folder that handler the configuration files.
@@ -160,7 +160,7 @@ Optionally, the value of the following variables can be updated:
 
 - [Linux](https://docs.docker.com/engine/install/ubuntu/)
 
-Once Docker is installed, open a terminal where the [`docker-compose.yml`](../docker-compose.yml) file is stored (usually inside the TNLCM project) and execute the command:
+Once Docker is installed, open a terminal where the [`docker-compose.yaml`](../docker-compose.yaml) file is stored (usually inside the TNLCM project) and execute the command:
 
 ```sh
 docker compose up -d
