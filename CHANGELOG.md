@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.2.2] - 2024-08-26
+
+### Changed
+
+- Python version to 3.12.5.
+- Libraries to latest versions.
+- Update the extension of the docker compose file to .yaml.
+
 ## [v0.2.1] - 2024-07-22
 
 ### Changed
@@ -83,6 +91,7 @@
 
 - Frontend implementation.
 
+[v0.2.2]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.2.1...v0.2.2
 [v0.2.1]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.2.0...v0.2.1
 [v0.2.0]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.1.0...v0.2.0
 [v0.1.0]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.1.0
