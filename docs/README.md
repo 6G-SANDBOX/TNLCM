@@ -57,7 +57,7 @@ TNLCM/                       // main folder.
 ├─ .gitignore                // file specifying intentionally untracked files to ignore.
 ├─ app.py                    // main file that starts TNLCM.
 ├─ CHANGELOG.md              // file containing the changes made in each release.
-├─ descriptors/              // folder in which trial network descriptors templates are stored.
+├─ tn_template_lib/          // folder in which trial network descriptors templates are stored.
 ├─ docker-compose.yaml       // file for create database.
 ├─ docs/                     // folder in which all documentation is stored.
 ├─ requirements.txt          // file containing the libraries and their versions.
@@ -225,20 +225,20 @@ trial_network: # Mandatory, contains the description of all entities in the Tria
 ```
 
 This repository contains a variety of descriptor templates:
-- [`01_descriptor.yaml`](../descriptors/01_descriptor.yaml)
-- [`02_descriptor.yaml`](../descriptors/02_descriptor.yaml)
-- [`03_descriptor.yaml`](../descriptors/03_descriptor.yaml)
-- [`04_descriptor.yaml`](../descriptors/04_descriptor.yaml)
-- [`05_descriptor.yaml`](../descriptors/05_descriptor.yaml)
-- [`06_descriptor.yaml`](../descriptors/06_descriptor.yaml)
-- [`07_descriptor.yaml`](../descriptors/07_descriptor.yaml)
-- [`08_descriptor.yaml`](../descriptors/08_descriptor.yaml)
-- [`09_descriptor.yaml`](../descriptors/09_descriptor.yaml)
-- [`10_descriptor.yaml`](../descriptors/10_descriptor.yaml)
-- [`11_descriptor.yaml`](../descriptors/11_descriptor.yaml)
+- [`01_descriptor.yaml`](../tn_template_lib/01_descriptor.yaml)
+- [`02_descriptor.yaml`](../tn_template_lib/02_descriptor.yaml)
+- [`03_descriptor.yaml`](../tn_template_lib/03_descriptor.yaml)
+- [`04_descriptor.yaml`](../tn_template_lib/04_descriptor.yaml)
+- [`05_descriptor.yaml`](../tn_template_lib/05_descriptor.yaml)
+- [`06_descriptor.yaml`](../tn_template_lib/06_descriptor.yaml)
+- [`07_descriptor.yaml`](../tn_template_lib/07_descriptor.yaml)
+- [`08_descriptor.yaml`](../tn_template_lib/08_descriptor.yaml)
+- [`09_descriptor.yaml`](../tn_template_lib/09_descriptor.yaml)
+- [`10_descriptor.yaml`](../tn_template_lib/10_descriptor.yaml)
+- [`11_descriptor.yaml`](../tn_template_lib/11_descriptor.yaml)
 
 The first end-to-end trial network:
-- [`08_descriptor.yaml`](../descriptors/08_descriptor.yaml)
+- [`08_descriptor.yaml`](../tn_template_lib/08_descriptor.yaml)
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 

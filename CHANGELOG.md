@@ -8,6 +8,7 @@
 - MongoDB version to 7.0.14.
 - Libraries to latest versions.
 - Update the extension of the docker compose file to .yaml.
+- Rename descriptors folder to tn_template_lib.
 
 ## [v0.2.1] - 2024-07-22
 
@@ -39,7 +40,7 @@
 - Destroy trial networks using specific pipelines/jobs.
 - Indicate the site where the trial network will be deployed. Connection to the site is required.
 - Only components that are available on the indicated site can be deployed.
-- [`11 descriptor files`](./descriptors/) that each platform must pass or not pass as a test.
+- [`11 descriptor files`](./tn_template_lib/) that each platform must pass or not pass as a test.
 
 ### Changed
 
