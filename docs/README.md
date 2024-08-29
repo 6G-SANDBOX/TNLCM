@@ -225,20 +225,20 @@ trial_network: # Mandatory, contains the description of all entities in the Tria
 ```
 
 This repository contains a variety of descriptor templates:
-- [`01_descriptor.yml`](../descriptors/01_descriptor.yml)
-- [`02_descriptor.yml`](../descriptors/02_descriptor.yml)
-- [`03_descriptor.yml`](../descriptors/03_descriptor.yml)
-- [`04_descriptor.yml`](../descriptors/04_descriptor.yml)
-- [`05_descriptor.yml`](../descriptors/05_descriptor.yml)
-- [`06_descriptor.yml`](../descriptors/06_descriptor.yml)
-- [`07_descriptor.yml`](../descriptors/07_descriptor.yml)
-- [`08_descriptor.yml`](../descriptors/08_descriptor.yml)
-- [`09_descriptor.yml`](../descriptors/09_descriptor.yml)
-- [`10_descriptor.yml`](../descriptors/10_descriptor.yml)
-- [`11_descriptor.yml`](../descriptors/11_descriptor.yml)
+- [`01_descriptor.yaml`](../descriptors/01_descriptor.yaml)
+- [`02_descriptor.yaml`](../descriptors/02_descriptor.yaml)
+- [`03_descriptor.yaml`](../descriptors/03_descriptor.yaml)
+- [`04_descriptor.yaml`](../descriptors/04_descriptor.yaml)
+- [`05_descriptor.yaml`](../descriptors/05_descriptor.yaml)
+- [`06_descriptor.yaml`](../descriptors/06_descriptor.yaml)
+- [`07_descriptor.yaml`](../descriptors/07_descriptor.yaml)
+- [`08_descriptor.yaml`](../descriptors/08_descriptor.yaml)
+- [`09_descriptor.yaml`](../descriptors/09_descriptor.yaml)
+- [`10_descriptor.yaml`](../descriptors/10_descriptor.yaml)
+- [`11_descriptor.yaml`](../descriptors/11_descriptor.yaml)
 
 The first end-to-end trial network:
-- [`08_descriptor.yml`](../descriptors/08_descriptor.yml)
+- [`08_descriptor.yaml`](../descriptors/08_descriptor.yaml)
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
