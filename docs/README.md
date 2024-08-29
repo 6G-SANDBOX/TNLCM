@@ -58,7 +58,7 @@ TNLCM/                       // main folder.
 ├─ app.py                    // main file that starts TNLCM.
 ├─ CHANGELOG.md              // file containing the changes made in each release.
 ├─ descriptors/              // folder in which trial network descriptors templates are stored.
-├─ docker-compose.yml        // file for create database.
+├─ docker-compose.yaml       // file for create database.
 ├─ docs/                     // folder in which all documentation is stored.
 ├─ requirements.txt          // file containing the libraries and their versions.
 ├─ conf/                     // folder that handler the configuration files.
@@ -160,7 +160,7 @@ Optionally, the value of the following variables can be updated:
 
 - [Linux](https://docs.docker.com/engine/install/ubuntu/)
 
-Once Docker is installed, open a terminal where the [`docker-compose.yml`](../docker-compose.yml) file is stored (usually inside the TNLCM project) and execute the command:
+Once Docker is installed, open a terminal where the [`docker-compose.yaml`](../docker-compose.yaml) file is stored (usually inside the TNLCM project) and execute the command:
 
 ```sh
 docker compose up -d
@@ -225,20 +225,20 @@ trial_network: # Mandatory, contains the description of all entities in the Tria
 ```
 
 This repository contains a variety of descriptor templates:
-- [`01_descriptor.yml`](../descriptors/01_descriptor.yml)
-- [`02_descriptor.yml`](../descriptors/02_descriptor.yml)
-- [`03_descriptor.yml`](../descriptors/03_descriptor.yml)
-- [`04_descriptor.yml`](../descriptors/04_descriptor.yml)
-- [`05_descriptor.yml`](../descriptors/05_descriptor.yml)
-- [`06_descriptor.yml`](../descriptors/06_descriptor.yml)
-- [`07_descriptor.yml`](../descriptors/07_descriptor.yml)
-- [`08_descriptor.yml`](../descriptors/08_descriptor.yml)
-- [`09_descriptor.yml`](../descriptors/09_descriptor.yml)
-- [`10_descriptor.yml`](../descriptors/10_descriptor.yml)
-- [`11_descriptor.yml`](../descriptors/11_descriptor.yml)
+- [`01_descriptor.yaml`](../descriptors/01_descriptor.yaml)
+- [`02_descriptor.yaml`](../descriptors/02_descriptor.yaml)
+- [`03_descriptor.yaml`](../descriptors/03_descriptor.yaml)
+- [`04_descriptor.yaml`](../descriptors/04_descriptor.yaml)
+- [`05_descriptor.yaml`](../descriptors/05_descriptor.yaml)
+- [`06_descriptor.yaml`](../descriptors/06_descriptor.yaml)
+- [`07_descriptor.yaml`](../descriptors/07_descriptor.yaml)
+- [`08_descriptor.yaml`](../descriptors/08_descriptor.yaml)
+- [`09_descriptor.yaml`](../descriptors/09_descriptor.yaml)
+- [`10_descriptor.yaml`](../descriptors/10_descriptor.yaml)
+- [`11_descriptor.yaml`](../descriptors/11_descriptor.yaml)
 
 The first end-to-end trial network:
-- [`08_descriptor.yml`](../descriptors/08_descriptor.yml)
+- [`08_descriptor.yaml`](../descriptors/08_descriptor.yaml)
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
@@ -374,7 +374,7 @@ In the [marketplace-community](https://github.com/6G-SANDBOX/marketplace-communi
 [python-url]: https://www.python.org/downloads/release/python-3124/
 [flask-badge]: https://img.shields.io/badge/Flask-3.0.3-brightgreen?style=for-the-badge&logo=flask&logoColor=white&labelColor=000000
 [flask-url]: https://flask.palletsprojects.com/en/3.0.x/
-[mongodb-badge]: https://img.shields.io/badge/MongoDB-7.0.12-green?style=for-the-badge&logo=mongodb&logoColor=white&labelColor=47A248
+[mongodb-badge]: https://img.shields.io/badge/MongoDB-7.0.14-green?style=for-the-badge&logo=mongodb&logoColor=white&labelColor=47A248
 [mongodb-url]: https://www.mongodb.com/
 [docker-badge]: https://img.shields.io/badge/Docker-27.0.3-6AB7FF?style=for-the-badge&logo=docker&logoColor=white&labelColor=2496ED
 [docker-url]: https://www.docker.com/

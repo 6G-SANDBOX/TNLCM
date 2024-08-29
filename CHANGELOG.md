@@ -1,10 +1,11 @@
 # Changelog
 
-## [v0.2.2] - 2024-08-26
+## [v0.2.2] - 2024-08-29
 
 ### Changed
 
 - Python version to 3.12.5.
+- MongoDB version to 7.0.14.
 - Libraries to latest versions.
 - Update the extension of the docker compose file to .yaml.
 

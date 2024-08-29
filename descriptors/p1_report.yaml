@@ -1,0 +1,47 @@
+trial_network:
+
+    tn_vxlan:
+    type: "tn_vxlan"
+    dependencies: []
+    input: {}
+  tn_bastion:
+    type: "tn_bastion"
+    dependencies:
+      - "tn_vxlan"
+    input: {}
+  vm_kvm-open5gs:
+    type: "vm_kvm"
+    name: "open5gs"
+    dependencies:
+      - "tn_init"
+    input:
+      one_vm_kvm_size: "medium"
+      one_vm_kvm_networks:
+        - "tn_vxlan"
+  vm_kvm-loadcore:
+    type: "vm_kvm"
+    name: "loadcore"
+    dependencies:
+      - "tn_init"
+    input:
+      one_vm_kvm_size: "large"
+      one_vm_kvm_networks:
+        - "tn_vxlan"
+  vm_kvm-lc_agent_ran:
+    type: "vm_kvm"
+    name: "lc_agent_ran"
+    dependencies:
+      - "tn_init"
+    input:
+      one_vm_kvm_size: "medium"
+      one_vm_kvm_networks:
+        - "tn_vxlan"
+  vm_kvm-lc_agent_dn:
+    type: "vm_kvm"
+    name: "lc_agent_dn"
+    dependencies:
+      - "tn_init"
+    input:
+      one_vm_kvm_size: "medium"
+      one_vm_kvm_networks:
+        - "tn_vxlan"
