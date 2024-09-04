@@ -107,10 +107,10 @@ TNLCM is currently able to deploy the following types of components correspondin
 > [!TIP]
 > TNLCM uses the following repository releases:
 > 
-> | Repository       | Branch | Release                                                                      |
-> | ---------------- | ------ | ---------------------------------------------------------------------------- |
-> | 6G-Library       | -      | [v0.2.0](https://github.com/6G-SANDBOX/6G-Library/releases/tag/v0.2.0)       |
-> | 6G-Sandbox-Sites | main   | -                                                                            |
+> | Repository       | Branch        | Release                                                                      |
+> | ---------------- | ------------- | ---------------------------------------------------------------------------- |
+> | 6G-Library       | -             | [v0.2.1](https://github.com/6G-SANDBOX/6G-Library/releases/tag/v0.2.1)       |
+> | 6G-Sandbox-Sites | Depend site   | [main](https://github.com/6G-SANDBOX/6G-Sandbox-Sites)                       |
 
 > [!WARNING]
 > In order to run TNLCM, the following tools are **required** to be deployed on the platforms:
@@ -121,8 +121,9 @@ TNLCM is currently able to deploy the following types of components correspondin
 > 
 > * Jenkins
 > * MinIO
-> * OneKE: v1.27 or v1.29
-> * Ueransim: v3.2.6
+> * Bastion
+> * OneKE
+> * Ueransim
 
 ### :inbox_tray: Download or clone repository
 
@@ -145,20 +146,11 @@ Mandatory update the values of the following variables according to the platform
 - `JENKINS_PASSWORD`
 - `JENKINS_TOKEN`
 - `ANSIBLE_VAULT`
-<!-- - `MAIL_USERNAME`
-- `MAIL_PASSWORD` -->
-
-Optionally, the value of the following variables can be updated:
-- `FLASK_ENV`
-- `ME_CONFIG_BASICAUTH_USERNAME`
-- `ME_CONFIG_BASICAUTH_PASSWORD`
 
 ### :floppy_disk: Create database
 
 > [!IMPORTANT]
-> This step requires **Docker** :whale: to be installed on the machine.
-
-- [Linux](https://docs.docker.com/engine/install/ubuntu/)
+> This step requires **Docker** to be installed on the machine.
 
 Once Docker is installed, open a terminal where the [`docker-compose.yaml`](../docker-compose.yaml) file is stored (usually inside the TNLCM project) and execute the command:
 
