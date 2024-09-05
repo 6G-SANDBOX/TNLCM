@@ -216,18 +216,7 @@ trial_network: # Mandatory, contains the description of all entities in the Tria
       key: value
 ```
 
-This repository contains a variety of descriptor templates:
-- [`01_descriptor.yaml`](../tn_template_lib/01_descriptor.yaml)
-- [`02_descriptor.yaml`](../tn_template_lib/02_descriptor.yaml)
-- [`03_descriptor.yaml`](../tn_template_lib/03_descriptor.yaml)
-- [`04_descriptor.yaml`](../tn_template_lib/04_descriptor.yaml)
-- [`05_descriptor.yaml`](../tn_template_lib/05_descriptor.yaml)
-- [`06_descriptor.yaml`](../tn_template_lib/06_descriptor.yaml)
-- [`07_descriptor.yaml`](../tn_template_lib/07_descriptor.yaml)
-- [`08_descriptor.yaml`](../tn_template_lib/08_descriptor.yaml)
-- [`09_descriptor.yaml`](../tn_template_lib/09_descriptor.yaml)
-- [`10_descriptor.yaml`](../tn_template_lib/10_descriptor.yaml)
-- [`11_descriptor.yaml`](../tn_template_lib/11_descriptor.yaml)
+This repository contains a variety of [descriptor templates](../tn_template_lib/).
 
 The first end-to-end trial network:
 - [`08_descriptor.yaml`](../tn_template_lib/08_descriptor.yaml)
