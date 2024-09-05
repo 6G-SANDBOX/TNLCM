@@ -58,7 +58,7 @@ class SixGLibraryHandler:
         components_data = {}
         for component in list_site_available_components:
             if not os.path.isdir(os.path.join(self.github_6g_library_local_directory, component)):
-                raise SixGLibraryComponentsNotFoundError(f"No components in commit '{self.github_6g_library_commit_id}' of 6G-Library", 404) 
+                raise SixGLibraryComponentsNotFoundError(f"Component '{component}' not in commit '{self.github_6g_library_commit_id}' of 6G-Library", 404) 
             if os.path.isdir(os.path.join(self.github_6g_library_local_directory, component)):
                 public_file = os.path.join(self.github_6g_library_local_directory, component, ".tnlcm", "public.yaml")
                 if not os.path.exists(public_file):
