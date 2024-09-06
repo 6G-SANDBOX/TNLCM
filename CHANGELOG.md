@@ -1,6 +1,6 @@
 # Changelog
 
-## [v0.2.2] - 2024-08-29
+## [v0.2.2] - 2024-09-06
 
 ### Changed
 
@@ -9,6 +9,10 @@
 - Libraries to latest versions.
 - Update the extension of the docker compose file to .yaml.
 - Rename descriptors folder to tn_template_lib.
+
+### Fixed
+
+- Condition required when in 6G-Library.
 
 ## [v0.2.1] - 2024-07-22
 
