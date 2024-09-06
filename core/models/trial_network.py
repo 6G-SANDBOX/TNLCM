@@ -275,8 +275,6 @@ class TrialNetworkModel(Document):
                     sixg_library_required_when = input_sixg_library_value["required_when"]
                     if not isinstance(sixg_library_required_when, bool) and not isinstance(sixg_library_required_when, str):
                         raise TrialNetworkInvalidDescriptorError(f"Component '{component_type}'. The 'required_when' condition for the '{input_sixg_library_key}' input field must be either a bool or a str representing a logical condition.", 422)
-                    if eval(str(sixg_library_required_when), {}, input_descriptor_component) and input_sixg_library_key not in input_descriptor_component:
-                        raise TrialNetworkInvalidDescriptorError(f"Component '{component_type}'. Field '{input_sixg_library_key}' is mandatory in descriptor when condition '{sixg_library_required_when}' is met", 422)
                     if input_sixg_library_key in input_descriptor_component:
                         sixg_library_type = input_sixg_library_value["type"]
                         type_mapping = {
