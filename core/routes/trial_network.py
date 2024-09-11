@@ -193,7 +193,10 @@ class TrialNetwork(Resource):
             if tn_state != "activated":
                 return abort(400, f"Trial network cannot be destroyed")
             callback_handler = CallbackHandler(trial_network=trial_network)
-            jenkins_handler = JenkinsHandler(trial_network=trial_network, callback_handler=callback_handler)
+            sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type="commit", reference_value=trial_network.github_6g_sandbox_sites_commit_id)
+            sixg_sandbox_sites_handler.set_deployment_site(trial_network.deployment_site)
+            sixg_library_handler = SixGLibraryHandler(reference_type="commit", reference_value=trial_network.github_6g_library_commit_id)
+            jenkins_handler = JenkinsHandler(trial_network=trial_network, callback_handler=callback_handler, sixg_library_handler=sixg_library_handler, sixg_sandbox_sites_handler=sixg_sandbox_sites_handler)
             jenkins_handler.set_destroy_job_name(destroy_job_name)
             trial_network.set_destroy_job_name(jenkins_handler.destroy_job_name)
             jenkins_handler.trial_network_destroy()

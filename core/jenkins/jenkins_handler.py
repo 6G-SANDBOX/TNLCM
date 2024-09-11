@@ -11,7 +11,7 @@ from core.exceptions.exceptions_handler import JenkinsConnectionError, JenkinsIn
 
 class JenkinsHandler:
 
-    def __init__(self, trial_network=None, temp_file_handler=None, callback_handler=None):
+    def __init__(self, trial_network=None, temp_file_handler=None, callback_handler=None, sixg_library_handler=None, sixg_sandbox_sites_handler=None):
         """
         Constructor
 
@@ -22,6 +22,8 @@ class JenkinsHandler:
         self.trial_network = trial_network
         self.temp_file_handler = temp_file_handler
         self.callback_handler = callback_handler
+        self.sixg_library_handler = sixg_library_handler
+        self.sixg_sandbox_sites_handler = sixg_sandbox_sites_handler
         self.jenkins_url = JenkinsSettings.JENKINS_URL
         self.jenkins_username = JenkinsSettings.JENKINS_USERNAME
         self.jenkins_password = JenkinsSettings.JENKINS_PASSWORD
@@ -136,6 +138,17 @@ class JenkinsHandler:
         """
         Return a dictionary with the parameters for each component to be passed to the destroy pipeline
         """
+        site_available_components = self.sixg_sandbox_sites_handler.get_site_available_components()
+        list_site_available_components = list(site_available_components.keys())
+        parts_components = self.sixg_library_handler.get_parts_components(site=self.trial_network.deployment_site, list_site_available_components=list_site_available_components)
+        metadata = {component: data["metadata"] for component, data in parts_components.items()}
+        tn_sorted_descriptor = self.trial_network.json_to_descriptor(self.trial_network.tn_sorted_descriptor)["trial_network"]
+        entities_with_destroy_script = []
+        for entity_name, entity_data in tn_sorted_descriptor.items():
+            component_type = entity_data["type"]
+            if "destroy_script" in metadata[component_type] and metadata[component_type]["destroy_script"]:
+                entities_with_destroy_script.append(entity_name)
+        print(entities_with_destroy_script)
         return {
             # MANDATORY
             "TN_ID": self.trial_network.tn_id,
@@ -146,6 +159,7 @@ class JenkinsHandler:
             "LIBRARY_BRANCH": self.trial_network.github_6g_library_commit_id,
             "SITES_URL": SixGSandboxSitesSettings.GITHUB_6G_SANDBOX_SITES_HTTPS_URL,
             "SITES_BRANCH": self.trial_network.github_6g_sandbox_sites_commit_id,
+            "SCRIPTED_DESTROY_COMPONENTS": entities_with_destroy_script
             # "DEBUG": true
         }
     
@@ -153,7 +167,8 @@ class JenkinsHandler:
         """
         Trial network destroy starts
         """
-        self.jenkins_client.build_job(name=self.destroy_job_name, parameters=self._jenkins_destroy_parameters(), token=self.jenkins_token)
+        parameters=self._jenkins_destroy_parameters()
+        # self.jenkins_client.build_job(name=self.destroy_job_name, parameters=self._jenkins_destroy_parameters(), token=self.jenkins_token)
         log_handler.info(f"Start the destroyed of the '{self.trial_network.tn_id}' trial network")
         last_build_number = self.jenkins_client.get_job_info(name=self.destroy_job_name)["nextBuildNumber"]
         while not self.jenkins_client.get_job_info(name=self.destroy_job_name)["lastCompletedBuild"]:
