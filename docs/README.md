@@ -107,23 +107,10 @@ TNLCM is currently able to deploy the following types of components correspondin
 > [!TIP]
 > TNLCM uses the following repository releases:
 > 
-> | Repository       | Branch        | Release                                                                      |
-> | ---------------- | ------------- | ---------------------------------------------------------------------------- |
-> | 6G-Library       | -             | [v0.2.1](https://github.com/6G-SANDBOX/6G-Library/releases/tag/v0.2.1)       |
-> | 6G-Sandbox-Sites | Depend site   | [main](https://github.com/6G-SANDBOX/6G-Sandbox-Sites)                       |
-
-> [!WARNING]
-> In order to run TNLCM, the following tools are **required** to be deployed on the platforms:
->
-> * OpenNebula: v6.6.3 or later
->
-> From [OpenNebula Marketplace](https://marketplace.mobilesandbox.cloud:9443/appliance):
-> 
-> * Jenkins
-> * MinIO
-> * Bastion
-> * OneKE
-> * Ueransim
+> | Repository       | Branch                                                   | Release                                                                      |
+> | ---------------- | -------------------------------------------------------- | ---------------------------------------------------------------------------- |
+> | 6G-Library       | -                                                        | [v0.2.1](https://github.com/6G-SANDBOX/6G-Library/releases/tag/v0.2.1)       |
+> | 6G-Sandbox-Sites | [main](https://github.com/6G-SANDBOX/6G-Sandbox-Sites)   | -                                                                            |
 
 ### :inbox_tray: Download or clone repository
 
@@ -219,7 +206,7 @@ trial_network: # Mandatory, contains the description of all entities in the Tria
 This repository contains a variety of [descriptor templates](../tn_template_lib/).
 
 The first end-to-end trial network:
-- [`08_descriptor.yaml`](../tn_template_lib/08_descriptor.yaml)
+- [`08_descriptor.yaml`](../tn_template_lib/08_descriptor.yaml) - **should work on all platforms**
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
@@ -335,24 +322,26 @@ The TNLCM database consists of several collections that store important informat
 
 ### Appendix C: TNLCM OpenNebula Appliance
 
-In the [marketplace-community](https://github.com/6G-SANDBOX/marketplace-community/wiki/tnlcm) repository, which is a fork of OpenNebula, detailed information about the TNLCM appliance can be found.
+In the [marketplace-community](https://github.com/6G-SANDBOX/marketplace-community/wiki/tnlcm) repository, which is a fork of OpenNebula, detailed information about the TNLCM appliance can be found. 
+
+To deploy 6G-SANDBOX TOOLKIT in OpenNebula, the documentation can be accessed from the [web site](https://6g-sandbox.eu/wp-content/uploads/2024/09/6G-SANDBOX-Toolkit_Installation-G-V1.0_F.pdf)
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 ## :construction_worker: Development Team <!-- omit in toc -->
 
-|                               Photo                                |        Name         |      Email      |                                                                        GitHub                                                                        |                                                                                      Linkedin                                                                                       |
-| :----------------------------------------------------------------: | :-----------------: | :-------------: | :--------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
-| <img src="https://github.com/CarlosAndreo.png?size=50" width=50px> | Carlos Andreo López | c.andreo@uma.es | <a href="https://github.com/CarlosAndreo"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="https://www.linkedin.com/in/carlos-andreo-lópez-66734b22a/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
-| <img src="https://github.com/NaniteBased.png?size=50" width=50px>  | Bruno García García |        -        | <a href="https://github.com/NaniteBased"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a>  |     <a href="https://itis.uma.es/personal/bruno-garcia-garcia/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a>      |
+|                               Photo                                |        Name         | Email |                                                                        GitHub                                                                        |                                                                                  Linkedin                                                                                  |
+| :----------------------------------------------------------------: | :-----------------: | :---: | :--------------------------------------------------------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+| <img src="https://github.com/CarlosAndreo.png?size=50" width=50px> | Carlos Andreo López |   -   | <a href="https://github.com/CarlosAndreo"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> |                         <a href=""><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a>                          |
+| <img src="https://github.com/NaniteBased.png?size=50" width=50px>  | Bruno García García |   -   | <a href="https://github.com/NaniteBased"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a>  | <a href="https://itis.uma.es/personal/bruno-garcia-garcia/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 <!-- Urls, Shields and Badges -->
-[tnlcm-badge]: https://img.shields.io/badge/TNLCM-v0.2.2-blue
-[tnlcm-url]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.2.2
-[python-badge]: https://img.shields.io/badge/Python-3.12.5-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB
-[python-url]: https://www.python.org/downloads/release/python-3124/
+[tnlcm-badge]: https://img.shields.io/badge/TNLCM-v0.2.1-blue
+[tnlcm-url]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.2.1
+[python-badge]: https://img.shields.io/badge/Python-3.12.6-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB
+[python-url]: https://www.python.org/downloads/release/python-3126/
 [flask-badge]: https://img.shields.io/badge/Flask-3.0.3-brightgreen?style=for-the-badge&logo=flask&logoColor=white&labelColor=000000
 [flask-url]: https://flask.palletsprojects.com/en/3.0.x/
 [mongodb-badge]: https://img.shields.io/badge/MongoDB-7.0.14-green?style=for-the-badge&logo=mongodb&logoColor=white&labelColor=47A248
