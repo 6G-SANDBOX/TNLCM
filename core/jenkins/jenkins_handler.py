@@ -40,7 +40,7 @@ class JenkinsHandler:
     def set_deployment_job_name(self, deployment_job_name):
         """
         Set deployment job name in case of is correct job
-        
+
         :param deployment_job_name: new name of the deployment job, ``str``
         """
         if deployment_job_name and deployment_job_name not in self.get_all_jobs():
@@ -48,11 +48,11 @@ class JenkinsHandler:
         if deployment_job_name:
             self.deployment_job_name = deployment_job_name
         log_handler.info(f"Pipeline use to deploy trial network: '{self.deployment_job_name}'")
-    
+
     def _jenkins_deployment_parameters(self, component_type, custom_name, debug):
         """
         Return a dictionary with the parameters for each component to be passed to the deployment pipeline
-        
+
         :param component_type: type part of the descriptor file, ``str``
         :param custom_name: name part of the descriptor file, ``str``
         :param debug: debug part of the descriptor file (optional), ``str``
@@ -125,7 +125,7 @@ class JenkinsHandler:
     def set_destroy_job_name(self, destroy_job_name):
         """
         Set destroy job name in case of is correct job
-        
+
         :param destroy_job_name: new name of the destroy job, ``str``
         """
         if destroy_job_name and destroy_job_name not in self.get_all_jobs():
@@ -133,7 +133,7 @@ class JenkinsHandler:
         if destroy_job_name:
             self.destroy_job_name = destroy_job_name
         log_handler.info(f"Pipeline use to destroy trial network: '{self.destroy_job_name}'")
-    
+
     def _jenkins_destroy_parameters(self):
         """
         Return a dictionary with the parameters for each component to be passed to the destroy pipeline
@@ -148,7 +148,6 @@ class JenkinsHandler:
             component_type = entity_data["type"]
             if "destroy_script" in metadata[component_type] and metadata[component_type]["destroy_script"]:
                 entities_with_destroy_script.append(entity_name)
-        print(entities_with_destroy_script)
         return {
             # MANDATORY
             "TN_ID": self.trial_network.tn_id,
@@ -159,10 +158,10 @@ class JenkinsHandler:
             "LIBRARY_BRANCH": self.trial_network.github_6g_library_commit_id,
             "SITES_URL": SixGSandboxSitesSettings.GITHUB_6G_SANDBOX_SITES_HTTPS_URL,
             "SITES_BRANCH": self.trial_network.github_6g_sandbox_sites_commit_id,
-            "SCRIPTED_DESTROY_COMPONENTS": entities_with_destroy_script
+            # "SCRIPTED_DESTROY_COMPONENTS": entities_with_destroy_script
             # "DEBUG": true
         }
-    
+
     def trial_network_destroy(self):
         """
         Trial network destroy starts
