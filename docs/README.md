@@ -9,7 +9,7 @@
   <!-- [![MIT License][license-shield]][license-url] -->
   <!-- [![LinkedIn][linkedin-shield]][linkedin-url] -->
 
-  <a href="https://github.com/6G-SANDBOX/TNLCM"><img src="./static/TNLCM.png" width="350" title="TNLCM"></a>
+  <a href="https://github.com/6G-SANDBOX/TNLCM"><img src="./images/TNLCM.png" width="350" title="TNLCM"></a>
 
   [![TNLCM][tnlcm-badge]][tnlcm-url]
 
@@ -81,13 +81,13 @@ TNLCM/                       // main folder.
 
 ## :mag: Overview of TNLCM and 6G-Library implementation
 
-![TNLCM_LIFECYCLE](./static/TNLCM_6GLIBRARY.png)
+![TNLCM_LIFECYCLE](./images/TNLCM_6GLIBRARY.png)
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 ## :arrows_counterclockwise: State Machine
 
-![StateMachine](./static/stateMachine.png)
+![StateMachine](./images/stateMachine.png)
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
@@ -95,7 +95,7 @@ TNLCM/                       // main folder.
 
 TNLCM is currently able to deploy the following types of components corresponding with the [6G-Library](https://github.com/6G-SANDBOX/6G-Library): **tn_vxlan**, **tn_bastion**, **tn_init**, **vnet**, **tsn**, **vm_kvm**, **oneKE**, **open5gs**, **UERANSIM-gNB** and **UERANSIM-UE**.
 
-![CurrentStatus](./static/currentStatus.png)
+![CurrentStatus](./images/currentStatus.png)
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
@@ -152,7 +152,7 @@ A MongoDB dashboard will be available at the url http://mongodb-frontend-ip:8081
 > [!NOTE]
 > User and password to access to the MongoDB dashboard are the values indicated in the variables `ME_CONFIG_BASICAUTH_USERNAME` and `ME_CONFIG_BASICAUTH_PASSWORD` of the `.env` file. By default, the values indicated in the [`.env.template`](../.env.template) file are used.
 
-![dashboardMongoDB](./static/dashboardMongoDB.png)
+![dashboardMongoDB](./images/dashboardMongoDB.png)
 
 ### :snake: Create environment, install libraries and start
 
@@ -216,45 +216,45 @@ The first end-to-end trial network:
 
 The API set forth in the TNLCM is as follows:
 
-![api](./static/api.png)
+![api](./images/api.png)
 
 If it is the first time using the API it is necessary to create a user. A verification code is required, so it is necessary to enter a valid email address that can be accessed:
 
-![requestVerificationToken](./static/requestVerificationToken.png)
+![requestVerificationToken](./images/requestVerificationToken.png)
 
 Once the registration code is obtained, proceed to the user registration using the email and the code previously employed:
 
-![registerUser](./static/registerUser.png)
+![registerUser](./images/registerUser.png)
 
 Once the user has been created or if it has been previously created, add the user and its password in the green **Authorize** box:
 
-![addUser](./static/addUser.png)
+![addUser](./images/addUser.png)
 
 Once the user has been added, an access token and its refresh token can be generated. This access token has a duration of 45 minutes (can be modified):
 
-![tokens](./static/obtainTokens.png)
+![tokens](./images/obtainTokens.png)
 
 The next step is to add the token in the green **Authorize** box. It is required to put the word **Bearer**, a space and then the token. An example is shown:
 
-![accessToken](./static/accessToken.png)
+![accessToken](./images/accessToken.png)
 
 Now, requests that involve having an access token can be made.
 
 To create a Trial Network, the following endpoint must be used:
 
-![createTN](./static/createTN.png)
+![createTN](./images/createTN.png)
 
 Once created, it will return a tn_id that will be required to deploy it.
 
 To deploy a trial network, the following endpoint must be used:
 
-![startTN](./static/startTN.png)
+![startTN](./images/startTN.png)
 
 If the access token expires, it can be refreshed by using the refresh token. The token in the green **Authorize** box must be updated with the refresh token and the post request must be made:
 
-![refreshToken](./static/refreshToken.png)
+![refreshToken](./images/refreshToken.png)
 
-![updateAccessToken](./static/updateAccessToken.png)
+![updateAccessToken](./images/updateAccessToken.png)
 
 When the request is made, it will return another access token that will need to be put back into the green **Authorize** box.
 
