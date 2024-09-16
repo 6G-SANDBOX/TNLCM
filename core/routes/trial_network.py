@@ -102,7 +102,7 @@ class TrialNetwork(Resource):
             return abort(e.error_code, str(e))
     
     parser_put = reqparse.RequestParser()
-    parser_put.add_argument("deployment_job_name", type=str, required=False)
+    parser_put.add_argument("deployment_pipeline_name", type=str, required=False)
 
     @trial_network_namespace.doc(security="Bearer Auth")
     @jwt_required()
@@ -110,10 +110,10 @@ class TrialNetwork(Resource):
     def put(self, tn_id):
         """
         State Machine: play or suspend trial network
-        If nothing is specified in deployment_job_name, the **TN_DEPLOY** job will be used.
+        If nothing is specified in deployment_pipeline_name, the **TN_DEPLOY** pipeline of Jenkins will be used.
         """
         try:
-            deployment_job_name = self.parser_put.parse_args()["deployment_job_name"]
+            deployment_pipeline_name = self.parser_put.parse_args()["deployment_pipeline_name"]
             
             current_user = get_current_user_from_jwt(get_jwt_identity())
             trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
@@ -125,8 +125,8 @@ class TrialNetwork(Resource):
                 temp_file_handler = TempFileHandler()
                 callback_handler = CallbackHandler(trial_network=trial_network)
                 jenkins_handler = JenkinsHandler(trial_network=trial_network, temp_file_handler=temp_file_handler, callback_handler=callback_handler)
-                jenkins_handler.set_deployment_job_name(deployment_job_name)
-                trial_network.set_deployment_job_name(jenkins_handler.deployment_job_name)
+                jenkins_handler.set_deployment_pipeline_name(deployment_pipeline_name)
+                trial_network.set_deployment_pipeline_name(jenkins_handler.deployment_pipeline_name)
                 trial_network.save()
                 sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type="commit", reference_value=trial_network.github_6g_sandbox_sites_commit_id)
                 sixg_sandbox_sites_handler.set_deployment_site(trial_network.deployment_site)
@@ -141,7 +141,7 @@ class TrialNetwork(Resource):
                 temp_file_handler = TempFileHandler()
                 callback_handler = CallbackHandler(trial_network=trial_network)
                 jenkins_handler = JenkinsHandler(trial_network=trial_network, temp_file_handler=temp_file_handler, callback_handler=callback_handler)
-                jenkins_handler.set_deployment_job_name(trial_network.deployment_job_name)
+                jenkins_handler.set_deployment_pipeline_name(trial_network.deployment_pipeline_name)
                 jenkins_handler.trial_network_deployment()
                 trial_network.set_tn_report(callback_handler.get_path_report_trial_network())
                 trial_network.set_tn_state("activated")
@@ -151,7 +151,7 @@ class TrialNetwork(Resource):
                 temp_file_handler = TempFileHandler()
                 callback_handler = CallbackHandler(trial_network=trial_network)
                 jenkins_handler = JenkinsHandler(trial_network=trial_network, temp_file_handler=temp_file_handler, callback_handler=callback_handler)
-                jenkins_handler.set_deployment_job_name(trial_network.deployment_job_name)
+                jenkins_handler.set_deployment_pipeline_name(trial_network.deployment_pipeline_name)
                 sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type="commit", reference_value=trial_network.github_6g_sandbox_sites_commit_id)
                 sixg_sandbox_sites_handler.set_deployment_site(trial_network.deployment_site)
                 resource_manager_handler = ResourceManagerHandler(trial_network=trial_network, sixg_sandbox_sites_handler=sixg_sandbox_sites_handler)
@@ -171,7 +171,7 @@ class TrialNetwork(Resource):
             return abort(e.error_code, str(e))
 
     parser_delete = reqparse.RequestParser()
-    parser_delete.add_argument("destroy_job_name", type=str, required=False)
+    parser_delete.add_argument("destroy_pipeline_name", type=str, required=False)
 
     @trial_network_namespace.doc(security="Bearer Auth")
     @jwt_required()
@@ -179,10 +179,10 @@ class TrialNetwork(Resource):
     def delete(self, tn_id):
         """
         Delete trial network
-        If nothing is specified in destroy_job_name, the **TN_DESTROY** job will be used.
+        If nothing is specified in destroy_pipeline_name, the **TN_DESTROY** pipeline of Jenkins will be used.
         """
         try:
-            destroy_job_name = self.parser_delete.parse_args()["destroy_job_name"]
+            destroy_pipeline_name = self.parser_delete.parse_args()["destroy_pipeline_name"]
 
             current_user = get_current_user_from_jwt(get_jwt_identity())
             trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
@@ -197,8 +197,8 @@ class TrialNetwork(Resource):
             sixg_sandbox_sites_handler.set_deployment_site(trial_network.deployment_site)
             sixg_library_handler = SixGLibraryHandler(reference_type="commit", reference_value=trial_network.github_6g_library_commit_id)
             jenkins_handler = JenkinsHandler(trial_network=trial_network, callback_handler=callback_handler, sixg_library_handler=sixg_library_handler, sixg_sandbox_sites_handler=sixg_sandbox_sites_handler)
-            jenkins_handler.set_destroy_job_name(destroy_job_name)
-            trial_network.set_destroy_job_name(jenkins_handler.destroy_job_name)
+            jenkins_handler.set_destroy_pipeline_name(destroy_pipeline_name)
+            trial_network.set_destroy_pipeline_name(jenkins_handler.destroy_pipeline_name)
             jenkins_handler.trial_network_destroy()
             resource_manager_handler = ResourceManagerHandler(trial_network=trial_network)
             resource_manager_handler.release_resource_manager()

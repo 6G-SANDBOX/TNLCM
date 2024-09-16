@@ -276,8 +276,8 @@ The TNLCM database consists of several collections that store important informat
 | `tn_sorted_descriptor`              | The sorted descriptor of the trial network.                                             |
 | `tn_deployed_descriptor`            | The current status of descriptor with the last entity deployed of the trial network.    |
 | `tn_report`                         | The report related to the trial network.                                                |
-| `deployment_job_name`               | The pipeline used for the deployment of the descriptor.                                 |
-| `destroy_job_name`                  | The pipeline used for destroy a trial network.                                          |
+| `deployment_pipeline_name`          | The pipeline used for the deployment of the descriptor.                                 |
+| `destroy_pipeline_name`             | The pipeline used for destroy a trial network.                                          |
 | `deployment_site`                   | The site where the trial network has been deployed.                                     |
 | `github_6g_library_commit_id`       | The commit id of 6G-Library (branch, commit or tag) used to deploy trial network.       |
 | `github_6g_sandbox_sites_commit_id` | The commid id of 6G-Sandbox-Sites (branch, commit or tag) used to deploy trial network. |
