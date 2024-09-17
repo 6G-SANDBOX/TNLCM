@@ -13,7 +13,7 @@ from core.exceptions.exceptions_handler import InvalidFileExtensionError, Invali
 
 TN_STATE_MACHINE = ["validated", "suspended", "activated", "failed", "destroyed"]
 COMPONENTS_EXCLUDE_CUSTOM_NAME = ["tn_vxlan", "tn_bastion", "tn_init", "tsn"]
-REQUIRED_FIELDS_DESCRIPTOR = ["type", "dependencies", "input"]
+REQUIRED_FIELDS_DESCRIPTOR = ["type", "input"]
 
 class TrialNetworkModel(Document):
     user_created = StringField(max_length=100)
