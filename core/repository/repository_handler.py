@@ -78,10 +78,7 @@ class RepositoryHandler:
                 log_handler.info(f"Apply checkout to '{default_branch}' branch of '{self.github_repository_name}' repository")
                 self.repo.git.checkout(default_branch, "--")
         except GitCommandError:
-            if not default_branch:
-                raise GitCheckoutError(f"'{self.github_reference_type}' '{self.github_commit_id}' is not in '{self.github_repository_name}' repository", 404)
-            else:
-                raise GitCheckoutError(f"Branch '{default_branch}' is not in '{self.github_repository_name}' repository", 404)
+            raise GitCheckoutError(f"Reference '{self.github_reference_type}' with value '{self.github_reference_value}' is not in '{self.github_repository_name}' repository", 404)
 
     def _git_pull(self, default_branch=None):
         """
