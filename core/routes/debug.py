@@ -139,13 +139,13 @@ class DeleteDebugEntityName(Resource):
             return abort(e.error_code, str(e))
 
 @debug_namespace.route("/jenkins/pipelines/")
-class Jobs(Resource):
+class JenkinsPipelines(Resource):
 
     @debug_namespace.doc(security="Bearer Auth")
     @jwt_required()
     def get(self):
         """
-        Return jobs stored in Jenkins
+        Return pipelines stored in Jenkins
         """
         try:
             jenkins_handler = JenkinsHandler()
