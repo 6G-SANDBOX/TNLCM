@@ -3,6 +3,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from core.auth.auth import get_current_user_from_jwt
 from core.models import TrialNetworkModel
+from core.jenkins.jenkins_handler import JenkinsHandler
 from core.exceptions.exceptions_handler import CustomException
 
 debug_namespace = Namespace(
@@ -134,5 +135,20 @@ class DeleteDebugEntityName(Resource):
             trial_network.tn_deployed_descriptor = trial_network.descriptor_to_json(tn_deployed_descriptor)
             trial_network.save()
             return {"message": f"Successfully deleted debug into '{entity_name}' entity name of the Trial Network '{tn_id}'"}, 201
+        except CustomException as e:
+            return abort(e.error_code, str(e))
+
+@debug_namespace.route("/jenkins/pipelines/")
+class Jobs(Resource):
+
+    @debug_namespace.doc(security="Bearer Auth")
+    @jwt_required()
+    def get(self):
+        """
+        Return jobs stored in Jenkins
+        """
+        try:
+            jenkins_handler = JenkinsHandler()
+            return {"all_pipelines": jenkins_handler.get_all_pipelines()}, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
