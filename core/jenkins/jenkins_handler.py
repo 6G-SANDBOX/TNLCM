@@ -43,8 +43,8 @@ class JenkinsHandler:
 
         :param deployment_pipeline_name: new name of the deployment pipeline, ``str``
         """
-        if deployment_pipeline_name and deployment_pipeline_name not in self.get_all_jobs():
-            raise JenkinsInvalidJobError(f"The 'deployment_pipeline_name' should be one: {', '.join(self.get_all_jobs())}", 404)
+        if deployment_pipeline_name and deployment_pipeline_name not in self.get_all_pipelines():
+            raise JenkinsInvalidJobError(f"The 'deployment_pipeline_name' should be one: {', '.join(self.get_all_pipelines())}", 404)
         if deployment_pipeline_name:
             self.deployment_pipeline_name = deployment_pipeline_name
         log_handler.info(f"Pipeline name use for deploy trial network: '{self.deployment_pipeline_name}'")
@@ -128,8 +128,8 @@ class JenkinsHandler:
 
         :param destroy_pipeline_name: new name of the destroy pipeline, ``str``
         """
-        if destroy_pipeline_name and destroy_pipeline_name not in self.get_all_jobs():
-            raise JenkinsInvalidJobError(f"The 'destroy_pipeline_name' should be one: {', '.join(self.get_all_jobs())}", 404)
+        if destroy_pipeline_name and destroy_pipeline_name not in self.get_all_pipelines():
+            raise JenkinsInvalidJobError(f"The 'destroy_pipeline_name' should be one: {', '.join(self.get_all_pipelines())}", 404)
         if destroy_pipeline_name:
             self.destroy_pipeline_name = destroy_pipeline_name
         log_handler.info(f"Pipeline use for destroy trial network: '{self.destroy_pipeline_name}'")
@@ -177,8 +177,8 @@ class JenkinsHandler:
             raise JenkinsComponentPipelineError(f"Pipeline for destroy '{self.trial_network.tn_id}' trial network has failed", 500)
         log_handler.info(f"Trial network '{self.trial_network.tn_id}' successfully destroyed")
 
-    def get_all_jobs(self):
+    def get_all_pipelines(self):
         """
-        Return all the jobs/pipelines stored in Jenkins
+        Return all the pipelines stored in Jenkins
         """
         return [job["fullname"] for job in self.jenkins_client.get_all_jobs() if "fullname" in job and "jobs" not in job]
