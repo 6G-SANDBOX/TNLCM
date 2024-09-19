@@ -24,8 +24,8 @@ class TrialNetworkModel(Document):
     tn_sorted_descriptor = StringField()
     tn_deployed_descriptor = StringField()
     tn_report = StringField()
-    deployment_pipeline_name = StringField()
-    destroy_pipeline_name = StringField()
+    jenkins_deploy_pipeline = StringField()
+    jenkins_destroy_pipeline = StringField()
     deployment_site = StringField()
     github_6g_library_commit_id = StringField()
     github_6g_sandbox_sites_commit_id = StringField()
@@ -109,21 +109,21 @@ class TrialNetworkModel(Document):
             markdown_content = file.read()
         self.tn_report = markdown_content
     
-    def set_deployment_pipeline_name(self, deployment_pipeline_name):
+    def set_jenkins_deploy_pipeline(self, jenkins_deploy_pipeline):
         """
         Set pipeline use to deploy trial network
         
-        :param deployment_pipeline_name: new name of the deployment pipeline, ``str``
+        :param jenkins_deploy_pipeline: new name of the deployment pipeline, ``str``
         """
-        self.deployment_pipeline_name = deployment_pipeline_name
+        self.jenkins_deploy_pipeline = jenkins_deploy_pipeline
     
-    def set_destroy_pipeline_name(self, destroy_pipeline_name):
+    def set_jenkins_destroy_pipeline(self, jenkins_destroy_pipeline):
         """
         Set pipeline use to destroy trial network
         
-        :param destroy_pipeline_name: new name of the destroy pipeline, ``str``
+        :param jenkins_destroy_pipeline: new name of the destroy pipeline, ``str``
         """
-        self.destroy_pipeline_name = destroy_pipeline_name
+        self.jenkins_destroy_pipeline = jenkins_destroy_pipeline
 
     def set_deployment_site(self, deployment_site):
         """
@@ -346,8 +346,8 @@ class TrialNetworkModel(Document):
             "tn_sorted_descriptor": self.json_to_descriptor(self.tn_sorted_descriptor),
             "tn_deployed_descriptor": self.json_to_descriptor(self.tn_deployed_descriptor),
             "tn_report": self.tn_report,
-            "deployment_pipeline_name": self.deployment_pipeline_name,
-            "destroy_pipeline_name": self.destroy_pipeline_name,
+            "jenkins_deploy_pipeline": self.jenkins_deploy_pipeline,
+            "jenkins_destroy_pipeline": self.jenkins_destroy_pipeline,
             "deployment_site": self.deployment_site,
             "github_6g_library_commit_id": self.github_6g_library_commit_id,
             "github_6g_sandbox_sites_commit_id": self.github_6g_sandbox_sites_commit_id

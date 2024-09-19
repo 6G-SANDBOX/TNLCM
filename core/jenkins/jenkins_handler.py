@@ -7,7 +7,7 @@ from requests.exceptions import RequestException
 
 from conf import JenkinsSettings, TnlcmSettings, SixGLibrarySettings, SixGSandboxSitesSettings
 from core.logs.log_handler import log_handler
-from core.exceptions.exceptions_handler import JenkinsConnectionError, JenkinsInvalidJobError, CustomFileNotFoundError, JenkinsResponseError, JenkinsComponentPipelineError
+from core.exceptions.exceptions_handler import JenkinsConnectionError, JenkinsInvalidPipelineError, CustomFileNotFoundError, JenkinsResponseError, JenkinsComponentPipelineError
 
 class JenkinsHandler:
 
@@ -29,25 +29,25 @@ class JenkinsHandler:
         self.jenkins_password = JenkinsSettings.JENKINS_PASSWORD
         self.jenkins_token = JenkinsSettings.JENKINS_TOKEN
         self.tnlcm_callback = TnlcmSettings.TNLCM_CALLBACK
-        self.deployment_pipeline_name = JenkinsSettings.JENKINS_JOB_DEPLOY
-        self.destroy_pipeline_name = JenkinsSettings.JENKINS_JOB_DESTROY
+        self.jenkins_deploy_pipeline = JenkinsSettings.JENKINS_PIPELINE_DEPLOY
+        self.jenkins_destroy_pipeline = JenkinsSettings.JENKINS_PIPELINE_DESTROY
         try:
             self.jenkins_client = Jenkins(url=self.jenkins_url, username=self.jenkins_username, password=self.jenkins_password)
             self.jenkins_client.get_whoami()
         except RequestException:
             raise JenkinsConnectionError("Error establishing connection with Jenkins", 500)
 
-    def set_deployment_pipeline_name(self, deployment_pipeline_name):
+    def set_jenkins_deploy_pipeline(self, jenkins_deploy_pipeline):
         """
         Set deployment pipeline name in case of is correct pipeline
 
-        :param deployment_pipeline_name: new name of the deployment pipeline, ``str``
+        :param jenkins_deploy_pipeline: new name of the deployment pipeline, ``str``
         """
-        if deployment_pipeline_name and deployment_pipeline_name not in self.get_all_pipelines():
-            raise JenkinsInvalidJobError(f"The 'deployment_pipeline_name' should be one: {', '.join(self.get_all_pipelines())}", 404)
-        if deployment_pipeline_name:
-            self.deployment_pipeline_name = deployment_pipeline_name
-        log_handler.info(f"Pipeline name use for deploy trial network: '{self.deployment_pipeline_name}'")
+        if jenkins_deploy_pipeline and jenkins_deploy_pipeline not in self.get_all_pipelines():
+            raise JenkinsInvalidPipelineError(f"The 'jenkins_deploy_pipeline' should be one: {', '.join(self.get_all_pipelines())}", 404)
+        if jenkins_deploy_pipeline:
+            self.jenkins_deploy_pipeline = jenkins_deploy_pipeline
+        log_handler.info(f"Pipeline name use for deploy trial network: '{self.jenkins_deploy_pipeline}'")
 
     def _jenkins_deployment_parameters(self, component_type, custom_name, debug):
         """
@@ -95,19 +95,19 @@ class JenkinsHandler:
             with open(entity_path_temp_file, "rb") as component_temp_file:
                 file = {"FILE": (entity_path_temp_file, component_temp_file)}
                 log_handler.info(f"Add Jenkins parameters to the pipeline of the '{entity_name}' entity")
-                jenkins_build_job_url = self.jenkins_client.build_job_url(name=self.deployment_pipeline_name, parameters=self._jenkins_deployment_parameters(component_type, custom_name, debug))
+                jenkins_build_job_url = self.jenkins_client.build_job_url(name=self.jenkins_deploy_pipeline, parameters=self._jenkins_deployment_parameters(component_type, custom_name, debug))
                 response = post(jenkins_build_job_url, auth=(self.jenkins_username, self.jenkins_token), files=file)
                 log_handler.info(f"Deployment request code of the '{entity_name}' entity '{response.status_code}'")
                 if response.status_code != 201:
                     self.trial_network.set_tn_state("failed")
                     self.trial_network.save()
                     raise JenkinsResponseError(f"Error in the response received by Jenkins when trying to deploy the '{entity_name}' entity", response.status_code)
-                last_build_number = self.jenkins_client.get_job_info(name=self.deployment_pipeline_name)["nextBuildNumber"]
-                while not self.jenkins_client.get_job_info(name=self.deployment_pipeline_name)["lastCompletedBuild"]:
+                last_build_number = self.jenkins_client.get_job_info(name=self.jenkins_deploy_pipeline)["nextBuildNumber"]
+                while not self.jenkins_client.get_job_info(name=self.jenkins_deploy_pipeline)["lastCompletedBuild"]:
                     sleep(15)
-                while last_build_number != self.jenkins_client.get_job_info(name=self.deployment_pipeline_name)["lastCompletedBuild"]["number"]:
+                while last_build_number != self.jenkins_client.get_job_info(name=self.jenkins_deploy_pipeline)["lastCompletedBuild"]["number"]:
                     sleep(15)
-                if self.jenkins_client.get_job_info(name=self.deployment_pipeline_name)["lastSuccessfulBuild"]["number"] != last_build_number:
+                if self.jenkins_client.get_job_info(name=self.jenkins_deploy_pipeline)["lastSuccessfulBuild"]["number"] != last_build_number:
                     self.trial_network.set_tn_state("failed")
                     self.trial_network.save()
                     raise JenkinsComponentPipelineError(f"Pipeline for the entity '{entity_name}' has failed", 500)
@@ -122,17 +122,17 @@ class JenkinsHandler:
             log_handler.info(f"End of deployment of entity '{entity_name}'")
         log_handler.info("All entities of the trial network are deployed")
 
-    def set_destroy_pipeline_name(self, destroy_pipeline_name):
+    def set_jenkins_destroy_pipeline(self, jenkins_destroy_pipeline):
         """
         Set destroy pipeline name in case of is correct pipeline
 
-        :param destroy_pipeline_name: new name of the destroy pipeline, ``str``
+        :param jenkins_destroy_pipeline: new name of the destroy pipeline, ``str``
         """
-        if destroy_pipeline_name and destroy_pipeline_name not in self.get_all_pipelines():
-            raise JenkinsInvalidJobError(f"The 'destroy_pipeline_name' should be one: {', '.join(self.get_all_pipelines())}", 404)
-        if destroy_pipeline_name:
-            self.destroy_pipeline_name = destroy_pipeline_name
-        log_handler.info(f"Pipeline use for destroy trial network: '{self.destroy_pipeline_name}'")
+        if jenkins_destroy_pipeline and jenkins_destroy_pipeline not in self.get_all_pipelines():
+            raise JenkinsInvalidPipelineError(f"The 'jenkins_destroy_pipeline' should be one: {', '.join(self.get_all_pipelines())}", 404)
+        if jenkins_destroy_pipeline:
+            self.jenkins_destroy_pipeline = jenkins_destroy_pipeline
+        log_handler.info(f"Pipeline use for destroy trial network: '{self.jenkins_destroy_pipeline}'")
 
     def _jenkins_destroy_parameters(self):
         """
@@ -166,14 +166,14 @@ class JenkinsHandler:
         """
         Trial network destroy starts
         """
-        self.jenkins_client.build_job(name=self.destroy_pipeline_name, parameters=self._jenkins_destroy_parameters(), token=self.jenkins_token)
+        self.jenkins_client.build_job(name=self.jenkins_destroy_pipeline, parameters=self._jenkins_destroy_parameters(), token=self.jenkins_token)
         log_handler.info(f"Start the destroyed of the '{self.trial_network.tn_id}' trial network")
-        last_build_number = self.jenkins_client.get_job_info(name=self.destroy_pipeline_name)["nextBuildNumber"]
-        while not self.jenkins_client.get_job_info(name=self.destroy_pipeline_name)["lastCompletedBuild"]:
+        last_build_number = self.jenkins_client.get_job_info(name=self.jenkins_destroy_pipeline)["nextBuildNumber"]
+        while not self.jenkins_client.get_job_info(name=self.jenkins_destroy_pipeline)["lastCompletedBuild"]:
             sleep(15)
-        while last_build_number != self.jenkins_client.get_job_info(name=self.destroy_pipeline_name)["lastCompletedBuild"]["number"]:
+        while last_build_number != self.jenkins_client.get_job_info(name=self.jenkins_destroy_pipeline)["lastCompletedBuild"]["number"]:
             sleep(15)
-        if self.jenkins_client.get_job_info(name=self.destroy_pipeline_name)["lastSuccessfulBuild"]["number"] != last_build_number:
+        if self.jenkins_client.get_job_info(name=self.jenkins_destroy_pipeline)["lastSuccessfulBuild"]["number"] != last_build_number:
             raise JenkinsComponentPipelineError(f"Pipeline for destroy '{self.trial_network.tn_id}' trial network has failed", 500)
         log_handler.info(f"Trial network '{self.trial_network.tn_id}' successfully destroyed")
 

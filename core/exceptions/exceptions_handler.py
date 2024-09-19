@@ -142,6 +142,6 @@ class JenkinsComponentPipelineError(CustomJenkinsException):
     """Error thrown when component pipeline has failed"""
     pass
 
-class JenkinsInvalidJobError(CustomJenkinsException):
-    """Error thrown when job not in Jenkins"""
+class JenkinsInvalidPipelineError(CustomJenkinsException):
+    """Error thrown when pipeline not in Jenkins"""
     pass
