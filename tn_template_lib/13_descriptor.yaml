@@ -39,6 +39,6 @@ trial_network:
     type: "ocf"
     name: "tn"
     dependencies:
-      "oneKE-k8s"
+      - "oneKE-k8s"
     input:
       ocf_one_oneKE: "oneKE-k8s"
