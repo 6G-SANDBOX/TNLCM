@@ -9,7 +9,7 @@
   <!-- [![MIT License][license-shield]][license-url] -->
   <!-- [![LinkedIn][linkedin-shield]][linkedin-url] -->
 
-  <a href="https://github.com/6G-SANDBOX/TNLCM"><img src="./static/TNLCM.png" width="350" title="TNLCM"></a>
+  <a href="https://github.com/6G-SANDBOX/TNLCM"><img src="./images/TNLCM.png" width="350" title="TNLCM"></a>
 
   [![TNLCM][tnlcm-badge]][tnlcm-url]
 
@@ -33,7 +33,7 @@ TNLCM has been designed as a modular application, with the intention of making c
   - [:inbox\_tray: Download or clone repository](#inbox_tray-download-or-clone-repository)
   - [:wrench: Configure environment variables](#wrench-configure-environment-variables)
   - [:floppy\_disk: Create database](#floppy_disk-create-database)
-  - [:snake: Create environment, install libraries and start](#snake-create-environment-install-libraries-and-start)
+  - [:snake: Create environment](#snake-create-environment)
 - [:page\_facing\_up: Trial Network Descriptor Schema](#page_facing_up-trial-network-descriptor-schema)
 - [Appendices](#appendices)
   - [Appendix A: How to use Swagger UI](#appendix-a-how-to-use-swagger-ui)
@@ -81,13 +81,13 @@ TNLCM/                       // main folder.
 
 ## :mag: Overview of TNLCM and 6G-Library implementation
 
-![TNLCM_LIFECYCLE](./static/TNLCM_6GLIBRARY.png)
+![TNLCM_LIFECYCLE](./images/TNLCM_6GLIBRARY.png)
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 ## :arrows_counterclockwise: State Machine
 
-![StateMachine](./static/stateMachine.png)
+![StateMachine](./images/stateMachine.png)
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
@@ -95,7 +95,7 @@ TNLCM/                       // main folder.
 
 TNLCM is currently able to deploy the following types of components corresponding with the [6G-Library](https://github.com/6G-SANDBOX/6G-Library): **tn_vxlan**, **tn_bastion**, **tn_init**, **vnet**, **tsn**, **vm_kvm**, **oneKE**, **open5gs**, **UERANSIM-gNB** and **UERANSIM-UE**.
 
-![CurrentStatus](./static/currentStatus.png)
+![CurrentStatus](./images/currentStatus.png)
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
@@ -107,23 +107,10 @@ TNLCM is currently able to deploy the following types of components correspondin
 > [!TIP]
 > TNLCM uses the following repository releases:
 > 
-> | Repository       | Branch        | Release                                                                      |
-> | ---------------- | ------------- | ---------------------------------------------------------------------------- |
-> | 6G-Library       | -             | [v0.2.1](https://github.com/6G-SANDBOX/6G-Library/releases/tag/v0.2.1)       |
-> | 6G-Sandbox-Sites | Depend site   | [main](https://github.com/6G-SANDBOX/6G-Sandbox-Sites)                       |
-
-> [!WARNING]
-> In order to run TNLCM, the following tools are **required** to be deployed on the platforms:
->
-> * OpenNebula: v6.6.3 or later
->
-> From [OpenNebula Marketplace](https://marketplace.mobilesandbox.cloud:9443/appliance):
-> 
-> * Jenkins
-> * MinIO
-> * Bastion
-> * OneKE
-> * Ueransim
+> | Repository       | Branch                                                            | Release   |
+> | ---------------- | ----------------------------------------------------------------- | --------- |
+> | 6G-Library       | [develop](https://github.com/6G-SANDBOX/6G-Library/tree/develop)  | -         |
+> | 6G-Sandbox-Sites | [platform](https://github.com/6G-SANDBOX/6G-Sandbox-Sites)        | -         |
 
 ### :inbox_tray: Download or clone repository
 
@@ -165,9 +152,9 @@ A MongoDB dashboard will be available at the url http://mongodb-frontend-ip:8081
 > [!NOTE]
 > User and password to access to the MongoDB dashboard are the values indicated in the variables `ME_CONFIG_BASICAUTH_USERNAME` and `ME_CONFIG_BASICAUTH_PASSWORD` of the `.env` file. By default, the values indicated in the [`.env.template`](../.env.template) file are used.
 
-![dashboardMongoDB](./static/dashboardMongoDB.png)
+![dashboardMongoDB](./images/dashboardMongoDB.png)
 
-### :snake: Create environment, install libraries and start
+### :snake: Create environment
 
 > [!IMPORTANT]
 > This step requires **Python** to be installed on the machine.
@@ -219,7 +206,7 @@ trial_network: # Mandatory, contains the description of all entities in the Tria
 This repository contains a variety of [descriptor templates](../tn_template_lib/).
 
 The first end-to-end trial network:
-- [`08_descriptor.yaml`](../tn_template_lib/08_descriptor.yaml)
+- [`08_descriptor.yaml`](../tn_template_lib/08_descriptor.yaml) - **should work on all platforms**
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
@@ -229,45 +216,45 @@ The first end-to-end trial network:
 
 The API set forth in the TNLCM is as follows:
 
-![api](./static/api.png)
+![api](./images/api.png)
 
 If it is the first time using the API it is necessary to create a user. A verification code is required, so it is necessary to enter a valid email address that can be accessed:
 
-![requestVerificationToken](./static/requestVerificationToken.png)
+![requestVerificationToken](./images/requestVerificationToken.png)
 
 Once the registration code is obtained, proceed to the user registration using the email and the code previously employed:
 
-![registerUser](./static/registerUser.png)
+![registerUser](./images/registerUser.png)
 
 Once the user has been created or if it has been previously created, add the user and its password in the green **Authorize** box:
 
-![addUser](./static/addUser.png)
+![addUser](./images/addUser.png)
 
 Once the user has been added, an access token and its refresh token can be generated. This access token has a duration of 45 minutes (can be modified):
 
-![tokens](./static/obtainTokens.png)
+![tokens](./images/obtainTokens.png)
 
 The next step is to add the token in the green **Authorize** box. It is required to put the word **Bearer**, a space and then the token. An example is shown:
 
-![accessToken](./static/accessToken.png)
+![accessToken](./images/accessToken.png)
 
 Now, requests that involve having an access token can be made.
 
 To create a Trial Network, the following endpoint must be used:
 
-![createTN](./static/createTN.png)
+![createTN](./images/createTN.png)
 
 Once created, it will return a tn_id that will be required to deploy it.
 
 To deploy a trial network, the following endpoint must be used:
 
-![startTN](./static/startTN.png)
+![startTN](./images/startTN.png)
 
 If the access token expires, it can be refreshed by using the refresh token. The token in the green **Authorize** box must be updated with the refresh token and the post request must be made:
 
-![refreshToken](./static/refreshToken.png)
+![refreshToken](./images/refreshToken.png)
 
-![updateAccessToken](./static/updateAccessToken.png)
+![updateAccessToken](./images/updateAccessToken.png)
 
 When the request is made, it will return another access token that will need to be put back into the green **Authorize** box.
 
@@ -289,8 +276,8 @@ The TNLCM database consists of several collections that store important informat
 | `tn_sorted_descriptor`              | The sorted descriptor of the trial network.                                             |
 | `tn_deployed_descriptor`            | The current status of descriptor with the last entity deployed of the trial network.    |
 | `tn_report`                         | The report related to the trial network.                                                |
-| `deployment_job_name`               | The pipeline used for the deployment of the descriptor.                                 |
-| `destroy_job_name`                  | The pipeline used for destroy a trial network.                                          |
+| `jenkins_deploy_pipeline`           | The pipeline used for the deployment of the descriptor.                                 |
+| `jenkins_destroy_pipeline`          | The pipeline used for destroy a trial network.                                          |
 | `deployment_site`                   | The site where the trial network has been deployed.                                     |
 | `github_6g_library_commit_id`       | The commit id of 6G-Library (branch, commit or tag) used to deploy trial network.       |
 | `github_6g_sandbox_sites_commit_id` | The commid id of 6G-Sandbox-Sites (branch, commit or tag) used to deploy trial network. |
@@ -335,24 +322,26 @@ The TNLCM database consists of several collections that store important informat
 
 ### Appendix C: TNLCM OpenNebula Appliance
 
-In the [marketplace-community](https://github.com/6G-SANDBOX/marketplace-community/wiki/tnlcm) repository, which is a fork of OpenNebula, detailed information about the TNLCM appliance can be found.
+In the [marketplace-community](https://github.com/6G-SANDBOX/marketplace-community/wiki/tnlcm) repository, which is a fork of OpenNebula, detailed information about the TNLCM appliance can be found. 
+
+To deploy 6G-SANDBOX TOOLKIT in OpenNebula, the documentation can be accessed from the [web site](https://6g-sandbox.eu/wp-content/uploads/2024/09/6G-SANDBOX-Toolkit_Installation-G-V1.0_F.pdf).
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 ## :construction_worker: Development Team <!-- omit in toc -->
 
-|                               Photo                                |        Name         |      Email      |                                                                        GitHub                                                                        |                                                                                      Linkedin                                                                                       |
-| :----------------------------------------------------------------: | :-----------------: | :-------------: | :--------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
-| <img src="https://github.com/CarlosAndreo.png?size=50" width=50px> | Carlos Andreo López | c.andreo@uma.es | <a href="https://github.com/CarlosAndreo"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="https://www.linkedin.com/in/carlos-andreo-lópez-66734b22a/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
-| <img src="https://github.com/NaniteBased.png?size=50" width=50px>  | Bruno García García |        -        | <a href="https://github.com/NaniteBased"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a>  |     <a href="https://itis.uma.es/personal/bruno-garcia-garcia/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a>      |
+|                               Photo                                |        Name         | Email |                                                                        GitHub                                                                        |                                                                                  Linkedin                                                                                  |
+| :----------------------------------------------------------------: | :-----------------: | :---: | :--------------------------------------------------------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+| <img src="https://github.com/CarlosAndreo.png?size=50" width=50px> | Carlos Andreo López |   -   | <a href="https://github.com/CarlosAndreo"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> |                         <a href=""><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a>                          |
+| <img src="https://github.com/NaniteBased.png?size=50" width=50px>  | Bruno García García |   -   | <a href="https://github.com/NaniteBased"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a>  | <a href="https://itis.uma.es/personal/bruno-garcia-garcia/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 <!-- Urls, Shields and Badges -->
-[tnlcm-badge]: https://img.shields.io/badge/TNLCM-v0.2.2-blue
-[tnlcm-url]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.2.2
-[python-badge]: https://img.shields.io/badge/Python-3.12.5-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB
-[python-url]: https://www.python.org/downloads/release/python-3124/
+[tnlcm-badge]: https://img.shields.io/badge/TNLCM-v0.3.0-blue
+[tnlcm-url]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.3.0
+[python-badge]: https://img.shields.io/badge/Python-3.12.6-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB
+[python-url]: https://www.python.org/downloads/release/python-3126/
 [flask-badge]: https://img.shields.io/badge/Flask-3.0.3-brightgreen?style=for-the-badge&logo=flask&logoColor=white&labelColor=000000
 [flask-url]: https://flask.palletsprojects.com/en/3.0.x/
 [mongodb-badge]: https://img.shields.io/badge/MongoDB-7.0.14-green?style=for-the-badge&logo=mongodb&logoColor=white&labelColor=47A248

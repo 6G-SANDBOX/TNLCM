@@ -24,7 +24,6 @@ trial_network:
       - "tn_init"
       - "vnet-private_oneKE"
     input:
-      one_oneKE_external_vnet: "tn_vxlan"
       one_oneKE_internal_vnet: "vnet-private_oneKE"
       one_oneKE_version: "129" # (127 not working)
       one_oneKE_multus: "YES"
@@ -35,3 +34,12 @@ trial_network:
       one_oneKE_metallb_range: "10.10.10.200-10.10.10.240"
       one_oneKE_traefik: "NO"
       one_oneKE_dns: "1.1.1.1 8.8.8.8"
+      one_oneKE_nginx_passthough: true
+  ocf-tn:
+    type: "ocf"
+    name: "tn"
+    dependencies:
+      - "oneKE-k8s"
+    input:
+      ocf_one_oneKE: "oneKE-k8s"
+      ocf_any_branch: "staging"

@@ -1,4 +1,5 @@
 # Result: pass
+# Platform: UMA
 trial_network:
 
   tn_init:

@@ -1,5 +1,5 @@
 from .callback import callback_namespace
-from .jenkins import jenkins_namespace
+from .debug import debug_namespace
 from .sixg_library import sixg_library_namespace
 from .sixg_sandbox_sites import sixg_sandbox_sites_namespace
 from .trial_network import trial_network_namespace
