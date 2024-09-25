@@ -33,7 +33,7 @@ TNLCM has been designed as a modular application, with the intention of making c
   - [:inbox\_tray: Download or clone repository](#inbox_tray-download-or-clone-repository)
   - [:wrench: Configure environment variables](#wrench-configure-environment-variables)
   - [:floppy\_disk: Create database](#floppy_disk-create-database)
-  - [:snake: Create environment, install libraries and start](#snake-create-environment-install-libraries-and-start)
+  - [:snake: Create environment](#snake-create-environment)
 - [:page\_facing\_up: Trial Network Descriptor Schema](#page_facing_up-trial-network-descriptor-schema)
 - [Appendices](#appendices)
   - [Appendix A: How to use Swagger UI](#appendix-a-how-to-use-swagger-ui)
@@ -107,10 +107,10 @@ TNLCM is currently able to deploy the following types of components correspondin
 > [!TIP]
 > TNLCM uses the following repository releases:
 > 
-> | Repository       | Branch                                                   | Release                                                                      |
-> | ---------------- | -------------------------------------------------------- | ---------------------------------------------------------------------------- |
-> | 6G-Library       | -                                                        | [v0.2.1](https://github.com/6G-SANDBOX/6G-Library/releases/tag/v0.2.1)       |
-> | 6G-Sandbox-Sites | [main](https://github.com/6G-SANDBOX/6G-Sandbox-Sites)   | -                                                                            |
+> | Repository       | Branch                                                            | Release   |
+> | ---------------- | ----------------------------------------------------------------- | --------- |
+> | 6G-Library       | [develop](https://github.com/6G-SANDBOX/6G-Library/tree/develop)  | -         |
+> | 6G-Sandbox-Sites | [platform](https://github.com/6G-SANDBOX/6G-Sandbox-Sites)        | -         |
 
 ### :inbox_tray: Download or clone repository
 
@@ -154,7 +154,7 @@ A MongoDB dashboard will be available at the url http://mongodb-frontend-ip:8081
 
 ![dashboardMongoDB](./images/dashboardMongoDB.png)
 
-### :snake: Create environment, install libraries and start
+### :snake: Create environment
 
 > [!IMPORTANT]
 > This step requires **Python** to be installed on the machine.
@@ -276,8 +276,8 @@ The TNLCM database consists of several collections that store important informat
 | `tn_sorted_descriptor`              | The sorted descriptor of the trial network.                                             |
 | `tn_deployed_descriptor`            | The current status of descriptor with the last entity deployed of the trial network.    |
 | `tn_report`                         | The report related to the trial network.                                                |
-| `deployment_pipeline_name`          | The pipeline used for the deployment of the descriptor.                                 |
-| `destroy_pipeline_name`             | The pipeline used for destroy a trial network.                                          |
+| `jenkins_deploy_pipeline`           | The pipeline used for the deployment of the descriptor.                                 |
+| `jenkins_destroy_pipeline`          | The pipeline used for destroy a trial network.                                          |
 | `deployment_site`                   | The site where the trial network has been deployed.                                     |
 | `github_6g_library_commit_id`       | The commit id of 6G-Library (branch, commit or tag) used to deploy trial network.       |
 | `github_6g_sandbox_sites_commit_id` | The commid id of 6G-Sandbox-Sites (branch, commit or tag) used to deploy trial network. |
@@ -338,8 +338,8 @@ To deploy 6G-SANDBOX TOOLKIT in OpenNebula, the documentation can be accessed fr
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 <!-- Urls, Shields and Badges -->
-[tnlcm-badge]: https://img.shields.io/badge/TNLCM-v0.2.1-blue
-[tnlcm-url]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.2.1
+[tnlcm-badge]: https://img.shields.io/badge/TNLCM-v0.3.0-blue
+[tnlcm-url]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.3.0
 [python-badge]: https://img.shields.io/badge/Python-3.12.6-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB
 [python-url]: https://www.python.org/downloads/release/python-3126/
 [flask-badge]: https://img.shields.io/badge/Flask-3.0.3-brightgreen?style=for-the-badge&logo=flask&logoColor=white&labelColor=000000

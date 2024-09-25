@@ -1,18 +1,31 @@
 # Changelog
 
-## [v0.2.2] - 2024-09-06
+## [v0.3.0] - 2024-09-25
+
+### Added
+
+- Debug namespace for developers.
+  - Endpoints for modify the commits of the 6G-Sandbox-Sites and 6G-Library repositories associated to a trial network.
+  - Endpoints for add or delete debug in specific entity_name.
+  - Endpoint for check pipelines available in Jenkins.
 
 ### Changed
 
-- Python version to 3.12.5.
+- Python version to 3.12.6.
 - MongoDB version to 7.0.14.
 - Libraries to latest versions.
 - Update the extension of the docker compose file to .yaml.
-- Rename descriptors folder to tn_template_lib.
+- Rename `descriptors` folder to `tn_template_lib`.
+- Added parameter for the TN_DESTROY pipeline with the list of components that need an additional script to be removed.
+- Rename .env variables for pipeline deploy name and pipeline destroy name.
 
 ### Fixed
 
 - Condition required when in 6G-Library.
+
+### Removed
+
+- Jenkins namespace of Swagger UI.
 
 ## [v0.2.1] - 2024-07-22
 
@@ -22,8 +35,8 @@
 
 ### Fixed
 
-- Launch a trial network when there are no builds of the job yet in Jenkins.
-- Destroy a trial network when there are no builds of the job yet in Jenkins.
+- Launch a trial network when there are no builds of the pipeline yet in Jenkins.
+- Destroy a trial network when there are no builds of the pipeline yet in Jenkins.
 
 ## [v0.2.0] - 2024-07-18
 
@@ -40,8 +53,8 @@
 - Ansible vault to decrypt files of site stored in 6G-Sandbox-Sites repository.
 - Integration with 6G-Library [v0.2.0](https://github.com/6G-SANDBOX/6G-Library/releases/tag/v0.2.0).
 - Deploy trial networks using specific branch, commit or tags from 6G-Library.
-- Deploy trial networks using specific pipelines/jobs.
-- Destroy trial networks using specific pipelines/jobs.
+- Deploy trial networks using specific pipelines.
+- Destroy trial networks using specific pipelines.
 - Indicate the site where the trial network will be deployed. Connection to the site is required.
 - Only components that are available on the indicated site can be deployed.
 - [`11 descriptor files`](./tn_template_lib/) that each platform must pass or not pass as a test.
@@ -59,13 +72,13 @@
 - Repository documentation.
 - Endpoints that define the API.
 
-### Removed
-
-- First integration with pytest.
-
 ### Fixed
 
 - Mongo volumes in docker compose file.
+
+### Removed
+
+- First integration with pytest.
 
 ## [v0.1.0] - 2024-05-16
 
@@ -97,7 +110,7 @@
 
 - Frontend implementation.
 
-[v0.2.2]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.2.1...v0.2.2
+[v0.3.0]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.2.1...v0.3.0
 [v0.2.1]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.2.0...v0.2.1
 [v0.2.0]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.1.0...v0.2.0
 [v0.1.0]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.1.0
