@@ -60,9 +60,7 @@ class CreateTrialNetwork(Resource):
             github_6g_sandbox_sites_reference_value = self.parser_post.parse_args()["github_6g_sandbox_sites_reference_value"]
 
             current_user = get_current_user_from_jwt(get_jwt_identity())
-            trial_network = TrialNetworkModel(
-                user_created=current_user.username
-            )
+            trial_network = TrialNetworkModel(user_created=current_user.username)
             sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type=github_6g_sandbox_sites_reference_type, reference_value=github_6g_sandbox_sites_reference_value)
             sixg_sandbox_sites_handler.set_deployment_site(deployment_site)
             site_available_components = sixg_sandbox_sites_handler.get_site_available_components()
@@ -94,7 +92,10 @@ class TrialNetwork(Resource):
         """
         try:
             current_user = get_current_user_from_jwt(get_jwt_identity())
-            trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
+            if current_user.role == "admin":
+                trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
+            else:
+                trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
             if not trial_network:
                 return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}'")
             return trial_network.to_dict_full(), 200
@@ -116,7 +117,10 @@ class TrialNetwork(Resource):
             jenkins_deploy_pipeline = self.parser_put.parse_args()["jenkins_deploy_pipeline"]
             
             current_user = get_current_user_from_jwt(get_jwt_identity())
-            trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
+            if current_user.role == "admin":
+                trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
+            else:
+                trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
             if not trial_network:
                 return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}'")
             
@@ -185,7 +189,10 @@ class TrialNetwork(Resource):
             jenkins_destroy_pipeline = self.parser_delete.parse_args()["jenkins_destroy_pipeline"]
 
             current_user = get_current_user_from_jwt(get_jwt_identity())
-            trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
+            if current_user.role == "admin":
+                trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
+            else:
+                trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
             if not trial_network:
                 return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}'")
             
@@ -220,7 +227,10 @@ class TrialNetworkReport(Resource):
         """
         try:
             current_user = get_current_user_from_jwt(get_jwt_identity())
-            trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
+            if current_user.role == "admin":
+                trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
+            else:
+                trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
             if not trial_network:
                 return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}'")
             return {"tn_report": trial_network.tn_report}, 200
@@ -238,7 +248,10 @@ class TrialNetworks(Resource):
         """
         try:
             current_user = get_current_user_from_jwt(get_jwt_identity())
-            trial_networks = TrialNetworkModel.objects(user_created=current_user.username)
+            if current_user.role == "admin":
+                trial_networks = TrialNetworkModel.objects()
+            else:
+                trial_networks = TrialNetworkModel.objects(user_created=current_user.username)
             return {'trial_networks': [tn.to_dict_full() for tn in trial_networks]}, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
@@ -263,9 +276,7 @@ class CreateTrialNetworkTemplate(Resource):
             tn_descriptor_file = self.parser_post.parse_args()["descriptor"]
 
             current_user = get_current_user_from_jwt(get_jwt_identity())
-            trial_network_template = TrialNetworkTemplateModel(
-                user_created=current_user.username
-            )
+            trial_network_template = TrialNetworkTemplateModel(user_created=current_user.username)
             trial_network_template.set_tn_id(tn_id=tn_id)
             trial_network_template.set_tn_raw_descriptor(tn_descriptor_file)
             trial_network_template.set_tn_sorted_descriptor()
