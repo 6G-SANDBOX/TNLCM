@@ -198,7 +198,7 @@ class TrialNetwork(Resource):
             
             tn_state = trial_network.tn_state
             if tn_state != "activated":
-                return abort(400, f"Trial network cannot be destroyed")
+                return abort(400, f"Trial network cannot be destroyed because the current status of Trial Network is different to ACTIVATED")
             callback_handler = CallbackHandler(trial_network=trial_network)
             sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type="commit", reference_value=trial_network.github_6g_sandbox_sites_commit_id)
             sixg_sandbox_sites_handler.set_deployment_site(trial_network.deployment_site)
