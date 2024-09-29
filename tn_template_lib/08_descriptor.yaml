@@ -69,10 +69,10 @@ trial_network:
       one_ueransim_gnb_proxy: ""
       one_ueransim_gnb_mcc: "001"
       one_ueransim_gnb_mnc: "01"
-      one_ueransim_gnb_tac: "200"
+      one_ueransim_gnb_tac: 200
       one_ueransim_gnb_amf_address: "10.10.10.200"
       one_ueransim_gnb_slices_sst: 1
-      one_ueransim_gnb_slices_sd: 1
+      one_ueransim_gnb_slices_sd: "1"
   ueransim-ue:
     type: "ueransim"
     name: "ue"
