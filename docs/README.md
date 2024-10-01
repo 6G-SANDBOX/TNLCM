@@ -93,7 +93,7 @@ TNLCM/                       // main folder.
 
 ## :hourglass_flowing_sand: Current Status
 
-TNLCM is currently able to deploy the following types of components corresponding with the [6G-Library](https://github.com/6G-SANDBOX/6G-Library): **tn_vxlan**, **tn_bastion**, **tn_init**, **vnet**, **tsn**, **vm_kvm**, **oneKE**, **open5gs**, **UERANSIM-gNB** and **UERANSIM-UE**.
+TNLCM is currently able to deploy the following types of components corresponding with the [6G-Library](https://github.com/6G-SANDBOX/6G-Library): **tn_vxlan**, **tn_bastion**, **tn_init**, **vnet**, **tsn**, **vm_kvm**, **oneKE**, **open5gs**, **ueransim**, **elcm**, **nokia_radio**, **ocf**, **stf_ue** and **xrext**.
 
 ![CurrentStatus](./images/currentStatus.png)
 
@@ -127,6 +127,9 @@ git clone https://github.com/6G-SANDBOX/TNLCM
 Create a `.env` file at the root level, using the structure and content provided in the [`.env.template`](../.env.template) file.
 
 Mandatory update the values of the following variables according to the platform:
+- `TNLCM_ADMIN_USER`
+- `TNLCM_ADMIN_PASSWORD`
+- `TNLCM_ADMIN_EMAIL`
 - `TNLCM_HOST`
 - `JENKINS_HOST`
 - `JENKINS_USERNAME`
