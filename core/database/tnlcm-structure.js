@@ -36,7 +36,7 @@ db.users.insertOne({
     password: hashedPassword,
     email: adminEmail,
     role: "admin",
-    org: 'UMA'
+    org: 'ADMIN'
 });
 
 // Insert a verification token into the collection verification_tokens
