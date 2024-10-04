@@ -57,11 +57,12 @@ class LogHandler:
         self.logger.addHandler(console_handler)
 
         for log in loggers:
-            log_libraries = logging.getLogger(log)
-            log_libraries.propagate = False
-            log_libraries.setLevel(logging.INFO)
-            log_libraries.addHandler(file_handler)
-            log_libraries.addHandler(console_handler)
+            if log != "waitress":
+                log_libraries = logging.getLogger(log)
+                log_libraries.propagate = False
+                log_libraries.setLevel(logging.INFO)
+                log_libraries.addHandler(file_handler)
+                log_libraries.addHandler(console_handler)
 
     def info(self, message):
         if self.logger:
