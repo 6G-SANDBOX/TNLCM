@@ -37,7 +37,10 @@ class UpdateCommitSixGLibrary(Resource):
             commit_id = self.parser_post.parse_args()["commit_id"]
             
             current_user = get_current_user_from_jwt(get_jwt_identity())
-            trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
+            if current_user.role == "admin":
+                trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
+            else:
+                trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
             trial_network.set_github_6g_library_commit_id(commit_id)
             trial_network.save()
             return {"message": "Commit successfully modified"}, 201
@@ -63,7 +66,10 @@ class UpdateCommitSixGSandboxSites(Resource):
             commit_id = self.parser_post.parse_args()["commit_id"]
             
             current_user = get_current_user_from_jwt(get_jwt_identity())
-            trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
+            if current_user.role == "admin":
+                trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
+            else:
+                trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
             trial_network.set_github_6g_sandbox_sites_commit_id(commit_id)
             trial_network.save()
             return {"message": "Commit successfully modified"}, 201
@@ -89,7 +95,10 @@ class AddDebugEntityName(Resource):
             entity_name = self.parser_post.parse_args()["entity_name"]
             
             current_user = get_current_user_from_jwt(get_jwt_identity())
-            trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
+            if current_user.role == "admin":
+                trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
+            else:
+                trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
             tn_raw_descriptor = trial_network.json_to_descriptor(trial_network.tn_raw_descriptor)
             tn_sorted_descriptor = trial_network.json_to_descriptor(trial_network.tn_sorted_descriptor)
             tn_deployed_descriptor = trial_network.json_to_descriptor(trial_network.tn_deployed_descriptor)
@@ -123,7 +132,10 @@ class DeleteDebugEntityName(Resource):
             entity_name = self.parser_post.parse_args()["entity_name"]
             
             current_user = get_current_user_from_jwt(get_jwt_identity())
-            trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
+            if current_user.role == "admin":
+                trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
+            else:
+                trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
             tn_raw_descriptor = trial_network.json_to_descriptor(trial_network.tn_raw_descriptor)
             tn_sorted_descriptor = trial_network.json_to_descriptor(trial_network.tn_sorted_descriptor)
             tn_deployed_descriptor = trial_network.json_to_descriptor(trial_network.tn_deployed_descriptor)

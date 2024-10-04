@@ -53,7 +53,7 @@ trial_network:
       one_open5gs_s_nssai_sd: "1"
       one_open5gs_amf_ip: "10.10.10.200"
       one_open5gs_upf_ip: "10.10.10.201"
-      one_open5gs_webui_subdomain : "open5gs"
+      one_open5gs_webui_subdomain: "open5gs"
   ueransim-gnb:
     type: "ueransim"
     name: "gnb"
@@ -69,10 +69,10 @@ trial_network:
       one_ueransim_gnb_proxy: ""
       one_ueransim_gnb_mcc: "001"
       one_ueransim_gnb_mnc: "01"
-      one_ueransim_gnb_tac: "200"
+      one_ueransim_gnb_tac: 200
       one_ueransim_gnb_amf_address: "10.10.10.200"
       one_ueransim_gnb_slices_sst: 1
-      one_ueransim_gnb_slices_sd: 1
+      one_ueransim_gnb_slices_sd: "1"
   ueransim-ue:
     type: "ueransim"
     name: "ue"

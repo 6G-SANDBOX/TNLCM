@@ -93,7 +93,7 @@ TNLCM/                       // main folder.
 
 ## :hourglass_flowing_sand: Current Status
 
-TNLCM is currently able to deploy the following types of components corresponding with the [6G-Library](https://github.com/6G-SANDBOX/6G-Library): **tn_vxlan**, **tn_bastion**, **tn_init**, **vnet**, **tsn**, **vm_kvm**, **oneKE**, **open5gs**, **UERANSIM-gNB** and **UERANSIM-UE**.
+TNLCM is currently able to deploy the following types of components corresponding with the [6G-Library](https://github.com/6G-SANDBOX/6G-Library): **tn_vxlan**, **tn_bastion**, **tn_init**, **vnet**, **tsn**, **vm_kvm**, **oneKE**, **open5gs**, **ueransim**, **elcm**, **nokia_radio**, **ocf**, **stf_ue** and **xrext**.
 
 ![CurrentStatus](./images/currentStatus.png)
 
@@ -109,7 +109,7 @@ TNLCM is currently able to deploy the following types of components correspondin
 > 
 > | Repository       | Branch                                                            | Release   |
 > | ---------------- | ----------------------------------------------------------------- | --------- |
-> | 6G-Library       | [develop](https://github.com/6G-SANDBOX/6G-Library/tree/develop)  | -         |
+> | 6G-Library       | [v0.3.0](https://github.com/6G-SANDBOX/6G-Library/tree/v0.3.0)    | -         |
 > | 6G-Sandbox-Sites | [platform](https://github.com/6G-SANDBOX/6G-Sandbox-Sites)        | -         |
 
 ### :inbox_tray: Download or clone repository
@@ -127,6 +127,9 @@ git clone https://github.com/6G-SANDBOX/TNLCM
 Create a `.env` file at the root level, using the structure and content provided in the [`.env.template`](../.env.template) file.
 
 Mandatory update the values of the following variables according to the platform:
+- `TNLCM_ADMIN_USER`
+- `TNLCM_ADMIN_PASSWORD`
+- `TNLCM_ADMIN_EMAIL`
 - `TNLCM_HOST`
 - `JENKINS_HOST`
 - `JENKINS_USERNAME`
@@ -338,8 +341,8 @@ To deploy 6G-SANDBOX TOOLKIT in OpenNebula, the documentation can be accessed fr
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 <!-- Urls, Shields and Badges -->
-[tnlcm-badge]: https://img.shields.io/badge/TNLCM-v0.3.0-blue
-[tnlcm-url]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.3.0
+[tnlcm-badge]: https://img.shields.io/badge/TNLCM-v0.3.1-blue
+[tnlcm-url]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.3.1
 [python-badge]: https://img.shields.io/badge/Python-3.12.6-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB
 [python-url]: https://www.python.org/downloads/release/python-3126/
 [flask-badge]: https://img.shields.io/badge/Flask-3.0.3-brightgreen?style=for-the-badge&logo=flask&logoColor=white&labelColor=000000

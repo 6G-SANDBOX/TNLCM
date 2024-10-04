@@ -1,5 +1,16 @@
 # Changelog
 
+## [v0.3.1] - 2024-10-04
+
+### Added
+
+- Creation of an administrator user when instantiating the mongo database for the first time.
+
+### Fixed
+
+- Types of input values in the test descriptors of the `tn_template_lib` folder.
+- Check if the site entered to deploy a trial network is correct.
+
 ## [v0.3.0] - 2024-09-25
 
 ### Added
@@ -110,6 +121,7 @@
 
 - Frontend implementation.
 
+[v0.3.1]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.3.0...v0.3.1
 [v0.3.0]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.2.1...v0.3.0
 [v0.2.1]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.2.0...v0.2.1
 [v0.2.0]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.1.0...v0.2.0

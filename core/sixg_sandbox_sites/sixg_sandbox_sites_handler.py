@@ -95,4 +95,4 @@ class SixGSandboxSitesHandler():
         """
         Return sites available to deploy trial networks
         """
-        return [site for site in os.listdir(self.github_6g_sandbox_sites_local_directory) if not site.startswith(".")]
+        return [site for site in os.listdir(self.github_6g_sandbox_sites_local_directory) if not site.startswith(".") and os.path.isdir(os.path.join(self.github_6g_sandbox_sites_local_directory, site))]
