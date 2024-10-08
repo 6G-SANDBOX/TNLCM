@@ -5,8 +5,9 @@ from ansible_vault import Vault
 from ansible.errors import AnsibleError
 
 from conf import SixGSandboxSitesSettings
+from core.logs.log_handler import log_handler
 from core.repository.repository_handler import RepositoryHandler
-from core.exceptions.exceptions_handler import SixGSandboxSitesInvalidSiteError, InvalidContentFileError, CustomFileNotFoundError, SixGSandboxSitesDecryptError
+from core.exceptions.exceptions_handler import SixGSandboxSitesInvalidSiteError, SixGSandboxSitesComponentsNotFoundError, InvalidContentFileError, CustomFileNotFoundError, SixGSandboxSitesDecryptError
 
 SIXG_SANDBOX_SITES_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
@@ -76,7 +77,7 @@ class SixGSandboxSitesHandler():
 
     def get_site_available_components(self):
         """
-        Return list with components available on a site
+        Return all information of all components available on a site
         """
         decrypted_core_file = os.path.join(self.github_6g_sandbox_sites_local_directory, self.deployment_site, "core_decrypt.yaml")
         if not os.path.exists(decrypted_core_file):
@@ -96,3 +97,17 @@ class SixGSandboxSitesHandler():
         Return sites available to deploy trial networks
         """
         return [site for site in os.listdir(self.github_6g_sandbox_sites_local_directory) if not site.startswith(".") and os.path.isdir(os.path.join(self.github_6g_sandbox_sites_local_directory, site))]
+    
+    def is_components_site(self, components_types):
+        """"
+        Return true if components in the descriptor are in the site
+
+        :param components_types: list of components that compose the descriptor , ``list[str]``
+        """
+        site_available_components = self.get_site_available_components()
+        list_site_available_components = list(site_available_components.keys())
+        for component in components_types:
+            if component not in list_site_available_components:
+                raise SixGSandboxSitesComponentsNotFoundError(f"Component '{component}' entered in descriptor file not found in '{self.deployment_site}' site", 404)
+            log_handler.info(f"Component type '{component}' is on '{self.deployment_site}' site")
+        return True

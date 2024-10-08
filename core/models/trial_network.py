@@ -78,7 +78,7 @@ class TrialNetworkModel(Document):
         """
         Recursive method that return the raw descriptor and a new descriptor sorted according to dependencies
         """
-        log_handler.info("Start order of the entities of the descriptor")
+        log_handler.info(f"Start order of the entities of the descriptor '{self.tn_id}'")
         entities = self.json_to_descriptor(self.tn_raw_descriptor)["trial_network"]
         ordered_entities = {}
 
@@ -95,7 +95,7 @@ class TrialNetworkModel(Document):
         for entity in entities:
             dfs(entity)
         
-        log_handler.info("End order of the entities of the descriptor")
+        log_handler.info(f"End order of the entities of the descriptor '{self.tn_id}'")
         self.tn_sorted_descriptor = self.descriptor_to_json({"trial_network": ordered_entities})
         self.tn_deployed_descriptor = self.descriptor_to_json({"trial_network": ordered_entities})
 
@@ -160,11 +160,11 @@ class TrialNetworkModel(Document):
         else:
             self.tn_deployed_descriptor = self.descriptor_to_json({"trial_network": tn_deployed_descriptor})
 
-    def _logical_expression(self, list_site_available_components, bool_expresion, tn_descriptor, component_name):
+    def _logical_expression(self, components_types, bool_expresion, tn_descriptor, component_name):
         """
         In case the type is a logical expression. For example: tn_vxlan or vnet
         
-        :param list_site_available_components: list of components available on a site, ``list[str]``
+        :param components_types: list of the components that make up the descriptor, ``list[str]``
         :param bool_expresion: bool expresion to evaluate, ``bool``
         :param tn_descriptor: trial network sorted descriptor, ``dict``
         :param component_name: component name that is in input part of descriptor, ``str``
@@ -175,7 +175,7 @@ class TrialNetworkModel(Document):
             if component_name == "tn_vxlan" and component_name not in tn_descriptor:
                 cn = "tn_init"
                 part = "tn_init"
-            if part not in list_site_available_components:
+            if part not in components_types:
                 raise TrialNetworkInvalidDescriptorError(f"Component '{cn}'. The type '{part}' is not recognized as a valid type.", 422)
             if cn not in tn_descriptor:
                 raise TrialNetworkInvalidDescriptorError(f"Component '{cn}' does not exist in the descriptor", 422)
@@ -192,11 +192,11 @@ class TrialNetworkModel(Document):
 
         return False
     
-    def _validate_list_of_networks(self, list_site_available_components, bool_expresion, tn_descriptor, component_list):
+    def _validate_list_of_networks(self, components_types, bool_expresion, tn_descriptor, component_list):
         """
         Validates a list of networks with logical expression. For example: list[tn_vxlan or vnet]
         
-        :param list_site_available_components: list of components available on a site, ``list[str]``
+        :param components_types: list of the components that make up the descriptor, ``list[str]``
         :param bool_expresion: bool expresion to evaluate, ``bool``
         :param tn_descriptor: trial network sorted descriptor, ``dict``
         :param component_list: list of components that are in input part of descriptor, ``list[str]``
@@ -204,10 +204,10 @@ class TrialNetworkModel(Document):
         for component_name in component_list:
             if not isinstance(component_name, str):
                 raise TrialNetworkInvalidDescriptorError(f"Component name '{component_name}' in the list must be a string", 422)
-            if not self._logical_expression(list_site_available_components, bool_expresion, tn_descriptor, component_name):
+            if not self._logical_expression(components_types, bool_expresion, tn_descriptor, component_name):
                 raise TrialNetworkInvalidDescriptorError(f"Component '{component_name}' in the list does not match the type '{bool_expresion}'", 422)
 
-    def validate_descriptor(self, list_site_available_components, input):
+    def validate_descriptor(self, components_types, input):
         """
         Validate descriptor:
         1) Check if the descriptor follows the correct scheme\n
@@ -215,10 +215,9 @@ class TrialNetworkModel(Document):
             1.2) Entity names are not empty\n
             1.3) Check that each entity has a type, dependencies, input and name part if required\n
             1.4) Check that the value of each part is a correct object (str, list and dict)\n
-            1.5) Check that the value of the type is a component type of the 6G-Library\n
-            1.6) Check whether custom name is required or not depending on the component type\n
-            1.7) Check that custom name has valid characters: [a-zA-Z0-9_]\n
-            1.8) Check that the entity name follows the format: type-name\n
+            1.5) Check whether custom name is required or not depending on the component type\n
+            1.6) Check that custom name has valid characters: [a-zA-Z0-9_]\n
+            1.7) Check that the entity name follows the format: type-name\n
         2) Check if the component contains the inputs correctly\n
             2.1) Check that the fields that are mandatory are present\n
             2.2) The type of the fields is verified\n
@@ -227,10 +226,10 @@ class TrialNetworkModel(Document):
                 2.2.3) If it is a component\n
             2.3) It is checked the fields that are required_when\n
 
-        :param list_site_available_components: list of components available on a site, ``list[str]``
+        :param components_types: list of the components that make up the descriptor, ``list[str]``
         :param input: correct input from the 6G-Library, ``dict``
         """
-        log_handler.info(f"Start validation of the trial network descriptor '{self.tn_id}'")
+        log_handler.info(f"Start validation of the trial network '{self.tn_id}'")
         tn_raw_descriptor = self.json_to_descriptor(self.tn_raw_descriptor)
         if len(tn_raw_descriptor.keys()) > 1 or "trial_network" not in tn_raw_descriptor:
             raise TrialNetworkInvalidDescriptorError("Trial network descriptor must start with 'trial_network' key", 422)
@@ -248,9 +247,6 @@ class TrialNetworkModel(Document):
                 elif rfd == "input" and not isinstance(entity_data[rfd], dict):
                     raise TrialNetworkInvalidDescriptorError(f"Value of the '{rfd}' key must be a dictionary in the '{entity_name}' entity of the descriptor", 422)
             component_type = entity_data["type"]
-            if component_type not in list_site_available_components:
-                raise TrialNetworkInvalidDescriptorError(f"Component '{component_type}' not available on the '{self.deployment_site}' site", 404)
-            log_handler.info(f"Component '{component_type}' is on '{self.deployment_site}' site")
             custom_name = None
             if component_type not in COMPONENTS_EXCLUDE_CUSTOM_NAME:
                 if "name" not in entity_data:
@@ -287,14 +283,14 @@ class TrialNetworkModel(Document):
                         component_name = input_descriptor_component[input_sixg_library_key]
                         if sixg_library_type.startswith("list[") and sixg_library_type.endswith("]"):
                             bool_expresion = sixg_library_type[5:-1]
-                            self._validate_list_of_networks(list_site_available_components, bool_expresion, tn_descriptor, component_name)
+                            self._validate_list_of_networks(components_types, bool_expresion, tn_descriptor, component_name)
                         else:
-                            if sixg_library_type not in type_mapping and sixg_library_type not in list_site_available_components and not self._logical_expression(list_site_available_components, sixg_library_type, tn_descriptor, component_name):
+                            if sixg_library_type not in type_mapping and sixg_library_type not in components_types and not self._logical_expression(components_types, sixg_library_type, tn_descriptor, component_name):
                                 raise TrialNetworkInvalidDescriptorError(f"Component '{component_type}'. Unknown type '{sixg_library_type}' for the '{input_sixg_library_key}' field", 422)
                             if sixg_library_type in type_mapping:
                                 if not isinstance(input_descriptor_component[input_sixg_library_key], type_mapping[sixg_library_type]):
                                     raise TrialNetworkInvalidDescriptorError(f"Component '{component_type}'. Type of the '{input_sixg_library_key}' field must be '{sixg_library_type}'", 422)
-                            elif sixg_library_type in list_site_available_components:
+                            elif sixg_library_type in components_types:
                                 if not isinstance(component_name, str):
                                     raise TrialNetworkInvalidDescriptorError(f"Component '{component_type}'. The '{input_sixg_library_key}' field must be a string referring to a component name", 422)
                                 if component_name not in tn_descriptor:
@@ -309,7 +305,18 @@ class TrialNetworkModel(Document):
                             sixg_library_choices = input_sixg_library_value["choices"]
                             if not input_descriptor_component[input_sixg_library_key] in sixg_library_choices:
                                 raise TrialNetworkInvalidDescriptorError(f"Component '{component_type}'. Value of the '{input_sixg_library_key}' field has to be one of then: '{sixg_library_choices}'", 422)
-        log_handler.info(f"End validation of the trial network descriptor '{self.tn_id}'")
+        log_handler.info(f"End validation of the trial network '{self.tn_id}'")
+
+    def get_components_types(self):
+        """
+        Return a list with components types that are in the descriptor
+        """
+        component_types = set()
+        tn_descriptor = self.json_to_descriptor(self.tn_sorted_descriptor)["trial_network"]
+        for key, component in tn_descriptor.items():
+            component_type = component["type"]
+            component_types.add(component_type)
+        return list(component_types)
 
     def descriptor_to_json(self, descriptor):
         """

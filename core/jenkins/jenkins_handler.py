@@ -138,9 +138,8 @@ class JenkinsHandler:
         """
         Return a dictionary with the parameters for each component to be passed to the destroy pipeline
         """
-        site_available_components = self.sixg_sandbox_sites_handler.get_site_available_components()
-        list_site_available_components = list(site_available_components.keys())
-        parts_components = self.sixg_library_handler.get_parts_components(site=self.trial_network.deployment_site, list_site_available_components=list_site_available_components)
+        components_types = self.trial_network.get_components_types()
+        parts_components = self.sixg_library_handler.get_parts_components(site=self.trial_network.deployment_site, components_types=components_types)
         metadata = {component: data["metadata"] for component, data in parts_components.items()}
         tn_sorted_descriptor = self.trial_network.json_to_descriptor(self.trial_network.tn_sorted_descriptor)["trial_network"]
         entities_with_destroy_script = []

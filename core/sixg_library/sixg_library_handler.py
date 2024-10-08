@@ -5,7 +5,7 @@ from yaml import safe_load, YAMLError
 from conf import SixGLibrarySettings
 from core.logs.log_handler import log_handler
 from core.repository.repository_handler import RepositoryHandler
-from core.exceptions.exceptions_handler import SixGLibraryComponentsNotFoundError, InvalidContentFileError, CustomFileNotFoundError
+from core.exceptions.exceptions_handler import SixGLibraryComponentFolderNotFoundError, InvalidContentFileError, CustomFileNotFoundError
 
 SIXG_LIBRARY_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
@@ -47,18 +47,18 @@ class SixGLibraryHandler:
         """
         return self.repository_handler.get_branches()
     
-    def get_parts_components(self, site, list_site_available_components):
+    def get_parts_components(self, site, components_types):
         """
         Return the metadata, inputs and outputs of the components of a specific site
         
         :param site: specific site for which components data is to be retrieved, ``str``
-        :param list_site_available_components: list of components available on a site, ``list[str]``
+        :param components_types: list of the components that make up the descriptor, ``list[str]``
         """
         log_handler.info(f"Get metadata, input and output part of components of a '{site}' site from the 6G-Library")
         components_data = {}
-        for component in list_site_available_components:
+        for component in components_types:
             if not os.path.isdir(os.path.join(self.github_6g_library_local_directory, component)):
-                raise SixGLibraryComponentsNotFoundError(f"Component '{component}' not in commit '{self.github_6g_library_commit_id}' of 6G-Library", 404) 
+                raise SixGLibraryComponentFolderNotFoundError(f"Folder of the component '{component}' is not created in commit '{self.github_6g_library_commit_id}' of 6G-Library", 404)
             if os.path.isdir(os.path.join(self.github_6g_library_local_directory, component)):
                 public_file = os.path.join(self.github_6g_library_local_directory, component, ".tnlcm", "public.yaml")
                 if not os.path.exists(public_file):

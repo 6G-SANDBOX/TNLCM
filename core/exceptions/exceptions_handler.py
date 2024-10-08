@@ -89,8 +89,8 @@ class CustomSixGLibraryException(CustomException):
     """Base class for 6G-Library related exceptions"""
     pass
 
-class SixGLibraryComponentsNotFoundError(CustomSixGLibraryException):
-    """Error thrown when no components are found in the cloned repository"""
+class SixGLibraryComponentFolderNotFoundError(CustomSixGLibraryException):
+    """Error thrown when component folder is not in 6G-Library"""
     pass
 
 ###############################
@@ -106,6 +106,10 @@ class SixGSandboxSitesInvalidSiteError(CustomSixGSandboxSitesException):
 
 class SixGSandboxSitesDecryptError(CustomSixGSandboxSitesException):
     """Errror thrown when sites file can not descrypt"""
+    pass
+
+class SixGSandboxSitesComponentsNotFoundError(CustomSixGSandboxSitesException):
+    """Error thrown when no components are found in the cloned repository"""
     pass
 
 ###############################
