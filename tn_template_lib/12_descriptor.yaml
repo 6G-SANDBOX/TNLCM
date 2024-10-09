@@ -64,10 +64,10 @@ trial_network:
       nokia_radio_one_main_ip: "10.182.32.39"
       nokia_radio_one_route_manager_ip: "10.11.28.134"
       nokia_radio_one_reservation_time: 180
-  ue_stf-movil:
-    type: "ue_stf"
+  stf_ue-movil:
+    type: "stf_ue"
     name: "movil"
     dependencies:
       - "nokia_radio-cope"
     input: 
-      ue_stf_any_lease: 10800
+      stf_ue_any_lease: 10800
