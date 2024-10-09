@@ -1,8 +1,5 @@
 # TRIAL NETWORKS
 
-- Los componentes que componen el descriptor
-- En qué plataforma debe funcionar
-
 ## [Descriptor 1](./01_descriptor.yaml)
 
 ### Components
