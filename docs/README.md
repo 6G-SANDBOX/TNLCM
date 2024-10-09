@@ -206,7 +206,7 @@ trial_network: # Mandatory, contains the description of all entities in the Tria
       key: value
 ```
 
-This repository contains a variety of [descriptors](../tn_template_lib/). Access the [documentation](../tn_template_lib/TRIAL_NETWORKS.md) to see what is defined in each of them.
+This repository contains a variety of [descriptors](../tn_template_lib/). Access the [documentation](./TRIAL_NETWORKS.md) to see what is defined in each of them.
 
 - [`08_descriptor.yaml`](../tn_template_lib/08_descriptor.yaml) - **should work on all platforms**. First end-to-end trial network.
 - [`referente_tn.yaml`](../tn_template_lib/reference_tn.yaml) - **should work on all platforms**. Reference trial network defined in WP5.
