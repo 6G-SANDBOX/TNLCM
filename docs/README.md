@@ -65,6 +65,7 @@ TNLCM/                       // main folder.
 └─ core/                     // folder in which the developed code is stored.
    ├─ auth/                  // folder that handler the authentication of users who have access.
    ├─ callback/              // folder that handler the results received by Jenkins.
+   ├─ cli/                   // folder that handler the cli for run commands.
    ├─ database/              // folder that handler the connection with MongoDB database using mongoengine.
    ├─ exceptions/            // folder that handler the creation of custom exceptions.
    ├─ jenkins/               // folder that handler the connection with Jenkins for tn deployment.
@@ -72,7 +73,6 @@ TNLCM/                       // main folder.
    ├─ mail/                  // folder that handler the configuration to use flask mail library.
    ├─ models/                // folder that contains the database models.
    ├─ repository/            // folder that handler the connection to any repository.
-   ├─ resource_manager/      // folder that handler the resource manager.
    ├─ routes/                // folder that handler the API that is exposed.
    ├─ sixg_library/          // folder that handler the connection to the 6G-Library repository.
    ├─ sixg_sandbox_sites/    // folder that handler the connection to the 6G-Sandbox-Sites repository.
@@ -206,10 +206,10 @@ trial_network: # Mandatory, contains the description of all entities in the Tria
       key: value
 ```
 
-This repository contains a variety of [descriptor templates](../tn_template_lib/).
+This repository contains a variety of [descriptors](../tn_template_lib/). Access the [documentation](../tn_template_lib/TRIAL_NETWORKS.md) to see what is defined in each of them.
 
-The first end-to-end trial network:
-- [`08_descriptor.yaml`](../tn_template_lib/08_descriptor.yaml) - **should work on all platforms**
+- [`08_descriptor.yaml`](../tn_template_lib/08_descriptor.yaml) - **should work on all platforms**. First end-to-end trial network.
+- [`referente_tn.yaml`](../tn_template_lib/reference_tn.yaml) - **should work on all platforms**. Reference trial network defined in WP5.
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
@@ -333,18 +333,18 @@ To deploy 6G-SANDBOX TOOLKIT in OpenNebula, the documentation can be accessed fr
 
 ## :construction_worker: Development Team <!-- omit in toc -->
 
-|                               Photo                                |        Name         | Email |                                                                        GitHub                                                                        |                                                                                  Linkedin                                                                                  |
-| :----------------------------------------------------------------: | :-----------------: | :---: | :--------------------------------------------------------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
-| <img src="https://github.com/CarlosAndreo.png?size=50" width=50px> | Carlos Andreo López |   -   | <a href="https://github.com/CarlosAndreo"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> |                         <a href=""><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a>                          |
-| <img src="https://github.com/NaniteBased.png?size=50" width=50px>  | Bruno García García |   -   | <a href="https://github.com/NaniteBased"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a>  | <a href="https://itis.uma.es/personal/bruno-garcia-garcia/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
+|                               Photo                                |        Name         | Email |                                                                        GitHub                                                                        |                                                         Linkedin                                                          |
+| :----------------------------------------------------------------: | :-----------------: | :---: | :--------------------------------------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------: |
+| <img src="https://github.com/CarlosAndreo.png?size=50" width=50px> | Carlos Andreo López |   -   | <a href="https://github.com/CarlosAndreo"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href=""><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
+| <img src="https://github.com/NaniteBased.png?size=50" width=50px>  | Bruno García García |   -   | <a href="https://github.com/NaniteBased"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a>  | <a href=""><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 <!-- Urls, Shields and Badges -->
 [tnlcm-badge]: https://img.shields.io/badge/TNLCM-v0.3.1-blue
 [tnlcm-url]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.3.1
-[python-badge]: https://img.shields.io/badge/Python-3.12.6-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB
-[python-url]: https://www.python.org/downloads/release/python-3126/
+[python-badge]: https://img.shields.io/badge/Python-3.13.0-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB
+[python-url]: https://www.python.org/downloads/release/python-3130/
 [flask-badge]: https://img.shields.io/badge/Flask-3.0.3-brightgreen?style=for-the-badge&logo=flask&logoColor=white&labelColor=000000
 [flask-url]: https://flask.palletsprojects.com/en/3.0.x/
 [mongodb-badge]: https://img.shields.io/badge/MongoDB-7.0.14-green?style=for-the-badge&logo=mongodb&logoColor=white&labelColor=47A248
