@@ -1,5 +1,26 @@
 # Changelog
 
+## [UNRELEASED] - 2024-XX-XX
+
+### Added
+
+- README file in `tn_template_lib` folder for explain trial networks defined.
+- First version CLI handler for execute commands.
+
+### Changed
+
+- Python version to 3.13.0.
+
+### Fixed
+
+- Bug detected when trying to create a trial network and there were components defined in the 6G-Sandbox-Sites repository, but not defined in the 6G-Library.
+- Functions documentation.
+
+### Removed
+
+- `resource_manager` folder.
+- Trial Network Template implementation.
+
 ## [v0.3.1] - 2024-10-04
 
 ### Added
@@ -121,6 +142,7 @@
 
 - Frontend implementation.
 
+[UNRELEASED]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.3.1...HEAD
 [v0.3.1]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.3.0...v0.3.1
 [v0.3.0]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.2.1...v0.3.0
 [v0.2.1]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.2.0...v0.2.1
