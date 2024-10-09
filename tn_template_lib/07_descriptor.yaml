@@ -50,7 +50,7 @@ trial_network:
       one_open5gs_apn: "internet"
       one_open5gs_tac: 200
       one_open5gs_s_nssai_sst: 1
-      one_open5gs_s_nssai_sd: "1"
+      one_open5gs_s_nssai_sd: "000001"
       one_open5gs_amf_ip: "10.10.10.200"
       one_open5gs_upf_ip: "10.10.10.201"
       one_open5gs_webui_subdomain: "open5gs"
