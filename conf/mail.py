@@ -5,9 +5,12 @@ from email_validator import validate_email, EmailNotValidError
 from core.logs.log_handler import log_handler
 from core.exceptions.exceptions_handler import UndefinedEnvVariableError, InvalidEmailError
 
-def str_to_bool(s):
+def str_to_bool(s: str) -> bool:
     """
-    Convert string to bool
+    Convert a string representation of truth values to a boolean
+
+    :param s: string to be converted to a boolean, ``str``
+    :return: boolean representation of the string, ``bool``
     """
     return s.lower() in ["true", "1", "yes"]
 

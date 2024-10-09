@@ -30,7 +30,7 @@ class User(Resource):
 
     @user_namespace.doc(security="Bearer Auth")
     @jwt_required()
-    def get(self):
+    def get(self) -> tuple[dict, int]:
         """
         Retrieve current user
         """
@@ -44,7 +44,7 @@ class User(Resource):
 class UserLogin(Resource):
 
     @user_namespace.doc(security="basicAuth")
-    def post(self):
+    def post(self) -> tuple[dict, int]:
         """
         Login for user and return tokens
         """
@@ -73,7 +73,7 @@ class UserTokenRefresh(Resource):
 
     @user_namespace.doc(security="Bearer Auth")
     @jwt_required(refresh=True)
-    def post(self):
+    def post(self) -> tuple[dict, int]:
         """
         Refresh tokens for user
         """

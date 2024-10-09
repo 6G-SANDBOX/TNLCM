@@ -16,7 +16,7 @@ class Clone(Resource):
     parser_post.add_argument("reference_value", type=str, required=True)
 
     @sixg_sandbox_sites_namespace.expect(parser_post)
-    def post(self):
+    def post(self) -> tuple[dict, int]:
         """
         Clone 6G-Sandbox-Sites repository
         Can specify a branch, commit or tag of the 6G-Sandbox-Sites.
@@ -38,7 +38,7 @@ class Sites(Resource):
     parser_get.add_argument("reference_value", type=str, required=True)
 
     @sixg_sandbox_sites_namespace.expect(parser_get)
-    def get(self):
+    def get(self) -> tuple[dict, int]:
         """
         Return the sites where trial networks can be deployed
         Can specify a branch, commit or tag of the 6G-Sandbox-Sites.
@@ -55,7 +55,7 @@ class Sites(Resource):
 @sixg_sandbox_sites_namespace.route("/tags/")
 class Tags(Resource):
 
-    def get(self):
+    def get(self) -> tuple[dict, int]:
         """
         Return 6G-Sandbox-Sites tags
         """
@@ -68,7 +68,7 @@ class Tags(Resource):
 @sixg_sandbox_sites_namespace.route("/branches/")
 class Branches(Resource):
 
-    def get(self):
+    def get(self) -> tuple[dict, int]:
         """
         Return 6G-Sandbox-Sites branches
         """

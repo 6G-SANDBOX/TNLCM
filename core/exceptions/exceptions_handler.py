@@ -1,6 +1,12 @@
 class CustomException(Exception):
     """Base class for custom exceptions"""
-    def __init__(self, message, error_code):
+    def __init__(self, message: str, error_code: int):
+        """
+        Constructor
+
+        :param message: error message, ``str``
+        :param error_code: error code, ``int``
+        """
         super().__init__(message)
         self.error_code = error_code
 
@@ -125,6 +131,14 @@ class TrialNetworkInvalidStatusError(CustomTrialNetworkException):
 
 class TrialNetworkInvalidDescriptorError(CustomTrialNetworkException):
     """Error thrown when descriptor is incorrect"""
+    pass
+
+class TrialNetworkExists(CustomTrialNetworkException):
+    """Error thrown when trial network exists in database"""
+    pass
+
+class TrialNetworkInvalidTnId(CustomTrialNetworkException):
+    """Error thrown when trial network identifier not valid"""
     pass
 
 ############################

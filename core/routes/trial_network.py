@@ -4,9 +4,8 @@ from werkzeug.datastructures import FileStorage
 
 from core.auth.auth import get_current_user_from_jwt
 from core.callback.callback_handler import CallbackHandler
-from core.resource_manager.resource_manager import ResourceManagerHandler
 from core.jenkins.jenkins_handler import JenkinsHandler
-from core.models import TrialNetworkModel, TrialNetworkTemplateModel
+from core.models import TrialNetworkModel, ResourceManagerModel
 from core.sixg_library.sixg_library_handler import SixGLibraryHandler
 from core.sixg_sandbox_sites.sixg_sandbox_sites_handler import SixGSandboxSitesHandler
 from core.temp.temp_file_handler import TempFileHandler
@@ -43,12 +42,12 @@ class CreateTrialNetwork(Resource):
     @trial_network_namespace.doc(security="Bearer Auth")
     @jwt_required()
     @trial_network_namespace.expect(parser_post)
-    def post(self):
+    def post(self) -> tuple[dict, int]:
         """
         Create and validate trial network
         Can specify a branch, commit or tag of the 6G-Library.
         Can specify a branch, commit or tag of the 6G-Sandbox-Sites.
-        The tn_id can be specified if desired. **If nothing is specified, it will return a random tn_id.**
+        The tn_id can be specified if desired. **If the value is specified, it should begin with character. If nothing is specified, it will return a random tn_id.**
         """
         try:
             tn_id = self.parser_post.parse_args()["tn_id"]
@@ -61,6 +60,7 @@ class CreateTrialNetwork(Resource):
 
             current_user = get_current_user_from_jwt(get_jwt_identity())
             trial_network = TrialNetworkModel(user_created=current_user.username)
+            trial_network.set_tn_id(size=3, tn_id=tn_id)
             trial_network.set_tn_raw_descriptor(tn_descriptor_file)
             trial_network.set_tn_sorted_descriptor()
             sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type=github_6g_sandbox_sites_reference_type, reference_value=github_6g_sandbox_sites_reference_value)
@@ -69,9 +69,7 @@ class CreateTrialNetwork(Resource):
             components_types = trial_network.get_components_types()
             sixg_sandbox_sites_handler.is_components_site(components_types=components_types)
             sixg_library_handler = SixGLibraryHandler(reference_type=github_6g_library_reference_type, reference_value=github_6g_library_reference_value)
-            parts_components = sixg_library_handler.get_parts_components(site=sixg_sandbox_sites_handler.deployment_site, components_types=components_types)
-            input = {component: data["input"] for component, data in parts_components.items()}
-            trial_network.set_tn_id(size=3, tn_id=tn_id)
+            input = sixg_library_handler.get_components_parts(site=sixg_sandbox_sites_handler.deployment_site, parts=["input"], components_types=components_types)["input"]
             trial_network.validate_descriptor(components_types, input)
             trial_network.set_github_6g_library_commit_id(sixg_library_handler.github_6g_library_commit_id)
             trial_network.set_github_6g_sandbox_sites_commit_id(sixg_sandbox_sites_handler.github_6g_sandbox_sites_commit_id)
@@ -86,7 +84,7 @@ class TrialNetwork(Resource):
 
     @trial_network_namespace.doc(security="Bearer Auth")
     @jwt_required()
-    def get(self, tn_id):
+    def get(self, tn_id: str) -> tuple[dict, int]:
         """
         Return trial network
         """
@@ -108,7 +106,7 @@ class TrialNetwork(Resource):
     @trial_network_namespace.doc(security="Bearer Auth")
     @jwt_required()
     @trial_network_namespace.expect(parser_put)
-    def put(self, tn_id):
+    def put(self, tn_id: str) -> tuple[dict, int]:
         """
         State Machine: play or suspend trial network
         If nothing is specified in jenkins_deploy_pipeline, the **TN_DEPLOY** pipeline of Jenkins will be used.
@@ -134,8 +132,9 @@ class TrialNetwork(Resource):
                 trial_network.save()
                 sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type="commit", reference_value=trial_network.github_6g_sandbox_sites_commit_id)
                 sixg_sandbox_sites_handler.set_deployment_site(trial_network.deployment_site)
-                resource_manager_handler = ResourceManagerHandler(trial_network=trial_network, sixg_sandbox_sites_handler=sixg_sandbox_sites_handler)
-                resource_manager_handler.apply_resource_manager()
+                site_available_components = sixg_sandbox_sites_handler.get_site_available_components()
+                resource_manager = ResourceManagerModel()
+                resource_manager.apply_resource_manager(trial_network, site_available_components)
                 jenkins_handler.trial_network_deployment()
                 trial_network.set_tn_report(callback_handler.get_path_report_trial_network())
                 trial_network.set_tn_state("activated")
@@ -158,8 +157,9 @@ class TrialNetwork(Resource):
                 jenkins_handler.set_jenkins_deploy_pipeline(trial_network.jenkins_deploy_pipeline)
                 sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type="commit", reference_value=trial_network.github_6g_sandbox_sites_commit_id)
                 sixg_sandbox_sites_handler.set_deployment_site(trial_network.deployment_site)
-                resource_manager_handler = ResourceManagerHandler(trial_network=trial_network, sixg_sandbox_sites_handler=sixg_sandbox_sites_handler)
-                resource_manager_handler.apply_resource_manager()
+                site_available_components = sixg_sandbox_sites_handler.get_site_available_components()
+                resource_manager = ResourceManagerModel()
+                resource_manager.apply_resource_manager(trial_network, site_available_components)
                 jenkins_handler.trial_network_deployment()
                 trial_network.set_tn_report(callback_handler.get_path_report_trial_network())
                 trial_network.set_tn_state("activated")
@@ -169,8 +169,9 @@ class TrialNetwork(Resource):
                 # TODO: see what to do with trial network resources
                 trial_network.set_tn_state("suspended")
                 trial_network.save()
+                return {"message": "TO BE IMPLEMENTED"}, 400
             else: # tn_state == "suspended"
-                pass
+                return {"message": "TO BE IMPLEMENTED"}, 400
         except CustomException as e:
             return abort(e.error_code, str(e))
 
@@ -180,7 +181,7 @@ class TrialNetwork(Resource):
     @trial_network_namespace.doc(security="Bearer Auth")
     @jwt_required()
     @trial_network_namespace.expect(parser_delete)
-    def delete(self, tn_id):
+    def delete(self, tn_id: str) -> tuple[dict, int]:
         """
         Delete trial network
         If nothing is specified in jenkins_destroy_pipeline, the **TN_DESTROY** pipeline of Jenkins will be used.
@@ -207,8 +208,8 @@ class TrialNetwork(Resource):
             jenkins_handler.set_jenkins_destroy_pipeline(jenkins_destroy_pipeline)
             trial_network.set_jenkins_destroy_pipeline(jenkins_handler.jenkins_destroy_pipeline)
             jenkins_handler.trial_network_destroy()
-            resource_manager_handler = ResourceManagerHandler(trial_network=trial_network)
-            resource_manager_handler.release_resource_manager()
+            resource_manager = ResourceManagerModel()
+            resource_manager.release_resource_manager(trial_network)
             trial_network.set_tn_deployed_descriptor()
             trial_network.set_tn_state("destroyed")
             trial_network.save()
@@ -221,7 +222,7 @@ class TrialNetworkReport(Resource):
 
     @trial_network_namespace.doc(security="Bearer Auth")
     @jwt_required()
-    def get(self, tn_id):
+    def get(self, tn_id: str) -> tuple[dict, int]:
         """
         Return the report generated after the execution of the entities of a trial network
         """
@@ -242,7 +243,7 @@ class TrialNetworks(Resource):
 
     @trial_network_namespace.doc(security="Bearer Auth")
     @jwt_required()
-    def get(self):
+    def get(self) -> tuple[dict, int]:
         """
         Return information of all trial networks stored in database created by user identified
         """
@@ -253,49 +254,5 @@ class TrialNetworks(Resource):
             else:
                 trial_networks = TrialNetworkModel.objects(user_created=current_user.username)
             return {'trial_networks': [tn.to_dict_full() for tn in trial_networks]}, 200
-        except CustomException as e:
-            return abort(e.error_code, str(e))
-
-##############################
-### Trial Network Template ###
-##############################
-@trial_network_namespace.route("/template/<string:tn_id>")
-class CreateTrialNetworkTemplate(Resource):
-
-    parser_post = reqparse.RequestParser()
-    parser_post.add_argument("descriptor", location="files", type=FileStorage, required=True)
-
-    @trial_network_namespace.doc(security="Bearer Auth")
-    @jwt_required()
-    @trial_network_namespace.expect(parser_post)
-    def post(self, tn_id):
-        """
-        Add a trial network template
-        """
-        try:
-            tn_descriptor_file = self.parser_post.parse_args()["descriptor"]
-
-            current_user = get_current_user_from_jwt(get_jwt_identity())
-            trial_network_template = TrialNetworkTemplateModel(user_created=current_user.username)
-            trial_network_template.set_tn_id(tn_id=tn_id)
-            trial_network_template.set_tn_raw_descriptor(tn_descriptor_file)
-            trial_network_template.set_tn_sorted_descriptor()
-            trial_network_template.save()
-            return trial_network_template.to_dict(), 201
-        except CustomException as e:
-            return abort(e.error_code, str(e))
-
-@trial_network_namespace.route("s/templates/")
-class TrialNetworksTemplates(Resource):
-
-    @trial_network_namespace.doc(security="Bearer Auth")
-    @jwt_required()
-    def get(self):
-        """
-        Return trial networks templates
-        """
-        try:
-            trial_networks = TrialNetworkTemplateModel.objects()
-            return {'trial_networks_templates': [tn.to_dict_full() for tn in trial_networks]}, 200
         except CustomException as e:
             return abort(e.error_code, str(e))

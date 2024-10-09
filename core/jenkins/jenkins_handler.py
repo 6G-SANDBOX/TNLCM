@@ -7,17 +7,32 @@ from requests.exceptions import RequestException
 
 from conf import JenkinsSettings, TnlcmSettings, SixGLibrarySettings, SixGSandboxSitesSettings
 from core.logs.log_handler import log_handler
+from core.models.trial_network import TrialNetworkModel
+from core.temp.temp_file_handler import TempFileHandler
+from core.callback.callback_handler import CallbackHandler
+from core.sixg_library.sixg_library_handler import SixGLibraryHandler
+from core.sixg_sandbox_sites.sixg_sandbox_sites_handler import SixGSandboxSitesHandler
 from core.exceptions.exceptions_handler import JenkinsConnectionError, JenkinsInvalidPipelineError, CustomFileNotFoundError, JenkinsResponseError, JenkinsComponentPipelineError
 
 class JenkinsHandler:
 
-    def __init__(self, trial_network=None, temp_file_handler=None, callback_handler=None, sixg_library_handler=None, sixg_sandbox_sites_handler=None):
+    def __init__(
+        self, 
+        trial_network: TrialNetworkModel = None, 
+        temp_file_handler: TempFileHandler = None, 
+        callback_handler: CallbackHandler = None, 
+        sixg_library_handler: SixGLibraryHandler = None, 
+        sixg_sandbox_sites_handler: SixGSandboxSitesHandler = None
+    ) -> None:
         """
         Constructor
 
         :param trial_network: model of the trial network to be deployed, ``TrialNetworkModel``
         :param temp_file_handler: handler to create temporary files, ``TempFileHandler``
         :param callback_handler: handler to save results obtained by Jenkins, ``CallbackHandler``
+        :param sixg_library_handler: handler to 6G-Library, ``SixGLibraryHandler``
+        :param sixg_sandbox_sites_handler: handler to 6G-Sandbox-Sites, ``SixGSandboxSitesHandler``
+        :raises JenkinsConnectionError: if the connection to Jenkins cannot be established (error code 500)
         """
         self.trial_network = trial_network
         self.temp_file_handler = temp_file_handler
@@ -37,11 +52,12 @@ class JenkinsHandler:
         except RequestException:
             raise JenkinsConnectionError("Error establishing connection with Jenkins", 500)
 
-    def set_jenkins_deploy_pipeline(self, jenkins_deploy_pipeline):
+    def set_jenkins_deploy_pipeline(self, jenkins_deploy_pipeline: str) -> None:
         """
         Set deployment pipeline name in case of is correct pipeline
 
         :param jenkins_deploy_pipeline: new name of the deployment pipeline, ``str``
+        :raises JenkinsInvalidPipelineError: if pipeline received by parameter is not defined in Jenkins (error code 404)
         """
         if jenkins_deploy_pipeline and jenkins_deploy_pipeline not in self.get_all_pipelines():
             raise JenkinsInvalidPipelineError(f"The 'jenkins_deploy_pipeline' should be one: {', '.join(self.get_all_pipelines())}", 404)
@@ -49,13 +65,14 @@ class JenkinsHandler:
             self.jenkins_deploy_pipeline = jenkins_deploy_pipeline
         log_handler.info(f"Pipeline name use for deploy trial network: '{self.jenkins_deploy_pipeline}'")
 
-    def _jenkins_deployment_parameters(self, component_type, custom_name, debug):
+    def _jenkins_deployment_parameters(self, component_type: str, custom_name: str, debug: str) -> dict:
         """
-        Return a dictionary with the parameters for each component to be passed to the deployment pipeline
+        Function for create dictionary with the parameters for each component to be passed to the deployment pipeline
 
         :param component_type: type part of the descriptor file, ``str``
         :param custom_name: name part of the descriptor file, ``str``
         :param debug: debug part of the descriptor file (optional), ``str``
+        :return: dictionary containing mandatory and optional parameters for the Jenkins deployment pipeline, ``dict``
         """
         parameters = {
             # MANDATORY
@@ -74,9 +91,13 @@ class JenkinsHandler:
             parameters["CUSTOM_NAME"] = custom_name
         return parameters
 
-    def trial_network_deployment(self):
+    def trial_network_deployment(self) -> None:
         """
         Trial network deployment starts
+        
+        :raises CustomFileNotFoundError: if the temporary entity file or the results file of the entity is not found (error code 404)
+        :raises JenkinsResponseError: if there is an error in the response from Jenkins during deployment (error code 401)
+        :raises JenkinsComponentPipelineError: if the Jenkins pipeline for a specific entity fails (error code 500)
         """
         tn_deployed_descriptor = self.trial_network.json_to_descriptor(self.trial_network.tn_deployed_descriptor)["trial_network"]
         tn_descriptor = tn_deployed_descriptor.copy()
@@ -122,11 +143,12 @@ class JenkinsHandler:
             log_handler.info(f"End of deployment of entity '{entity_name}'")
         log_handler.info("All entities of the trial network are deployed")
 
-    def set_jenkins_destroy_pipeline(self, jenkins_destroy_pipeline):
+    def set_jenkins_destroy_pipeline(self, jenkins_destroy_pipeline: str) -> None:
         """
         Set destroy pipeline name in case of is correct pipeline
 
         :param jenkins_destroy_pipeline: new name of the destroy pipeline, ``str``
+        :raises JenkinsInvalidPipelineError: if pipeline received by parameter is not defined in Jenkins (error code 404)
         """
         if jenkins_destroy_pipeline and jenkins_destroy_pipeline not in self.get_all_pipelines():
             raise JenkinsInvalidPipelineError(f"The 'jenkins_destroy_pipeline' should be one: {', '.join(self.get_all_pipelines())}", 404)
@@ -134,18 +156,19 @@ class JenkinsHandler:
             self.jenkins_destroy_pipeline = jenkins_destroy_pipeline
         log_handler.info(f"Pipeline use for destroy trial network: '{self.jenkins_destroy_pipeline}'")
 
-    def _jenkins_destroy_parameters(self):
+    def _jenkins_destroy_parameters(self) -> dict:
         """
-        Return a dictionary with the parameters for each component to be passed to the destroy pipeline
+        Function for create dictionary with the parameters for each component to be passed to the destroy pipeline
+
+        :return: dictionary containing mandatory and optional parameters for the Jenkins destroy pipeline, ``dict``
         """
         components_types = self.trial_network.get_components_types()
-        parts_components = self.sixg_library_handler.get_parts_components(site=self.trial_network.deployment_site, components_types=components_types)
-        metadata = {component: data["metadata"] for component, data in parts_components.items()}
+        metadata_part = self.sixg_library_handler.get_components_parts(site=self.trial_network.deployment_site, parts=["metadata"], components_types=components_types)
         tn_sorted_descriptor = self.trial_network.json_to_descriptor(self.trial_network.tn_sorted_descriptor)["trial_network"]
         entities_with_destroy_script = []
         for entity_name, entity_data in tn_sorted_descriptor.items():
             component_type = entity_data["type"]
-            if "destroy_script" in metadata[component_type] and metadata[component_type]["destroy_script"]:
+            if "destroy_script" in metadata_part[component_type] and metadata_part[component_type]["destroy_script"]:
                 entities_with_destroy_script.append(entity_name)
         return {
             # MANDATORY
@@ -161,9 +184,11 @@ class JenkinsHandler:
             # "DEBUG": true
         }
 
-    def trial_network_destroy(self):
+    def trial_network_destroy(self) -> None:
         """
         Trial network destroy starts
+
+        :raises JenkinsComponentPipelineError: if the Jenkins pipeline for a specific entity fails (error code 500)
         """
         self.jenkins_client.build_job(name=self.jenkins_destroy_pipeline, parameters=self._jenkins_destroy_parameters(), token=self.jenkins_token)
         log_handler.info(f"Start the destroyed of the '{self.trial_network.tn_id}' trial network")
@@ -176,8 +201,10 @@ class JenkinsHandler:
             raise JenkinsComponentPipelineError(f"Pipeline for destroy '{self.trial_network.tn_id}' trial network has failed", 500)
         log_handler.info(f"Trial network '{self.trial_network.tn_id}' successfully destroyed")
 
-    def get_all_pipelines(self):
+    def get_all_pipelines(self) -> list[str]:
         """
-        Return all the pipelines stored in Jenkins
+        Function to get all the pipelines stored in Jenkins
+
+        :return: list with pipelines stored in Jenkins, ``list[str]``
         """
         return [job["fullname"] for job in self.jenkins_client.get_all_jobs() if "fullname" in job and "jobs" not in job]

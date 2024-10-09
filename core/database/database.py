@@ -1,6 +1,7 @@
+from flask import Flask
 from mongoengine import connect, disconnect
 
-def init_db(app):
+def init_db(app: Flask) -> None:
     """
     Initializes MongoDB connection using the configuration from the given Flask application
 

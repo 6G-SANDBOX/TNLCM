@@ -28,7 +28,7 @@ class UpdateCommitSixGLibrary(Resource):
     @debug_namespace.doc(security="Bearer Auth")
     @jwt_required()
     @debug_namespace.expect(parser_post)
-    def post(self):
+    def post(self) -> tuple[dict, int]:
         """
         Update the 6G-Library commit associated with the trial network 
         """
@@ -57,7 +57,7 @@ class UpdateCommitSixGSandboxSites(Resource):
     @debug_namespace.doc(security="Bearer Auth")
     @jwt_required()
     @debug_namespace.expect(parser_post)
-    def post(self):
+    def post(self) -> tuple[dict, int]:
         """
         Update the 6G-Sandbox-Sites commit associated with the trial network 
         """
@@ -86,7 +86,7 @@ class AddDebugEntityName(Resource):
     @debug_namespace.doc(security="Bearer Auth")
     @jwt_required()
     @debug_namespace.expect(parser_post)
-    def post(self):
+    def post(self) -> tuple[dict, int]:
         """
         Add debug: true to the specified entity name 
         """
@@ -123,7 +123,7 @@ class DeleteDebugEntityName(Resource):
     @debug_namespace.doc(security="Bearer Auth")
     @jwt_required()
     @debug_namespace.expect(parser_post)
-    def post(self):
+    def post(self) -> tuple[dict, int]:
         """
         Delete debug: true to the specified entity name 
         """
@@ -155,7 +155,7 @@ class JenkinsPipelines(Resource):
 
     @debug_namespace.doc(security="Bearer Auth")
     @jwt_required()
-    def get(self):
+    def get(self) -> tuple[dict, int]:
         """
         Return pipelines stored in Jenkins
         """

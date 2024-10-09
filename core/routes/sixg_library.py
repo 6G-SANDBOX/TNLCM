@@ -17,7 +17,7 @@ class Clone(Resource):
     parser_post.add_argument("reference_value", type=str, required=True)
 
     @sixg_library_namespace.expect(parser_post)
-    def post(self):
+    def post(self) -> tuple[dict, int]:
         """
         Clone 6G-Library repository
         Can specify a branch, commit or tag of the 6G-Library.
@@ -40,7 +40,7 @@ class NameComponents(Resource):
     parser_get.add_argument("site", type=str, required=True)
 
     @sixg_library_namespace.expect(parser_get)
-    def get(self):
+    def get(self) -> tuple[dict, int]:
         """
         Return the components available on a site
         Can specify a branch, commit or tag of the 6G-Sandbox-Sites.
@@ -53,11 +53,11 @@ class NameComponents(Resource):
             sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type=github_6g_sandbox_sites_reference_type, reference_value=github_6g_sandbox_sites_reference_value)
             sixg_sandbox_sites_handler.set_deployment_site(site)
             site_available_components = sixg_sandbox_sites_handler.get_site_available_components()
-            list_site_available_components = list(site_available_components.keys())
+            components_types = list(site_available_components.keys())
             return {
                 "github_6g_sandbox_sites_commit_id": sixg_sandbox_sites_handler.github_6g_sandbox_sites_commit_id,
                 "site": sixg_sandbox_sites_handler.deployment_site,
-                "components": list_site_available_components
+                "components_types": components_types
                 }, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
@@ -73,7 +73,7 @@ class AllComponents(Resource):
     parser_get.add_argument("site", type=str, required=True)
 
     @sixg_library_namespace.expect(parser_get)
-    def get(self):
+    def get(self) -> tuple[dict, int]:
         """
         Return the metadata, input and output part of components of a site stored in the branch, commit or tag of the 6G-Library repository
         Can specify a branch, commit or tag of the 6G-Library.
@@ -89,14 +89,14 @@ class AllComponents(Resource):
             sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type=github_6g_sandbox_sites_reference_type, reference_value=github_6g_sandbox_sites_reference_value)
             sixg_sandbox_sites_handler.set_deployment_site(site)
             site_available_components = sixg_sandbox_sites_handler.get_site_available_components()
-            list_site_available_components = list(site_available_components.keys())
+            components_types = list(site_available_components.keys())
             sixg_library_handler = SixGLibraryHandler(reference_type=github_6g_library_reference_type, reference_value=github_6g_library_reference_value)
-            parts_components = sixg_library_handler.get_parts_components(site=sixg_sandbox_sites_handler.deployment_site, components_types=list_site_available_components)
+            all_parts = sixg_library_handler.get_components_parts(site=sixg_sandbox_sites_handler.deployment_site, parts=["input", "metadata", "output"], components_types=components_types)
             return {
                 "github_6g_library_commit_id": sixg_library_handler.github_6g_library_commit_id,
                 "github_6g_sandbox_sites_commit_id": sixg_sandbox_sites_handler.github_6g_sandbox_sites_commit_id,
                 "site": sixg_sandbox_sites_handler.deployment_site,
-                "parts_components": parts_components
+                "all_parts": all_parts
                 }, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
@@ -112,7 +112,7 @@ class MetadataPartComponents(Resource):
     parser_get.add_argument("site", type=str, required=True)
 
     @sixg_library_namespace.expect(parser_get)
-    def get(self):
+    def get(self) -> tuple[dict, int]:
         """
         Return the metadata part of the components of a site stored in the branch, commit or tag of the 6G-Library repository
         Can specify a branch, commit or tag of the 6G-Library.
@@ -128,15 +128,14 @@ class MetadataPartComponents(Resource):
             sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type=github_6g_sandbox_sites_reference_type, reference_value=github_6g_sandbox_sites_reference_value)
             sixg_sandbox_sites_handler.set_deployment_site(site)
             site_available_components = sixg_sandbox_sites_handler.get_site_available_components()
-            list_site_available_components = list(site_available_components.keys())
+            components_types = list(site_available_components.keys())
             sixg_library_handler = SixGLibraryHandler(reference_type=github_6g_library_reference_type, reference_value=github_6g_library_reference_value)
-            parts_components = sixg_library_handler.get_parts_components(site=sixg_sandbox_sites_handler.deployment_site, components_types=list_site_available_components)
-            metadata = {component: data["metadata"] for component, data in parts_components.items()}
+            metadata_part = sixg_library_handler.get_components_parts(site=sixg_sandbox_sites_handler.deployment_site, parts=["metadata"], components_types=components_types)
             return {
                 "github_6g_library_commit_id": sixg_library_handler.github_6g_library_commit_id,
                 "github_6g_sandbox_sites_commit_id": sixg_sandbox_sites_handler.github_6g_sandbox_sites_commit_id,
                 "site": sixg_sandbox_sites_handler.deployment_site,
-                "metadata": metadata
+                "part": metadata_part
                 }, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
@@ -152,7 +151,7 @@ class InputPartComponents(Resource):
     parser_get.add_argument("site", type=str, required=True)
 
     @sixg_library_namespace.expect(parser_get)
-    def get(self):
+    def get(self) -> tuple[dict, int]:
         """
         Return the input part of the components of a site stored in the branch, commit or tag of the 6G-Library repository
         Can specify a branch, commit or tag of the 6G-Library.
@@ -168,15 +167,14 @@ class InputPartComponents(Resource):
             sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type=github_6g_sandbox_sites_reference_type, reference_value=github_6g_sandbox_sites_reference_value)
             sixg_sandbox_sites_handler.set_deployment_site(site)
             site_available_components = sixg_sandbox_sites_handler.get_site_available_components()
-            list_site_available_components = list(site_available_components.keys())
+            components_types = list(site_available_components.keys())
             sixg_library_handler = SixGLibraryHandler(reference_type=github_6g_library_reference_type, reference_value=github_6g_library_reference_value)
-            parts_components = sixg_library_handler.get_parts_components(site=sixg_sandbox_sites_handler.deployment_site, components_types=list_site_available_components)
-            input = {component: data["input"] for component, data in parts_components.items()}
+            input_part = sixg_library_handler.get_components_parts(site=sixg_sandbox_sites_handler.deployment_site, parts=["input"], components_types=components_types)
             return {
                 "github_6g_library_commit_id": sixg_library_handler.github_6g_library_commit_id,
                 "github_6g_sandbox_sites_commit_id": sixg_sandbox_sites_handler.github_6g_sandbox_sites_commit_id,
                 "site": sixg_sandbox_sites_handler.deployment_site,
-                "input": input
+                "part": input_part
                 }, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
@@ -192,7 +190,7 @@ class OutputPartComponents(Resource):
     parser_get.add_argument("site", type=str, required=True)
 
     @sixg_library_namespace.expect(parser_get)
-    def get(self):
+    def get(self) -> tuple[dict, int]:
         """
         Return the output part of the components of a site stored in the branch, commit or tag of the 6G-Library repository
         Can specify a branch, commit or tag of the 6G-Library.
@@ -208,15 +206,14 @@ class OutputPartComponents(Resource):
             sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type=github_6g_sandbox_sites_reference_type, reference_value=github_6g_sandbox_sites_reference_value)
             sixg_sandbox_sites_handler.set_deployment_site(site)
             site_available_components = sixg_sandbox_sites_handler.get_site_available_components()
-            list_site_available_components = list(site_available_components.keys())
+            components_types = list(site_available_components.keys())
             sixg_library_handler = SixGLibraryHandler(reference_type=github_6g_library_reference_type, reference_value=github_6g_library_reference_value)
-            parts_components = sixg_library_handler.get_parts_components(site=sixg_sandbox_sites_handler.deployment_site, components_types=list_site_available_components)
-            output = {component: data["output"] for component, data in parts_components.items()}
+            output_part = sixg_library_handler.get_components_parts(site=sixg_sandbox_sites_handler.deployment_site, parts=["output"], components_types=components_types)
             return {
                 "github_6g_library_commit_id": sixg_library_handler.github_6g_library_commit_id,
                 "github_6g_sandbox_sites_commit_id": sixg_sandbox_sites_handler.github_6g_sandbox_sites_commit_id,
                 "site": sixg_sandbox_sites_handler.deployment_site,
-                "output": output
+                "part": output_part
                 }, 200
         except CustomException as e:
             return abort(e.error_code, str(e))
@@ -224,7 +221,7 @@ class OutputPartComponents(Resource):
 @sixg_library_namespace.route("/tags/")
 class Tags(Resource):
 
-    def get(self):
+    def get(self) -> tuple[dict, int]:
         """
         Return 6G-Library tags
         """
@@ -237,7 +234,7 @@ class Tags(Resource):
 @sixg_library_namespace.route("/branches/")
 class Branches(Resource):
 
-    def get(self):
+    def get(self) -> tuple[dict, int]:
         """
         Return 6G-Library branches
         """

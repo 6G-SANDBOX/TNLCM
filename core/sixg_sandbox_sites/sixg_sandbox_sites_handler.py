@@ -13,7 +13,11 @@ SIXG_SANDBOX_SITES_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
 class SixGSandboxSitesHandler():
 
-    def __init__(self, reference_type=None, reference_value=None):
+    def __init__(
+        self, 
+        reference_type: str = None, 
+        reference_value: str = None
+    ) -> None:
         """
         Constructor
         
@@ -38,9 +42,11 @@ class SixGSandboxSitesHandler():
         self.repository_handler = RepositoryHandler(github_https_url=self.github_6g_sandbox_sites_https_url, github_repository_name=self.github_6g_sandbox_sites_repository_name, github_local_directory=self.github_6g_sandbox_sites_local_directory, github_reference_type=self.github_6g_sandbox_sites_reference_type, github_reference_value=self.github_6g_sandbox_sites_reference_value)
         self.github_6g_sandbox_sites_commit_id = self.repository_handler.github_commit_id
 
-    def _decrypt_site(self):
+    def _decrypt_site(self) -> None:
         """
         Decrypt core.yaml file of site stored in 6G-Sandbox-Sites repository
+
+        :raise SixGSandboxSitesDecryptError: if unable to decrypt the core.yaml file from the site (error code 500)
         """
         try:
             vault = Vault(SixGSandboxSitesSettings.ANSIBLE_VAULT)
@@ -50,34 +56,43 @@ class SixGSandboxSitesHandler():
             with open(decrypted_core_file, "w") as f:
                 safe_dump(data, f)
         except AnsibleError as e:
-            raise SixGSandboxSitesDecryptError(e, 500)
+            raise SixGSandboxSitesDecryptError(str(e), 500)
         
-    def set_deployment_site(self, deployment_site):
+    def set_deployment_site(self, deployment_site: str) -> None:
         """
         Set deployment site to deploy trial network
         
         :param deployment_site: trial network deployment site, ``str``
+        :raise SixGSandboxSitesInvalidSiteError: if the deployment site does not exist (error code 404)
         """
         if deployment_site not in self.get_sites():
             raise SixGSandboxSitesInvalidSiteError(f"The 'site' should be one: {', '.join(self.get_sites())}", 404)
         self.deployment_site = deployment_site
         self._decrypt_site()
     
-    def get_tags(self):
+    def get_tags(self) -> list[str]:
         """
         Return tags
+
+        :return: list with 6G-Sandbox-Sites tags, ``list[str]``
         """
         return self.repository_handler.get_tags()
 
-    def get_branches(self):
+    def get_branches(self) -> list[str]:
         """
         Return branches
+
+        :return: list with 6G-Sandbox-Sites branches, ``list[str]``
         """
         return self.repository_handler.get_branches()
 
-    def get_site_available_components(self):
+    def get_site_available_components(self) -> dict:
         """
-        Return all information of all components available on a site
+        Function to get all information of all components available on a site
+
+        :return: dictionary with all information of all components available on a site, ``dict``
+        :raise CustomFileNotFoundError: if core decrypt file not found in site folder (error code 404)
+        :raise InvalidContentFileError: if the information in the file is not parsed correctly (error code 422)
         """
         decrypted_core_file = os.path.join(self.github_6g_sandbox_sites_local_directory, self.deployment_site, "core_decrypt.yaml")
         if not os.path.exists(decrypted_core_file):
@@ -92,17 +107,21 @@ class SixGSandboxSitesHandler():
         site_available_components = data["site_available_components"]
         return site_available_components
 
-    def get_sites(self):
+    def get_sites(self) -> list[str]:
         """
-        Return sites available to deploy trial networks
+        Function to get sites available to deploy trial networks
+
+        :return: list with deployment sites available for deploy trial networks
         """
         return [site for site in os.listdir(self.github_6g_sandbox_sites_local_directory) if not site.startswith(".") and os.path.isdir(os.path.join(self.github_6g_sandbox_sites_local_directory, site))]
     
-    def is_components_site(self, components_types):
-        """"
-        Return true if components in the descriptor are in the site
+    def is_components_site(self, components_types: list[str]) -> bool:
+        """
+        Function to check if components in the descriptor are in the site
 
-        :param components_types: list of components that compose the descriptor , ``list[str]``
+        :param components_types: list of components that compose the descriptor, ``list[str]``
+        :return: True if the components of the descriptor are defined in the site. Otherwise False, ``bool``
+        :raise SixGSandboxSitesComponentsNotFoundError: if the component specified in the descriptor is not in the deployment site (error code 404)
         """
         site_available_components = self.get_site_available_components()
         list_site_available_components = list(site_available_components.keys())

@@ -35,8 +35,8 @@ class TnlcmSettings:
     TITLE = "Trial Network Life Cycle Manager - TNLCM"
     VERSION = "0.3.1"
     DESCRIPTION = ("""
-    Welcome to the Trial Network Life Cycle Manager (TNLCM) API! This powerful tool facilitates the management and orchestration of network life cycles, designed specifically for the cutting-edge 6G Sandbox project.
+    Welcome to the Trial Network Life Cycle Manager (TNLCM) API! This powerful tool facilitates the management and orchestration of network life cycles, designed specifically for the cutting-edge 6G-SANDBOX project.
 
-    Explore our documentation and contribute to the project's development on GitHub.\n"""
+    Explore the documentation on GitHub.\n"""
     "[6G-Sandbox - TNLCM Repository](https://github.com/6G-SANDBOX/TNLCM)")
     DOC = False

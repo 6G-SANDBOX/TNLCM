@@ -1,10 +1,19 @@
 from datetime import datetime, timezone
 from mongoengine import Document, EmailField, IntField, DateTimeField
+from mongoengine.errors import ValidationError, MongoEngineException
+
+from core.exceptions.exceptions_handler import CustomException
 
 class VerificationTokenModel(Document):
-    new_account_email = EmailField(max_length=50, unique=True)
-    verification_token = IntField(max_length=50)
-    creation_date = DateTimeField(default=datetime.now(timezone.utc))
+    
+    try:
+        new_account_email = EmailField(max_length=50, unique=True)
+        verification_token = IntField(max_length=50)
+        creation_date = DateTimeField(default=datetime.now(timezone.utc))
+    except ValidationError as e:
+        raise CustomException(e.message, 401)
+    except MongoEngineException as e:
+        raise CustomException(str(e), 401)
 
     meta = {
         "db_alias": "tnlcm-database-alias",

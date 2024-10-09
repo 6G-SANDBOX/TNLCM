@@ -8,7 +8,15 @@ from core.exceptions.exceptions_handler import GitCloneError, GitCheckoutError
 
 class RepositoryHandler:
 
-    def __init__(self, github_https_url, github_repository_name, github_local_directory, github_reference_type, github_reference_value, github_token=None):
+    def __init__(
+        self, 
+        github_https_url: str, 
+        github_repository_name: str, 
+        github_local_directory: str, 
+        github_reference_type: str, 
+        github_reference_value: str, 
+        github_token: str = None
+    ) -> None:
         """
         Constructor
         
@@ -38,9 +46,12 @@ class RepositoryHandler:
         self._git_pull()
         self._set_commit_id()
 
-    def git_clone_repository(self):
+    def git_clone_repository(self) -> bool:
         """
         Apply git clone
+
+        :return: True if the repository has been cloned or cleaned successfully. Otherwise False, ``bool``
+        :raise GitCloneError: if the specified directory is not a valid Git repository (error code 500)
         """
         if os.path.exists(self.github_local_directory):
             if os.path.exists(os.path.join(self.github_local_directory, ".git")):
@@ -58,9 +69,11 @@ class RepositoryHandler:
             return True
         return False
 
-    def _git_clone(self):
+    def _git_clone(self) -> None:
         """
         Clone repository
+
+        :raise GitCloneError: if the specified directory is not a valid Git repository (error code 500)
         """
         try:
             log_handler.info(f"Clone '{self.github_repository_name}' repository into '{self.github_local_directory}'")
@@ -68,8 +81,13 @@ class RepositoryHandler:
         except InvalidGitRepositoryError:
             raise GitCloneError(f"Cannot clone because the '{self.github_https_url}' url is not a GitHub repository", 500)
 
-    def git_checkout_repository(self, default_branch=None):
-        """Checkout to commit or default branch"""
+    def git_checkout_repository(self, default_branch: str = None) -> None:
+        """
+        Checkout to commit or default branch
+
+        :param default_branch: default repository branch, ``str``
+        :raise GitCheckoutError: if git checkout cannot apply (error code 404)
+        """
         try:
             if not default_branch:
                 log_handler.info(f"Apply checkout to '{self.github_reference_type}' '{self.github_reference_value}' of '{self.github_repository_name}' repository")
@@ -80,9 +98,11 @@ class RepositoryHandler:
         except GitCommandError:
             raise GitCheckoutError(f"Reference '{self.github_reference_type}' with value '{self.github_reference_value}' is not in '{self.github_repository_name}' repository", 404)
 
-    def _git_pull(self, default_branch=None):
+    def _git_pull(self, default_branch: str = None) -> None:
         """
         Check if the repository has been updated and applies a git pull in case of changes
+
+        :param default_branch: default repository branch, ``str``
         """
         if not default_branch:
             if self.github_reference_type == "branch":
@@ -92,8 +112,12 @@ class RepositoryHandler:
             log_handler.info(f"Pull is executed in '{self.github_repository_name}' repository located in '{self.github_local_directory}' folder")
             self.repo.remotes.origin.pull()
 
-    def _get_default_branch(self):
-        """Return the default branch of the repository"""
+    def _get_default_branch(self) -> str:
+        """
+        Function to get the default branch of the repository
+
+        :return: the default repository branch, ``str``
+        """
         git = self.repo.git
         default_branch_info = git.remote("show", self.github_https_url).split("\n")
         default_branch = ""
@@ -105,16 +129,19 @@ class RepositoryHandler:
             default_branch = "master"
         return default_branch
 
-    def _set_commit_id(self):
+    def _set_commit_id(self) -> None:
         """
         Set last commit id associated to branch or tag
         """
         self.github_commit_id = self.repo.head.commit.hexsha
         log_handler.info(f"The latest commit of the '{self.github_reference_value}' '{self.github_reference_type}' is '{self.github_commit_id}'")
 
-    def get_tags(self):
+    def get_tags(self) -> list[str]:
         """
-        Return repository tags
+        Function to get repository tags
+
+        :return: list with all tags in the repository, ``list[str]``
+        :raise GitCloneError: if repository not cloned (error code 500)
         """
         if not self.repo:
             raise GitCloneError(f"Clone '{self.github_repository_name}' repository first", 500)

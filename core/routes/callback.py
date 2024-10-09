@@ -12,7 +12,7 @@ callback_namespace = Namespace(
 @callback_namespace.route("")
 class Callback(Resource):
     
-    def post(self):
+    def post(self) -> tuple[dict, int]:
         """
         Save Jenkins results from deploying components
         """

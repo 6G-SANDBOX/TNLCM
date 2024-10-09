@@ -1,5 +1,3 @@
-import os
-
 from flask_restx import Resource, Namespace, reqparse, abort
 from flask_mail import Message
 from random import randint
@@ -21,7 +19,7 @@ class RequestVerificationToken(Resource):
     parser_post.add_argument("email", type=str, location="json", required=True)
 
     @verification_token_namespace.expect(parser_post)
-    def post(self):
+    def post(self) -> tuple[dict, int]:
         """
         Request a verification token via email for registering a new account
         """
@@ -65,7 +63,7 @@ class NewUserVerification(Resource):
     parser_post.add_argument("org", type=str, location="json", required=True)
 
     @verification_token_namespace.expect(parser_post)
-    def post(self):
+    def post(self) -> tuple[dict, int]:
         """
         Verify a new user account via email with the verification token
         """
@@ -108,7 +106,7 @@ class RequestResetToken(Resource):
     parser_post.add_argument("email", type=str, location="json", required=True)
 
     @verification_token_namespace.expect(parser_post)
-    def post(self):
+    def post(self) -> tuple[dict, int]:
         """
         Request a reset token via email for changing password
         """
@@ -147,7 +145,7 @@ class ChangePassword(Resource):
     parser_post.add_argument("verification_token", type=int, location="json", required=True)
 
     @verification_token_namespace.expect(parser_post)
-    def post(self):
+    def post(self) -> tuple[dict, int]:
         """
         Change an user password with a reset token
         """
