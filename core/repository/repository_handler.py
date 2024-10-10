@@ -42,6 +42,7 @@ class RepositoryHandler:
             default_branch = self._get_default_branch()
             self.git_checkout_repository(default_branch=default_branch)
             self._git_pull(default_branch=default_branch)
+        self._git_fetch_prune()
         self.git_checkout_repository()
         self._git_pull()
         self._set_commit_id()
@@ -136,6 +137,13 @@ class RepositoryHandler:
         self.github_commit_id = self.repo.head.commit.hexsha
         log_handler.info(f"The latest commit of the '{self.github_reference_value}' '{self.github_reference_type}' is '{self.github_commit_id}'")
 
+    def _git_fetch_prune(self):
+        """
+        Apply git fetch --prune to repository
+        """
+        log_handler.info(f"Apply git fetch --prune in '{self.github_repository_name}' repository located in '{self.github_local_directory}' folder")
+        self.repo.remotes.origin.fetch(prune=True)
+
     def get_tags(self) -> list[str]:
         """
         Function to get repository tags
@@ -153,4 +161,4 @@ class RepositoryHandler:
         """
         if not self.repo:
             raise GitCloneError(f"Clone '{self.github_repository_name}' repository first", 500)
-        return [branch.name.replace("origin/", "") for branch in self.repo.remotes.origin.refs if branch.name.replace("origin/", "") != "HEAD"]
+        return [ref.remote_head for ref in self.repo.remotes.origin.refs if ref.remote_head != "HEAD"]
