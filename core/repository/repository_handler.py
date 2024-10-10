@@ -109,7 +109,7 @@ class RepositoryHandler:
         if not default_branch:
             if self.github_reference_type == "branch":
                 log_handler.info(f"Pull is executed in '{self.github_repository_name}' repository located in '{self.github_local_directory}' folder")
-                self.repo.remotes.origin.pull()
+                self.repo.remotes.origin.pull(rebase=True)
         else:
             log_handler.info(f"Pull is executed in '{self.github_repository_name}' repository located in '{self.github_local_directory}' folder")
             self.repo.remotes.origin.pull()
