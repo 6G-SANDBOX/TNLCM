@@ -93,7 +93,7 @@ TNLCM/                       // main folder.
 
 ## :hourglass_flowing_sand: Current Status
 
-TNLCM is currently able to deploy the following types of components corresponding with the [6G-Library](https://github.com/6G-SANDBOX/6G-Library): **tn_vxlan**, **tn_bastion**, **tn_init**, **vnet**, **tsn**, **vm_kvm**, **oneKE**, **open5gs**, **ueransim**, **elcm**, **nokia_radio**, **ocf**, **stf_ue** and **xrext**.
+TNLCM is currently able to deploy the following types of components corresponding with the [6G-Library](https://github.com/6G-SANDBOX/6G-Library): **tn_vxlan**, **tn_bastion**, **tn_init**, **vnet**, **tsn**, **vm_kvm**, **oneKE**, **open5gs**, **ueransim**, **elcm**, **nokia_radio**, **ocf**, **stf_ue**, **xrext** and **loadcore_agent**.
 
 ![CurrentStatus](./images/currentStatus.png)
 
@@ -118,7 +118,7 @@ Download the **main** branch from the TNLCM repository.
 
 Clone repository:
 
-```sh
+```bash
 git clone https://github.com/6G-SANDBOX/TNLCM
 ```
 
@@ -129,7 +129,6 @@ Create a `.env` file at the root level, using the structure and content provided
 Mandatory update the values of the following variables according to the platform:
 - `TNLCM_ADMIN_USER`
 - `TNLCM_ADMIN_PASSWORD`
-- `TNLCM_ADMIN_EMAIL`
 - `TNLCM_HOST`
 - `JENKINS_HOST`
 - `JENKINS_USERNAME`
@@ -164,22 +163,20 @@ A MongoDB dashboard will be available at the url http://mongodb-frontend-ip:8081
 
 The environment must be created inside the TNLCM folder:
 
-- Linux
+```bash
+# Create environment
+python3 -m venv venv
 
-  ```sh
-  # Create environment
-  python3 -m venv venv
+# Activate environment
+source venv/bin/activate
 
-  # Activate environment
-  source venv/bin/activate
-  
-  # Install libraries
-  pip install -r requirements.txt
-  ```
+# Install libraries
+pip install -r requirements.txt
+```
 
 With the environment activated, start TNLCM:
 
-```sh
+```bash
 python app.py
 ```
 
@@ -285,16 +282,6 @@ The TNLCM database consists of several collections that store important informat
 | `github_6g_library_commit_id`       | The commit id of 6G-Library (branch, commit or tag) used to deploy trial network.       |
 | `github_6g_sandbox_sites_commit_id` | The commid id of 6G-Sandbox-Sites (branch, commit or tag) used to deploy trial network. |
 
-#### Collection `trial_networks_templates` <!-- omit in toc -->
-
-| Field                  | Description                                                          |
-| ---------------------- | -------------------------------------------------------------------- |
-| `user_created`         | The user that created the trial network template.                    |
-| `tn_id`                | The ID of the trial network template.                                |
-| `tn_date_created_utc`  | The date and time when the trial network template was created (UTC). |
-| `tn_raw_descriptor`    | The raw descriptor of the trial network template.                    |
-| `tn_sorted_descriptor` | The sorted descriptor of the trial network template.                 |
-
 #### Collection `users` <!-- omit in toc -->
 
 | Field      | Description                                 |
@@ -316,8 +303,8 @@ The TNLCM database consists of several collections that store important informat
 
 | Field       | Description                                                      |
 | ----------- | ---------------------------------------------------------------- |
-| `site`      | The site where the trial network has been deployed.              |
 | `component` | The component over which the resources are controlled.           |
+| `tn_id`     | The ID of the trial network.                                     |
 | `quantity`  | The amount of component available.                               |
 | `ttl`       | The amount of time the component can be used in a trial network. |
 
@@ -360,6 +347,6 @@ To deploy 6G-SANDBOX TOOLKIT in OpenNebula, the documentation can be accessed fr
 [issues-shield]: https://img.shields.io/github/issues/6G-SANDBOX/TNLCM.svg?style=for-the-badge
 [issues-url]: https://github.com/6G-SANDBOX/TNLCM/issues
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://www.linkedin.com/company/itisuma/
+[linkedin-url]: https://
 [license-shield]: https://
 [license-url]: https://
