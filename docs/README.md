@@ -102,7 +102,7 @@ TNLCM is currently able to deploy the following types of components correspondin
 ## :rocket: Getting Started Locally
 
 > [!NOTE]
-> TNLCM is being developed and tested on Ubuntu in version 22.04.3 LTS.
+> TNLCM is being developed and tested on Ubuntu in version 24.04 LTS.
 
 > [!TIP]
 > TNLCM uses the following repository releases:
