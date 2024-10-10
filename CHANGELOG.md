@@ -6,6 +6,8 @@
 
 - README file in `tn_template_lib` folder for explain trial networks defined.
 - First version CLI handler for execute commands.
+- Git fetch prune.
+- Git delete branches after git fetch prune.
 
 ### Changed
 
@@ -15,6 +17,8 @@
 
 - Bug detected when trying to create a trial network and there were components defined in the 6G-Sandbox-Sites repository, but not defined in the 6G-Library.
 - Functions documentation.
+- The endpoint to return the branches of a repository now only returns the branches that are created in the remote repository.
+- Message when checking if a user can access a trial network.
 
 ### Removed
 
