@@ -95,7 +95,7 @@ class TrialNetwork(Resource):
             else:
                 trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
             if not trial_network:
-                return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user}'")
+                return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user.username}'")
             return trial_network.to_dict_full(), 200
         except CustomException as e:
             return abort(e.error_code, str(e))
