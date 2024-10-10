@@ -1,6 +1,7 @@
 from flask_restx import Resource, Namespace, reqparse, abort
 from flask_mail import Message
 from random import randint
+from mongoengine.errors import ValidationError, MongoEngineException
 
 from conf import MailSettings
 from core.mail.mail import mail
@@ -49,6 +50,10 @@ class RequestVerificationToken(Resource):
             verification_token.save()
 
             return {"message": "Verification token sent by email successfully"}, 200
+        except ValidationError as e:
+            return abort(401, e.message)
+        except MongoEngineException as e:
+            return abort(401, str(e))
         except CustomException as e:
             return abort(e.error_code, str(e))
 
@@ -96,6 +101,10 @@ class NewUserVerification(Resource):
             user.save()
 
             return {"message": "User added"}, 201
+        except ValidationError as e:
+            return abort(401, e.message)
+        except MongoEngineException as e:
+            return abort(401, str(e))
         except CustomException as e:
             return abort(e.error_code, str(e))
 
@@ -133,6 +142,10 @@ class RequestResetToken(Resource):
                 conn.send(msg)
 
             return {"message": "New token sent by email successfully"}, 200
+        except ValidationError as e:
+            return abort(401, e.message)
+        except MongoEngineException as e:
+            return abort(401, str(e))
         except CustomException as e:
             return abort(e.error_code, str(e))
 
@@ -176,5 +189,9 @@ class ChangePassword(Resource):
                 conn.send(msg)
 
             return {"message": "Password change confirmation sent by email successfully"}, 200
+        except ValidationError as e:
+            return abort(401, e.message)
+        except MongoEngineException as e:
+            return abort(401, str(e))
         except CustomException as e:
             return abort(e.error_code, str(e))

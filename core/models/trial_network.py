@@ -8,11 +8,9 @@ from string import ascii_lowercase, digits
 from random import choice
 from datetime import datetime, timezone
 from mongoengine import Document, StringField, DateTimeField
-from mongoengine.errors import ValidationError, MongoEngineException
 
 from core.logs.log_handler import log_handler
 from core.exceptions.exceptions_handler import InvalidFileExtensionError, InvalidContentFileError, TrialNetworkInvalidStatusError, TrialNetworkInvalidDescriptorError, TrialNetworkInvalidTnId, TrialNetworkExists
-from core.exceptions.exceptions_handler import CustomException
 
 TN_STATE_MACHINE = ["validated", "suspended", "activated", "failed", "destroyed"]
 COMPONENTS_EXCLUDE_CUSTOM_NAME = ["tn_vxlan", "tn_bastion", "tn_init", "tsn"]
@@ -20,24 +18,19 @@ REQUIRED_FIELDS_DESCRIPTOR = ["type", "input"]
 
 class TrialNetworkModel(Document):
 
-    try:
-        user_created = StringField(max_length=100)
-        tn_id = StringField(max_length=10, unique=True)
-        tn_state = StringField(max_length=50)
-        tn_date_created_utc = DateTimeField(default=datetime.now(timezone.utc))
-        tn_raw_descriptor = StringField()
-        tn_sorted_descriptor = StringField()
-        tn_deployed_descriptor = StringField()
-        tn_report = StringField()
-        jenkins_deploy_pipeline = StringField()
-        jenkins_destroy_pipeline = StringField()
-        deployment_site = StringField()
-        github_6g_library_commit_id = StringField()
-        github_6g_sandbox_sites_commit_id = StringField()
-    except ValidationError as e:
-        raise CustomException(e.message, 401)
-    except MongoEngineException as e:
-        raise CustomException(str(e), 401)
+    user_created = StringField(max_length=100)
+    tn_id = StringField(max_length=10, unique=True)
+    tn_state = StringField(max_length=50)
+    tn_date_created_utc = DateTimeField(default=datetime.now(timezone.utc))
+    tn_raw_descriptor = StringField()
+    tn_sorted_descriptor = StringField()
+    tn_deployed_descriptor = StringField()
+    tn_report = StringField()
+    jenkins_deploy_pipeline = StringField()
+    jenkins_destroy_pipeline = StringField()
+    deployment_site = StringField()
+    github_6g_library_commit_id = StringField()
+    github_6g_sandbox_sites_commit_id = StringField()
 
     meta = {
         "db_alias": "tnlcm-database-alias",

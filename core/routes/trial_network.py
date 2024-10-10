@@ -1,6 +1,7 @@
 from flask_restx import Namespace, Resource, reqparse, abort
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.datastructures import FileStorage
+from mongoengine.errors import ValidationError, MongoEngineException
 
 from core.auth.auth import get_current_user_from_jwt
 from core.callback.callback_handler import CallbackHandler
@@ -76,6 +77,10 @@ class CreateTrialNetwork(Resource):
             trial_network.set_tn_state("validated")
             trial_network.save()
             return trial_network.to_dict(), 201
+        except ValidationError as e:
+            return abort(401, e.message)
+        except MongoEngineException as e:
+            return abort(401, str(e))
         except CustomException as e:
             return abort(e.error_code, str(e))
 
@@ -172,6 +177,10 @@ class TrialNetwork(Resource):
                 return {"message": "TO BE IMPLEMENTED"}, 400
             else: # tn_state == "suspended"
                 return {"message": "TO BE IMPLEMENTED"}, 400
+        except ValidationError as e:
+            return abort(401, e.message)
+        except MongoEngineException as e:
+            return abort(401, str(e))
         except CustomException as e:
             return abort(e.error_code, str(e))
 
@@ -213,7 +222,11 @@ class TrialNetwork(Resource):
             trial_network.set_tn_deployed_descriptor()
             trial_network.set_tn_state("destroyed")
             trial_network.save()
-            return {"message": f"The trial network with identifier '{tn_id}' has been removed"}, 200
+            return {"message": f"The trial network with identifier '{tn_id}' has been removed"}, 
+        except ValidationError as e:
+            return abort(401, e.message)
+        except MongoEngineException as e:
+            return abort(401, str(e))
         except CustomException as e:
             return abort(e.error_code, str(e))
 

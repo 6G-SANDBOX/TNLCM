@@ -1,5 +1,6 @@
 from flask_restx import Namespace, reqparse, Resource, abort
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from mongoengine.errors import ValidationError, MongoEngineException
 
 from core.auth.auth import get_current_user_from_jwt
 from core.models import TrialNetworkModel
@@ -44,6 +45,10 @@ class UpdateCommitSixGLibrary(Resource):
             trial_network.set_github_6g_library_commit_id(commit_id)
             trial_network.save()
             return {"message": "Commit successfully modified"}, 201
+        except ValidationError as e:
+            return abort(401, e.message)
+        except MongoEngineException as e:
+            return abort(401, str(e))
         except CustomException as e:
             return abort(e.error_code, str(e))
 
@@ -73,6 +78,10 @@ class UpdateCommitSixGSandboxSites(Resource):
             trial_network.set_github_6g_sandbox_sites_commit_id(commit_id)
             trial_network.save()
             return {"message": "Commit successfully modified"}, 201
+        except ValidationError as e:
+            return abort(401, e.message)
+        except MongoEngineException as e:
+            return abort(401, str(e))
         except CustomException as e:
             return abort(e.error_code, str(e))
 
@@ -110,6 +119,10 @@ class AddDebugEntityName(Resource):
             trial_network.tn_deployed_descriptor = trial_network.descriptor_to_json(tn_deployed_descriptor)
             trial_network.save()
             return {"message": f"Successfully added debug into '{entity_name}' entity name of the Trial Network '{tn_id}'"}, 201
+        except ValidationError as e:
+            return abort(401, e.message)
+        except MongoEngineException as e:
+            return abort(401, str(e))
         except CustomException as e:
             return abort(e.error_code, str(e))
 
@@ -147,6 +160,10 @@ class DeleteDebugEntityName(Resource):
             trial_network.tn_deployed_descriptor = trial_network.descriptor_to_json(tn_deployed_descriptor)
             trial_network.save()
             return {"message": f"Successfully deleted debug into '{entity_name}' entity name of the Trial Network '{tn_id}'"}, 201
+        except ValidationError as e:
+            return abort(401, e.message)
+        except MongoEngineException as e:
+            return abort(401, str(e))
         except CustomException as e:
             return abort(e.error_code, str(e))
 

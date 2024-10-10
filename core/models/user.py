@@ -1,20 +1,13 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 from mongoengine import Document, EmailField, StringField
-from mongoengine.errors import ValidationError, MongoEngineException
-from core.exceptions.exceptions_handler import CustomException
 
 class UserModel(Document):
         
-    try:
-        username = StringField(max_length=50, unique=True)
-        password = StringField(max_length=255)
-        email = EmailField(max_length=50, unique=True)
-        role = StringField(max_length=20, default="user")
-        org = StringField(max_length=50)
-    except ValidationError as e:
-        raise CustomException(e.message, 401)
-    except MongoEngineException as e:
-        raise CustomException(str(e), 401)
+    username = StringField(max_length=50, unique=True)
+    password = StringField(max_length=255)
+    email = EmailField(max_length=50, unique=True)
+    role = StringField(max_length=20, default="user")
+    org = StringField(max_length=50)
 
     meta = {
         "db_alias": "tnlcm-database-alias",

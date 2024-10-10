@@ -52,6 +52,32 @@ class Sites(Resource):
         except CustomException as e:
             return abort(e.error_code, str(e))
 
+@sixg_sandbox_sites_namespace.route("/site-available-components")
+class ComponentsAvailableSites(Resource):
+
+    parser_get = reqparse.RequestParser()
+    parser_get.add_argument("reference_type", type=str, required=True, choices=("branch", "commit", "tag"))
+    parser_get.add_argument("reference_value", type=str, required=True)
+    parser_get.add_argument("site", type=str, required=True)
+
+    @sixg_sandbox_sites_namespace.expect(parser_get)
+    def get(self) -> tuple[dict, int]:
+        """
+        Return the sites where trial networks can be deployed
+        Can specify a branch, commit or tag of the 6G-Sandbox-Sites.
+        """
+        try:
+            reference_type = self.parser_get.parse_args()["reference_type"]
+            reference_value = self.parser_get.parse_args()["reference_value"]
+            site = self.parser_get.parse_args()["site"]
+
+            sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type=reference_type, reference_value=reference_value)
+            sixg_sandbox_sites_handler.set_deployment_site(site)
+            site_available_components = sixg_sandbox_sites_handler.get_site_available_components()
+            return {"site_available_components": list(site_available_components.keys())}, 200
+        except CustomException as e:
+            return abort(e.error_code, str(e))
+
 @sixg_sandbox_sites_namespace.route("/tags/")
 class Tags(Resource):
 
