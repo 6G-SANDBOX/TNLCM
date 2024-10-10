@@ -43,6 +43,7 @@ class RepositoryHandler:
             self.git_checkout_repository(default_branch=default_branch)
             self._git_pull(default_branch=default_branch)
         self._git_fetch_prune()
+        self._git_delete_branches()
         self.git_checkout_repository()
         self._git_pull()
         self._set_commit_id()
@@ -143,6 +144,18 @@ class RepositoryHandler:
         """
         log_handler.info(f"Apply git fetch --prune in '{self.github_repository_name}' repository located in '{self.github_local_directory}' folder")
         self.repo.remotes.origin.fetch(prune=True)
+    
+    def _git_delete_branches(self):
+        """
+        Delete branches after git fetch --prune
+        """
+        log_handler.info(f"Delete local branches that no longer have a remote counterpart in '{self.github_repository_name}' repository")
+        local_branches = [branch.name for branch in self.repo.branches]
+        remote_branches = [ref.remote_head for ref in self.repo.remotes.origin.refs if ref.remote_head != "HEAD"]
+        for branch in local_branches:
+            if branch not in remote_branches:
+                log_handler.info(f"Deleting local branch '{branch}' as it no longer exists on the remote")
+                self.repo.git.branch('-D', branch)
 
     def get_tags(self) -> list[str]:
         """
