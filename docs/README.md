@@ -134,7 +134,7 @@ Mandatory update the values of the following variables according to the platform
 - `JENKINS_USERNAME`
 - `JENKINS_PASSWORD`
 - `JENKINS_TOKEN`
-- `ANSIBLE_VAULT`
+- `SITES_TOKEN`
 
 ### :floppy_disk: Create database
 

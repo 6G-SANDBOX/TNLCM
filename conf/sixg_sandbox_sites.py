@@ -14,7 +14,7 @@ class SixGSandboxSitesSettings:
     GITHUB_6G_SANDBOX_SITES_HTTPS_URL = os.getenv("GITHUB_6G_SANDBOX_SITES_HTTPS_URL")
     GITHUB_6G_SANDBOX_SITES_BRANCH = os.getenv("GITHUB_6G_SANDBOX_SITES_BRANCH")
     GITHUB_6G_SANDBOX_SITES_REPOSITORY_NAME = os.getenv("GITHUB_6G_SANDBOX_SITES_REPOSITORY_NAME")
-    ANSIBLE_VAULT = os.getenv("ANSIBLE_VAULT")
+    SITES_TOKEN = os.getenv("SITES_TOKEN")
     missing_variables = []
     if not GITHUB_6G_SANDBOX_SITES_HTTPS_URL:
         missing_variables.append("GITHUB_6G_SANDBOX_SITES_HTTPS_URL")
@@ -22,8 +22,8 @@ class SixGSandboxSitesSettings:
         missing_variables.append("GITHUB_6G_SANDBOX_SITES_BRANCH")
     if not GITHUB_6G_SANDBOX_SITES_REPOSITORY_NAME:
         missing_variables.append("GITHUB_6G_SANDBOX_SITES_REPOSITORY_NAME")
-    if not ANSIBLE_VAULT:
-        missing_variables.append("ANSIBLE_VAULT")
+    if not SITES_TOKEN:
+        missing_variables.append("SITES_TOKEN")
     if missing_variables:
         raise UndefinedEnvVariableError(missing_variables)
     if not RepositorySettings.is_github_repo(GITHUB_6G_SANDBOX_SITES_HTTPS_URL):
