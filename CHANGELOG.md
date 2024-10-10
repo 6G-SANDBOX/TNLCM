@@ -1,6 +1,6 @@
 # Changelog
 
-## [v0.3.2] - 2024-10-09
+## [v0.3.2] - 2024-10-10
 
 ### Added
 
@@ -8,10 +8,13 @@
 - First version CLI handler for execute commands.
 - Git fetch prune.
 - Git delete branches after git fetch prune.
+- Endpoint to return the components available on a site.
 
 ### Changed
 
 - Python version to 3.13.0.
+- Migrated from `ansible-vault` library to `ansible-core`.
+- Rename `ANSIBLE_VAULT` variable in .env.template and .env to `SITES_TOKEN`.
 
 ### Fixed
 

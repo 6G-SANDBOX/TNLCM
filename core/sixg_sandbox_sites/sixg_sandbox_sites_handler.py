@@ -1,7 +1,8 @@
 import os
 
 from yaml import safe_load, YAMLError, safe_dump
-from ansible_vault import Vault
+from ansible.parsing.vault import VaultLib, VaultSecret
+from ansible.constants import DEFAULT_VAULT_ID_MATCH
 from ansible.errors import AnsibleError
 
 from conf import SixGSandboxSitesSettings
@@ -49,12 +50,17 @@ class SixGSandboxSitesHandler():
         :raise SixGSandboxSitesDecryptError: if unable to decrypt the core.yaml file from the site (error code 500)
         """
         try:
-            vault = Vault(SixGSandboxSitesSettings.ANSIBLE_VAULT)
+            password = SixGSandboxSitesSettings.SITES_TOKEN
+            secret = password.encode("utf-8")
+            vault = VaultLib([(DEFAULT_VAULT_ID_MATCH, VaultSecret(secret))])
             core_file = os.path.join(self.github_6g_sandbox_sites_local_directory, self.deployment_site, "core.yaml")
-            data = vault.load(open(core_file).read())
+            with open(core_file, "rb") as f:
+                encrypted_data = f.read()
+            decrypted_data = vault.decrypt(encrypted_data)
+            decrypted_yaml = safe_load(decrypted_data)
             decrypted_core_file = os.path.join(self.github_6g_sandbox_sites_local_directory, self.deployment_site, "core_decrypt.yaml")
             with open(decrypted_core_file, "w") as f:
-                safe_dump(data, f)
+                safe_dump(decrypted_yaml, f)
         except AnsibleError as e:
             raise SixGSandboxSitesDecryptError(str(e), 500)
         
