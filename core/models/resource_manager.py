@@ -9,7 +9,7 @@ from core.exceptions.exceptions_handler import NoResourcesAvailable
 class ResourceManagerModel(Document):
 
     component = StringField(unique=True)
-    tn_id = StringField(max_length=10, unique=True)
+    tn_id = StringField(max_length=15, unique=True)
     quantity = IntField()
     ttl = StringField() # maybe FloatField
 

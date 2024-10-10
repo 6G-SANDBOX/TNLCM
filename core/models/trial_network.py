@@ -19,7 +19,7 @@ REQUIRED_FIELDS_DESCRIPTOR = ["type", "input"]
 class TrialNetworkModel(Document):
 
     user_created = StringField(max_length=100)
-    tn_id = StringField(max_length=10, unique=True)
+    tn_id = StringField(max_length=15, unique=True)
     tn_state = StringField(max_length=50)
     tn_date_created_utc = DateTimeField(default=datetime.now(timezone.utc))
     tn_raw_descriptor = StringField()
