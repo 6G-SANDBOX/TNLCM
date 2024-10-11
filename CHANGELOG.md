@@ -1,13 +1,13 @@
 # Changelog
 
-## [v0.3.2] - 2024-10-10
+## [v0.3.2] - 2024-10-11
 
 ### Added
 
 - README file in `tn_template_lib` folder for explain trial networks defined.
 - First version CLI handler for execute commands.
-- Git fetch prune.
-- Git delete branches after git fetch prune.
+- Implementation git fetch prune.
+- Implementation git delete branches after git fetch prune.
 - Endpoint to return the components available on a site.
 
 ### Changed
@@ -15,6 +15,7 @@
 - Python version to 3.13.0.
 - Migrated from `ansible-vault` library to `ansible-core`.
 - Rename `ANSIBLE_VAULT` variable in .env.template and .env to `SITES_TOKEN`.
+- The implementation that was inside the `resource_manager` folder is moved to the resource manager of the `models` folder.
 
 ### Fixed
 
@@ -22,6 +23,7 @@
 - Functions documentation.
 - The endpoint to return the branches of a repository now only returns the branches that are created in the remote repository.
 - Message when checking if a user can access a trial network.
+- Divergence between the local branch and the remote branch.
 
 ### Removed
 
