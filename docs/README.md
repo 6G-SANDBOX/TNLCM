@@ -30,53 +30,57 @@ TNLCM has been designed as a modular application, with the intention of making c
 - [:arrows\_counterclockwise: State Machine](#arrows_counterclockwise-state-machine)
 - [:hourglass\_flowing\_sand: Current Status](#hourglass_flowing_sand-current-status)
 - [:rocket: Getting Started Locally](#rocket-getting-started-locally)
-  - [:inbox\_tray: Download or clone repository](#inbox_tray-download-or-clone-repository)
-  - [:wrench: Configure environment variables](#wrench-configure-environment-variables)
-  - [:floppy\_disk: Create database](#floppy_disk-create-database)
-  - [:snake: Create environment](#snake-create-environment)
+  - [:inbox\_tray: Download the installation script](#inbox_tray-download-the-installation-script)
+  - [:gear: Configure environment variables](#gear-configure-environment-variables)
+  - [:desktop\_computer: Execute installation script](#desktop_computer-execute-installation-script)
+  - [:snake: Start server](#snake-start-server)
 - [:page\_facing\_up: Trial Network Descriptor Schema](#page_facing_up-trial-network-descriptor-schema)
-- [Appendices](#appendices)
-  - [Appendix A: How to use Swagger UI](#appendix-a-how-to-use-swagger-ui)
-  - [Appendix B: Database Schema](#appendix-b-database-schema)
-  - [Appendix C: TNLCM OpenNebula Appliance](#appendix-c-tnlcm-opennebula-appliance)
+- [:paperclip: Appendices](#paperclip-appendices)
+  - [Appendix A: Installation using Docker](#appendix-a-installation-using-docker)
+  - [Appendix B: How to use Swagger UI](#appendix-b-how-to-use-swagger-ui)
+  - [Appendix C: Database Schema](#appendix-c-database-schema)
+  - [Appendix D: TNLCM OpenNebula Appliance](#appendix-d-tnlcm-opennebula-appliance)
 </details>
 
 ## :hammer_and_wrench: Stack
 - [![Python][python-badge]][python-url] - Programming language.
 - [![Flask][flask-badge]][flask-url] - Python framework for web applications to expose the API.
 - [![MongoDB][mongodb-badge]][mongodb-url] - NoSQL database designed to store Trial Networks.
-- [![Docker][docker-badge]][docker-url] - Platform for running database applications.
 
 ## :open_file_folder: Project Structure
 
 ```
 TNLCM/                       // main folder.
 ├─ .github/                  // folder contains files and templates for GitHub workflow automation.
-│  ├─ CHANGELOG_TEMPLATE/    // folder with template for changelog.
-│  └─ ISSUE_TEMPLATE/        // folder with template for issue reporting.
+├─ conf/                     // folder that handler the configuration files.
+├─ core/                     // folder that the developed code is stored.
+│  ├─ auth/                  // folder that handler the authentication of users who have access.
+│  ├─ callback/              // folder that handler the results received by Jenkins.
+│  ├─ cli/                   // folder that handler the cli for run commands.
+│  ├─ database/              // folder that handler the connection with MongoDB database using mongoengine.
+│  ├─ exceptions/            // folder that handler the creation of custom exceptions.
+│  ├─ jenkins/               // folder that handler the connection with Jenkins for tn deployment.
+│  ├─ logs/                  // folder that handler the logs configuration.
+│  ├─ mail/                  // folder that handler the configuration to use flask mail library.
+│  ├─ models/                // folder that contains the database models.
+│  ├─ repository/            // folder that handler the connection to any repository.
+│  ├─ routes/                // folder that handler the API that is exposed.
+│  ├─ sixg_library/          // folder that handler the connection to the 6G-Library repository.
+│  ├─ sixg_sandbox_sites/    // folder that handler the connection to the 6G-Sandbox-Sites repository.
+│  └─ temp/                  // folder that handler the creation of temporary files.
+├─ docker/                   // folder containing Docker-related configuration and setup files.
+├─ docs/                     // folder where all documentation is stored.
+├─ scripts/                  // folder contains scripts for automated deployments.
+│  ├─ deploy_vm.sh           // file to deploy TNLCM with its dependencies on a vm.
+│  └─ deploy_docker.sh       // file to deploy TNLCM in docker with its dependencies.
+├─ tn_template_lib/          // folder that trial network descriptors templates are stored.
+├─ .dockerignore             // file specifying which files and directories to ignore in the Docker build context.
+├─ .env.template             // file that contains placeholder environment variables for configuring the application.
 ├─ .gitignore                // file specifying intentionally untracked files to ignore.
 ├─ app.py                    // main file that starts TNLCM.
 ├─ CHANGELOG.md              // file containing the changes made in each release.
-├─ tn_template_lib/          // folder in which trial network descriptors templates are stored.
 ├─ docker-compose.yaml       // file for create database.
-├─ docs/                     // folder in which all documentation is stored.
-├─ requirements.txt          // file containing the libraries and their versions.
-├─ conf/                     // folder that handler the configuration files.
-└─ core/                     // folder in which the developed code is stored.
-   ├─ auth/                  // folder that handler the authentication of users who have access.
-   ├─ callback/              // folder that handler the results received by Jenkins.
-   ├─ cli/                   // folder that handler the cli for run commands.
-   ├─ database/              // folder that handler the connection with MongoDB database using mongoengine.
-   ├─ exceptions/            // folder that handler the creation of custom exceptions.
-   ├─ jenkins/               // folder that handler the connection with Jenkins for tn deployment.
-   ├─ logs/                  // folder that handler the logs configuration.
-   ├─ mail/                  // folder that handler the configuration to use flask mail library.
-   ├─ models/                // folder that contains the database models.
-   ├─ repository/            // folder that handler the connection to any repository.
-   ├─ routes/                // folder that handler the API that is exposed.
-   ├─ sixg_library/          // folder that handler the connection to the 6G-Library repository.
-   ├─ sixg_sandbox_sites/    // folder that handler the connection to the 6G-Sandbox-Sites repository.
-   └─ temp/                  // folder that handler the creation of temporary files.
+└─ requirements.txt          // file containing the libraries and their versions.
 ```
 
 ## :mag: Overview of TNLCM and 6G-Library implementation
@@ -86,6 +90,8 @@ TNLCM/                       // main folder.
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 ## :arrows_counterclockwise: State Machine
+
+TNLCM is a state machine that allows the automation of component deployment. <span style="color: green;">Green</span> indicates what is implemented and <span style="color: red;">red</span> indicates what is in the process of implementation.
 
 ![StateMachine](./images/stateMachine.png)
 
@@ -104,29 +110,31 @@ TNLCM is currently able to deploy the following types of components correspondin
 > [!NOTE]
 > TNLCM is being developed and tested on Ubuntu in version 24.04 LTS.
 
-> [!TIP]
-> TNLCM uses the following repository releases:
+> [!IMPORTANT]
+> TNLCM requires the prior installation of:
 > 
-> | Repository       | Branch                                                            | Release   |
-> | ---------------- | ----------------------------------------------------------------- | --------- |
-> | 6G-Library       | [v0.3.0](https://github.com/6G-SANDBOX/6G-Library/tree/v0.3.0)    | -         |
-> | 6G-Sandbox-Sites | [platform](https://github.com/6G-SANDBOX/6G-Sandbox-Sites)        | -         |
+> | Repository       | Release                                                                                |
+> | ---------------- | -------------------------------------------------------------------------------------- |
+> | OpenNebula       | [v6.10](https://github.com/OpenNebula/one/releases/tag/release-6.10.0)                 |
+> | Jenkins          | [v2.462.3](https://github.com/jenkinsci/jenkins/releases/tag/jenkins-2.462.3)          |
+> | MinIO            | [2024-07-04](https://github.com/minio/minio/releases/tag/RELEASE.2024-07-04T14-25-45Z) |
 
-### :inbox_tray: Download or clone repository
+> [!TIP]
+> Additionally, TNLCM depends on:
+>
+> | Repository       | Branch                                                            | Release                                                                       |
+> | ---------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+> | 6G-Library       | -                                                                 | [v0.3.0](https://github.com/6G-SANDBOX/6G-Library/tree/v0.3.0)                |
+> | 6G-Sandbox-Sites | [platform](https://github.com/6G-SANDBOX/6G-Sandbox-Sites)        | -                                                                             |
 
-Download the **main** branch from the TNLCM repository.
+### :inbox_tray: Download the installation script
 
-Clone repository:
+Download the installation script which is [deploy_vm.sh](../scripts/deploy_vm.sh) and is located in the scripts folder.
 
-```bash
-git clone https://github.com/6G-SANDBOX/TNLCM
-```
+### :gear: Configure environment variables
 
-### :wrench: Configure environment variables
+Update the script and add the contents of the following variables (there is a comment with a **TODO**):
 
-Create a `.env` file at the root level, using the structure and content provided in the [`.env.template`](../.env.template) file.
-
-Mandatory update the values of the following variables according to the platform:
 - `TNLCM_ADMIN_USER`
 - `TNLCM_ADMIN_PASSWORD`
 - `TNLCM_HOST`
@@ -136,45 +144,26 @@ Mandatory update the values of the following variables according to the platform
 - `JENKINS_TOKEN`
 - `SITES_TOKEN`
 
-### :floppy_disk: Create database
+### :desktop_computer: Execute installation script
 
-> [!IMPORTANT]
-> This step requires **Docker** to be installed on the machine.
+Once the environment variables have been filled in, run the script.
 
-Once Docker is installed, open a terminal where the [`docker-compose.yaml`](../docker-compose.yaml) file is stored (usually inside the TNLCM project) and execute the command:
-
-```sh
-docker compose up -d
+```bash
+chmod 777 deploy_vm.sh
 ```
 
-Flag **-d** can be added to raise the containers in background.
+```bash
+./deploy_vm.sh
+```
 
-A MongoDB dashboard will be available at the url http://mongodb-frontend-ip:8081 where the database can be managed.
+A MongoDB dashboard will be available at the url http://mongo-express-ip:8081 where the database can be managed.
 
 > [!NOTE]
 > User and password to access to the MongoDB dashboard are the values indicated in the variables `ME_CONFIG_BASICAUTH_USERNAME` and `ME_CONFIG_BASICAUTH_PASSWORD` of the `.env` file. By default, the values indicated in the [`.env.template`](../.env.template) file are used.
 
-![dashboardMongoDB](./images/dashboardMongoDB.png)
+![mongoExpress](./images/mongoExpress.png)
 
-### :snake: Create environment
-
-> [!IMPORTANT]
-> This step requires **Python** to be installed on the machine.
-
-The environment must be created inside the TNLCM folder:
-
-```bash
-# Create environment
-python3 -m venv venv
-
-# Activate environment
-source venv/bin/activate
-
-# Install libraries
-pip install -r requirements.txt
-```
-
-With the environment activated, start TNLCM:
+### :snake: Start server
 
 ```bash
 python app.py
@@ -192,9 +181,9 @@ Trial Network Descriptors are yaml files with a set of expected fields and with 
 
 ```yaml
 trial_network: # Mandatory, contains the description of all entities in the Trial Network
-  type-name: # Mandatory, a unique identifier for each entity in the Trial Network (entity name)
+  type-name: # Mandatory, entity name. Unique identifier for each entity in the Trial Network
     type: # Mandatory, 6G-Library component type
-    name: # Mandatory, custom name. Not use character \- or \.
+    name: # Mandatory, custom name. Not use character \- or \. Exclude tn_init, tn_bastion and tn_vxlan
     debug: # Optional, param to debug component in Jenkins. Possible values true or false
     dependencies: # Mandatory, list of dependencies of the component with other components
       - type-name
@@ -210,9 +199,50 @@ This repository contains a variety of [descriptors](../tn_template_lib/). Access
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
-## Appendices
+## :paperclip: Appendices
 
-### Appendix A: How to use Swagger UI
+### Appendix A: Installation using Docker
+
+Clone repository
+
+```bash
+TNLCM_FOLDER="/opt/TNLCM"
+TNLCM_ENV_FILE=${TNLCM_FOLDER}/.env
+
+git clone https://github.com/6G-SANDBOX/TNLCM ${TNLCM_FOLDER}
+cp ${TNLCM_FOLDER}/.env.template ${TNLCM_FOLDER}/.env
+```
+
+Add the value of the following environment variables to .env:
+
+- `TNLCM_ADMIN_USER`
+- `TNLCM_ADMIN_PASSWORD`
+- `TNLCM_HOST`
+- `JENKINS_HOST`
+- `JENKINS_USERNAME`
+- `JENKINS_PASSWORD`
+- `JENKINS_TOKEN`
+- `SITES_TOKEN`
+
+Access the folder where the script is located to deploy using docker:
+
+```bash
+cd ${TNLCM_FOLDER}/scripts
+```
+
+Set execution permissions to the script:
+
+```bash
+sudo chmod 777 deploy_docker.sh
+```
+
+Execute the script:
+
+```bash
+./deploy_docker.sh
+```
+
+### Appendix B: How to use Swagger UI
 
 The API set forth in the TNLCM is as follows:
 
@@ -260,7 +290,7 @@ When the request is made, it will return another access token that will need to 
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
-### Appendix B: Database Schema
+### Appendix C: Database Schema
 
 The TNLCM database consists of several collections that store important information about trial networks, users, and verification tokens. Below is the description of each collection:
 
@@ -310,7 +340,7 @@ The TNLCM database consists of several collections that store important informat
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
-### Appendix C: TNLCM OpenNebula Appliance
+### Appendix D: TNLCM OpenNebula Appliance
 
 In the [marketplace-community](https://github.com/6G-SANDBOX/marketplace-community/wiki/tnlcm) repository, which is a fork of OpenNebula, detailed information about the TNLCM appliance can be found. 
 
@@ -336,8 +366,6 @@ To deploy 6G-SANDBOX TOOLKIT in OpenNebula, the documentation can be accessed fr
 [flask-url]: https://flask.palletsprojects.com/en/3.0.x/
 [mongodb-badge]: https://img.shields.io/badge/MongoDB-7.0.14-green?style=for-the-badge&logo=mongodb&logoColor=white&labelColor=47A248
 [mongodb-url]: https://www.mongodb.com/
-[docker-badge]: https://img.shields.io/badge/Docker-27.0.3-6AB7FF?style=for-the-badge&logo=docker&logoColor=white&labelColor=2496ED
-[docker-url]: https://www.docker.com/
 [contributors-shield]: https://img.shields.io/github/contributors/6G-SANDBOX/TNLCM.svg?style=for-the-badge
 [contributors-url]: https://github.com/6G-SANDBOX/TNLCM/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/6G-SANDBOX/TNLCM.svg?style=for-the-badge
