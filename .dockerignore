@@ -1,0 +1,6 @@
+.github/
+.vscode/
+docs/
+scripts/
+tn_template_lib/
+venv/
