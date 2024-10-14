@@ -1,6 +1,6 @@
 # Changelog
 
-## [v0.3.2] - 2024-10-11
+## [v0.3.2] - 2024-10-XX
 
 ### Added
 
@@ -9,10 +9,14 @@
 - Implementation git fetch prune.
 - Implementation git delete branches after git fetch prune.
 - Endpoint to return the components available on a site.
+- `scripts` folder that contains:
+  - Implementation `deploy_vm.sh` to deploy TNLCM and MongoDB in vm.
+  - Implementation `deploy_docker.sh` to deploy TNLCM and MongoDB in docker.
 
 ### Changed
 
 - Python version to 3.13.0.
+- MongoDB version to 8.0.
 - Migrated from `ansible-vault` library to `ansible-core`.
 - Rename `ANSIBLE_VAULT` variable in .env.template and .env to `SITES_TOKEN`.
 - The implementation that was inside the `resource_manager` folder is moved to the resource manager of the `models` folder.
