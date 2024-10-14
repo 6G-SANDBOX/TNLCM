@@ -10,5 +10,5 @@ def init_db(app: Flask) -> None:
     # disconnect(alias="tnlcm-database-alias")
     connect(
         alias="tnlcm-database-alias",
-        host=app.config["MONGO_URI"]
+        host=app.config["ME_CONFIG_MONGODB_URL"]
     )

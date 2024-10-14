@@ -14,7 +14,7 @@ class Config(object):
     SECRET_KEY = os.getenv("SECRET_KEY") or "clave"
     ERROR_404_HELP = False
 
-    MONGO_URI = MongoDBSettings.MONGO_URI
+    ME_CONFIG_MONGODB_URL = MongoDBSettings.ME_CONFIG_MONGODB_URL
     
     MAIL_SERVER = MailSettings.MAIL_SERVER
     MAIL_PORT = MailSettings.MAIL_PORT
