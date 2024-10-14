@@ -122,10 +122,10 @@ TNLCM is currently able to deploy the following types of components correspondin
 > [!TIP]
 > Additionally, TNLCM depends on:
 >
-> | Repository       | Branch                                                            | Release                                                                       |
-> | ---------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-> | 6G-Library       | -                                                                 | [v0.3.0](https://github.com/6G-SANDBOX/6G-Library/tree/v0.3.0)                |
-> | 6G-Sandbox-Sites | [platform](https://github.com/6G-SANDBOX/6G-Sandbox-Sites)        | -                                                                             |
+> | Repository       | Branch                                                        | Release                                                             |
+> | ---------------- | ------------------------------------------------------------- | ------------------------------------------------------------------- |
+> | 6G-Library       | -                                                             | [v0.3.0](https://github.com/6G-SANDBOX/6G-Library/tree/v0.3.0)      |
+> | 6G-Sandbox-Sites | [platform](https://github.com/6G-SANDBOX/6G-Sandbox-Sites)    | -                                                                   |
 
 ### :inbox_tray: Download the installation script
 
@@ -146,7 +146,10 @@ Update the script and add the contents of the following variables (there is a co
 
 ### :desktop_computer: Execute installation script
 
-Once the environment variables have been filled in, run the script.
+> [!NOTE]  
+> Execute the script with the **root** user.
+
+Once the environment variables have been filled in, run the script:
 
 ```bash
 chmod 777 deploy_vm.sh
@@ -174,6 +177,7 @@ A Swagger UI will be available at the url http://tnlcm-backend-ip:5000 where the
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 ## :page_facing_up: Trial Network Descriptor Schema
+
 > [!WARNING]
 > The format of Trial Network Descriptors has not been finalized and is expected to change in the future.
 
@@ -230,6 +234,9 @@ Access the folder where the script is located to deploy using docker:
 cd ${TNLCM_FOLDER}/scripts
 ```
 
+> [!NOTE]  
+> Execute the script with the **root** user.
+
 Set execution permissions to the script:
 
 ```bash
@@ -241,6 +248,8 @@ Execute the script:
 ```bash
 ./deploy_docker.sh
 ```
+
+<p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 ### Appendix B: How to use Swagger UI
 

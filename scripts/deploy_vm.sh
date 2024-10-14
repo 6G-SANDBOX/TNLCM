@@ -125,6 +125,7 @@ EOF
 
 systemctl enable --now mongo-express.service
 
-source ${TNLCM_FOLDER}/venv/bin/activate
+cd ${TNLCM_FOLDER}
+source venv/bin/activate
 
 echo "TNLCM, mongo and mongo-express installed"
