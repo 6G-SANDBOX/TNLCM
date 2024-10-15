@@ -105,8 +105,10 @@ MONGO_EXPRESS_VERSION="v1.0.2"
 MONGO_EXPRESS_FOLDER=/opt/mongo-express-${MONGO_EXPRESS_VERSION}
 
 git clone --depth 1 --branch release/${MONGO_EXPRESS_VERSION} -c advice.detachedHead=false https://github.com/mongo-express/mongo-express.git ${MONGO_EXPRESS_FOLDER}
-yarn --cwd ${MONGO_EXPRESS_FOLDER} install
-yarn --cwd ${MONGO_EXPRESS_FOLDER} run build
+cd ${MONGO_EXPRESS_FOLDER}
+yarn install
+yarn build
+cd
 
 # Start mongo-express service
 cat > /etc/systemd/system/mongo-express.service << EOF
@@ -115,8 +117,8 @@ Description=mongo-express
 
 [Service]
 Type=simple
-WorkingDirectory=${MONGO_EXPRESS_FOLDER}
-ExecStart=/bin/bash -c 'source ${TNLCM_ENV_FILE} && yarn start'
+WorkingDirectory=/root/workspace/mongo-express-v1.0.2
+ExecStart=/bin/bash -ac 'source /root/workspace/TNLCM/.env && yarn start'
 Restart=always
 
 [Install]
