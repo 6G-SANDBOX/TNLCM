@@ -4,6 +4,8 @@ from mongoengine.errors import ValidationError, MongoEngineException
 
 from core.auth.auth import get_current_user_from_jwt
 from core.models import TrialNetworkModel
+from core.sixg_library.sixg_library_handler import SixGLibraryHandler
+from core.sixg_sandbox_sites.sixg_sandbox_sites_handler import SixGSandboxSitesHandler
 from core.jenkins.jenkins_handler import JenkinsHandler
 from core.exceptions.exceptions_handler import CustomException
 
@@ -42,6 +44,8 @@ class UpdateCommitSixGLibrary(Resource):
                 trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
             else:
                 trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
+            sixg_library_handler = SixGLibraryHandler(reference_type="commit", reference_value=trial_network.github_6g_library_commit_id, tn_folder=trial_network.tn_folder)
+            sixg_library_handler.git_checkout()
             trial_network.set_github_6g_library_commit_id(commit_id)
             trial_network.save()
             return {"message": "Commit successfully modified"}, 201
@@ -75,6 +79,8 @@ class UpdateCommitSixGSandboxSites(Resource):
                 trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
             else:
                 trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
+            sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type="commit", reference_value=trial_network.github_6g_library_commit_id, tn_folder=trial_network.tn_folder)
+            sixg_sandbox_sites_handler.git_checkout()
             trial_network.set_github_6g_sandbox_sites_commit_id(commit_id)
             trial_network.save()
             return {"message": "Commit successfully modified"}, 201
