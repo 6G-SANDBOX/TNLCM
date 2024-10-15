@@ -37,6 +37,19 @@ class SixGLibraryHandler:
             self.github_6g_library_reference_type = "branch"
             self.github_6g_library_reference_value = SixGLibrarySettings.GITHUB_6G_LIBRARY_BRANCH
         self.repository_handler = RepositoryHandler(github_https_url=self.github_6g_library_https_url, github_repository_name=self.github_6g_library_repository_name, github_local_directory=self.github_6g_library_local_directory, github_reference_type=self.github_6g_library_reference_type, github_reference_value=self.github_6g_library_reference_value)
+        self.github_6g_library_commit_id = None
+
+    def git_clone(self) -> None:
+        """
+        Apply git clone repository
+        """
+        self.repository_handler.git_clone()
+    
+    def git_checkout(self) -> None:
+        """
+        Apply git checkout repository
+        """
+        self.repository_handler.git_checkout()
         self.github_6g_library_commit_id = self.repository_handler.github_commit_id
 
     def get_tags(self) -> list[str]:

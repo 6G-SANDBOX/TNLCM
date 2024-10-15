@@ -40,7 +40,7 @@ class SixGSandboxSitesHandler():
             self.github_6g_sandbox_sites_reference_type = "branch"
             self.github_6g_sandbox_sites_reference_value = SixGSandboxSitesSettings.GITHUB_6G_SANDBOX_SITES_BRANCH
         self.repository_handler = RepositoryHandler(github_https_url=self.github_6g_sandbox_sites_https_url, github_repository_name=self.github_6g_sandbox_sites_repository_name, github_local_directory=self.github_6g_sandbox_sites_local_directory, github_reference_type=self.github_6g_sandbox_sites_reference_type, github_reference_value=self.github_6g_sandbox_sites_reference_value)
-        self.github_6g_sandbox_sites_commit_id = self.repository_handler.github_commit_id
+        self.github_6g_sandbox_sites_commit_id = None
 
     def _decrypt_site(self, deployment_site: str) -> None:
         """
@@ -75,6 +75,19 @@ class SixGSandboxSitesHandler():
             raise SixGSandboxSitesInvalidSiteError(f"The 'site' should be one: {', '.join(self.get_sites())}", 404)
         self._decrypt_site(deployment_site)
     
+    def git_clone(self) -> None:
+        """
+        Apply git clone repository
+        """
+        self.repository_handler.git_clone()
+    
+    def git_checkout(self) -> None:
+        """
+        Apply git checkout repository
+        """
+        self.repository_handler.git_checkout()
+        self.github_6g_sandbox_sites_commit_id = self.repository_handler.github_commit_id
+
     def get_tags(self) -> list[str]:
         """
         Return tags

@@ -38,59 +38,40 @@ class RepositoryHandler:
             self.github_https_url = github_https_url.replace("https://", f"https://{github_token}@")
         self.repo = None
         self.github_commit_id = None
-        if not self._exists_local_directory():
-            self.git_clone_repository()
-            self.git_checkout_repository()
-        else:
-            try:
-                self.repo = Repo(self.github_local_directory)
-            except InvalidGitRepositoryError:
-                raise GitCloneError(f"The '{self.github_local_directory}' directory is not a GitHub repository", 500)
-        self._set_commit_id()
-            
-    def _exists_local_directory(self) -> bool:
-        """
-        Checks if the local directory exists and contains a Git repository
 
-        :return: True if the directory and repository exist. Otherwise False, ``bool``
-        """
-        if not os.path.exists(self.github_local_directory):
-            os.makedirs(self.github_local_directory)
-            return False
-        if not os.path.exists(os.path.join(self.github_local_directory, ".git")):
-            return False
-        return True
-
-    def git_clone_repository(self) -> None:
+    def git_clone(self) -> None:
         """
         Apply git clone
 
         :raise GitCloneError: if the specified directory is not a valid Git repository (error code 500)
         """
         try:
-            log_handler.info(f"Clone '{self.github_repository_name}' repository into '{self.github_local_directory}'")
-            self.repo = Repo.clone_from(self.github_https_url, self.github_local_directory)
+            if not os.path.exists(self.github_local_directory) or not os.path.exists(os.path.join(self.github_local_directory, ".git")):
+                log_handler.info(f"Clone '{self.github_repository_name}' repository into '{self.github_local_directory}'")
+                self.repo = Repo.clone_from(self.github_https_url, self.github_local_directory)
+            else:
+                self.repo = Repo(self.github_local_directory)
         except InvalidGitRepositoryError:
             raise GitCloneError(f"Cannot clone because the '{self.github_https_url}' url is not a GitHub repository", 500)
 
-    def git_checkout_repository(self) -> None:
+    def git_checkout(self) -> None:
         """
         Apply git checkout
 
         :raise GitCheckoutError: if git checkout cannot apply (error code 404)
         """
         try:
+            if not self.repo:
+                raise GitCheckoutError(f"Clone repository '{self.github_repository_name}' first", 404)
             log_handler.info(f"Apply checkout to '{self.github_reference_type}' '{self.github_reference_value}' of '{self.github_repository_name}' repository")
             self.repo.git.checkout(self.github_reference_value, "--")
+            if self.github_reference_type != "commit":
+                self.github_commit_id = self.repo.head.commit.hexsha
+                self.repo.git.checkout(self.github_commit_id, "--")
+            else:
+                self.github_commit_id = self.github_reference_value
         except GitCommandError:
             raise GitCheckoutError(f"Reference '{self.github_reference_type}' with value '{self.github_reference_value}' is not in '{self.github_repository_name}' repository", 404)
-
-    def _set_commit_id(self) -> None:
-        """
-        Set last commit id associated to branch or tag
-        """
-        self.github_commit_id = self.repo.head.commit.hexsha
-        log_handler.info(f"The latest commit of the '{self.github_reference_value}' '{self.github_reference_type}' is '{self.github_commit_id}'")
 
     def get_tags(self) -> list[str]:
         """
@@ -100,7 +81,7 @@ class RepositoryHandler:
         :raise GitCloneError: if repository not cloned (error code 500)
         """
         if not self.repo:
-            raise GitCloneError(f"Clone '{self.github_repository_name}' repository first", 500)
+            raise GitCloneError(f"Clone repository '{self.github_repository_name}' first", 404)
         return [tag.name for tag in self.repo.tags]
 
     def get_branches(self):
@@ -108,5 +89,5 @@ class RepositoryHandler:
         Return repository branches
         """
         if not self.repo:
-            raise GitCloneError(f"Clone '{self.github_repository_name}' repository first", 500)
+            raise GitCloneError(f"Clone repository '{self.github_repository_name}' first", 500)
         return [ref.remote_head for ref in self.repo.remotes.origin.refs if ref.remote_head != "HEAD"]
