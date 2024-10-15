@@ -10,7 +10,7 @@ from conf import TnlcmSettings, ProductionConfig, DevelopmentConfig, TestingConf
 from core.logs.log_handler import log_handler
 from core.mail.mail import init_mail
 from core.database.database import init_db
-from core.routes import callback_namespace, debug_namespace, sixg_library_namespace, sixg_sandbox_sites_namespace, trial_network_namespace, user_namespace, verification_token_namespace
+from core.routes import callback_namespace, debug_namespace, trial_network_namespace, user_namespace, verification_token_namespace
 
 app = Flask(__name__)
 CORS(app)
@@ -37,8 +37,6 @@ api = Api(
 
 api.add_namespace(callback_namespace, path="/tnlcm/callback")
 api.add_namespace(debug_namespace, path="/tnlcm/debug")
-api.add_namespace(sixg_library_namespace, path="/tnlcm/6G-Library")
-api.add_namespace(sixg_sandbox_sites_namespace, path="/tnlcm/6G-Sandbox-Sites")
 api.add_namespace(trial_network_namespace, path="/tnlcm/trial-network")
 api.add_namespace(user_namespace, path="/tnlcm/user")
 api.add_namespace(verification_token_namespace, path="/tnlcm/verification-token")
