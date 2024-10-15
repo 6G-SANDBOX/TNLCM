@@ -167,5 +167,4 @@ cython_debug/
 core/callback/reports/
 core/temp/files/
 core/logs/executions/
-core/sixg_library/6G-Library/
-core/sixg_sandbox_sites/6G-Sandbox-Sites/
+core/trial_networks/
