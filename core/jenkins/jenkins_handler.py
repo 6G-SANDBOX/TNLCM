@@ -169,7 +169,7 @@ class JenkinsHandler:
         :return: dictionary containing mandatory and optional parameters for the Jenkins destroy pipeline, ``dict``
         """
         tn_components_types = self.trial_network.get_tn_components_types()
-        metadata_part = self.sixg_library_handler.get_tn_components_parts(deployment_site=self.trial_network.deployment_site, parts=["metadata"], tn_components_types=tn_components_types)
+        metadata_part = self.sixg_library_handler.get_tn_components_parts(deployment_site=self.trial_network.deployment_site, parts=["metadata"], tn_components_types=tn_components_types)["metadata"]
         tn_sorted_descriptor = self.trial_network.json_to_descriptor(self.trial_network.tn_sorted_descriptor)["trial_network"]
         entities_with_destroy_script = []
         for entity_name, entity_data in tn_sorted_descriptor.items():
