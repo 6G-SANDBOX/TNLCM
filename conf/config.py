@@ -23,9 +23,6 @@ class Config(object):
     MAIL_USERNAME = MailSettings.MAIL_USERNAME
     MAIL_PASSWORD = MailSettings.MAIL_PASSWORD
 
-class ProductionConfig(Config):
-    pass
-
 class DevelopmentConfig(Config):
     DEBUG = True
 
