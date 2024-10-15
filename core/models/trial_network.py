@@ -1,6 +1,5 @@
 import os
 import re
-import shutil
 
 from werkzeug.utils import secure_filename
 from werkzeug.datastructures import FileStorage
@@ -135,10 +134,7 @@ class TrialNetworkModel(Document):
 
         :param tn_folder: path to the trial network folder, ``str``
         """
-        if os.path.exists(tn_folder):
-            shutil.rmtree(tn_folder)
-        else:
-            os.makedirs(tn_folder)
+        os.makedirs(tn_folder)
         self.tn_folder = tn_folder
     
     def set_jenkins_deploy_pipeline(self, jenkins_deploy_pipeline: str) -> None:
