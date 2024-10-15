@@ -13,7 +13,7 @@ class CustomFormatter(logging.Formatter):
     red = "\x1b[31;21m"
     bold_red = "\x1b[31;1m"
     reset = "\x1b[0m"
-    format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    format = "%(asctime)s - %(name)s:%(levelname)s - %(message)s"
 
     FORMATS = {
         logging.DEBUG: grey + format + reset,
@@ -40,7 +40,7 @@ class LogHandler:
         log_file_name = f"execution_{timestamp}.log"
         self.log_file = os.path.join(LOGS_DIRECTORY, log_file_name)
 
-        file_formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        file_formatter = logging.Formatter("%(asctime)s - %(name)s:%(levelname)s - %(message)s")
         file_handler = logging.FileHandler(self.log_file)
         file_handler.setLevel(logging.INFO)
         file_handler.setFormatter(file_formatter)
