@@ -115,7 +115,7 @@ TNLCM is currently able to deploy the following types of components correspondin
 > 
 > | Repository       | Release                                                                                |
 > | ---------------- | -------------------------------------------------------------------------------------- |
-> | OpenNebula       | [v6.10](https://github.com/OpenNebula/one/releases/tag/release-6.10.0)                 |
+> | OpenNebula       | [v6.10](https://github.com/OpenNebula/one/releases/tag/release-6.8.0)                 |
 > | Jenkins          | [v2.462.3](https://github.com/jenkinsci/jenkins/releases/tag/jenkins-2.462.3)          |
 > | MinIO            | [2024-07-04](https://github.com/minio/minio/releases/tag/RELEASE.2024-07-04T14-25-45Z) |
 
