@@ -1,5 +1,7 @@
 const crypto = require("crypto");
-require("/opt/yarn_global/node_modules/dotenv").config({ path: "../../.env" });
+require("/opt/yarn_global/node_modules/dotenv").config({ 
+    path: require("path").resolve(__dirname, "../../.env")
+});
 
 var dbName = process.env.MONGO_DATABASE;
 var dbRootUsername = process.env.ME_CONFIG_MONGODB_ADMINUSERNAME;
