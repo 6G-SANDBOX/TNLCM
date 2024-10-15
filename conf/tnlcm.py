@@ -40,3 +40,7 @@ class TnlcmSettings:
     Explore the documentation on GitHub.\n"""
     "[[6G-SANDBOX] TNLCM](https://github.com/6G-SANDBOX/TNLCM)")
     DOC = False
+
+    TRIAL_NETWORKS_DIRECTORY = os.path.join(os.getcwd(), "core", "trial_networks")
+    if not os.path.exists(TRIAL_NETWORKS_DIRECTORY):
+        os.makedirs(TRIAL_NETWORKS_DIRECTORY)
