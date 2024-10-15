@@ -1,4 +1,6 @@
+import os
 import re
+import shutil
 
 from werkzeug.utils import secure_filename
 from werkzeug.datastructures import FileStorage
@@ -26,6 +28,7 @@ class TrialNetworkModel(Document):
     tn_sorted_descriptor = StringField()
     tn_deployed_descriptor = StringField()
     tn_report = StringField()
+    tn_folder = StringField()
     jenkins_deploy_pipeline = StringField()
     jenkins_destroy_pipeline = StringField()
     deployment_site = StringField()
@@ -126,6 +129,18 @@ class TrialNetworkModel(Document):
             markdown_content = file.read()
         self.tn_report = markdown_content
     
+    def set_tn_folder(self, tn_folder: str) -> None:
+        """
+        Set the trial network folder where all information will save
+
+        :param tn_folder: path to the trial network folder, ``str``
+        """
+        if os.path.exists(tn_folder):
+            shutil.rmtree(tn_folder)
+        else:
+            os.makedirs(tn_folder)
+        self.tn_folder = tn_folder
+    
     def set_jenkins_deploy_pipeline(self, jenkins_deploy_pipeline: str) -> None:
         """
         Set pipeline use to deploy trial network
@@ -179,7 +194,7 @@ class TrialNetworkModel(Document):
 
     def _logical_expression(
         self, 
-        components_types: list[str], 
+        tn_components_types: list[str], 
         bool_expresion: bool, 
         tn_descriptor: dict, 
         component_name: str
@@ -187,7 +202,7 @@ class TrialNetworkModel(Document):
         """
         In case the type is a logical expression. For example: tn_vxlan or vnet
         
-        :param components_types: list of the components that make up the descriptor, ``list[str]``
+        :param tn_components_types: list of the components that make up the descriptor, ``list[str]``
         :param bool_expresion: bool expresion to evaluate, ``bool``
         :param tn_descriptor: trial network sorted descriptor, ``dict``
         :param component_name: component name that is in input part of descriptor, ``str``
@@ -200,7 +215,7 @@ class TrialNetworkModel(Document):
             if component_name == "tn_vxlan" and component_name not in tn_descriptor:
                 cn = "tn_init"
                 part = "tn_init"
-            if part not in components_types:
+            if part not in tn_components_types:
                 raise TrialNetworkInvalidDescriptorError(f"Component '{cn}'. The type '{part}' is not recognized as a valid type.", 422)
             if cn not in tn_descriptor:
                 raise TrialNetworkInvalidDescriptorError(f"Component '{cn}' does not exist in the descriptor", 422)
@@ -219,7 +234,7 @@ class TrialNetworkModel(Document):
     
     def _validate_list_of_networks(
         self, 
-        components_types: list[str], 
+        tn_components_types: list[str], 
         bool_expresion: bool, 
         tn_descriptor: dict, 
         component_list: list[str]
@@ -227,7 +242,7 @@ class TrialNetworkModel(Document):
         """
         Validates a list of networks with logical expression. For example: list[tn_vxlan or vnet]
         
-        :param components_types: list of the components that make up the descriptor, ``list[str]``
+        :param tn_components_types: list of the components that make up the descriptor, ``list[str]``
         :param bool_expresion: boolean expression to evaluate, ``bool``
         :param tn_descriptor: trial network sorted descriptor, ``dict``
         :param component_list: list of components that are in the input part of the descriptor, ``list[str]``
@@ -236,10 +251,10 @@ class TrialNetworkModel(Document):
         for component_name in component_list:
             if not isinstance(component_name, str):
                 raise TrialNetworkInvalidDescriptorError(f"Component name '{component_name}' in the list must be a string", 422)
-            if not self._logical_expression(components_types, bool_expresion, tn_descriptor, component_name):
+            if not self._logical_expression(tn_components_types, bool_expresion, tn_descriptor, component_name):
                 raise TrialNetworkInvalidDescriptorError(f"Component '{component_name}' in the list does not match the type '{bool_expresion}'", 422)
 
-    def validate_descriptor(self, components_types: list[str], input: dict) -> None:
+    def validate_tn_descriptor(self, tn_components_types: list[str], tn_component_inputs: dict) -> None:
         """
         If the descriptor follows the correct scheme
         It starts with trial_network and there is only that key
@@ -257,8 +272,8 @@ class TrialNetworkModel(Document):
         If it is a component
         It is checked the fields that are required_when
 
-        :param components_types: list of the components that make up the descriptor, ``list[str]``
-        :param input: correct input from the 6G-Library, ``dict``
+        :param tn_components_types: list of the components that make up the descriptor, ``list[str]``
+        :param tn_component_inputs: correct component inputs from the 6G-Library, ``dict``
         :raises TrialNetworkInvalidDescriptorError: if the descriptor does not follow the required structure or contains invalid components (error code 422)
         """
         log_handler.info(f"Start validation of the trial network '{self.tn_id}'")
@@ -294,7 +309,7 @@ class TrialNetworkModel(Document):
                     raise TrialNetworkInvalidDescriptorError(f"Entity name field has to be a string between a-z, A-Z, 0-9 or _", 422)
                 if entity_name != f"{component_type}-{custom_name}":
                     raise TrialNetworkInvalidDescriptorError(f"Entity name has to be in the following format: type-name", 422)
-            input_sixg_library_component = input[component_type]
+            input_sixg_library_component = tn_component_inputs[component_type]
             input_descriptor_component = entity_data["input"]
             if input_sixg_library_component:
                 if len(input_sixg_library_component) == 0 and len(input_descriptor_component) > 0:
@@ -316,14 +331,14 @@ class TrialNetworkModel(Document):
                             component_name = input_descriptor_component[input_sixg_library_key]
                             if sixg_library_type.startswith("list[") and sixg_library_type.endswith("]"):
                                 bool_expresion = sixg_library_type[5:-1]
-                                self._validate_list_of_networks(components_types, bool_expresion, tn_descriptor, component_name)
+                                self._validate_list_of_networks(tn_components_types, bool_expresion, tn_descriptor, component_name)
                             else:
-                                if sixg_library_type not in type_mapping and sixg_library_type not in components_types and not self._logical_expression(components_types, sixg_library_type, tn_descriptor, component_name):
+                                if sixg_library_type not in type_mapping and sixg_library_type not in tn_components_types and not self._logical_expression(tn_components_types, sixg_library_type, tn_descriptor, component_name):
                                     raise TrialNetworkInvalidDescriptorError(f"Component '{component_type}'. Unknown type '{sixg_library_type}' for the '{input_sixg_library_key}' field", 422)
                                 if sixg_library_type in type_mapping:
                                     if not isinstance(input_descriptor_component[input_sixg_library_key], type_mapping[sixg_library_type]):
                                         raise TrialNetworkInvalidDescriptorError(f"Component '{component_type}'. Type of the '{input_sixg_library_key}' field must be '{sixg_library_type}'", 422)
-                                elif sixg_library_type in components_types:
+                                elif sixg_library_type in tn_components_types:
                                     if not isinstance(component_name, str):
                                         raise TrialNetworkInvalidDescriptorError(f"Component '{component_type}'. The '{input_sixg_library_key}' field must be a string referring to a component name", 422)
                                     if component_name not in tn_descriptor:
@@ -340,7 +355,7 @@ class TrialNetworkModel(Document):
                                     raise TrialNetworkInvalidDescriptorError(f"Component '{component_type}'. Value of the '{input_sixg_library_key}' field has to be one of then: '{sixg_library_choices}'", 422)
         log_handler.info(f"End validation of the trial network '{self.tn_id}'")
 
-    def get_components_types(self) -> list[str]:
+    def get_tn_components_types(self) -> list[str]:
         """
         Function to get a list with components types that are in the descriptor
 
@@ -390,6 +405,7 @@ class TrialNetworkModel(Document):
             "tn_sorted_descriptor": self.json_to_descriptor(self.tn_sorted_descriptor),
             "tn_deployed_descriptor": self.json_to_descriptor(self.tn_deployed_descriptor),
             "tn_report": self.tn_report,
+            "tn_folder": self.tn_folder,
             "jenkins_deploy_pipeline": self.jenkins_deploy_pipeline,
             "jenkins_destroy_pipeline": self.jenkins_destroy_pipeline,
             "deployment_site": self.deployment_site,

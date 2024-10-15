@@ -1,15 +1,17 @@
+import os
+
 from flask_restx import Namespace, Resource, reqparse, abort
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.datastructures import FileStorage
 from mongoengine.errors import ValidationError, MongoEngineException
 
 from core.auth.auth import get_current_user_from_jwt
+from conf import TnlcmSettings
 from core.callback.callback_handler import CallbackHandler
 from core.jenkins.jenkins_handler import JenkinsHandler
 from core.models import TrialNetworkModel, ResourceManagerModel
 from core.sixg_library.sixg_library_handler import SixGLibraryHandler
 from core.sixg_sandbox_sites.sixg_sandbox_sites_handler import SixGSandboxSitesHandler
-from core.temp.temp_file_handler import TempFileHandler
 
 from core.exceptions.exceptions_handler import CustomException
 
@@ -64,14 +66,16 @@ class CreateTrialNetwork(Resource):
             trial_network.set_tn_id(size=3, tn_id=tn_id)
             trial_network.set_tn_raw_descriptor(tn_descriptor_file)
             trial_network.set_tn_sorted_descriptor()
-            sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type=github_6g_sandbox_sites_reference_type, reference_value=github_6g_sandbox_sites_reference_value)
-            sixg_sandbox_sites_handler.set_deployment_site(deployment_site)
-            trial_network.set_deployment_site(sixg_sandbox_sites_handler.deployment_site)
-            components_types = trial_network.get_components_types()
-            sixg_sandbox_sites_handler.is_components_site(components_types=components_types)
-            sixg_library_handler = SixGLibraryHandler(reference_type=github_6g_library_reference_type, reference_value=github_6g_library_reference_value)
-            input = sixg_library_handler.get_components_parts(site=sixg_sandbox_sites_handler.deployment_site, parts=["input"], components_types=components_types)["input"]
-            trial_network.validate_descriptor(components_types, input)
+            tn_folder = os.path.join(TnlcmSettings.TRIAL_NETWORKS_DIRECTORY, f"{trial_network.tn_id}")
+            trial_network.set_tn_folder(tn_folder)
+            sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type=github_6g_sandbox_sites_reference_type, reference_value=github_6g_sandbox_sites_reference_value, tn_folder=tn_folder)
+            sixg_sandbox_sites_handler.validate_site(deployment_site)
+            trial_network.set_deployment_site(deployment_site)
+            tn_components_types = trial_network.get_tn_components_types()
+            sixg_sandbox_sites_handler.validate_components_site(deployment_site=trial_network.deployment_site, tn_components_types=tn_components_types)
+            sixg_library_handler = SixGLibraryHandler(reference_type=github_6g_library_reference_type, reference_value=github_6g_library_reference_value, tn_folder=tn_folder)
+            tn_component_inputs = sixg_library_handler.get_tn_components_parts(deployment_site=deployment_site, parts=["input"], tn_components_types=tn_components_types)["input"]
+            trial_network.validate_tn_descriptor(tn_components_types, tn_component_inputs)
             trial_network.set_github_6g_library_commit_id(sixg_library_handler.github_6g_library_commit_id)
             trial_network.set_github_6g_sandbox_sites_commit_id(sixg_sandbox_sites_handler.github_6g_sandbox_sites_commit_id)
             trial_network.set_tn_state("validated")
@@ -129,54 +133,46 @@ class TrialNetwork(Resource):
             
             tn_state = trial_network.tn_state
             if tn_state == "validated":
-                temp_file_handler = TempFileHandler()
                 callback_handler = CallbackHandler(trial_network=trial_network)
-                jenkins_handler = JenkinsHandler(trial_network=trial_network, temp_file_handler=temp_file_handler, callback_handler=callback_handler)
-                jenkins_handler.set_jenkins_deploy_pipeline(jenkins_deploy_pipeline)
-                trial_network.set_jenkins_deploy_pipeline(jenkins_handler.jenkins_deploy_pipeline)
+                jenkins_handler = JenkinsHandler(trial_network=trial_network, callback_handler=callback_handler)
+                jenkins_deploy_pipeline = jenkins_handler.validate_jenkins_deploy_pipeline(jenkins_deploy_pipeline)
+                trial_network.set_jenkins_deploy_pipeline(jenkins_deploy_pipeline)
                 trial_network.save()
-                sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type="commit", reference_value=trial_network.github_6g_sandbox_sites_commit_id)
-                sixg_sandbox_sites_handler.set_deployment_site(trial_network.deployment_site)
-                site_available_components = sixg_sandbox_sites_handler.get_site_available_components()
+                sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type="commit", reference_value=trial_network.github_6g_sandbox_sites_commit_id, tn_folder=trial_network.tn_folder)
+                site_available_components = sixg_sandbox_sites_handler.get_site_available_components(deployment_site=trial_network.deployment_site)
                 resource_manager = ResourceManagerModel()
                 resource_manager.apply_resource_manager(trial_network, site_available_components)
-                jenkins_handler.trial_network_deployment()
-                trial_network.set_tn_report(callback_handler.get_path_report_trial_network())
+                jenkins_handler.trial_network_deployment(trial_network.jenkins_deploy_pipeline)
+                trial_network.set_tn_report(callback_handler.get_path_tn_report_markdown())
                 trial_network.set_tn_state("activated")
                 trial_network.save()
                 return {"message": "Trial network activated"}, 200
             elif tn_state == "failed":
-                temp_file_handler = TempFileHandler()
                 callback_handler = CallbackHandler(trial_network=trial_network)
-                jenkins_handler = JenkinsHandler(trial_network=trial_network, temp_file_handler=temp_file_handler, callback_handler=callback_handler)
-                jenkins_handler.set_jenkins_deploy_pipeline(trial_network.jenkins_deploy_pipeline)
-                jenkins_handler.trial_network_deployment()
-                trial_network.set_tn_report(callback_handler.get_path_report_trial_network())
+                jenkins_handler = JenkinsHandler(trial_network=trial_network, callback_handler=callback_handler)
+                jenkins_handler.trial_network_deployment(trial_network.jenkins_deploy_pipeline)
+                trial_network.set_tn_report(callback_handler.get_path_tn_report_markdown())
                 trial_network.set_tn_state("activated")
                 trial_network.save()
                 return {"message": "Trial network activated"}, 200
             elif tn_state == "destroyed":
-                temp_file_handler = TempFileHandler()
                 callback_handler = CallbackHandler(trial_network=trial_network)
-                jenkins_handler = JenkinsHandler(trial_network=trial_network, temp_file_handler=temp_file_handler, callback_handler=callback_handler)
-                jenkins_handler.set_jenkins_deploy_pipeline(trial_network.jenkins_deploy_pipeline)
-                sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type="commit", reference_value=trial_network.github_6g_sandbox_sites_commit_id)
-                sixg_sandbox_sites_handler.set_deployment_site(trial_network.deployment_site)
-                site_available_components = sixg_sandbox_sites_handler.get_site_available_components()
+                jenkins_handler = JenkinsHandler(trial_network=trial_network, callback_handler=callback_handler)
+                sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type="commit", reference_value=trial_network.github_6g_sandbox_sites_commit_id, tn_folder=trial_network.tn_folder)
+                site_available_components = sixg_sandbox_sites_handler.get_site_available_components(deployment_site=trial_network.deployment_site)
                 resource_manager = ResourceManagerModel()
                 resource_manager.apply_resource_manager(trial_network, site_available_components)
-                jenkins_handler.trial_network_deployment()
-                trial_network.set_tn_report(callback_handler.get_path_report_trial_network())
+                jenkins_handler.trial_network_deployment(trial_network.jenkins_deploy_pipeline)
+                trial_network.set_tn_report(callback_handler.get_path_tn_report_markdown())
                 trial_network.set_tn_state("activated")
                 trial_network.save()
                 return {"message": "Trial network activated"}, 200
             elif tn_state == "activated":
                 # TODO: see what to do with trial network resources
-                trial_network.set_tn_state("suspended")
-                trial_network.save()
-                return {"message": "TO BE IMPLEMENTED"}, 400
+                return {"message": "TODO: suspend trial network"}, 400
             else: # tn_state == "suspended"
-                return {"message": "TO BE IMPLEMENTED"}, 400
+                # TODO:
+                return {"message": "TODO: restart trial network suspended"}, 400
         except ValidationError as e:
             return abort(401, e.message)
         except MongoEngineException as e:
@@ -210,13 +206,12 @@ class TrialNetwork(Resource):
             if tn_state != "activated":
                 return abort(400, f"Trial network cannot be destroyed because the current status of Trial Network is different to ACTIVATED")
             callback_handler = CallbackHandler(trial_network=trial_network)
-            sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type="commit", reference_value=trial_network.github_6g_sandbox_sites_commit_id)
-            sixg_sandbox_sites_handler.set_deployment_site(trial_network.deployment_site)
-            sixg_library_handler = SixGLibraryHandler(reference_type="commit", reference_value=trial_network.github_6g_library_commit_id)
-            jenkins_handler = JenkinsHandler(trial_network=trial_network, callback_handler=callback_handler, sixg_library_handler=sixg_library_handler, sixg_sandbox_sites_handler=sixg_sandbox_sites_handler)
-            jenkins_handler.set_jenkins_destroy_pipeline(jenkins_destroy_pipeline)
-            trial_network.set_jenkins_destroy_pipeline(jenkins_handler.jenkins_destroy_pipeline)
-            jenkins_handler.trial_network_destroy()
+            sixg_library_handler = SixGLibraryHandler(reference_type="commit", reference_value=trial_network.github_6g_library_commit_id, tn_folder=trial_network.tn_folder)
+            jenkins_handler = JenkinsHandler(trial_network=trial_network, callback_handler=callback_handler, sixg_library_handler=sixg_library_handler)
+            jenkins_destroy_pipeline = jenkins_handler.validate_jenkins_destroy_pipeline(jenkins_destroy_pipeline=jenkins_destroy_pipeline)
+            trial_network.set_jenkins_destroy_pipeline(jenkins_destroy_pipeline)
+            trial_network.save()
+            jenkins_handler.trial_network_destroy(jenkins_destroy_pipeline=trial_network.jenkins_destroy_pipeline)
             resource_manager = ResourceManagerModel()
             resource_manager.release_resource_manager(trial_network)
             trial_network.set_tn_deployed_descriptor()

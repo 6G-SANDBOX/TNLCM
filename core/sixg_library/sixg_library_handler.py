@@ -7,24 +7,24 @@ from core.logs.log_handler import log_handler
 from core.repository.repository_handler import RepositoryHandler
 from core.exceptions.exceptions_handler import SixGLibraryComponentFolderNotFoundError, InvalidContentFileError, CustomFileNotFoundError
 
-SIXG_LIBRARY_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
-
 class SixGLibraryHandler:
 
     def __init__(
         self, 
         reference_type: str = None, 
-        reference_value: str = None
+        reference_value: str = None,
+        tn_folder: str = None
     ) -> None:
         """
         Constructor
         
         :param reference_type: type of reference (branch, tag, commit) to checkout, ``str``
         :param reference_value: value of the reference (branch name, tag name, commit ID) to checkout, ``str``
+        :param tn_folder: folder into which the 6G-Library is to be cloned, ``str``
         """
         self.github_6g_library_https_url = SixGLibrarySettings.GITHUB_6G_LIBRARY_HTTPS_URL
         self.github_6g_library_repository_name = SixGLibrarySettings.GITHUB_6G_LIBRARY_REPOSITORY_NAME
-        self.github_6g_library_local_directory = os.path.join(SIXG_LIBRARY_DIRECTORY, self.github_6g_library_repository_name)
+        self.github_6g_library_local_directory = os.path.join(tn_folder, self.github_6g_library_repository_name)
         self.github_6g_library_reference_type = reference_type
         self.github_6g_library_reference_value = reference_value
         if reference_type == "branch" and reference_value:
@@ -55,21 +55,21 @@ class SixGLibraryHandler:
         """
         return self.repository_handler.get_branches()
     
-    def get_components_parts(self, site: str, parts: list[str], components_types: list[str]) -> dict:
+    def get_tn_components_parts(self, deployment_site: str, parts: list[str], tn_components_types: list[str]) -> dict:
         """
         Function to traverse component types and return their parts (metadata, inputs and outputs)
         
-        :param site: specific site for which components data is to be retrieved, ``str``
+        :param deployment_site: specific deployment site for which components data is to be retrieved, ``str``
         :param part: list with the indicated part of the component types, ``list[str]``
-        :param components_types: list of the components that make up the descriptor, ``list[str]``
+        :param tn_components_types: list of the components that make up the descriptor, ``list[str]``
         :return components_data: the specified part of the component types, ``dict``
         :raise SixGLibraryComponentFolderNotFoundError: if folder of the component not declared in repository (error code 404)
         :raise CustomFileNotFoundError: if public file not found in component folder (error code 404)
         :raise InvalidContentFileError: if the information in the file is not parsed correctly (error code 422)
         """
-        log_handler.info(f"Get {', '.join(parts)} part(s) of components for a '{site}' site from the 6G-Library")
+        log_handler.info(f"Get {', '.join(parts)} part(s) of components for a '{deployment_site}' deployment site from the 6G-Library")
         components_data = {}
-        for component in components_types:
+        for component in tn_components_types:
             component_path = os.path.join(self.github_6g_library_local_directory, component)
             if not os.path.isdir(component_path):
                 raise SixGLibraryComponentFolderNotFoundError(f"Folder of the component '{component}' is not created in commit '{self.github_6g_library_commit_id}' of 6G-Library", 404)
