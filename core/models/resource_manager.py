@@ -2,7 +2,6 @@ from mongoengine import Document, StringField, IntField
 from mongoengine.errors import ValidationError, MongoEngineException
 from core.exceptions.exceptions_handler import CustomException
 
-from core.logs.log_handler import log_handler
 from core.models.trial_network import TrialNetworkModel
 from core.exceptions.exceptions_handler import NoResourcesAvailable
 
@@ -59,7 +58,6 @@ class ResourceManagerModel(Document):
         :raise NoResourcesAvailable: if the component cannot be deployed on a platform because there are no more resources for that component (error code 400)
         """
         try:
-            log_handler.info("Start apply resource manager")
             tn_descriptor = trial_network.json_to_descriptor(trial_network.tn_sorted_descriptor)["trial_network"]
             for _, entity_data in tn_descriptor.items():
                 component_type = entity_data["type"]
@@ -74,7 +72,6 @@ class ResourceManagerModel(Document):
                     else:
                         tnlcm_component_resources.quantity += 1
                     tnlcm_component_resources.save()
-            log_handler.info("End apply resource manager")
         except ValidationError as e:
             raise CustomException(e.message, 401)
         except MongoEngineException as e:
@@ -87,7 +84,6 @@ class ResourceManagerModel(Document):
         :param trial_network: model of the trial network, ``TrialNetworkModel``
         """
         try:
-            log_handler.info("Start apply release resource manager")
             tn_descriptor = trial_network.json_to_descriptor(trial_network.tn_sorted_descriptor)["trial_network"]
             for _, entity_data in tn_descriptor.items():
                 component_type = entity_data["type"]
@@ -97,7 +93,6 @@ class ResourceManagerModel(Document):
                     if tnlcm_component_resources.quantity == 0:
                         tnlcm_component_resources.delete()
                     tnlcm_component_resources.save()
-            log_handler.info("End release resource manager")
         except ValidationError as e:
             raise CustomException(e.message, 401)
         except MongoEngineException as e:

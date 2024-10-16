@@ -10,7 +10,6 @@ from random import choice
 from datetime import datetime, timezone
 from mongoengine import Document, StringField, DateTimeField
 
-from core.logs.log_handler import log_handler
 from core.exceptions.exceptions_handler import InvalidFileExtensionError, InvalidContentFileError, TrialNetworkInvalidStatusError, TrialNetworkInvalidDescriptorError, TrialNetworkInvalidTnId, TrialNetworkExists
 
 TN_STATE_MACHINE = ["validated", "suspended", "activated", "failed", "destroyed"]
@@ -97,7 +96,6 @@ class TrialNetworkModel(Document):
 
         :raise TrialNetworkInvalidDescriptorError: if the dependency cannot be resolved (error code 404)
         """
-        log_handler.info(f"Start order of the entities of the descriptor '{self.tn_id}'")
         entities = self.json_to_descriptor(self.tn_raw_descriptor)["trial_network"]
         ordered_entities = {}
 
@@ -114,7 +112,6 @@ class TrialNetworkModel(Document):
         for entity in entities:
             dfs(entity)
         
-        log_handler.info(f"End order of the entities of the descriptor '{self.tn_id}'")
         self.tn_sorted_descriptor = self.descriptor_to_json({"trial_network": ordered_entities})
         self.tn_deployed_descriptor = self.descriptor_to_json({"trial_network": ordered_entities})
 
@@ -272,7 +269,6 @@ class TrialNetworkModel(Document):
         :param tn_component_inputs: correct component inputs from the 6G-Library, ``dict``
         :raises TrialNetworkInvalidDescriptorError: if the descriptor does not follow the required structure or contains invalid components (error code 422)
         """
-        log_handler.info(f"Start validation of the trial network '{self.tn_id}'")
         tn_raw_descriptor = self.json_to_descriptor(self.tn_raw_descriptor)
         if len(tn_raw_descriptor.keys()) > 1 or "trial_network" not in tn_raw_descriptor:
             raise TrialNetworkInvalidDescriptorError("Trial network descriptor must start with 'trial_network' key", 422)
@@ -349,7 +345,6 @@ class TrialNetworkModel(Document):
                                 sixg_library_choices = input_sixg_library_value["choices"]
                                 if not input_descriptor_component[input_sixg_library_key] in sixg_library_choices:
                                     raise TrialNetworkInvalidDescriptorError(f"Component '{component_type}'. Value of the '{input_sixg_library_key}' field has to be one of then: '{sixg_library_choices}'", 422)
-        log_handler.info(f"End validation of the trial network '{self.tn_id}'")
 
     def get_tn_components_types(self) -> list[str]:
         """

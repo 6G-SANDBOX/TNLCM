@@ -8,20 +8,27 @@ CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 LOGS_DIRECTORY = os.path.join(CURRENT_DIRECTORY, "executions")
 
 class CustomFormatter(logging.Formatter):
-    grey = "\x1b[38;21m"
-    yellow = "\x1b[33;21m"
-    red = "\x1b[31;21m"
-    bold_red = "\x1b[31;1m"
-    reset = "\x1b[0m"
-    format = "[%(asctime)s] - %(name)s - [%(levelname)s] %(message)s"
+    """
+    Logging colored formatter, adapted from https://stackoverflow.com/a/56944256/3638629
+    """
 
-    FORMATS = {
-        logging.DEBUG: grey + format + reset,
-        logging.INFO: grey + format + reset,
-        logging.WARNING: yellow + format + reset,
-        logging.ERROR: red + format + reset,
-        logging.CRITICAL: bold_red + format + reset
-    }
+    grey = '\x1b[38;21m'
+    blue = '\x1b[38;5;39m'
+    yellow = '\x1b[38;5;226m'
+    red = '\x1b[38;5;196m'
+    bold_red = '\x1b[31;1m'
+    reset = '\x1b[0m'
+
+    def __init__(self, fmt):
+        super().__init__()
+        self.fmt = fmt
+        self.FORMATS = {
+            logging.DEBUG: self.grey + self.fmt + self.reset,
+            logging.INFO: self.blue + self.fmt + self.reset,
+            logging.WARNING: self.yellow + self.fmt + self.reset,
+            logging.ERROR: self.red + self.fmt + self.reset,
+            logging.CRITICAL: self.bold_red + self.fmt + self.reset
+        }
 
     def format(self, record):
         log_fmt = self.FORMATS.get(record.levelno)
@@ -29,7 +36,7 @@ class CustomFormatter(logging.Formatter):
         return formatter.format(record)
 
 class LogHandler:
-    def __init__(self, loggers):
+    def __init__(self):
         self.log_file = None
         self.logger = None
 
@@ -37,32 +44,25 @@ class LogHandler:
 
         now = datetime.now()
         timestamp = now.strftime("%Y-%m-%d_%H-%M-%S")
-        log_file_name = f"execution_{timestamp}.log"
+        log_file_name = f"tnlcm_{timestamp}.log"
+        log_format = "[%(asctime)s] - [%(process)d] - %(name)s - [%(levelname)s] %(message)s"
         self.log_file = os.path.join(LOGS_DIRECTORY, log_file_name)
 
-        file_formatter = logging.Formatter("[%(asctime)s] -%(name)s - [%(levelname)s] %(message)s")
+        file_formatter = logging.Formatter(log_format)
         file_handler = logging.FileHandler(self.log_file)
         file_handler.setLevel(logging.INFO)
         file_handler.setFormatter(file_formatter)
 
-        console_formatter = CustomFormatter()
+        console_formatter = CustomFormatter(log_format)
         console_handler = logging.StreamHandler(sys.stdout)
         console_handler.setLevel(logging.INFO)
         console_handler.setFormatter(console_formatter)
 
-        self.logger = logging.getLogger("tnlcm")
+        self.logger = logging.getLogger("TNLCM")
         self.logger.propagate = False
         self.logger.setLevel(logging.INFO)
         self.logger.addHandler(file_handler)
         self.logger.addHandler(console_handler)
-
-        for log in loggers:
-            if log != "waitress" and log != "werkzeug":
-                log_libraries = logging.getLogger(log)
-                log_libraries.propagate = False
-                log_libraries.setLevel(logging.INFO)
-                log_libraries.addHandler(file_handler)
-                log_libraries.addHandler(console_handler)
 
     def info(self, message):
         if self.logger:
@@ -81,4 +81,4 @@ class LogHandler:
         self.logger = None
         self.log_file = None
 
-log_handler = LogHandler(["waitress", "werkzeug"])
+log_handler = LogHandler()

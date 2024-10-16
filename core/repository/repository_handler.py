@@ -3,7 +3,6 @@ import os
 from git import Repo
 from git.exc import InvalidGitRepositoryError, GitCommandError
 
-from core.logs.log_handler import log_handler
 from core.exceptions.exceptions_handler import GitCloneError, GitCheckoutError
 
 class RepositoryHandler:
@@ -47,7 +46,6 @@ class RepositoryHandler:
         """
         try:
             if not os.path.exists(self.github_local_directory) or not os.path.exists(os.path.join(self.github_local_directory, ".git")):
-                log_handler.info(f"Clone '{self.github_repository_name}' repository into '{self.github_local_directory}'")
                 self.repo = Repo.clone_from(self.github_https_url, self.github_local_directory)
             else:
                 self.repo = Repo(self.github_local_directory)
@@ -63,7 +61,6 @@ class RepositoryHandler:
         try:
             if not self.repo:
                 raise GitCheckoutError(f"Clone repository '{self.github_repository_name}' first", 404)
-            log_handler.info(f"Apply checkout to '{self.github_reference_type}' '{self.github_reference_value}' of '{self.github_repository_name}' repository")
             self.repo.git.checkout(self.github_reference_value, "--")
             if self.github_reference_type != "commit":
                 self.github_commit_id = self.repo.head.commit.hexsha

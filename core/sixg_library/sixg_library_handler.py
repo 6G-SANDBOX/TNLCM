@@ -3,7 +3,6 @@ import os
 from yaml import safe_load, YAMLError
 
 from conf import SixGLibrarySettings
-from core.logs.log_handler import log_handler
 from core.repository.repository_handler import RepositoryHandler
 from core.exceptions.exceptions_handler import SixGLibraryComponentFolderNotFoundError, InvalidContentFileError, CustomFileNotFoundError
 
@@ -80,7 +79,6 @@ class SixGLibraryHandler:
         :raise CustomFileNotFoundError: if public file not found in component folder (error code 404)
         :raise InvalidContentFileError: if the information in the file is not parsed correctly (error code 422)
         """
-        log_handler.info(f"Get {', '.join(parts)} part(s) of components for a '{deployment_site}' deployment site from the 6G-Library")
         components_data = {}
         for component in tn_components_types:
             component_path = os.path.join(self.github_6g_library_local_directory, component)

@@ -134,10 +134,11 @@ class SixGSandboxSitesHandler():
         """
         return [site for site in os.listdir(self.github_6g_sandbox_sites_local_directory) if not site.startswith(".") and os.path.isdir(os.path.join(self.github_6g_sandbox_sites_local_directory, site))]
     
-    def validate_components_site(self, deployment_site: str, tn_components_types: list[str]) -> None:
+    def validate_components_site(self, tn_id: str, deployment_site: str, tn_components_types: list[str]) -> None:
         """
         Function to check if components in the descriptor are in the site
 
+        :param tn_id: trial network identifier, ``str``
         :param deployment_site: trial network deployment site, ``str``
         :param tn_components_types: list of components that compose the descriptor, ``list[str]``
         :raise SixGSandboxSitesComponentsNotFoundError: if the component specified in the descriptor is not in the deployment site (error code 404)
@@ -147,4 +148,4 @@ class SixGSandboxSitesHandler():
         for component in tn_components_types:
             if component not in list_site_available_components:
                 raise SixGSandboxSitesComponentsNotFoundError(f"Component '{component}' entered in descriptor file not found in '{deployment_site}' site", 404)
-            log_handler.info(f"Component type '{component}' is on '{deployment_site}' site")
+            log_handler.info(f"[{tn_id}] - Component type '{component}' is on '{deployment_site}' site")
