@@ -36,7 +36,6 @@ class CallbackHandler:
         :raises CustomUnicodeDecodeError: if there is a Unicode decoding error during data processing (error code 401)
         """
         try:
-            log_handler.info("Save entity deployment results received by Jenkins")
             missing_keys = [key for key in JENKINS_RESULT_KEYS if key not in self.data]
             if missing_keys:
                 raise KeyNotFoundError(f"Missing keys: {', '.join(missing_keys)}", 400)
@@ -59,6 +58,8 @@ class CallbackHandler:
             output_jenkins = decoded_data["output"]
             markdown = decoded_data["markdown"]
             
+            log_handler.info(f"[{tn_id}] - Save entity deployment results received by Jenkins")
+
             if success == "true":
                 if not self._is_output_correct(tn_id, output_jenkins, component_type):
                     raise InvalidContentFileError("Output received by Jenkins does not match output from the 6G-Library", 500)
@@ -78,7 +79,7 @@ class CallbackHandler:
             with open(path_tn_report_markdown, "a") as tn_report:
                 tn_report.write(markdown + "\n")
 
-            log_handler.info(f"'Markdown' of the '{entity_name}' entity save in the report file '{tn_report_markdown}' located in the path '{path_tn_report_markdown}'")               
+            log_handler.info(f"[{tn_id}] - 'Markdown' of the '{entity_name}' entity save in the report file '{tn_report_markdown}' located in the path '{path_tn_report_markdown}'")               
         except UnicodeDecodeError:
             raise CustomUnicodeDecodeError("Unicode decoding error", 401)
 
@@ -131,5 +132,4 @@ class CallbackHandler:
         :param entity_name: component type-name, ``str``
         :return: True if the entity file exists. Otherwise False, ``bool``
         """
-        log_handler.info(f"Check whether the file of the '{entity_name}' entity has been created")
         return os.path.exists(os.path.join(f"{self.trial_network.tn_folder}", f"{self.trial_network.tn_id}-{entity_name}.json"))
