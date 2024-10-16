@@ -131,6 +131,8 @@ class TrialNetworkModel(Document):
 
         :param tn_folder: path to the trial network folder, ``str``
         """
+        if os.path.exists(tn_folder):
+            raise TrialNetworkExists(f"Folder '{tn_folder}' already exists", 409)
         os.makedirs(tn_folder)
         self.tn_folder = tn_folder
     

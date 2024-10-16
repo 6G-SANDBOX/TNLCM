@@ -149,7 +149,9 @@ class TrialNetwork(Resource):
         State Machine: play or suspend trial network
         If nothing is specified in jenkins_deploy_pipeline, the **TN_DEPLOY** pipeline of Jenkins will be used.
         """
-        try:            
+        try:
+            jenkins_deploy_pipeline = self.parser_put.parse_args()["jenkins_deploy_pipeline"]
+
             current_user = get_current_user_from_jwt(get_jwt_identity())
             if current_user.role == "admin":
                 trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
@@ -162,7 +164,7 @@ class TrialNetwork(Resource):
             if tn_state == "validated":
                 callback_handler = CallbackHandler(trial_network=trial_network)
                 jenkins_handler = JenkinsHandler(trial_network=trial_network, callback_handler=callback_handler)
-                jenkins_deploy_pipeline = jenkins_handler.generate_jenkins_deploy_pipeline()
+                jenkins_deploy_pipeline = jenkins_handler.generate_jenkins_deploy_pipeline(jenkins_deploy_pipeline)
                 trial_network.set_jenkins_deploy_pipeline(jenkins_deploy_pipeline)
                 trial_network.save()
                 log_handler.info(f"[{trial_network.tn_id}] - Created '{trial_network.jenkins_deploy_pipeline}' pipeline in Jenkins to deploy the trial network")
@@ -180,7 +182,7 @@ class TrialNetwork(Resource):
                 trial_network.set_tn_state("activated")
                 trial_network.save()
                 log_handler.info(f"[{trial_network.tn_id}] - Trial network update to status '{trial_network.tn_state}'")
-                return {"message": f"Trial network activated. Report of the trial network can be found in the directory '{trial_network.tn_folder}'/'{trial_network.tn_id}'.md"}, 200
+                return {"message": f"Trial network activated. Report of the trial network can be found in the directory '{trial_network.tn_folder}/{trial_network.tn_id}'.md"}, 200
             elif tn_state == "failed":
                 callback_handler = CallbackHandler(trial_network=trial_network)
                 jenkins_handler = JenkinsHandler(trial_network=trial_network, callback_handler=callback_handler)
@@ -192,7 +194,7 @@ class TrialNetwork(Resource):
                 trial_network.set_tn_state("activated")
                 trial_network.save()
                 log_handler.info(f"[{trial_network.tn_id}] - Trial network update to status '{trial_network.tn_state}'")
-                return {"message": f"Trial network activated. Report of the trial network can be found in the directory '{trial_network.tn_folder}'/'{trial_network.tn_id}'.md"}, 200
+                return {"message": f"Trial network activated. Report of the trial network can be found in the directory '{trial_network.tn_folder}/{trial_network.tn_id}'.md"}, 200
             elif tn_state == "destroyed":
                 callback_handler = CallbackHandler(trial_network=trial_network)
                 jenkins_handler = JenkinsHandler(trial_network=trial_network, callback_handler=callback_handler)
@@ -210,7 +212,7 @@ class TrialNetwork(Resource):
                 trial_network.set_tn_state("activated")
                 trial_network.save()
                 log_handler.info(f"[{trial_network.tn_id}] - Trial network update to status '{trial_network.tn_state}'")
-                return {"message": f"Trial network activated. Report of the trial network can be found in the directory '{trial_network.tn_folder}'/'{trial_network.tn_id}'.md"}, 200
+                return {"message": f"Trial network activated. Report of the trial network can be found in the directory '{trial_network.tn_folder}/{trial_network.tn_id}'.md"}, 200
             elif tn_state == "activated":
                 # TODO: see what to do with trial network resources
                 return {"message": "TODO: suspend trial network"}, 400
@@ -253,7 +255,7 @@ class TrialNetwork(Resource):
             sixg_library_handler = SixGLibraryHandler(reference_type="commit", reference_value=trial_network.github_6g_library_commit_id, tn_folder=trial_network.tn_folder)
             jenkins_handler = JenkinsHandler(trial_network=trial_network, callback_handler=callback_handler, sixg_library_handler=sixg_library_handler)
             log_handler.info(f"[{trial_network.tn_id}] - Validate pipeline use for destroy trial network '{jenkins_destroy_pipeline}'")
-            jenkins_destroy_pipeline = jenkins_handler.validate_jenkins_destroy_pipeline(jenkins_destroy_pipeline=jenkins_destroy_pipeline)
+            jenkins_destroy_pipeline = jenkins_handler.generate_jenkins_destroy_pipeline(jenkins_destroy_pipeline=jenkins_destroy_pipeline)
             trial_network.set_jenkins_destroy_pipeline(jenkins_destroy_pipeline)
             trial_network.save()
             log_handler.info(f"[{trial_network.tn_id}] - Pipeline for destroy trial network '{trial_network.jenkins_destroy_pipeline}' is valid")

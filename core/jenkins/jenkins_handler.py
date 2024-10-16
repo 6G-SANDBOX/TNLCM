@@ -43,21 +43,31 @@ class JenkinsHandler:
         except RequestException:
             raise JenkinsConnectionError("Error establishing connection with Jenkins", 500)
 
-    def generate_jenkins_deploy_pipeline(self) -> str:
+    def generate_jenkins_deploy_pipeline(self, jenkins_deploy_pipeline:str) -> str:
         """
         Generate deployment pipeline per trial network
 
+        :param jenkins_deploy_pipeline: new name of the deployment pipeline, ``str``
         :return: pipeline use for deploy trial network, ``str``
         :raises JenkinsInvalidPipelineError: if pipeline received by parameter is not defined in Jenkins (error code 404)
         """
-        tn_deploy_pipeline = JenkinsSettings.JENKINS_DEPLOY_PIPELINE
-        if tn_deploy_pipeline not in self.get_all_pipelines():
-            raise JenkinsInvalidPipelineError(f"The 'jenkins_deploy_pipeline' should be one: {', '.join(self.get_all_pipelines())}", 404)
-        tn_new_deploy_pipeline = f"{tn_deploy_pipeline}_{self.trial_network.tn_id}"
-        config_tn_deploy_pipeline = self.jenkins_client.get_job_config(tn_deploy_pipeline)
-        config_tn_new_deploy_pipeline = config_tn_deploy_pipeline.replace(tn_deploy_pipeline, tn_new_deploy_pipeline)
-        self.jenkins_client.create_job(tn_new_deploy_pipeline, config_tn_new_deploy_pipeline)
-        return tn_new_deploy_pipeline
+        if not jenkins_deploy_pipeline:
+            tn_deploy_pipeline = JenkinsSettings.JENKINS_DEPLOY_PIPELINE
+            if tn_deploy_pipeline not in self.get_all_pipelines():
+                raise JenkinsInvalidPipelineError(f"The 'jenkins_deploy_pipeline' should be one: {', '.join(self.get_all_pipelines())}", 404)
+            tn_jenkins = self.trial_network.tn_id
+            self.jenkins_client.create_folder(tn_jenkins)
+            tn_new_deploy_pipeline = f"{tn_deploy_pipeline}_{tn_jenkins}"
+            config_tn_deploy_pipeline = self.jenkins_client.get_job_config(tn_deploy_pipeline)
+            config_tn_new_deploy_pipeline = config_tn_deploy_pipeline.replace(tn_deploy_pipeline, tn_new_deploy_pipeline)
+            config_tn_new_deploy_pipeline = config_tn_new_deploy_pipeline.replace(f"{tn_new_deploy_pipeline}.groovy", f"{tn_deploy_pipeline}.groovy")
+            tn_jenkins_deploy_path = f"{tn_jenkins}/{tn_new_deploy_pipeline}"
+            self.jenkins_client.create_job(tn_jenkins_deploy_path, config_tn_new_deploy_pipeline)
+            return tn_jenkins_deploy_path
+        else:
+            if jenkins_deploy_pipeline not in self.get_all_pipelines():
+                raise JenkinsInvalidPipelineError(f"The 'jenkins_deploy_pipeline' should be one: {', '.join(self.get_all_pipelines())}", 404)
+            return jenkins_deploy_pipeline
     
     def _create_entity_name_input_file(self, entity_name: str, content: dict) -> str:
         """
@@ -69,7 +79,7 @@ class JenkinsHandler:
         """
         log_handler.info(f"[{self.trial_network.tn_id}] - Create input file for entity '{entity_name}' to send to Jenkins pipeline")
         path_entity_name_input_file = os.path.join(self.trial_network.tn_folder, f"{self.trial_network.tn_id}-{entity_name}.yaml")
-        with open(path_entity_name_input_file, 'w') as yaml_file:
+        with open(path_entity_name_input_file, "w") as yaml_file:
             dump(content, yaml_file, default_flow_style=False)
         return path_entity_name_input_file
 
@@ -117,7 +127,7 @@ class JenkinsHandler:
             debug = False
             if "debug" in entity_data:
                 debug = entity_data["debug"]
-            log_handler.info(f"[{self.trial_network.tn_id}] - Start the deployment of the '{entity_name}' entity")
+            log_handler.info(f"[{self.trial_network.tn_id}] - Start deployment of the '{entity_name}' entity")
             path_entity_name_input_file = self._create_entity_name_input_file(entity_name, entity_data["input"])
             with open(path_entity_name_input_file, "rb") as entity_name_input_file:
                 file = {"FILE": (path_entity_name_input_file, entity_name_input_file)}
@@ -129,12 +139,12 @@ class JenkinsHandler:
                     self.trial_network.set_tn_state("failed")
                     self.trial_network.save()
                     raise JenkinsResponseError(f"Error in the response received by Jenkins when trying to deploy the '{entity_name}' entity", response.status_code)
-                last_build_number = self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["nextBuildNumber"]
+                next_build_number = self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["nextBuildNumber"]
                 while not self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["lastCompletedBuild"]:
                     sleep(15)
-                while last_build_number != self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["lastCompletedBuild"]["number"]:
+                while next_build_number != self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["lastCompletedBuild"]["number"]:
                     sleep(15)
-                if self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["lastSuccessfulBuild"]["number"] != last_build_number:
+                if self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["lastSuccessfulBuild"]["number"] != next_build_number:
                     self.trial_network.set_tn_state("failed")
                     self.trial_network.save()
                     raise JenkinsComponentPipelineError(f"Pipeline for the entity '{entity_name}' has failed", 500)
@@ -148,19 +158,30 @@ class JenkinsHandler:
             self.trial_network.save()
             log_handler.info(f"[{self.trial_network.tn_id}] - End of deployment of entity '{entity_name}'")
 
-    def validate_jenkins_destroy_pipeline(self, jenkins_destroy_pipeline: str) -> str:
+    def generate_jenkins_destroy_pipeline(self, jenkins_destroy_pipeline: str) -> str:
         """
-        Set destroy pipeline name in case of is correct pipeline
+        Generate destroy pipeline per trial network
 
         :param jenkins_destroy_pipeline: new name of the destroy pipeline, ``str``
-        :return: pipeline use for destroy trial network, ``str``
+        :return: pipeline use for deploy trial network, ``str``
         :raises JenkinsInvalidPipelineError: if pipeline received by parameter is not defined in Jenkins (error code 404)
         """
         if not jenkins_destroy_pipeline:
-            return JenkinsSettings.JENKINS_DESTROY_PIPELINE
-        if jenkins_destroy_pipeline and jenkins_destroy_pipeline not in self.get_all_pipelines():
-            raise JenkinsInvalidPipelineError(f"The 'jenkins_destroy_pipeline' should be one: {', '.join(self.get_all_pipelines())}", 404)
-        return jenkins_destroy_pipeline
+            tn_destroy_pipeline = JenkinsSettings.JENKINS_DESTROY_PIPELINE
+            if tn_destroy_pipeline not in self.get_all_pipelines():
+                raise JenkinsInvalidPipelineError(f"The 'jenkins_destroy_pipeline' should be one: {', '.join(self.get_all_pipelines())}", 404)
+            tn_jenkins = self.trial_network.tn_id
+            tn_new_destroy_pipeline = f"{tn_destroy_pipeline}_{tn_jenkins}"
+            config_tn_destroy_pipeline = self.jenkins_client.get_job_config(tn_destroy_pipeline)
+            config_tn_new_destroy_pipeline = config_tn_destroy_pipeline.replace(tn_destroy_pipeline, tn_new_destroy_pipeline)
+            config_tn_new_destroy_pipeline = config_tn_new_destroy_pipeline.replace(f"{tn_new_destroy_pipeline}.groovy", f"{tn_destroy_pipeline}.groovy")
+            tn_jenkins_deploy_path = f"{tn_jenkins}/{tn_new_destroy_pipeline}"
+            self.jenkins_client.create_job(tn_jenkins_deploy_path, config_tn_new_destroy_pipeline)
+            return tn_jenkins_deploy_path
+        else:
+            if jenkins_destroy_pipeline not in self.get_all_pipelines():
+                raise JenkinsInvalidPipelineError(f"The 'jenkins_destroy_pipeline' should be one: {', '.join(self.get_all_pipelines())}", 404)
+            return jenkins_destroy_pipeline
 
     def _jenkins_destroy_parameters(self) -> dict:
         """
