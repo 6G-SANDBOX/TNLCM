@@ -71,7 +71,7 @@ class CallbackHandler:
                 dump(decoded_data, entity_file)
             
             entity_name = f"{component_type}-{custom_name}" if custom_name != "None" else component_type
-            log_handler.info(f"Information of the '{entity_name}' entity save in the file '{entity_name_json}' located in the path '{path_entity_name_json}'")
+            log_handler.info(f"[{tn_id}] - Information of the '{entity_name}' entity save in the file '{entity_name_json}' located in the path '{path_entity_name_json}'")
 
             tn_report_markdown = f"{tn_id}.md"
             path_tn_report_markdown = os.path.join(TnlcmSettings.TRIAL_NETWORKS_DIRECTORY, tn_id, tn_report_markdown)
@@ -95,7 +95,6 @@ class CallbackHandler:
         :raises InvalidContentFileError: if the public file is not parsed correctly (error code 422)
         :raises KeyNotFoundError: if the 'output' key is missing from the public file (error code 404)
         """
-        log_handler.info("Check if output received by Jenkins is the same as the output of the 6G-Library")
         public_file = os.path.join(TnlcmSettings.TRIAL_NETWORKS_DIRECTORY, tn_id, SixGLibrarySettings.GITHUB_6G_LIBRARY_REPOSITORY_NAME, component_type, ".tnlcm", "public.yaml")
         if not os.path.exists(public_file):
             raise CustomFileNotFoundError(f"File '{public_file}' not found", 404)
