@@ -108,7 +108,7 @@ TNLCM is currently able to deploy the following types of components correspondin
 ## :rocket: Getting Started Locally
 
 > [!NOTE]
-> TNLCM is being developed and tested on Ubuntu in version 22.04 LTS.
+> TNLCM is being developed and tested on Ubuntu in version 24.04 LTS.
 
 > [!IMPORTANT]
 > TNLCM requires the prior installation of:
@@ -122,18 +122,21 @@ TNLCM is currently able to deploy the following types of components correspondin
 > [!TIP]
 > Additionally, TNLCM depends on:
 >
-> | Repository       | Branch                                                        | Release                                                             |
-> | ---------------- | ------------------------------------------------------------- | ------------------------------------------------------------------- |
-> | 6G-Library       | -                                                             | [v0.3.0](https://github.com/6G-SANDBOX/6G-Library/tree/v0.3.0)      |
-> | 6G-Sandbox-Sites | [platform](https://github.com/6G-SANDBOX/6G-Sandbox-Sites)    | -                                                                   |
+> | Repository       | Branch                                                        | Release                                                                   |
+> | ---------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------- |
+> | 6G-Library       | -                                                             | [v0.3.0](https://github.com/6G-SANDBOX/6G-Library/releases/tag/v0.3.0)    |
+> | 6G-Sandbox-Sites | [platform](https://github.com/6G-SANDBOX/6G-Sandbox-Sites)    | -                                                                         |
 
 ### :inbox_tray: Download the installation script
 
-Download the installation script which is [deploy_vm.sh](../scripts/deploy_vm.sh) and is located in the scripts folder.
+Download the installation script which is [deploy_vm.sh](../scripts/deploy_vm.sh) and is located in the `scripts` folder.
 
 ### :gear: Configure environment variables
 
-Update the script and add the contents of the following variables (there is a comment with a **TODO**):
+Update the script and add the contents of the following variables:
+
+> [!NOTE]
+> There is a comment with a **TODO** in the script.
 
 - `TNLCM_ADMIN_USER`
 - `TNLCM_ADMIN_PASSWORD`
@@ -169,7 +172,7 @@ A MongoDB dashboard will be available at the url http://mongo-express-ip:8081 wh
 ### :snake: Start server
 
 ```bash
-python app.py
+gunicorn -c conf/gunicorn.conf.py
 ```
 
 A Swagger UI will be available at the url http://tnlcm-backend-ip:5000 where the API with the endpoints can be seen.

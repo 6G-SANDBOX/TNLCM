@@ -12,4 +12,4 @@ COPY . .
 
 ENV GIT_PYTHON_REFRESH=quiet
 
-CMD ["/python-docker/venv/bin/python", "-u", "app.py"]
+CMD ["/python-docker/venv/bin/gunicorn", "-c", "conf/gunicorn.conf.py"]

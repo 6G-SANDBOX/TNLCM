@@ -117,8 +117,8 @@ Description=mongo-express
 
 [Service]
 Type=simple
-WorkingDirectory=/root/workspace/mongo-express-v1.0.2
-ExecStart=/bin/bash -ac 'source /root/workspace/TNLCM/.env && yarn start'
+WorkingDirectory=${MONGO_EXPRESS_FOLDER}
+ExecStart=/bin/bash -ac 'source ${TNLCM_ENV_FILE} && yarn start'
 Restart=always
 
 [Install]

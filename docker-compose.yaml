@@ -32,7 +32,7 @@ services:
     container_name: tnlcm
     image: tnlcm:0.3.2
     ports:
-      - 5000:5000
+      - ${TNLCM_PORT}:${TNLCM_PORT}
     build: 
       context: .
       dockerfile: docker/flask/Dockerfile
