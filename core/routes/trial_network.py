@@ -5,6 +5,7 @@ from flask_restx import Namespace, Resource, reqparse, abort
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.datastructures import FileStorage
 from mongoengine.errors import ValidationError, MongoEngineException
+from jenkins import JenkinsException
 
 from core.logs.log_handler import log_handler
 from core.auth.auth import get_current_user_from_jwt
@@ -146,8 +147,9 @@ class TrialNetwork(Resource):
     @trial_network_namespace.expect(parser_put)
     def put(self, tn_id: str) -> tuple[dict, int]:
         """
-        State Machine: play or suspend trial network
-        If nothing is specified in jenkins_deploy_pipeline, the **TN_DEPLOY** pipeline of Jenkins will be used.
+        STATE MACHINE: play or suspend trial network
+        If nothing is specified in jenkins_deploy_pipeline, a pipeline will be created inside TNLCM folder in Jenkins with the name **TN_DEPLOY_<tn_id>**
+        If a deployment pipeline is specified, it will be checked that it exists in Jenkins and that it has nothing queued to execute
         """
         try:
             jenkins_deploy_pipeline = self.parser_put.parse_args()["jenkins_deploy_pipeline"]
@@ -223,6 +225,8 @@ class TrialNetwork(Resource):
             return abort(401, e.message)
         except MongoEngineException as e:
             return abort(401, str(e))
+        except JenkinsException as e:
+            return abort(401, str(e))
         except CustomException as e:
             return abort(e.error_code, str(e))
 
@@ -235,7 +239,8 @@ class TrialNetwork(Resource):
     def delete(self, tn_id: str) -> tuple[dict, int]:
         """
         Delete trial network
-        If nothing is specified in jenkins_destroy_pipeline, the **TN_DESTROY** pipeline of Jenkins will be used.
+        If nothing is specified in jenkins_destroy_pipeline, a pipeline will be created inside TNLCM folder in Jenkins with the name **TN_DESTROY_<tn_id>**
+        If a destroy pipeline is specified, it will be checked that it exists in Jenkins and that it has nothing queued to execute
         """
         try:
             jenkins_destroy_pipeline = self.parser_delete.parse_args()["jenkins_destroy_pipeline"]
@@ -275,6 +280,8 @@ class TrialNetwork(Resource):
         except ValidationError as e:
             return abort(401, e.message)
         except MongoEngineException as e:
+            return abort(401, str(e))
+        except JenkinsException as e:
             return abort(401, str(e))
         except CustomException as e:
             return abort(e.error_code, str(e))

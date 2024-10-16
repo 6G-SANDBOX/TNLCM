@@ -31,9 +31,9 @@ class CallbackHandler:
         """
         Save decoded deployment information of each component received by Jenkins
         
-        :raises KeyNotFoundError: if any required key is missing in the received data (error code 400)
-        :raises InvalidContentFileError: if the output from Jenkins does not match the expected output defined in 6G-Library (error code 500)
-        :raises CustomUnicodeDecodeError: if there is a Unicode decoding error during data processing (error code 401)
+        :raises KeyNotFoundError:
+        :raises InvalidContentFileError:
+        :raises CustomUnicodeDecodeError:
         """
         try:
             missing_keys = [key for key in JENKINS_RESULT_KEYS if key not in self.data]
@@ -91,9 +91,9 @@ class CallbackHandler:
         :param output_jenkins: data received by Jenkins, ``dict``
         :param component_type: data expected to be received indicated by the 6G-Library, ``dict``
         :return: True if output received by Jenkins is the same as the output defined in 6G-Library. Otherwise False, ``bool``
-        :raises CustomFileNotFoundError: if the public file for the component type is not found (error code 404)
-        :raises InvalidContentFileError: if the public file is not parsed correctly (error code 422)
-        :raises KeyNotFoundError: if the 'output' key is missing from the public file (error code 404)
+        :raises CustomFileNotFoundError:
+        :raises InvalidContentFileError:
+        :raises KeyNotFoundError:
         """
         public_file = os.path.join(TnlcmSettings.TRIAL_NETWORKS_DIRECTORY, tn_id, SixGLibrarySettings.GITHUB_6G_LIBRARY_REPOSITORY_NAME, component_type, ".tnlcm", "public.yaml")
         if not os.path.exists(public_file):
@@ -117,7 +117,7 @@ class CallbackHandler:
         Function to check if the Trial Network report has been saved
 
         :return: path where report of trial network is stored, ``str``
-        :raises CustomFileNotFoundError: if the trial network report file is not found (error code 404)
+        :raises CustomFileNotFoundError:
         """
         path_tn_report_markdown = os.path.join(f"{self.trial_network.tn_folder}", f"{self.trial_network.tn_id}.md")
         if not os.path.exists(path_tn_report_markdown):

@@ -2,6 +2,7 @@ from flask import request
 from datetime import timedelta
 from flask_restx import Resource, Namespace, abort
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, create_refresh_token
+from mongoengine.errors import ValidationError, MongoEngineException
 
 from core.auth.auth import get_current_user_from_jwt
 from core.models import UserModel
@@ -37,6 +38,10 @@ class User(Resource):
         try:
             current_user = get_current_user_from_jwt(get_jwt_identity())
             return current_user.to_dict(), 200
+        except ValidationError as e:
+            return abort(401, e.message)
+        except MongoEngineException as e:
+            return abort(401, str(e))
         except CustomException as e:
             return abort(e.error_code, str(e))
 
@@ -65,6 +70,10 @@ class UserLogin(Resource):
                     "refresh_token": refresh_token
                 }, 201
             return abort(401, f"Could not verify user '{auth.username}'")
+        except ValidationError as e:
+            return abort(401, e.message)
+        except MongoEngineException as e:
+            return abort(401, str(e))
         except CustomException as e:
             return abort(e.error_code, str(e))
 
@@ -83,5 +92,9 @@ class UserTokenRefresh(Resource):
                 abort(404, "User not found")
             new_access_token = create_access_token(identity=current_user, expires_delta=timedelta(minutes=EXP_MINUTES_ACCESS_TOKEN))
             return {"access_token": new_access_token}, 200
+        except ValidationError as e:
+            return abort(401, e.message)
+        except MongoEngineException as e:
+            return abort(401, str(e))
         except CustomException as e:
             return abort(e.error_code, str(e))

@@ -77,8 +77,8 @@ class TrialNetworkModel(Document):
         Set the trial network raw descriptor from a file.
         
         :param tn_descriptor_file: descriptor file containing YAML data, ``FileStorage``
-        :raises InvalidFileExtensionError: if the file extension is not 'yml' or 'yaml' (error code 422)
-        :raises InvalidContentFileError: if there is an error parsing the YAML content (error code 422)
+        :raises InvalidFileExtensionError:
+        :raises InvalidContentFileError:
         """
         try:
             filename = secure_filename(tn_descriptor_file.filename)
@@ -202,7 +202,7 @@ class TrialNetworkModel(Document):
         :param tn_descriptor: trial network sorted descriptor, ``dict``
         :param component_name: component name that is in input part of descriptor, ``str``
         :return: result of evaluating whether the component type matches the logical expression, ``bool``
-        :raises TrialNetworkInvalidDescriptorError: if the component is not recognized, does not exist in the descriptor or does not have a valid 'type' field (error code 422)
+        :raises TrialNetworkInvalidDescriptorError:
         """
         def eval_part(part: str) -> bool:
             part = part.strip()
@@ -241,7 +241,7 @@ class TrialNetworkModel(Document):
         :param bool_expresion: boolean expression to evaluate, ``bool``
         :param tn_descriptor: trial network sorted descriptor, ``dict``
         :param component_list: list of components that are in the input part of the descriptor, ``list[str]``
-        :raises TrialNetworkInvalidDescriptorError: if the component name is not a string or does not match the expected type (error code 422)
+        :raises TrialNetworkInvalidDescriptorError:
         """
         for component_name in component_list:
             if not isinstance(component_name, str):
@@ -269,7 +269,7 @@ class TrialNetworkModel(Document):
 
         :param tn_components_types: list of the components that make up the descriptor, ``list[str]``
         :param tn_component_inputs: correct component inputs from the 6G-Library, ``dict``
-        :raises TrialNetworkInvalidDescriptorError: if the descriptor does not follow the required structure or contains invalid components (error code 422)
+        :raises TrialNetworkInvalidDescriptorError:
         """
         tn_raw_descriptor = self.json_to_descriptor(self.tn_raw_descriptor)
         if len(tn_raw_descriptor.keys()) > 1 or "trial_network" not in tn_raw_descriptor:

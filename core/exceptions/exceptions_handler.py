@@ -1,3 +1,5 @@
+from core.logs.log_handler import log_handler
+
 class CustomException(Exception):
     """Base class for custom exceptions"""
     def __init__(self, message: str, error_code: int):
@@ -9,6 +11,7 @@ class CustomException(Exception):
         """
         super().__init__(message)
         self.error_code = error_code
+        log_handler.error(f"Error {self.error_code}: {message}")
 
 ################################
 ###### General exceptions ######
@@ -146,20 +149,4 @@ class TrialNetworkInvalidTnId(CustomTrialNetworkException):
 ############################
 class CustomJenkinsException(CustomException):
     """Base class for Jenkins related exceptions"""
-    pass
-
-class JenkinsConnectionError(CustomJenkinsException):
-    """Error thrown when unable to establish connection to Jenkins"""
-    pass
-
-class JenkinsResponseError(CustomJenkinsException):
-    """Error thrown when request response is unsuccessful"""
-    pass
-
-class JenkinsComponentPipelineError(CustomJenkinsException):
-    """Error thrown when component pipeline has failed"""
-    pass
-
-class JenkinsInvalidPipelineError(CustomJenkinsException):
-    """Error thrown when pipeline not in Jenkins"""
     pass
