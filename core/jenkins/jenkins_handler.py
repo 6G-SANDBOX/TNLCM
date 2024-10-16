@@ -1,7 +1,7 @@
 import os
 
 from yaml import dump
-from jenkins import Jenkins
+from jenkins import Jenkins, JenkinsException
 from requests import post
 from time import sleep
 from requests.exceptions import RequestException
@@ -11,7 +11,7 @@ from core.logs.log_handler import log_handler
 from core.models.trial_network import TrialNetworkModel
 from core.callback.callback_handler import CallbackHandler
 from core.sixg_library.sixg_library_handler import SixGLibraryHandler
-from core.exceptions.exceptions_handler import JenkinsConnectionError, JenkinsInvalidPipelineError, CustomFileNotFoundError, JenkinsResponseError, JenkinsComponentPipelineError
+from core.exceptions.exceptions_handler import CustomJenkinsException
 
 class JenkinsHandler:
 
@@ -27,7 +27,7 @@ class JenkinsHandler:
         :param trial_network: model of the trial network to be deployed, ``TrialNetworkModel``
         :param callback_handler: handler to save results obtained by Jenkins, ``CallbackHandler``
         :param sixg_library_handler: handler to 6G-Library, ``SixGLibraryHandler``
-        :raises JenkinsConnectionError: if the connection to Jenkins cannot be established (error code 500)
+        :raises JenkinsConnectionError:
         """
         self.trial_network = trial_network
         self.callback_handler = callback_handler
@@ -41,7 +41,31 @@ class JenkinsHandler:
             self.jenkins_client = Jenkins(url=self.jenkins_url, username=self.jenkins_username, password=self.jenkins_password)
             self.jenkins_client.get_whoami()
         except RequestException:
-            raise JenkinsConnectionError("Error establishing connection with Jenkins", 500)
+            raise CustomJenkinsException("Error establishing connection with Jenkins", 500)
+
+    def _is_folder_jenkins(self, folder_name: str) -> bool:
+        """
+        Check if a Jenkins folder exists
+
+        :param folder_name: name of the folder to check, ``str``
+        :return: True if the folder exists, False otherwise, ``bool``
+        """
+        try:
+            self.jenkins_client.get_job_info(folder_name)
+            return True
+        except JenkinsException:
+            return False
+    
+    def _is_pipeline_in_use(self, pipeline_name: str) -> bool:
+        """
+        Check if a Jenkins pipeline has any builds in progress or scheduled
+
+        :param pipeline_name: name of the pipeline to check, ``str``
+        :return: True if the pipeline is in use, False otherwise, ``bool``
+        :raise CustomJenkinsException:
+        """
+        job_info = self.jenkins_client.get_job_info(pipeline_name)
+        return job_info["inQueue"]
 
     def generate_jenkins_deploy_pipeline(self, jenkins_deploy_pipeline:str) -> str:
         """
@@ -49,15 +73,16 @@ class JenkinsHandler:
 
         :param jenkins_deploy_pipeline: new name of the deployment pipeline, ``str``
         :return: pipeline use for deploy trial network, ``str``
-        :raises JenkinsInvalidPipelineError: if pipeline received by parameter is not defined in Jenkins (error code 404)
+        :raises CustomJenkinsException:
         """
         if not jenkins_deploy_pipeline:
             tn_deploy_pipeline = JenkinsSettings.JENKINS_DEPLOY_PIPELINE
             if tn_deploy_pipeline not in self.get_all_pipelines():
-                raise JenkinsInvalidPipelineError(f"The 'jenkins_deploy_pipeline' should be one: {', '.join(self.get_all_pipelines())}", 404)
-            tn_jenkins = self.trial_network.tn_id
-            self.jenkins_client.create_folder(tn_jenkins)
-            tn_new_deploy_pipeline = f"{tn_deploy_pipeline}_{tn_jenkins}"
+                raise CustomJenkinsException(f"The 'jenkins_deploy_pipeline' should be one: {', '.join(self.get_all_pipelines())}", 404)
+            tn_jenkins = "TNLCM"
+            if not self._is_folder_jenkins(tn_jenkins):
+                self.jenkins_client.create_folder(tn_jenkins)
+            tn_new_deploy_pipeline = f"{tn_deploy_pipeline}_{self.trial_network.tn_id}"
             config_tn_deploy_pipeline = self.jenkins_client.get_job_config(tn_deploy_pipeline)
             config_tn_new_deploy_pipeline = config_tn_deploy_pipeline.replace(tn_deploy_pipeline, tn_new_deploy_pipeline)
             config_tn_new_deploy_pipeline = config_tn_new_deploy_pipeline.replace(f"{tn_new_deploy_pipeline}.groovy", f"{tn_deploy_pipeline}.groovy")
@@ -66,7 +91,9 @@ class JenkinsHandler:
             return tn_jenkins_deploy_path
         else:
             if jenkins_deploy_pipeline not in self.get_all_pipelines():
-                raise JenkinsInvalidPipelineError(f"The 'jenkins_deploy_pipeline' should be one: {', '.join(self.get_all_pipelines())}", 404)
+                raise CustomJenkinsException(f"The 'jenkins_deploy_pipeline' should be one: {', '.join(self.get_all_pipelines())}", 404)
+            if self._is_pipeline_in_use(jenkins_deploy_pipeline):
+                raise CustomJenkinsException(f"The pipeline '{jenkins_deploy_pipeline}' is currently in use. Try again later", 500)
             return jenkins_deploy_pipeline
     
     def _create_entity_name_input_file(self, entity_name: str, content: dict) -> str:
@@ -113,9 +140,8 @@ class JenkinsHandler:
         """
         Trial network deployment starts
         
-        :raises CustomFileNotFoundError: if the temporary entity file or the results file of the entity is not found (error code 404)
-        :raises JenkinsResponseError: if there is an error in the response from Jenkins during deployment (error code 401)
-        :raises JenkinsComponentPipelineError: if the Jenkins pipeline for a specific entity fails (error code 500)
+        :raises CustomFileNotFoundError:
+        :raises CustomJenkinsException:
         """
         tn_deployed_descriptor = self.trial_network.json_to_descriptor(self.trial_network.tn_deployed_descriptor)["trial_network"]
         tn_descriptor = tn_deployed_descriptor.copy()
@@ -138,7 +164,7 @@ class JenkinsHandler:
                 if response.status_code != 201:
                     self.trial_network.set_tn_state("failed")
                     self.trial_network.save()
-                    raise JenkinsResponseError(f"Error in the response received by Jenkins when trying to deploy the '{entity_name}' entity", response.status_code)
+                    raise CustomJenkinsException(f"Error in the response received by Jenkins when trying to deploy the '{entity_name}' entity", response.status_code)
                 next_build_number = self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["nextBuildNumber"]
                 while not self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["lastCompletedBuild"]:
                     sleep(15)
@@ -147,12 +173,12 @@ class JenkinsHandler:
                 if self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["lastSuccessfulBuild"]["number"] != next_build_number:
                     self.trial_network.set_tn_state("failed")
                     self.trial_network.save()
-                    raise JenkinsComponentPipelineError(f"Pipeline for the entity '{entity_name}' has failed", 500)
+                    raise CustomJenkinsException(f"Pipeline for the entity '{entity_name}' has failed", 500)
                 log_handler.info(f"[{self.trial_network.tn_id}] - Entity '{entity_name}' successfully deployed")
                 if not self.callback_handler.exists_path_entity_name_json(entity_name):
                     self.trial_network.set_tn_state("failed")
                     self.trial_network.save()
-                    raise CustomFileNotFoundError(f"File with the results of the entity '{entity_name}' not found", 404)
+                    raise CustomJenkinsException(f"File with the results of the entity '{entity_name}' not found", 404)
             del tn_deployed_descriptor[entity_name]
             self.trial_network.set_tn_deployed_descriptor(tn_deployed_descriptor)
             self.trial_network.save()
@@ -164,23 +190,24 @@ class JenkinsHandler:
 
         :param jenkins_destroy_pipeline: new name of the destroy pipeline, ``str``
         :return: pipeline use for deploy trial network, ``str``
-        :raises JenkinsInvalidPipelineError: if pipeline received by parameter is not defined in Jenkins (error code 404)
+        :raises CustomJenkinsException:
         """
         if not jenkins_destroy_pipeline:
             tn_destroy_pipeline = JenkinsSettings.JENKINS_DESTROY_PIPELINE
             if tn_destroy_pipeline not in self.get_all_pipelines():
-                raise JenkinsInvalidPipelineError(f"The 'jenkins_destroy_pipeline' should be one: {', '.join(self.get_all_pipelines())}", 404)
-            tn_jenkins = self.trial_network.tn_id
-            tn_new_destroy_pipeline = f"{tn_destroy_pipeline}_{tn_jenkins}"
+                raise CustomJenkinsException(f"The 'jenkins_destroy_pipeline' should be one: {', '.join(self.get_all_pipelines())}", 404)
+            tn_new_destroy_pipeline = f"{tn_destroy_pipeline}_{self.trial_network.tn_id}"
             config_tn_destroy_pipeline = self.jenkins_client.get_job_config(tn_destroy_pipeline)
             config_tn_new_destroy_pipeline = config_tn_destroy_pipeline.replace(tn_destroy_pipeline, tn_new_destroy_pipeline)
             config_tn_new_destroy_pipeline = config_tn_new_destroy_pipeline.replace(f"{tn_new_destroy_pipeline}.groovy", f"{tn_destroy_pipeline}.groovy")
-            tn_jenkins_deploy_path = f"{tn_jenkins}/{tn_new_destroy_pipeline}"
+            tn_jenkins_deploy_path = f"{self.trial_network.tn_id}/{tn_new_destroy_pipeline}"
             self.jenkins_client.create_job(tn_jenkins_deploy_path, config_tn_new_destroy_pipeline)
             return tn_jenkins_deploy_path
         else:
             if jenkins_destroy_pipeline not in self.get_all_pipelines():
-                raise JenkinsInvalidPipelineError(f"The 'jenkins_destroy_pipeline' should be one: {', '.join(self.get_all_pipelines())}", 404)
+                raise CustomJenkinsException(f"The 'jenkins_destroy_pipeline' should be one: {', '.join(self.get_all_pipelines())}", 404)
+            if self._is_pipeline_in_use(jenkins_destroy_pipeline):
+                raise CustomJenkinsException(f"The pipeline '{jenkins_destroy_pipeline}' is currently in use. Try again later", 500)
             return jenkins_destroy_pipeline
 
     def _jenkins_destroy_parameters(self) -> dict:
@@ -216,7 +243,7 @@ class JenkinsHandler:
         Trial network destroy starts
 
         :param jenkins_destroy_pipeline: new name of the destroy pipeline, ``str``
-        :raises JenkinsComponentPipelineError: if the Jenkins pipeline for a specific entity fails (error code 500)
+        :raises CustomJenkinsException:
         """
         self.jenkins_client.build_job(name=jenkins_destroy_pipeline, parameters=self._jenkins_destroy_parameters(), token=self.jenkins_token)
         last_build_number = self.jenkins_client.get_job_info(name=jenkins_destroy_pipeline)["nextBuildNumber"]
@@ -225,7 +252,7 @@ class JenkinsHandler:
         while last_build_number != self.jenkins_client.get_job_info(name=jenkins_destroy_pipeline)["lastCompletedBuild"]["number"]:
             sleep(15)
         if self.jenkins_client.get_job_info(name=jenkins_destroy_pipeline)["lastSuccessfulBuild"]["number"] != last_build_number:
-            raise JenkinsComponentPipelineError(f"Pipeline for destroy '{self.trial_network.tn_id}' trial network has failed", 500)
+            raise CustomJenkinsException(f"Pipeline for destroy '{self.trial_network.tn_id}' trial network has failed", 500)
 
     def get_all_pipelines(self) -> list[str]:
         """
