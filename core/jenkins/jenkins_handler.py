@@ -43,19 +43,21 @@ class JenkinsHandler:
         except RequestException:
             raise JenkinsConnectionError("Error establishing connection with Jenkins", 500)
 
-    def validate_jenkins_deploy_pipeline(self, jenkins_deploy_pipeline: str = None) -> str:
+    def generate_jenkins_deploy_pipeline(self) -> str:
         """
-        Validate deployment pipeline name in case of is correct pipeline
+        Generate deployment pipeline per trial network
 
-        :param jenkins_deploy_pipeline: new name of the deployment pipeline, ``str``
         :return: pipeline use for deploy trial network, ``str``
         :raises JenkinsInvalidPipelineError: if pipeline received by parameter is not defined in Jenkins (error code 404)
         """
-        if not jenkins_deploy_pipeline:
-            return JenkinsSettings.JENKINS_DEPLOY_PIPELINE
-        if jenkins_deploy_pipeline and jenkins_deploy_pipeline not in self.get_all_pipelines():
+        tn_deploy_pipeline = JenkinsSettings.JENKINS_DEPLOY_PIPELINE
+        if tn_deploy_pipeline not in self.get_all_pipelines():
             raise JenkinsInvalidPipelineError(f"The 'jenkins_deploy_pipeline' should be one: {', '.join(self.get_all_pipelines())}", 404)
-        return jenkins_deploy_pipeline
+        tn_new_deploy_pipeline = f"{tn_deploy_pipeline}_{self.trial_network.tn_id}"
+        config_tn_deploy_pipeline = self.jenkins_client.get_job_config(tn_deploy_pipeline)
+        config_tn_new_deploy_pipeline = config_tn_deploy_pipeline.replace(tn_deploy_pipeline, tn_new_deploy_pipeline)
+        self.jenkins_client.create_job(tn_new_deploy_pipeline, config_tn_new_deploy_pipeline)
+        return tn_new_deploy_pipeline
     
     def _create_entity_name_input_file(self, entity_name: str, content: dict) -> str:
         """
@@ -97,11 +99,10 @@ class JenkinsHandler:
             parameters["CUSTOM_NAME"] = custom_name
         return parameters
 
-    def trial_network_deployment(self, jenkins_deploy_pipeline: str) -> None:
+    def trial_network_deployment(self) -> None:
         """
         Trial network deployment starts
         
-        :param jenkins_deploy_pipeline: new name of the deployment pipeline, ``str``
         :raises CustomFileNotFoundError: if the temporary entity file or the results file of the entity is not found (error code 404)
         :raises JenkinsResponseError: if there is an error in the response from Jenkins during deployment (error code 401)
         :raises JenkinsComponentPipelineError: if the Jenkins pipeline for a specific entity fails (error code 500)
@@ -121,19 +122,19 @@ class JenkinsHandler:
             with open(path_entity_name_input_file, "rb") as entity_name_input_file:
                 file = {"FILE": (path_entity_name_input_file, entity_name_input_file)}
                 log_handler.info(f"[{self.trial_network.tn_id}] - Add Jenkins parameters to the pipeline of the '{entity_name}' entity")
-                jenkins_build_job_url = self.jenkins_client.build_job_url(name=jenkins_deploy_pipeline, parameters=self._jenkins_deployment_parameters(component_type, custom_name, debug))
+                jenkins_build_job_url = self.jenkins_client.build_job_url(name=self.trial_network.jenkins_deploy_pipeline, parameters=self._jenkins_deployment_parameters(component_type, custom_name, debug))
                 response = post(jenkins_build_job_url, auth=(self.jenkins_username, self.jenkins_token), files=file)
                 log_handler.info(f"[{self.trial_network.tn_id}] - Deployment request code of the '{entity_name}' entity '{response.status_code}'")
                 if response.status_code != 201:
                     self.trial_network.set_tn_state("failed")
                     self.trial_network.save()
                     raise JenkinsResponseError(f"Error in the response received by Jenkins when trying to deploy the '{entity_name}' entity", response.status_code)
-                last_build_number = self.jenkins_client.get_job_info(name=jenkins_deploy_pipeline)["nextBuildNumber"]
-                while not self.jenkins_client.get_job_info(name=jenkins_deploy_pipeline)["lastCompletedBuild"]:
+                last_build_number = self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["nextBuildNumber"]
+                while not self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["lastCompletedBuild"]:
                     sleep(15)
-                while last_build_number != self.jenkins_client.get_job_info(name=jenkins_deploy_pipeline)["lastCompletedBuild"]["number"]:
+                while last_build_number != self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["lastCompletedBuild"]["number"]:
                     sleep(15)
-                if self.jenkins_client.get_job_info(name=jenkins_deploy_pipeline)["lastSuccessfulBuild"]["number"] != last_build_number:
+                if self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["lastSuccessfulBuild"]["number"] != last_build_number:
                     self.trial_network.set_tn_state("failed")
                     self.trial_network.save()
                     raise JenkinsComponentPipelineError(f"Pipeline for the entity '{entity_name}' has failed", 500)
