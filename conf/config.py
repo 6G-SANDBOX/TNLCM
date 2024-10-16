@@ -22,9 +22,3 @@ class Config(object):
     MAIL_USE_SSL = MailSettings.MAIL_USE_SSL
     MAIL_USERNAME = MailSettings.MAIL_USERNAME
     MAIL_PASSWORD = MailSettings.MAIL_PASSWORD
-
-class DevelopmentConfig(Config):
-    DEBUG = True
-
-class TestingConfig(Config):
-    TESTING = True

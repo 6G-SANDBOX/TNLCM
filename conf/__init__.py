@@ -17,4 +17,4 @@ from .repository import RepositorySettings
 from .sixg_library import SixGLibrarySettings
 from .sixg_sandbox_sites import SixGSandboxSitesSettings
 from .tnlcm import TnlcmSettings
-from .config import DevelopmentConfig, TestingConfig
+from .config import Config
