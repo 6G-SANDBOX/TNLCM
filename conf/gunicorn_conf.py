@@ -1,4 +1,5 @@
 from conf import TnlcmSettings
+from core.logs.log_handler import log_handler
 
 # Number of worker processes to handle requests
 workers = 3
@@ -17,3 +18,13 @@ loglevel = "info"
 
 # Maximum number of pending connections
 backlog = 1024
+
+config_dict = {
+    "WORKERS": workers,
+    "BIND": bind,
+    "TIMEOUT": timeout,
+    "LOGLEVEL": loglevel,
+    "BACKLOG": backlog,
+}
+
+log_handler.info(f"Load gunicorn configuration: {config_dict}")

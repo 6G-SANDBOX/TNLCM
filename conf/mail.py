@@ -19,8 +19,6 @@ class MailSettings:
     Mail Settings
     """
 
-    log_handler.info("Load Mail configuration")
-
     MAIL_SERVER = os.getenv("MAIL_SERVER")
     MAIL_PORT = os.getenv("MAIL_PORT")
     MAIL_USE_TLS = os.getenv("MAIL_USE_TLS")
@@ -50,3 +48,14 @@ class MailSettings:
     MAIL_PORT = int(MAIL_PORT)
     MAIL_USE_TLS = str_to_bool(MAIL_USE_TLS)
     MAIL_USE_SSL = str_to_bool(MAIL_USE_SSL)
+
+    config_dict = {
+        "MAIL_SERVER": MAIL_SERVER,
+        "MAIL_PORT": MAIL_PORT,
+        "MAIL_USE_TLS": MAIL_USE_TLS,
+        "MAIL_USE_SSL": MAIL_USE_SSL,
+        "MAIL_USERNAME": MAIL_USERNAME,
+        "MAIL_PASSWORD": MAIL_PASSWORD
+    }
+
+    log_handler.info(f"Load Mail configuration: {config_dict}")

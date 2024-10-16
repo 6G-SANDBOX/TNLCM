@@ -8,8 +8,6 @@ class MongoDBSettings:
     MongoDB Settings
     """
 
-    log_handler.info("Load MongoDB configuration")
-
     MONGO_HOST = os.getenv("MONGO_HOST")
     MONGO_PORT = os.getenv("MONGO_PORT")
     MONGO_DATABASE = os.getenv("MONGO_DATABASE")
@@ -49,3 +47,20 @@ class MongoDBSettings:
         missing_variables.append("ME_CONFIG_BASICAUTH_PASSWORD")
     if missing_variables:
         raise UndefinedEnvVariableError(missing_variables)
+    
+    config_dict = {
+        "MONGO_HOST": MONGO_HOST,
+        "MONGO_PORT": MONGO_PORT,
+        "MONGO_DATABASE": MONGO_DATABASE,
+        "ME_CONFIG_MONGODB_ADMINUSERNAME": ME_CONFIG_MONGODB_ADMINUSERNAME,
+        "ME_CONFIG_MONGODB_ADMINPASSWORD": ME_CONFIG_MONGODB_ADMINPASSWORD,
+        "ME_CONFIG_MONGODB_ENABLE_ADMIN": ME_CONFIG_MONGODB_ENABLE_ADMIN,
+        "ME_CONFIG_MONGODB_URL": ME_CONFIG_MONGODB_URL,
+        "ME_CONFIG_BASICAUTH": ME_CONFIG_BASICAUTH,
+        "ME_CONFIG_SITE_SESSIONSECRET": ME_CONFIG_SITE_SESSIONSECRET,
+        "VCAP_APP_HOST": VCAP_APP_HOST,
+        "ME_CONFIG_BASICAUTH_USERNAME": ME_CONFIG_BASICAUTH_USERNAME,
+        "ME_CONFIG_BASICAUTH_PASSWORD": ME_CONFIG_BASICAUTH_PASSWORD
+    }
+
+    log_handler.info(f"Load MongoDB configuration: {config_dict}")

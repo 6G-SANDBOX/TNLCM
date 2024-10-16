@@ -7,7 +7,7 @@ from core.logs.log_handler import log_handler
 dotenv_path = os.path.join(os.getcwd(), ".env")
 # dotenv_path_dev = os.path.join(os.getcwd(), ".env.dev")
 
-log_handler.info(f"Loading the '{dotenv_path}' file of the project")
+log_handler.info(f"Loading the '{dotenv_path}' file of TNLCM")
 load_dotenv(dotenv_path=dotenv_path)
 
 from .mail import MailSettings
@@ -17,4 +17,4 @@ from .repository import RepositorySettings
 from .sixg_library import SixGLibrarySettings
 from .sixg_sandbox_sites import SixGSandboxSitesSettings
 from .tnlcm import TnlcmSettings
-from .config import Config
+from .flask_conf import FlaskConf

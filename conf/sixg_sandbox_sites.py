@@ -9,8 +9,6 @@ class SixGSandboxSitesSettings:
     6G-Sandbox-Sites Settings
     """
 
-    log_handler.info("Load 6G-Sandbox-Sites configuration")
-
     GITHUB_6G_SANDBOX_SITES_HTTPS_URL = os.getenv("GITHUB_6G_SANDBOX_SITES_HTTPS_URL")
     GITHUB_6G_SANDBOX_SITES_BRANCH = os.getenv("GITHUB_6G_SANDBOX_SITES_BRANCH")
     GITHUB_6G_SANDBOX_SITES_REPOSITORY_NAME = os.getenv("GITHUB_6G_SANDBOX_SITES_REPOSITORY_NAME")
@@ -28,3 +26,12 @@ class SixGSandboxSitesSettings:
         raise UndefinedEnvVariableError(missing_variables)
     if not RepositorySettings.is_github_repo(GITHUB_6G_SANDBOX_SITES_HTTPS_URL):
         raise GitCloneError(f"Repository url specified '{GITHUB_6G_SANDBOX_SITES_HTTPS_URL}' is not correct", 500)
+    
+    config_dict = {
+        "GITHUB_6G_SANDBOX_SITES_HTTPS_URL": GITHUB_6G_SANDBOX_SITES_HTTPS_URL,
+        "GITHUB_6G_SANDBOX_SITES_BRANCH": GITHUB_6G_SANDBOX_SITES_BRANCH,
+        "GITHUB_6G_SANDBOX_SITES_REPOSITORY_NAME": GITHUB_6G_SANDBOX_SITES_REPOSITORY_NAME,
+        "SITES_TOKEN": SITES_TOKEN,
+    }
+    
+    log_handler.info(f"Load 6G-Sandbox-Sites configuration: {config_dict}")

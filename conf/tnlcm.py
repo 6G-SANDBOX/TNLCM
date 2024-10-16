@@ -8,8 +8,6 @@ class TnlcmSettings:
     TNLCM Settings
     """
 
-    log_handler.info("Load TNLCM configuration")
-
     TNLCM_ADMIN_USER = os.getenv("TNLCM_ADMIN_USER")
     TNLCM_ADMIN_PASSWORD = os.getenv("TNLCM_ADMIN_PASSWORD")
     TNLCM_ADMIN_EMAIL = os.getenv("TNLCM_ADMIN_EMAIL")
@@ -33,7 +31,7 @@ class TnlcmSettings:
         raise UndefinedEnvVariableError(missing_variables)
     
     TITLE = "Trial Network Life Cycle Manager - TNLCM"
-    VERSION = "0.3.2"
+    VERSION = "0.4.0"
     DESCRIPTION = ("""
     Welcome to the Trial Network Life Cycle Manager (TNLCM) API! This powerful tool facilitates the management and orchestration of network life cycles, designed specifically for the cutting-edge 6G-SANDBOX project.
 
@@ -44,3 +42,14 @@ class TnlcmSettings:
     TRIAL_NETWORKS_DIRECTORY = os.path.join(os.getcwd(), "core", "trial_networks")
     if not os.path.exists(TRIAL_NETWORKS_DIRECTORY):
         os.makedirs(TRIAL_NETWORKS_DIRECTORY)
+
+    config_dict = {
+        "TNLCM_ADMIN_USER": TNLCM_ADMIN_USER,
+        "TNLCM_ADMIN_PASSWORD": TNLCM_ADMIN_PASSWORD,
+        "TNLCM_ADMIN_EMAIL": TNLCM_ADMIN_EMAIL,
+        "TNLCM_HOST": TNLCM_HOST,
+        "TNLCM_PORT": TNLCM_PORT,
+        "TNLCM_CALLBACK": TNLCM_CALLBACK,
+    }
+    
+    log_handler.info(f"Load TNLCM configuration: {config_dict}")

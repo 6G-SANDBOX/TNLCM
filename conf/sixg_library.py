@@ -9,8 +9,6 @@ class SixGLibrarySettings:
     6G-Library Settings
     """
 
-    log_handler.info("Load 6G-Library configuration")
-
     GITHUB_6G_LIBRARY_HTTPS_URL = os.getenv("GITHUB_6G_LIBRARY_HTTPS_URL")
     GITHUB_6G_LIBRARY_BRANCH = os.getenv("GITHUB_6G_LIBRARY_BRANCH")
     GITHUB_6G_LIBRARY_REPOSITORY_NAME = os.getenv("GITHUB_6G_LIBRARY_REPOSITORY_NAME")
@@ -25,3 +23,11 @@ class SixGLibrarySettings:
         raise UndefinedEnvVariableError(missing_variables)
     if not RepositorySettings.is_github_repo(GITHUB_6G_LIBRARY_HTTPS_URL):
         raise GitCloneError(f"Repository url specified '{GITHUB_6G_LIBRARY_HTTPS_URL}' is not correct", 500)
+    
+    config_dict = {
+        "GITHUB_6G_LIBRARY_HTTPS_URL": GITHUB_6G_LIBRARY_HTTPS_URL,
+        "GITHUB_6G_LIBRARY_BRANCH": GITHUB_6G_LIBRARY_BRANCH,
+        "GITHUB_6G_LIBRARY_REPOSITORY_NAME": GITHUB_6G_LIBRARY_REPOSITORY_NAME,
+    }
+
+    log_handler.info(f"Load 6G-Library configuration: {config_dict}")

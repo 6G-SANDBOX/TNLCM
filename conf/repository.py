@@ -1,7 +1,9 @@
 import re
 
 class RepositorySettings:
-    """Respository Settings"""
+    """
+    Respository Settings
+    """
 
     @staticmethod
     def is_github_repo(url: str) -> bool:
