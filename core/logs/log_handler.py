@@ -64,6 +64,10 @@ class LogHandler:
         self.logger.addHandler(file_handler)
         self.logger.addHandler(console_handler)
 
+    def debug(self, message):
+        if self.logger:
+            self.logger.debug(message)
+    
     def info(self, message):
         if self.logger:
             self.logger.info(message)
@@ -75,6 +79,10 @@ class LogHandler:
     def error(self, message):
         if self.logger:
             self.logger.error(message)
+    
+    def critical(self, message):
+        if self.logger:
+            self.logger.critical(message)
 
     def close(self):
         logging.shutdown()
