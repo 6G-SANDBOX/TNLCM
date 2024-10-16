@@ -1,4 +1,5 @@
 import os
+import threading
 
 from flask_restx import Namespace, Resource, reqparse, abort
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -26,6 +27,8 @@ trial_network_namespace = Namespace(
         }
     }
 )
+
+tn_id_lock = threading.Lock()
 
 ###############################
 ######## Trial Network ########
@@ -63,7 +66,9 @@ class CreateTrialNetwork(Resource):
 
             current_user = get_current_user_from_jwt(get_jwt_identity())
             trial_network = TrialNetworkModel(user_created=current_user.username)
-            trial_network.set_tn_id(size=3, tn_id=tn_id)
+            with tn_id_lock:
+                trial_network.set_tn_id(size=3, tn_id=tn_id)
+                trial_network.save()
             trial_network.set_tn_raw_descriptor(tn_descriptor_file)
             trial_network.set_tn_sorted_descriptor()
             tn_folder = os.path.join(TnlcmSettings.TRIAL_NETWORKS_DIRECTORY, f"{trial_network.tn_id}")
