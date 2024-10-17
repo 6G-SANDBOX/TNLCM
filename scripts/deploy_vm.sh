@@ -33,7 +33,7 @@ fi
 
 # Clone and install TNLCM libraries
 echo "--------------- Clone TNLCM ---------------"
-# TNLCM_VERSION="v0.3.2"
+# TNLCM_VERSION="v0.4.0"
 TNLCM_FOLDER="/opt/TNLCM"
 TNLCM_ENV_FILE=${TNLCM_FOLDER}/.env
 
@@ -53,6 +53,7 @@ JENKINS_HOST=""
 JENKINS_USERNAME=""
 JENKINS_PASSWORD=""
 JENKINS_TOKEN=""
+# Ansible password to decrypt file 6G-Sandbox-Sites (not use \" or \' or \`)
 SITES_TOKEN=''
 
 sed -i "s/^TNLCM_ADMIN_USER=.*/TNLCM_ADMIN_USER=\"${TNLCM_ADMIN_USER}\"/" ${TNLCM_ENV_FILE}
