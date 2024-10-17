@@ -67,7 +67,7 @@ class JenkinsHandler:
         job_info = self.jenkins_client.get_job_info(pipeline_name)
         return job_info["inQueue"]
 
-    def generate_jenkins_deploy_pipeline(self, jenkins_deploy_pipeline:str) -> str:
+    def generate_jenkins_deploy_pipeline(self, jenkins_deploy_pipeline: str) -> str:
         """
         Generate deployment pipeline per trial network
 
@@ -175,6 +175,7 @@ class JenkinsHandler:
                     self.trial_network.save()
                     raise CustomJenkinsException(f"Pipeline for the entity '{entity_name}' has failed", 500)
                 log_handler.info(f"[{self.trial_network.tn_id}] - Entity '{entity_name}' successfully deployed")
+                sleep(2)
                 if not self.callback_handler.exists_path_entity_name_json(entity_name):
                     self.trial_network.set_tn_state("failed")
                     self.trial_network.save()
