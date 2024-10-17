@@ -6,38 +6,26 @@ export DEBIAN_FRONTEND=noninteractive
 
 apt-get update
 
-# Install git
 echo "--------------- Install git ---------------"
 if ! git --version; then
     apt-get install -y git
 fi
 
-# Install python
 echo "--------------- Install python ---------------"
-PYTHON_VERSION="3.13.0"
+PYTHON_VERSION="3.13"
 PYTHON_BIN="python${PYTHON_VERSION}"
 
 apt install -y python${PYTHON_VERSION}-venv
 
 if ! python3 --version | awk '{print $2}' | grep -qE '^3\.1[3-9]|^[4-9]'; then
-    wget "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz"
-    tar xvf Python-${PYTHON_VERSION}.tgz
-    cd Python-${PYTHON_VERSION}/
-    ./configure --enable-optimizations
-    make altinstall
-    ${PYTHON_BIN} -m ensurepip --default-pip
-    ${PYTHON_BIN} -m pip install --upgrade pip setuptools wheel
-    cd
-    rm -rf Python-${PYTHON_VERSION}*
+    add-apt-repository ppa:deadsnakes/ppa -y
+    apt-get install python${PYTHON_VERSION}-full -y
 fi
 
-# Clone and install TNLCM libraries
 echo "--------------- Clone TNLCM ---------------"
-# TNLCM_VERSION="v0.4.0"
 TNLCM_FOLDER="/opt/TNLCM"
 TNLCM_ENV_FILE=${TNLCM_FOLDER}/.env
 
-# git clone --depth 1 --branch release/${TNLCM_VERSION} -c advice.detachedHead=false https://github.com/6G-SANDBOX/TNLCM.git ${TNLCM_FOLDER}
 git clone https://github.com/6G-SANDBOX/TNLCM ${TNLCM_FOLDER}
 cp ${TNLCM_FOLDER}/.env.template ${TNLCM_FOLDER}/.env
 ${PYTHON_BIN} -m venv ${TNLCM_FOLDER}/venv
@@ -65,7 +53,6 @@ sed -i "s/^JENKINS_PASSWORD=.*/JENKINS_PASSWORD=\"${JENKINS_PASSWORD}\"/" ${TNLC
 sed -i "s/^JENKINS_TOKEN=.*/JENKINS_TOKEN=\"${JENKINS_TOKEN}\"/" ${TNLCM_ENV_FILE}
 sed -i "s/^SITES_TOKEN=.*/SITES_TOKEN='${SITES_TOKEN}'/" ${TNLCM_ENV_FILE}
 
-# Install mongo
 echo "--------------- Install mongo ---------------"
 MONGODB_VERSION="8.0"
 
@@ -76,31 +63,27 @@ apt-get update
 apt-get install -y mongodb-org
 systemctl enable --now mongod
 
-# Install yarn
 echo "--------------- Install yarn ---------------"
 curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
 echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
 apt-get update
 apt-get install -y yarn
 
-# Install dotenv
 echo "--------------- Install dotenv library ---------------"
 YARN_GLOBAL_LIBRARIES="/opt/yarn_global"
 
 yarn config set global-folder ${YARN_GLOBAL_LIBRARIES}
 yarn global add dotenv
 
-# Load tnlcm database
+echo "--------------- Load TNLCM database ---------------"
 mongosh --file ${TNLCM_FOLDER}/core/database/tnlcm-structure.js
 
-# Install nodejs
 echo "--------------- Install nodejs ---------------"
 curl -fsSL https://deb.nodesource.com/setup_lts.x -o nodesource_setup.sh
 bash nodesource_setup.sh
 apt-get install -y nodejs
 rm nodesource_setup.sh
 
-# Install mongo-express
 echo "--------------- Install mongo-express ---------------"
 MONGO_EXPRESS_VERSION="v1.0.2"
 MONGO_EXPRESS_FOLDER=/opt/mongo-express-${MONGO_EXPRESS_VERSION}
@@ -111,7 +94,7 @@ yarn install
 yarn build
 cd
 
-# Start mongo-express service
+echo "--------------- Start mongo-express service ---------------"
 cat > /etc/systemd/system/mongo-express.service << EOF
 [Unit]
 Description=mongo-express
