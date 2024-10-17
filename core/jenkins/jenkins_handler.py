@@ -55,17 +55,6 @@ class JenkinsHandler:
             return True
         except JenkinsException:
             return False
-    
-    def _is_pipeline_in_use(self, pipeline_name: str) -> bool:
-        """
-        Check if a Jenkins pipeline has any builds in progress or scheduled
-
-        :param pipeline_name: name of the pipeline to check, ``str``
-        :return: True if the pipeline is in use, False otherwise, ``bool``
-        :raise CustomJenkinsException:
-        """
-        job_info = self.jenkins_client.get_job_info(pipeline_name)
-        return job_info["inQueue"]
 
     def generate_jenkins_deploy_pipeline(self, jenkins_deploy_pipeline: str) -> str:
         """
@@ -88,12 +77,14 @@ class JenkinsHandler:
             config_tn_new_deploy_pipeline = config_tn_new_deploy_pipeline.replace(f"{tn_new_deploy_pipeline}.groovy", f"{tn_deploy_pipeline}.groovy")
             tn_jenkins_deploy_path = f"{tn_jenkins}/{tn_new_deploy_pipeline}"
             self.jenkins_client.create_job(tn_jenkins_deploy_path, config_tn_new_deploy_pipeline)
+            log_handler.info(f"[{self.trial_network.tn_id}] - Created '{tn_jenkins_deploy_path}' pipeline in Jenkins to deploy the trial network")
             return tn_jenkins_deploy_path
         else:
             if jenkins_deploy_pipeline not in self.get_all_pipelines():
                 raise CustomJenkinsException(f"The 'jenkins_deploy_pipeline' should be one: {', '.join(self.get_all_pipelines())}", 404)
-            if self._is_pipeline_in_use(jenkins_deploy_pipeline):
+            if self.jenkins_client.get_job_info(jenkins_deploy_pipeline)["inQueue"]:
                 raise CustomJenkinsException(f"The pipeline '{jenkins_deploy_pipeline}' is currently in use. Try again later", 500)
+            log_handler.info(f"[{self.trial_network.tn_id}] - Use the pipeline '{jenkins_deploy_pipeline}' defined in Jenkins to deploy the trial network")
             return jenkins_deploy_pipeline
     
     def _create_entity_name_input_file(self, entity_name: str, content: dict) -> str:
@@ -162,23 +153,19 @@ class JenkinsHandler:
                 response = post(jenkins_build_job_url, auth=(self.jenkins_username, self.jenkins_token), files=file)
                 log_handler.info(f"[{self.trial_network.tn_id}] - Deployment request code of the '{entity_name}' entity '{response.status_code}'")
                 if response.status_code != 201:
-                    self.trial_network.set_tn_state("failed")
-                    self.trial_network.save()
                     raise CustomJenkinsException(f"Error in the response received by Jenkins when trying to deploy the '{entity_name}' entity", response.status_code)
                 next_build_number = self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["nextBuildNumber"]
                 while not self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["lastCompletedBuild"]:
-                    sleep(15)
+                    log_handler.info(f"[{self.trial_network.tn_id}] - Deploying '{entity_name}'")
+                    sleep(10)
                 while next_build_number != self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["lastCompletedBuild"]["number"]:
-                    sleep(15)
+                    log_handler.info(f"[{self.trial_network.tn_id}] - Deploying '{entity_name}'")
+                    sleep(10)
                 if self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["lastSuccessfulBuild"]["number"] != next_build_number:
-                    self.trial_network.set_tn_state("failed")
-                    self.trial_network.save()
                     raise CustomJenkinsException(f"Pipeline for the entity '{entity_name}' has failed", 500)
                 log_handler.info(f"[{self.trial_network.tn_id}] - Entity '{entity_name}' successfully deployed")
-                sleep(2)
+                sleep(5)
                 if not self.callback_handler.exists_path_entity_name_json(entity_name):
-                    self.trial_network.set_tn_state("failed")
-                    self.trial_network.save()
                     raise CustomJenkinsException(f"File with the results of the entity '{entity_name}' not found", 404)
             del tn_deployed_descriptor[entity_name]
             self.trial_network.set_tn_deployed_descriptor(tn_deployed_descriptor)
@@ -190,25 +177,28 @@ class JenkinsHandler:
         Generate destroy pipeline per trial network
 
         :param jenkins_destroy_pipeline: new name of the destroy pipeline, ``str``
-        :return: pipeline use for deploy trial network, ``str``
+        :return: pipeline use for destroy trial network, ``str``
         :raises CustomJenkinsException:
         """
         if not jenkins_destroy_pipeline:
             tn_destroy_pipeline = JenkinsSettings.JENKINS_DESTROY_PIPELINE
             if tn_destroy_pipeline not in self.get_all_pipelines():
                 raise CustomJenkinsException(f"The 'jenkins_destroy_pipeline' should be one: {', '.join(self.get_all_pipelines())}", 404)
+            tn_jenkins = "TNLCM"
             tn_new_destroy_pipeline = f"{tn_destroy_pipeline}_{self.trial_network.tn_id}"
             config_tn_destroy_pipeline = self.jenkins_client.get_job_config(tn_destroy_pipeline)
             config_tn_new_destroy_pipeline = config_tn_destroy_pipeline.replace(tn_destroy_pipeline, tn_new_destroy_pipeline)
             config_tn_new_destroy_pipeline = config_tn_new_destroy_pipeline.replace(f"{tn_new_destroy_pipeline}.groovy", f"{tn_destroy_pipeline}.groovy")
-            tn_jenkins_deploy_path = f"{self.trial_network.tn_id}/{tn_new_destroy_pipeline}"
-            self.jenkins_client.create_job(tn_jenkins_deploy_path, config_tn_new_destroy_pipeline)
-            return tn_jenkins_deploy_path
+            tn_jenkins_destroy_path = f"{tn_jenkins}/{tn_new_destroy_pipeline}"
+            self.jenkins_client.create_job(tn_jenkins_destroy_path, config_tn_new_destroy_pipeline)
+            log_handler.info(f"[{self.trial_network.tn_id}] - Created '{tn_jenkins_destroy_path}' pipeline in Jenkins to destroy the trial network")
+            return tn_jenkins_destroy_path
         else:
             if jenkins_destroy_pipeline not in self.get_all_pipelines():
                 raise CustomJenkinsException(f"The 'jenkins_destroy_pipeline' should be one: {', '.join(self.get_all_pipelines())}", 404)
-            if self._is_pipeline_in_use(jenkins_destroy_pipeline):
+            if self.jenkins_client.get_job_info(jenkins_destroy_pipeline)["inQueue"]:
                 raise CustomJenkinsException(f"The pipeline '{jenkins_destroy_pipeline}' is currently in use. Try again later", 500)
+            log_handler.info(f"[{self.trial_network.tn_id}] - Use the pipeline '{jenkins_destroy_pipeline}' defined in Jenkins to destroy the trial network")
             return jenkins_destroy_pipeline
 
     def _jenkins_destroy_parameters(self) -> dict:
@@ -218,7 +208,7 @@ class JenkinsHandler:
         :return: dictionary containing mandatory and optional parameters for the Jenkins destroy pipeline, ``dict``
         """
         tn_components_types = self.trial_network.get_tn_components_types()
-        metadata_part = self.sixg_library_handler.get_tn_components_parts(deployment_site=self.trial_network.deployment_site, parts=["metadata"], tn_components_types=tn_components_types)["metadata"]
+        metadata_part = self.sixg_library_handler.get_tn_components_parts(parts=["metadata"], tn_components_types=tn_components_types)["metadata"]
         tn_sorted_descriptor = self.trial_network.json_to_descriptor(self.trial_network.tn_sorted_descriptor)["trial_network"]
         entities_with_destroy_script = []
         for entity_name, entity_data in tn_sorted_descriptor.items():
@@ -249,8 +239,10 @@ class JenkinsHandler:
         self.jenkins_client.build_job(name=jenkins_destroy_pipeline, parameters=self._jenkins_destroy_parameters(), token=self.jenkins_token)
         last_build_number = self.jenkins_client.get_job_info(name=jenkins_destroy_pipeline)["nextBuildNumber"]
         while not self.jenkins_client.get_job_info(name=jenkins_destroy_pipeline)["lastCompletedBuild"]:
+            log_handler.info(f"[{self.trial_network.tn_id}] - Destroying trial network")
             sleep(15)
         while last_build_number != self.jenkins_client.get_job_info(name=jenkins_destroy_pipeline)["lastCompletedBuild"]["number"]:
+            log_handler.info(f"[{self.trial_network.tn_id}] - Destroying trial network")
             sleep(15)
         if self.jenkins_client.get_job_info(name=jenkins_destroy_pipeline)["lastSuccessfulBuild"]["number"] != last_build_number:
             raise CustomJenkinsException(f"Pipeline for destroy '{self.trial_network.tn_id}' trial network has failed", 500)

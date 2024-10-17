@@ -79,7 +79,7 @@ class CallbackHandler:
             with open(path_tn_report_markdown, "a") as tn_report:
                 tn_report.write(markdown + "\n")
 
-            log_handler.info(f"[{tn_id}] - 'Markdown' of the '{entity_name}' entity save in the report file '{tn_report_markdown}' located in the path '{path_tn_report_markdown}'")               
+            log_handler.info(f"[{tn_id}] - Markdown of the '{entity_name}' entity save in the report file '{tn_report_markdown}' located in the path '{path_tn_report_markdown}'")               
         except UnicodeDecodeError:
             raise CustomUnicodeDecodeError("Unicode decoding error", 401)
 
@@ -122,6 +122,7 @@ class CallbackHandler:
         path_tn_report_markdown = os.path.join(f"{self.trial_network.tn_folder}", f"{self.trial_network.tn_id}.md")
         if not os.path.exists(path_tn_report_markdown):
             raise CustomFileNotFoundError("Trial network report file has not been found", 404)
+        log_handler.info(f"[{self.trial_network.tn_id}] - Verification if the report of the trial network exist")
         return path_tn_report_markdown
     
     def exists_path_entity_name_json(self, entity_name: str) -> bool:
@@ -131,4 +132,5 @@ class CallbackHandler:
         :param entity_name: component type-name, ``str``
         :return: True if the entity file exists. Otherwise False, ``bool``
         """
+        log_handler.info(f"[{self.trial_network.tn_id}] - Verification if the json of the entity '{entity_name}' exist")
         return os.path.exists(os.path.join(f"{self.trial_network.tn_folder}", f"{self.trial_network.tn_id}-{entity_name}.json"))

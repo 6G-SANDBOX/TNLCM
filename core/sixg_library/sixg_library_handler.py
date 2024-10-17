@@ -19,7 +19,7 @@ class SixGLibraryHandler:
         
         :param reference_type: type of reference (branch, tag, commit) to checkout, ``str``
         :param reference_value: value of the reference (branch name, tag name, commit ID) to checkout, ``str``
-        :param tn_folder: folder into which the 6G-Library is to be cloned, ``str``
+        :param tn_folder: path folder into which the 6G-Library is to be cloned, ``str``
         """
         self.github_6g_library_https_url = SixGLibrarySettings.GITHUB_6G_LIBRARY_HTTPS_URL
         self.github_6g_library_repository_name = SixGLibrarySettings.GITHUB_6G_LIBRARY_REPOSITORY_NAME
@@ -67,11 +67,10 @@ class SixGLibraryHandler:
         """
         return self.repository_handler.get_branches()
     
-    def get_tn_components_parts(self, deployment_site: str, parts: list[str], tn_components_types: list[str]) -> dict:
+    def get_tn_components_parts(self, parts: list[str], tn_components_types: list[str]) -> dict:
         """
         Function to traverse component types and return their parts (metadata, inputs and outputs)
         
-        :param deployment_site: specific deployment site for which components data is to be retrieved, ``str``
         :param part: list with the indicated part of the component types, ``list[str]``
         :param tn_components_types: list of the components that make up the descriptor, ``list[str]``
         :return components_data: the specified part of the component types, ``dict``
