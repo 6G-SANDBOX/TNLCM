@@ -1,8 +1,10 @@
 from flask_restx import Namespace, reqparse, Resource, abort
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from mongoengine.errors import ValidationError, MongoEngineException
+from flask_jwt_extended.exceptions import JWTExtendedException
+from jwt.exceptions import PyJWTError
 
 from core.auth.auth import get_current_user_from_jwt
+from core.logs.log_handler import log_handler
 from core.models import TrialNetworkModel
 from core.sixg_library.sixg_library_handler import SixGLibraryHandler
 from core.sixg_sandbox_sites.sixg_sandbox_sites_handler import SixGSandboxSitesHandler
@@ -29,6 +31,8 @@ class UpdateCommitSixGLibrary(Resource):
     parser_post.add_argument("commit_id", type=str, required=True)
 
     @debug_namespace.doc(security="Bearer Auth")
+    @debug_namespace.errorhandler(PyJWTError)
+    @debug_namespace.errorhandler(JWTExtendedException)
     @jwt_required()
     @debug_namespace.expect(parser_post)
     def post(self) -> tuple[dict, int]:
@@ -40,21 +44,20 @@ class UpdateCommitSixGLibrary(Resource):
             commit_id = self.parser_post.parse_args()["commit_id"]
             
             current_user = get_current_user_from_jwt(get_jwt_identity())
+            trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
             if current_user.role == "admin":
                 trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
-            else:
-                trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
+            
             sixg_library_handler = SixGLibraryHandler(reference_type="commit", reference_value=trial_network.github_6g_library_commit_id, tn_folder=trial_network.tn_folder)
-            sixg_library_handler.git_checkout()
+            sixg_library_handler.git_switch()
             trial_network.set_github_6g_library_commit_id(commit_id)
             trial_network.save()
             return {"message": "Commit successfully modified"}, 201
-        except ValidationError as e:
-            return abort(401, e.message)
-        except MongoEngineException as e:
-            return abort(401, str(e))
         except CustomException as e:
-            return abort(e.error_code, str(e))
+            return {"message": str(e)}, e.error_code
+        except Exception as e:
+            log_handler.error(f"[{trial_network.tn_id}] - {e}")
+            return abort(500, str(e))
 
 @debug_namespace.route("/trial-network/6G-Sandbox-Sites/commit")
 class UpdateCommitSixGSandboxSites(Resource):
@@ -64,6 +67,8 @@ class UpdateCommitSixGSandboxSites(Resource):
     parser_post.add_argument("commit_id", type=str, required=True)
 
     @debug_namespace.doc(security="Bearer Auth")
+    @debug_namespace.errorhandler(PyJWTError)
+    @debug_namespace.errorhandler(JWTExtendedException)
     @jwt_required()
     @debug_namespace.expect(parser_post)
     def post(self) -> tuple[dict, int]:
@@ -75,21 +80,20 @@ class UpdateCommitSixGSandboxSites(Resource):
             commit_id = self.parser_post.parse_args()["commit_id"]
             
             current_user = get_current_user_from_jwt(get_jwt_identity())
+            trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
             if current_user.role == "admin":
                 trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
-            else:
-                trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
+            
             sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type="commit", reference_value=trial_network.github_6g_library_commit_id, tn_folder=trial_network.tn_folder)
-            sixg_sandbox_sites_handler.git_checkout()
+            sixg_sandbox_sites_handler.git_switch()
             trial_network.set_github_6g_sandbox_sites_commit_id(commit_id)
             trial_network.save()
             return {"message": "Commit successfully modified"}, 201
-        except ValidationError as e:
-            return abort(401, e.message)
-        except MongoEngineException as e:
-            return abort(401, str(e))
         except CustomException as e:
-            return abort(e.error_code, str(e))
+            return {"message": str(e)}, e.error_code
+        except Exception as e:
+            log_handler.error(f"[{trial_network.tn_id}] - {e}")
+            return abort(500, str(e))
 
 @debug_namespace.route("/trial-network/add-debug-entity-name")
 class AddDebugEntityName(Resource):
@@ -99,6 +103,8 @@ class AddDebugEntityName(Resource):
     parser_post.add_argument("entity_name", type=str, required=True)
 
     @debug_namespace.doc(security="Bearer Auth")
+    @debug_namespace.errorhandler(PyJWTError)
+    @debug_namespace.errorhandler(JWTExtendedException)
     @jwt_required()
     @debug_namespace.expect(parser_post)
     def post(self) -> tuple[dict, int]:
@@ -110,10 +116,9 @@ class AddDebugEntityName(Resource):
             entity_name = self.parser_post.parse_args()["entity_name"]
             
             current_user = get_current_user_from_jwt(get_jwt_identity())
+            trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
             if current_user.role == "admin":
                 trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
-            else:
-                trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
             tn_raw_descriptor = trial_network.json_to_descriptor(trial_network.tn_raw_descriptor)
             tn_sorted_descriptor = trial_network.json_to_descriptor(trial_network.tn_sorted_descriptor)
             tn_deployed_descriptor = trial_network.json_to_descriptor(trial_network.tn_deployed_descriptor)
@@ -125,12 +130,11 @@ class AddDebugEntityName(Resource):
             trial_network.tn_deployed_descriptor = trial_network.descriptor_to_json(tn_deployed_descriptor)
             trial_network.save()
             return {"message": f"Successfully added debug into '{entity_name}' entity name of the Trial Network '{tn_id}'"}, 201
-        except ValidationError as e:
-            return abort(401, e.message)
-        except MongoEngineException as e:
-            return abort(401, str(e))
         except CustomException as e:
-            return abort(e.error_code, str(e))
+            return {"message": str(e)}, e.error_code
+        except Exception as e:
+            log_handler.error(f"[{trial_network.tn_id}] - {e}")
+            return abort(500, str(e))
 
 @debug_namespace.route("/trial-network/delete-debug-entity-name")
 class DeleteDebugEntityName(Resource):
@@ -140,6 +144,8 @@ class DeleteDebugEntityName(Resource):
     parser_post.add_argument("entity_name", type=str, required=True)
 
     @debug_namespace.doc(security="Bearer Auth")
+    @debug_namespace.errorhandler(PyJWTError)
+    @debug_namespace.errorhandler(JWTExtendedException)
     @jwt_required()
     @debug_namespace.expect(parser_post)
     def post(self) -> tuple[dict, int]:
@@ -151,10 +157,9 @@ class DeleteDebugEntityName(Resource):
             entity_name = self.parser_post.parse_args()["entity_name"]
             
             current_user = get_current_user_from_jwt(get_jwt_identity())
+            trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
             if current_user.role == "admin":
                 trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
-            else:
-                trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
             tn_raw_descriptor = trial_network.json_to_descriptor(trial_network.tn_raw_descriptor)
             tn_sorted_descriptor = trial_network.json_to_descriptor(trial_network.tn_sorted_descriptor)
             tn_deployed_descriptor = trial_network.json_to_descriptor(trial_network.tn_deployed_descriptor)
@@ -166,17 +171,18 @@ class DeleteDebugEntityName(Resource):
             trial_network.tn_deployed_descriptor = trial_network.descriptor_to_json(tn_deployed_descriptor)
             trial_network.save()
             return {"message": f"Successfully deleted debug into '{entity_name}' entity name of the Trial Network '{tn_id}'"}, 201
-        except ValidationError as e:
-            return abort(401, e.message)
-        except MongoEngineException as e:
-            return abort(401, str(e))
         except CustomException as e:
-            return abort(e.error_code, str(e))
+            return {"message": str(e)}, e.error_code
+        except Exception as e:
+            log_handler.error(f"[{trial_network.tn_id}] - {e}")
+            return abort(500, str(e))
 
 @debug_namespace.route("/jenkins/pipelines/")
 class JenkinsPipelines(Resource):
 
     @debug_namespace.doc(security="Bearer Auth")
+    @debug_namespace.errorhandler(PyJWTError)
+    @debug_namespace.errorhandler(JWTExtendedException)
     @jwt_required()
     def get(self) -> tuple[dict, int]:
         """
@@ -184,6 +190,6 @@ class JenkinsPipelines(Resource):
         """
         try:
             jenkins_handler = JenkinsHandler()
-            return {"all_pipelines": jenkins_handler.get_all_pipelines()}, 200
+            return {"pipelines": jenkins_handler.get_all_pipelines()}, 200
         except CustomException as e:
-            return abort(e.error_code, str(e))
+            return {"message": str(e)}, e.error_code

@@ -3,7 +3,7 @@ import os
 from email_validator import validate_email, EmailNotValidError
 
 from core.logs.log_handler import log_handler
-from core.exceptions.exceptions_handler import UndefinedEnvVariableError, InvalidEmailError
+from core.exceptions.exceptions_handler import UndefinedEnvVariableError
 
 def str_to_bool(s: str) -> bool:
     """
@@ -44,7 +44,7 @@ class MailSettings:
         valid = validate_email(MAIL_USERNAME)
         email = valid.email
     except EmailNotValidError:
-        raise InvalidEmailError("Invalid 'MAIL_USERNAME' entered in .env file", 500)
+        raise UndefinedEnvVariableError("Invalid 'MAIL_USERNAME' entered in .env file", 500)
     MAIL_PORT = int(MAIL_PORT)
     MAIL_USE_TLS = str_to_bool(MAIL_USE_TLS)
     MAIL_USE_SSL = str_to_bool(MAIL_USE_SSL)

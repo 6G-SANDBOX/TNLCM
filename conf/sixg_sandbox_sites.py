@@ -2,7 +2,7 @@ import os
 
 from conf import RepositorySettings
 from core.logs.log_handler import log_handler
-from core.exceptions.exceptions_handler import UndefinedEnvVariableError, GitCloneError
+from core.exceptions.exceptions_handler import UndefinedEnvVariableError, CustomGitException
 
 class SixGSandboxSitesSettings:
     """
@@ -25,7 +25,7 @@ class SixGSandboxSitesSettings:
     if missing_variables:
         raise UndefinedEnvVariableError(missing_variables)
     if not RepositorySettings.is_github_repo(GITHUB_6G_SANDBOX_SITES_HTTPS_URL):
-        raise GitCloneError(f"Repository url specified '{GITHUB_6G_SANDBOX_SITES_HTTPS_URL}' is not correct", 500)
+        raise CustomGitException(f"Repository url specified '{GITHUB_6G_SANDBOX_SITES_HTTPS_URL}' is not correct", 500)
     
     config_dict = {
         "GITHUB_6G_SANDBOX_SITES_HTTPS_URL": GITHUB_6G_SANDBOX_SITES_HTTPS_URL,

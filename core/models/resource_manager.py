@@ -1,9 +1,8 @@
 from mongoengine import Document, StringField, IntField
 from mongoengine.errors import ValidationError, MongoEngineException
-from core.exceptions.exceptions_handler import CustomException
 
 from core.models.trial_network import TrialNetworkModel
-from core.exceptions.exceptions_handler import NoResourcesAvailable
+from core.exceptions.exceptions_handler import CustomException
 
 class ResourceManagerModel(Document):
 
@@ -55,7 +54,7 @@ class ResourceManagerModel(Document):
 
         :param trial_network: model of the trial network, ``TrialNetworkModel``
         :param site_available_components: dictionary with all information of all components available on a site, ``dict``
-        :raise NoResourcesAvailable: if the component cannot be deployed on a platform because there are no more resources for that component (error code 400)
+        :raise CustomException:
         """
         try:
             tn_descriptor = trial_network.json_to_descriptor(trial_network.tn_sorted_descriptor)["trial_network"]
@@ -65,7 +64,7 @@ class ResourceManagerModel(Document):
                 if sixg_sandbox_sites_component_quantity > 0:
                     tnlcm_quantity, _ = self._tnlcm_component_resources(component_type)
                     if sixg_sandbox_sites_component_quantity == tnlcm_quantity:
-                        raise NoResourcesAvailable(f"Component '{component_type}' is not available on the '{trial_network.deployment_site}' platform", 400)
+                        raise CustomException(f"Component '{component_type}' is not available on the '{trial_network.deployment_site}' platform", 400)
                     tnlcm_component_resources = ResourceManagerModel.objects(component=component_type).first()
                     if not tnlcm_component_resources:
                         tnlcm_component_resources = ResourceManagerModel(component=component_type, tn_id=trial_network.tn_id, quantity=1, ttl=sixg_sandbox_sites_component_ttl)

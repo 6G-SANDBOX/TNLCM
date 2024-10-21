@@ -1,9 +1,9 @@
 import os
 
 from yaml import dump
-from jenkins import Jenkins, JenkinsException
 from requests import post
 from time import sleep
+from jenkins import Jenkins, JenkinsException
 from requests.exceptions import RequestException
 
 from conf import JenkinsSettings, TnlcmSettings, SixGLibrarySettings, SixGSandboxSitesSettings
@@ -131,7 +131,6 @@ class JenkinsHandler:
         """
         Trial network deployment starts
         
-        :raises CustomFileNotFoundError:
         :raises CustomJenkinsException:
         """
         tn_deployed_descriptor = self.trial_network.json_to_descriptor(self.trial_network.tn_deployed_descriptor)["trial_network"]

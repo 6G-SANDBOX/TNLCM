@@ -7,7 +7,7 @@ from base64 import b64decode
 from conf import SixGLibrarySettings, TnlcmSettings
 from core.logs.log_handler import log_handler
 from core.models.trial_network import TrialNetworkModel
-from core.exceptions.exceptions_handler import KeyNotFoundError, CustomUnicodeDecodeError, InvalidContentFileError, CustomFileNotFoundError, KeyNotFoundError
+from core.exceptions.exceptions_handler import CustomException
 
 JENKINS_RESULT_KEYS = ["tn_id", "component_type", "custom_name", "success", "output", "markdown"]
 
@@ -31,14 +31,12 @@ class CallbackHandler:
         """
         Save decoded deployment information of each component received by Jenkins
         
-        :raises KeyNotFoundError:
-        :raises InvalidContentFileError:
-        :raises CustomUnicodeDecodeError:
+        :raises CustomException:
         """
         try:
             missing_keys = [key for key in JENKINS_RESULT_KEYS if key not in self.data]
             if missing_keys:
-                raise KeyNotFoundError(f"Missing keys: {', '.join(missing_keys)}", 400)
+                raise CustomException(f"Missing keys: {', '.join(missing_keys)}", 400)
             decoded_data = {}
             for key_data, value_data in self.data.items():
                 if key_data == "output":
@@ -62,7 +60,7 @@ class CallbackHandler:
 
             if success == "true":
                 if not self._is_output_correct(tn_id, output_jenkins, component_type):
-                    raise InvalidContentFileError("Output received by Jenkins does not match output from the 6G-Library", 500)
+                    raise CustomException("Output received by Jenkins does not match output from the 6G-Library", 500)
             
             entity_name_json = f"{tn_id}-{component_type}-{custom_name}.json" if custom_name != "None" else f"{tn_id}-{component_type}.json"
             path_entity_name_json = os.path.join(TnlcmSettings.TRIAL_NETWORKS_DIRECTORY, tn_id, entity_name_json)
@@ -81,7 +79,7 @@ class CallbackHandler:
 
             log_handler.info(f"[{tn_id}] - Markdown of the '{entity_name}' entity save in the report file '{tn_report_markdown}' located in the path '{path_tn_report_markdown}'")               
         except UnicodeDecodeError:
-            raise CustomUnicodeDecodeError("Unicode decoding error", 401)
+            raise CustomException("Unicode decoding error", 401)
 
     def _is_output_correct(self, tn_id: str, output_jenkins: dict, component_type: dict) -> bool:
         """
@@ -91,20 +89,18 @@ class CallbackHandler:
         :param output_jenkins: data received by Jenkins, ``dict``
         :param component_type: data expected to be received indicated by the 6G-Library, ``dict``
         :return: True if output received by Jenkins is the same as the output defined in 6G-Library. Otherwise False, ``bool``
-        :raises CustomFileNotFoundError:
-        :raises InvalidContentFileError:
-        :raises KeyNotFoundError:
+        :raises CustomException:
         """
         public_file = os.path.join(TnlcmSettings.TRIAL_NETWORKS_DIRECTORY, tn_id, SixGLibrarySettings.GITHUB_6G_LIBRARY_REPOSITORY_NAME, component_type, ".tnlcm", "public.yaml")
         if not os.path.exists(public_file):
-            raise CustomFileNotFoundError(f"File '{public_file}' not found", 404)
+            raise CustomException(f"File '{public_file}' not found", 404)
         with open(public_file, "rt", encoding="utf8") as file:
             try:
                 public_data = safe_load(file)
             except YAMLError:
-                raise InvalidContentFileError(f"File '{public_file}' is not parsed correctly", 422)
+                raise CustomException(f"File '{public_file}' is not parsed correctly", 422)
         if "output" not in public_data:
-            raise KeyNotFoundError(f"Key 'output' is missing in the file located in the path '{public_file}'", 404)
+            raise CustomException(f"Key 'output' is missing in the file located in the path '{public_file}'", 404)
         output_library = public_data["output"]
         if output_library and len(component_type) > 0 and output_jenkins and len(output_jenkins) > 0:
             return set(output_jenkins.keys()) == set(output_library.keys())
@@ -117,11 +113,11 @@ class CallbackHandler:
         Function to check if the Trial Network report has been saved
 
         :return: path where report of trial network is stored, ``str``
-        :raises CustomFileNotFoundError:
+        :raises CustomException:
         """
         path_tn_report_markdown = os.path.join(f"{self.trial_network.tn_folder}", f"{self.trial_network.tn_id}.md")
         if not os.path.exists(path_tn_report_markdown):
-            raise CustomFileNotFoundError("Trial network report file has not been found", 404)
+            raise CustomException("Trial network report file has not been found", 404)
         log_handler.info(f"[{self.trial_network.tn_id}] - Verification if the report of the trial network exist")
         return path_tn_report_markdown
     

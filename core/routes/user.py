@@ -1,8 +1,9 @@
-from flask import request
 from datetime import timedelta
+from flask import request
 from flask_restx import Resource, Namespace, abort
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, create_refresh_token
-from mongoengine.errors import ValidationError, MongoEngineException
+from flask_jwt_extended.exceptions import JWTExtendedException
+from jwt.exceptions import PyJWTError
 
 from core.auth.auth import get_current_user_from_jwt
 from core.models import UserModel
@@ -30,6 +31,8 @@ user_namespace = Namespace(
 class User(Resource):
 
     @user_namespace.doc(security="Bearer Auth")
+    @user_namespace.errorhandler(PyJWTError)
+    @user_namespace.errorhandler(JWTExtendedException)
     @jwt_required()
     def get(self) -> tuple[dict, int]:
         """
@@ -38,12 +41,10 @@ class User(Resource):
         try:
             current_user = get_current_user_from_jwt(get_jwt_identity())
             return current_user.to_dict(), 200
-        except ValidationError as e:
-            return abort(401, e.message)
-        except MongoEngineException as e:
-            return abort(401, str(e))
         except CustomException as e:
-            return abort(e.error_code, str(e))
+            return {"message": str(e)}, e.error_code
+        except Exception as e:
+            return abort(500, str(e))
 
 @user_namespace.route("/login")
 class UserLogin(Resource):
@@ -57,11 +58,12 @@ class UserLogin(Resource):
             auth = request.authorization
 
             if not auth or not auth.username or not auth.password:
-                return abort(401, f"Could not verify user '{auth.username}'")
+                return {"message": f"Could not verify user '{auth.username}'"}, 401
 
             user = UserModel.objects(username=auth.username).first()
             if not user:
-                return abort(404, "User not found")
+                return {"message": "User not found"}, 404
+            
             if user.check_password(auth.password):
                 access_token = create_access_token(identity=user.username, expires_delta=timedelta(minutes=EXP_MINUTES_ACCESS_TOKEN))
                 refresh_token = create_refresh_token(identity=user.username, expires_delta=timedelta(days=EXP_DAYS_REFRESH_TOKEN))
@@ -69,18 +71,19 @@ class UserLogin(Resource):
                     "access_token": access_token,
                     "refresh_token": refresh_token
                 }, 201
-            return abort(401, f"Could not verify user '{auth.username}'")
-        except ValidationError as e:
-            return abort(401, e.message)
-        except MongoEngineException as e:
-            return abort(401, str(e))
+            
+            return {"message": f"Could not verify user '{auth.username}'"}, 401
         except CustomException as e:
-            return abort(e.error_code, str(e))
+            return {"message": str(e)}, e.error_code
+        except Exception as e:
+            return abort(500, str(e))
 
 @user_namespace.route("/refresh")
 class UserTokenRefresh(Resource):
 
     @user_namespace.doc(security="Bearer Auth")
+    @user_namespace.errorhandler(PyJWTError)
+    @user_namespace.errorhandler(JWTExtendedException)
     @jwt_required(refresh=True)
     def post(self) -> tuple[dict, int]:
         """
@@ -89,12 +92,11 @@ class UserTokenRefresh(Resource):
         try:
             current_user = get_current_user_from_jwt(get_jwt_identity())
             if not current_user:
-                abort(404, "User not found")
+                return {"message": "User not found"}, 404
+            
             new_access_token = create_access_token(identity=current_user, expires_delta=timedelta(minutes=EXP_MINUTES_ACCESS_TOKEN))
             return {"access_token": new_access_token}, 200
-        except ValidationError as e:
-            return abort(401, e.message)
-        except MongoEngineException as e:
-            return abort(401, str(e))
         except CustomException as e:
-            return abort(e.error_code, str(e))
+            return {"message": str(e)}, e.error_code
+        except Exception as e:
+            return abort(500, str(e))

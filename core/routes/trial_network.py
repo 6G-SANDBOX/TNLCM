@@ -1,21 +1,21 @@
 import os
-import threading
 
+from shutil import rmtree
 from flask_restx import Namespace, Resource, reqparse, abort
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.datastructures import FileStorage
-from mongoengine.errors import ValidationError, MongoEngineException
-from jenkins import JenkinsException
+from threading import Lock
+from flask_jwt_extended.exceptions import JWTExtendedException
+from jwt.exceptions import PyJWTError
 
-from core.logs.log_handler import log_handler
-from core.auth.auth import get_current_user_from_jwt
 from conf import TnlcmSettings
+from core.auth.auth import get_current_user_from_jwt
 from core.callback.callback_handler import CallbackHandler
 from core.jenkins.jenkins_handler import JenkinsHandler
+from core.logs.log_handler import log_handler
 from core.models import TrialNetworkModel, ResourceManagerModel
 from core.sixg_library.sixg_library_handler import SixGLibraryHandler
 from core.sixg_sandbox_sites.sixg_sandbox_sites_handler import SixGSandboxSitesHandler
-
 from core.exceptions.exceptions_handler import CustomException
 
 trial_network_namespace = Namespace(
@@ -33,8 +33,8 @@ trial_network_namespace = Namespace(
 ##########################################
 ############ Mutual exclusion ############
 ##########################################
-tn_id_lock = threading.Lock()
-tn_resource_manager_lock = threading.Lock()
+tn_id_lock = Lock()
+tn_resource_manager_lock = Lock()
 
 #################################
 ######### Trial Network #########
@@ -52,6 +52,8 @@ class CreateTrialNetwork(Resource):
     parser_post.add_argument("github_6g_sandbox_sites_reference_value", type=str, required=True)
 
     @trial_network_namespace.doc(security="Bearer Auth")
+    @trial_network_namespace.errorhandler(PyJWTError)
+    @trial_network_namespace.errorhandler(JWTExtendedException)
     @jwt_required()
     @trial_network_namespace.expect(parser_post)
     def post(self) -> tuple[dict, int]:
@@ -59,7 +61,7 @@ class CreateTrialNetwork(Resource):
         Create and validate trial network
         Can specify a branch, commit or tag of the 6G-Library.
         Can specify a branch, commit or tag of the 6G-Sandbox-Sites.
-        The tn_id can be specified if desired. **If the value is specified, it should begin with character. If nothing is specified, it will return a random tn_id.**
+        The tn_id can be specified if desired. **If the value is specified, it should begin with character. If nothing is specified, it will return a random tn_id**
         """
         try:
             tn_id = self.parser_post.parse_args()["tn_id"]
@@ -71,7 +73,8 @@ class CreateTrialNetwork(Resource):
             github_6g_sandbox_sites_reference_value = self.parser_post.parse_args()["github_6g_sandbox_sites_reference_value"]
 
             current_user = get_current_user_from_jwt(get_jwt_identity())
-            trial_network = TrialNetworkModel(user_created=current_user.username)
+            trial_network = TrialNetworkModel()
+            trial_network.set_user_created(user_created=current_user.username)
             with tn_id_lock:
                 trial_network.set_tn_id(size=3, tn_id=tn_id)
                 log_handler.info(f"Trial network created with identifier '{trial_network.tn_id}'")
@@ -87,7 +90,9 @@ class CreateTrialNetwork(Resource):
             sixg_sandbox_sites_handler.git_clone()
             log_handler.info(f"[{trial_network.tn_id}] - Git clone '{sixg_sandbox_sites_handler.github_6g_sandbox_sites_repository_name}' repository into '{trial_network.tn_folder}'")
             sixg_sandbox_sites_handler.git_checkout()
-            log_handler.info(f"[{trial_network.tn_id}] - Git status '{sixg_sandbox_sites_handler.github_6g_sandbox_sites_repository_name}' repository into '{trial_network.tn_folder}' with HEAD pointing to commit '{sixg_sandbox_sites_handler.github_6g_sandbox_sites_commit_id}'")
+            log_handler.info(f"[{trial_network.tn_id}] - Git checkout '{sixg_sandbox_sites_handler.github_6g_sandbox_sites_repository_name}' repository into '{trial_network.tn_folder}' to '{sixg_sandbox_sites_handler.github_6g_sandbox_sites_reference_type}' with value '{sixg_sandbox_sites_handler.github_6g_sandbox_sites_reference_value}'")
+            sixg_sandbox_sites_handler.git_switch()
+            log_handler.info(f"[{trial_network.tn_id}] - Git switch '{sixg_sandbox_sites_handler.github_6g_sandbox_sites_repository_name}' repository into '{trial_network.tn_folder}' with HEAD pointing to commit '{sixg_sandbox_sites_handler.github_6g_sandbox_sites_commit_id}'")
             log_handler.info(f"[{trial_network.tn_id}] - Validate deployment site '{deployment_site}'")
             sixg_sandbox_sites_handler.validate_site(deployment_site)
             trial_network.set_deployment_site(deployment_site)
@@ -100,7 +105,9 @@ class CreateTrialNetwork(Resource):
             sixg_library_handler.git_clone()
             log_handler.info(f"[{trial_network.tn_id}] - Git clone '{sixg_library_handler.github_6g_library_repository_name}' repository into '{trial_network.tn_folder}'")
             sixg_library_handler.git_checkout()
-            log_handler.info(f"[{trial_network.tn_id}] - Git status '{sixg_library_handler.github_6g_library_repository_name}' repository into '{trial_network.tn_folder}' with HEAD pointing to commit '{sixg_library_handler.github_6g_library_commit_id}'")
+            log_handler.info(f"[{trial_network.tn_id}] - Git checkout '{sixg_library_handler.github_6g_library_repository_name}' repository into '{trial_network.tn_folder}' to '{sixg_library_handler.github_6g_library_reference_type}' with value '{sixg_library_handler.github_6g_library_reference_value}'")
+            sixg_library_handler.git_switch()
+            log_handler.info(f"[{trial_network.tn_id}] - Git switch '{sixg_library_handler.github_6g_library_repository_name}' repository into '{trial_network.tn_folder}' with HEAD pointing to commit '{sixg_library_handler.github_6g_library_commit_id}'")
             tn_component_inputs = sixg_library_handler.get_tn_components_parts(parts=["input"], tn_components_types=tn_components_types)["input"]
             log_handler.info(f"[{trial_network.tn_id}] - Validate trial network descriptor")
             trial_network.validate_tn_descriptor(tn_components_types, tn_component_inputs)
@@ -111,56 +118,63 @@ class CreateTrialNetwork(Resource):
             trial_network.save()
             log_handler.info(f"[{trial_network.tn_id}] - Trial network update to status '{trial_network.tn_state}'")
             return trial_network.to_dict(), 201
-        except ValidationError as e:
-            return abort(401, e.message)
-        except MongoEngineException as e:
-            return abort(401, str(e))
         except CustomException as e:
-            return abort(e.error_code, str(e))
+            return {"message": str(e)}, e.error_code
+        except Exception as e:
+            log_handler.error(f"[{trial_network.tn_id}] - {e}")
+            return abort(500, str(e))
 
 @trial_network_namespace.route("/<string:tn_id>")
 class TrialNetwork(Resource):
 
     @trial_network_namespace.doc(security="Bearer Auth")
+    @trial_network_namespace.errorhandler(PyJWTError)
+    @trial_network_namespace.errorhandler(JWTExtendedException)
     @jwt_required()
     def get(self, tn_id: str) -> tuple[dict, int]:
         """
-        Return trial network
+        Get trial network
         """
         try:
             current_user = get_current_user_from_jwt(get_jwt_identity())
+            trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
             if current_user.role == "admin":
                 trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
-            else:
-                trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
+            
             if not trial_network:
-                return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user.username}'")
+                return {"message": f"No trial network with the name '{tn_id}' created by the user '{current_user.username}'"}, 404
+
             return trial_network.to_dict_full(), 200
         except CustomException as e:
-            return abort(e.error_code, str(e))
+            return {"message": str(e)}, e.error_code
+        except Exception as e:
+            log_handler.error(f"[{trial_network.tn_id}] - {e}")
+            return abort(500, str(e))
     
     parser_put = reqparse.RequestParser()
     parser_put.add_argument("jenkins_deploy_pipeline", type=str, required=False)
 
     @trial_network_namespace.doc(security="Bearer Auth")
+    @trial_network_namespace.errorhandler(PyJWTError)
+    @trial_network_namespace.errorhandler(JWTExtendedException)
     @jwt_required()
     @trial_network_namespace.expect(parser_put)
     def put(self, tn_id: str) -> tuple[dict, int]:
         """
-        STATE MACHINE: play or suspend trial network
-        If nothing is specified in jenkins_deploy_pipeline, a pipeline will be created inside TNLCM folder in Jenkins with the name **TN_DEPLOY_<tn_id>**
+        Play or suspend trial network
+        If nothing is specified in *jenkins_deploy_pipeline*, a pipeline will be created inside TNLCM folder in Jenkins with the name **TN_DEPLOY_<tn_id>**
         If a deployment pipeline is specified, it will be checked that it exists in Jenkins and that it has nothing queued to execute
         """
         try:
             jenkins_deploy_pipeline = self.parser_put.parse_args()["jenkins_deploy_pipeline"]
 
             current_user = get_current_user_from_jwt(get_jwt_identity())
+            trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
             if current_user.role == "admin":
                 trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
-            else:
-                trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
+            
             if not trial_network:
-                return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user.username}'")
+                return {"message": f"No trial network with the name '{tn_id}' created by the user '{current_user.username}'"}, 404
             
             tn_state = trial_network.tn_state
             if tn_state == "validated":
@@ -183,7 +197,7 @@ class TrialNetwork(Resource):
                 trial_network.set_tn_state("activated")
                 trial_network.save()
                 log_handler.info(f"[{trial_network.tn_id}] - Trial network update to status '{trial_network.tn_state}'")
-                return {"message": f"Trial network activated. Report of the trial network can be found in the directory '{trial_network.tn_folder}/{trial_network.tn_id}.md'"}, 200
+                return {"message": f"Trial network ACTIVATED. Report of the trial network can be found in the directory '{trial_network.tn_folder}/{trial_network.tn_id}.md'"}, 200
             elif tn_state == "failed":
                 callback_handler = CallbackHandler(trial_network=trial_network)
                 jenkins_handler = JenkinsHandler(trial_network=trial_network, callback_handler=callback_handler)
@@ -195,7 +209,7 @@ class TrialNetwork(Resource):
                 trial_network.set_tn_state("activated")
                 trial_network.save()
                 log_handler.info(f"[{trial_network.tn_id}] - Trial network update to status '{trial_network.tn_state}'")
-                return {"message": f"Trial network activated. Report of the trial network can be found in the directory '{trial_network.tn_folder}/{trial_network.tn_id}.md'"}, 200
+                return {"message": f"Trial network ACTIVATED. Report of the trial network can be found in the directory '{trial_network.tn_folder}/{trial_network.tn_id}.md'"}, 200
             elif tn_state == "destroyed":
                 callback_handler = CallbackHandler(trial_network=trial_network)
                 jenkins_handler = JenkinsHandler(trial_network=trial_network, callback_handler=callback_handler)
@@ -213,56 +227,52 @@ class TrialNetwork(Resource):
                 trial_network.set_tn_state("activated")
                 trial_network.save()
                 log_handler.info(f"[{trial_network.tn_id}] - Trial network update to status '{trial_network.tn_state}'")
-                return {"message": f"Trial network activated. Report of the trial network can be found in the directory '{trial_network.tn_folder}/{trial_network.tn_id}.md'"}, 200
+                return {"message": f"Trial network ACTIVATED. Report of the trial network can be found in the directory '{trial_network.tn_folder}/{trial_network.tn_id}.md'"}, 200
             elif tn_state == "activated":
                 # TODO: see what to do with trial network resources
-                return {"message": "TODO: suspend trial network"}, 400
+                return {"message": "TODO: SUSPEND trial network"}, 400
             else: # tn_state == "suspended"
                 # TODO:
-                return {"message": "TODO: restart trial network suspended"}, 400
-        except ValidationError as e:
-            trial_network.set_tn_state("failed")
-            trial_network.save()
-            return abort(401, e.message)
-        except MongoEngineException as e:
-            trial_network.set_tn_state("failed")
-            trial_network.save()
-            return abort(401, str(e))
-        except JenkinsException as e:
-            trial_network.set_tn_state("failed")
-            trial_network.save()
-            return abort(401, str(e))
+                return {"message": "TODO: RESTART trial network suspended"}, 400
         except CustomException as e:
             trial_network.set_tn_state("failed")
             trial_network.save()
-            return abort(e.error_code, str(e))
+            return {"message": str(e)}, e.error_code
+        except Exception as e:
+            trial_network.set_tn_state("failed")
+            trial_network.save()
+            log_handler.error(f"[{trial_network.tn_id}] - {e}")
+            return abort(500, str(e))
 
     parser_delete = reqparse.RequestParser()
     parser_delete.add_argument("jenkins_destroy_pipeline", type=str, required=False)
 
     @trial_network_namespace.doc(security="Bearer Auth")
+    @trial_network_namespace.errorhandler(PyJWTError)
+    @trial_network_namespace.errorhandler(JWTExtendedException)
     @jwt_required()
     @trial_network_namespace.expect(parser_delete)
     def delete(self, tn_id: str) -> tuple[dict, int]:
         """
-        Delete trial network
-        If nothing is specified in jenkins_destroy_pipeline, a pipeline will be created inside TNLCM folder in Jenkins with the name **TN_DESTROY_<tn_id>**
+        Destroy trial network
+        If nothing is specified in *jenkins_destroy_pipeline*, a pipeline will be created inside TNLCM folder in Jenkins with the name **TN_DESTROY_<tn_id>**
         If a destroy pipeline is specified, it will be checked that it exists in Jenkins and that it has nothing queued to execute
         """
         try:
             jenkins_destroy_pipeline = self.parser_delete.parse_args()["jenkins_destroy_pipeline"]
 
             current_user = get_current_user_from_jwt(get_jwt_identity())
+            trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
             if current_user.role == "admin":
                 trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
-            else:
-                trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
+            
             if not trial_network:
-                return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user.username}'")
+                return {"message": f"No trial network with the name '{tn_id}' created by the user '{current_user.username}'"}, 404
             
             tn_state = trial_network.tn_state
             if tn_state != "activated":
-                return abort(400, f"Trial network cannot be destroyed because the current status of Trial Network is different to ACTIVATED")
+                return {"message": "Trial network cannot be destroyed because the current status of Trial Network is different to ACTIVATED"}, 400
+            
             callback_handler = CallbackHandler(trial_network=trial_network)
             sixg_library_handler = SixGLibraryHandler(reference_type="commit", reference_value=trial_network.github_6g_library_commit_id, tn_folder=trial_network.tn_folder)
             jenkins_handler = JenkinsHandler(trial_network=trial_network, callback_handler=callback_handler, sixg_library_handler=sixg_library_handler)
@@ -282,52 +292,65 @@ class TrialNetwork(Resource):
             trial_network.set_tn_state("destroyed")
             trial_network.save()
             log_handler.info(f"[{trial_network.tn_id}] - Trial network update to status '{trial_network.tn_state}'")
-            return {"message": f"The trial network with identifier '{tn_id}' has been destroyed"}, 200
-        except ValidationError as e:
-            return abort(401, e.message)
-        except MongoEngineException as e:
-            return abort(401, str(e))
-        except JenkinsException as e:
-            return abort(401, str(e))
+            return {"message": f"The trial network with identifier '{tn_id}' has been DESTROYED"}, 200
         except CustomException as e:
-            return abort(e.error_code, str(e))
+            return {"message": str(e)}, e.error_code
+        except Exception as e:
+            log_handler.error(f"[{trial_network.tn_id}] - {e}")
+            return abort(500, str(e))
 
-@trial_network_namespace.route("/report/<string:tn_id>")
-class TrialNetworkReport(Resource):
+@trial_network_namespace.route("/purge/<string:tn_id>")
+class PurgeTrialNetwork(Resource):
 
     @trial_network_namespace.doc(security="Bearer Auth")
+    @trial_network_namespace.errorhandler(PyJWTError)
+    @trial_network_namespace.errorhandler(JWTExtendedException)
+    @jwt_required()
+    def delete(self, tn_id: str) -> tuple[dict, int]:
+        """
+        Purge trial network
+        """
+        try:          
+            current_user = get_current_user_from_jwt(get_jwt_identity())
+            trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
+            if current_user.role == "admin":
+                trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
+            
+            if not trial_network:
+                return {"message": f"No trial network with the name '{tn_id}' created by the user '{current_user.username}'"}, 404
+            
+            rmtree(trial_network.tn_folder)
+            trial_network.delete()
+            return {"message": f"The trial network with identifier '{tn_id}' has been PURGE"}, 200
+        except CustomException as e:
+            return {"message": str(e)}, e.error_code
+        except Exception as e:
+            log_handler.error(f"[{trial_network.tn_id}] - {e}")
+            return abort(500, str(e))
+
+@trial_network_namespace.route("/report/<string:tn_id>")
+class ReportTrialNetwork(Resource):
+
+    @trial_network_namespace.doc(security="Bearer Auth")
+    @trial_network_namespace.errorhandler(PyJWTError)
+    @trial_network_namespace.errorhandler(JWTExtendedException)
     @jwt_required()
     def get(self, tn_id: str) -> tuple[dict, int]:
         """
-        Return the report generated after the execution of the entities of a trial network
+        Report generated after trial network deployment
         """
         try:
             current_user = get_current_user_from_jwt(get_jwt_identity())
+            trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
             if current_user.role == "admin":
                 trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
-            else:
-                trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
+            
             if not trial_network:
-                return abort(404, f"No trial network with the name '{tn_id}' created by the user '{current_user.username}'")
+                return {"message": f"No trial network with the name '{tn_id}' created by the user '{current_user.username}'"}, 404
+
             return {"tn_report": trial_network.tn_report}, 200
         except CustomException as e:
-            return abort(e.error_code, str(e))
-
-@trial_network_namespace.route("s/") 
-class TrialNetworks(Resource):
-
-    @trial_network_namespace.doc(security="Bearer Auth")
-    @jwt_required()
-    def get(self) -> tuple[dict, int]:
-        """
-        Return information of all trial networks stored in database created by user identified
-        """
-        try:
-            current_user = get_current_user_from_jwt(get_jwt_identity())
-            if current_user.role == "admin":
-                trial_networks = TrialNetworkModel.objects()
-            else:
-                trial_networks = TrialNetworkModel.objects(user_created=current_user.username)
-            return {'trial_networks': [tn.to_dict_full() for tn in trial_networks]}, 200
-        except CustomException as e:
-            return abort(e.error_code, str(e))
+            return {"message": str(e)}, e.error_code
+        except Exception as e:
+            log_handler.error(f"[{trial_network.tn_id}] - {e}")
+            return abort(500, str(e))

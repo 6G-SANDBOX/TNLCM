@@ -8,7 +8,7 @@ from ansible.errors import AnsibleError
 from conf import SixGSandboxSitesSettings
 from core.logs.log_handler import log_handler
 from core.repository.repository_handler import RepositoryHandler
-from core.exceptions.exceptions_handler import SixGSandboxSitesInvalidSiteError, SixGSandboxSitesComponentsNotFoundError, InvalidContentFileError, CustomFileNotFoundError, SixGSandboxSitesDecryptError
+from core.exceptions.exceptions_handler import CustomSixGSandboxSitesException, CustomException
 
 class SixGSandboxSitesHandler():
 
@@ -21,8 +21,8 @@ class SixGSandboxSitesHandler():
         """
         Constructor
         
-        :param reference_type: type of reference (branch, tag, commit) to checkout, ``str``
-        :param reference_value: value of the reference (branch name, tag name, commit ID) to checkout, ``str``
+        :param reference_type: type of reference (branch, tag, commit) to switch, ``str``
+        :param reference_value: value of the reference (branch name, tag name, commit ID) to switch, ``str``
         :param tn_folder: folder into which the 6G-Sandbox-Sites is to be cloned, ``str``
         """
         self.github_6g_sandbox_sites_https_url = SixGSandboxSitesSettings.GITHUB_6G_SANDBOX_SITES_HTTPS_URL
@@ -47,7 +47,7 @@ class SixGSandboxSitesHandler():
         Decrypt core.yaml file of site stored in 6G-Sandbox-Sites repository
 
         :param deployment_site: trial network deployment site, ``str``
-        :raise SixGSandboxSitesDecryptError: if unable to decrypt the core.yaml file from the site (error code 500)
+        :raise CustomSixGSandboxSitesException:
         """
         try:
             password = SixGSandboxSitesSettings.SITES_TOKEN
@@ -62,7 +62,7 @@ class SixGSandboxSitesHandler():
             with open(decrypted_core_file, "w") as f:
                 safe_dump(decrypted_yaml, f)
         except AnsibleError as e:
-            raise SixGSandboxSitesDecryptError(str(e), 500)
+            raise CustomSixGSandboxSitesException(str(e), 500)
         
     def validate_site(self, deployment_site: str) -> None:
         """
@@ -70,39 +70,46 @@ class SixGSandboxSitesHandler():
         
         :param deployment_site: trial network deployment site, ``str``
         :return: True if the deployment site is valid. Otherwise False, ``bool``
+        :raise CustomSixGSandboxSitesException:
         """
         if deployment_site not in self.get_sites():
-            raise SixGSandboxSitesInvalidSiteError(f"The 'site' should be one: {', '.join(self.get_sites())}", 404)
+            raise CustomSixGSandboxSitesException(f"The 'site' should be one: {', '.join(self.get_sites())}", 404)
         self._decrypt_site(deployment_site)
     
     def git_clone(self) -> None:
         """
-        Apply git clone repository
+        Git clone
         """
         self.repository_handler.git_clone()
     
     def git_checkout(self) -> None:
         """
-        Apply git checkout repository
+        Git checkout
         """
         self.repository_handler.git_checkout()
+
+    def git_switch(self) -> None:
+        """
+        Git switch
+        """
+        self.repository_handler.git_switch()
         self.github_6g_sandbox_sites_commit_id = self.repository_handler.github_commit_id
 
-    def get_tags(self) -> list[str]:
+    def git_branches(self) -> list[str]:
         """
-        Return tags
-
-        :return: list with 6G-Sandbox-Sites tags, ``list[str]``
-        """
-        return self.repository_handler.get_tags()
-
-    def get_branches(self) -> list[str]:
-        """
-        Return branches
+        Git branches
 
         :return: list with 6G-Sandbox-Sites branches, ``list[str]``
         """
-        return self.repository_handler.get_branches()
+        return self.repository_handler.git_branches()
+
+    def git_tags(self) -> list[str]:
+        """
+        Git tags
+
+        :return: list with 6G-Sandbox-Sites tags, ``list[str]``
+        """
+        return self.repository_handler.git_tags()
 
     def get_site_available_components(self, deployment_site: str) -> dict:
         """
@@ -110,17 +117,16 @@ class SixGSandboxSitesHandler():
 
         :param deployment_site: trial network deployment site, ``str``
         :return: dictionary with all information of all components available on a site, ``dict``
-        :raise CustomFileNotFoundError: if core decrypt file not found in site folder (error code 404)
-        :raise InvalidContentFileError: if the information in the file is not parsed correctly (error code 422)
+        :raise CustomException:
         """
         decrypted_core_file = os.path.join(self.github_6g_sandbox_sites_local_directory, deployment_site, "core_decrypt.yaml")
         if not os.path.exists(decrypted_core_file):
-            raise CustomFileNotFoundError(f"File '{decrypted_core_file}' not found", 404)
+            raise CustomException(f"File '{decrypted_core_file}' not found", 404)
         with open(decrypted_core_file, "rt", encoding="utf8") as f:
             try:
                 data = safe_load(f)
             except YAMLError:
-                raise InvalidContentFileError(f"File '{decrypted_core_file}' is not parsed correctly", 422)
+                raise CustomException(f"File '{decrypted_core_file}' is not parsed correctly", 422)
         if not data or "site_available_components" not in data:
             return {}
         site_available_components = data["site_available_components"]
@@ -141,11 +147,11 @@ class SixGSandboxSitesHandler():
         :param tn_id: trial network identifier, ``str``
         :param deployment_site: trial network deployment site, ``str``
         :param tn_components_types: list of components that compose the descriptor, ``list[str]``
-        :raise SixGSandboxSitesComponentsNotFoundError: if the component specified in the descriptor is not in the deployment site (error code 404)
+        :raise CustomSixGSandboxSitesException:
         """
         site_available_components = self.get_site_available_components(deployment_site)
         list_site_available_components = list(site_available_components.keys())
         for component in tn_components_types:
             if component not in list_site_available_components:
-                raise SixGSandboxSitesComponentsNotFoundError(f"Component '{component}' entered in descriptor file not found in '{deployment_site}' site", 404)
+                raise CustomSixGSandboxSitesException(f"Component '{component}' entered in descriptor file not found in '{deployment_site}' site", 404)
             log_handler.info(f"[{tn_id}] - Component type '{component}' is on '{deployment_site}' site")

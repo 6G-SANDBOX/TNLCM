@@ -1,7 +1,6 @@
+from random import randint
 from flask_restx import Resource, Namespace, reqparse, abort
 from flask_mail import Message
-from random import randint
-from mongoengine.errors import ValidationError, MongoEngineException
 
 from conf import MailSettings
 from core.mail.mail import mail
@@ -36,7 +35,7 @@ class RequestVerificationToken(Resource):
 
             user = UserModel.objects(email=receiver_email).first()
             if user:
-                return abort(409, "Email already exist in the database")
+                return {"message": "Email already exist in the database"}, 409
 
             with mail.connect() as conn:
                 msg = Message(
@@ -50,12 +49,10 @@ class RequestVerificationToken(Resource):
             verification_token.save()
 
             return {"message": "Verification token sent by email successfully"}, 200
-        except ValidationError as e:
-            return abort(401, e.message)
-        except MongoEngineException as e:
-            return abort(401, str(e))
         except CustomException as e:
-            return abort(e.error_code, str(e))
+            return {"message": str(e)}, e.error_code
+        except Exception as e:
+            return abort(500, str(e))
 
 @verification_token_namespace.route("/new-user-verification")
 class NewUserVerification(Resource):
@@ -81,15 +78,15 @@ class NewUserVerification(Resource):
 
             user = UserModel.objects(username=username).first()
             if user:
-                return abort(409, "Username already exist in the database")
+                return {"message": "Username already exist in the database"}, 409
             
             user = UserModel.objects(email=email).first()
             if user:
-                return abort(409, "Email already exist in the database")
+                return {"message": "Email already exist in the database"}, 409
 
             latest_verification_token = VerificationTokenModel.objects(new_account_email=email).order_by("-creation_date").first()
             if latest_verification_token.verification_token != verification_token:
-                return abort(401, "Token provided not correct")
+                return {"message": "Token provided not correct"}, 401
             
             user = UserModel(
                 username=username,
@@ -101,12 +98,10 @@ class NewUserVerification(Resource):
             user.save()
 
             return {"message": "User added"}, 201
-        except ValidationError as e:
-            return abort(401, e.message)
-        except MongoEngineException as e:
-            return abort(401, str(e))
         except CustomException as e:
-            return abort(e.error_code, str(e))
+            return {"message": str(e)}, e.error_code
+        except Exception as e:
+            return abort(500, str(e))
 
 @verification_token_namespace.route("/request-reset-token")
 class RequestResetToken(Resource):
@@ -126,7 +121,7 @@ class RequestResetToken(Resource):
 
             user = UserModel.objects(email=receiver_email).first()
             if not user:
-                return abort(404, "User not found")
+                return {"message": "User not found"}, 404
             
             verification_token = VerificationTokenModel.objects(new_account_email=receiver_email).first()
             verification_token.verification_token = _six_digit_random
@@ -142,12 +137,10 @@ class RequestResetToken(Resource):
                 conn.send(msg)
 
             return {"message": "New token sent by email successfully"}, 200
-        except ValidationError as e:
-            return abort(401, e.message)
-        except MongoEngineException as e:
-            return abort(401, str(e))
         except CustomException as e:
-            return abort(e.error_code, str(e))
+            return {"message": str(e)}, e.error_code
+        except Exception as e:
+            return abort(500, str(e))
 
 @verification_token_namespace.route("/change-password")
 class ChangePassword(Resource):
@@ -170,11 +163,11 @@ class ChangePassword(Resource):
             
             user = UserModel.objects(email=receiver_email).first()
             if not user:
-                return abort(404, "User not found")
+                return {"message": "User not found"}, 404
 
             latest_verification_token = VerificationTokenModel.objects(new_account_email=receiver_email).order_by("-creation_date").first()
             if latest_verification_token.verification_token != verification_token:
-                return abort(401, "Token provided not correct")
+                return {"message": "Token provided not correct"}, 401
 
             user.set_password(password)
             user.save()
@@ -189,9 +182,7 @@ class ChangePassword(Resource):
                 conn.send(msg)
 
             return {"message": "Password change confirmation sent by email successfully"}, 200
-        except ValidationError as e:
-            return abort(401, e.message)
-        except MongoEngineException as e:
-            return abort(401, str(e))
         except CustomException as e:
-            return abort(e.error_code, str(e))
+            return {"message": str(e)}, e.error_code
+        except Exception as e:
+            return abort(500, str(e))
