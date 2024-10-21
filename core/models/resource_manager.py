@@ -1,8 +1,6 @@
 from mongoengine import Document, StringField, IntField
-from mongoengine.errors import ValidationError, MongoEngineException
 
-from core.models.trial_network import TrialNetworkModel
-from core.exceptions.exceptions_handler import CustomException
+from core.exceptions.exceptions_handler import CustomResourceManagerException
 
 class ResourceManagerModel(Document):
 
@@ -48,54 +46,44 @@ class ResourceManagerModel(Document):
             ttl = tnlcm_component_resources["ttl"]
         return quantity, ttl
 
-    def apply_resource_manager(self, trial_network: TrialNetworkModel, site_available_components: dict) -> None:
+    def apply_resource_manager(self, trial_network, site_available_components: dict) -> None:
         """
         Apply resource manager to check availability resource
 
         :param trial_network: model of the trial network, ``TrialNetworkModel``
         :param site_available_components: dictionary with all information of all components available on a site, ``dict``
-        :raise CustomException:
+        :raise CustomResourceManagerException:
         """
-        try:
-            tn_descriptor = trial_network.json_to_descriptor(trial_network.tn_sorted_descriptor)["trial_network"]
-            for _, entity_data in tn_descriptor.items():
-                component_type = entity_data["type"]
-                sixg_sandbox_sites_component_quantity, sixg_sandbox_sites_component_ttl = self._sixg_sandbox_sites_component_resources(component_type, site_available_components)
-                if sixg_sandbox_sites_component_quantity > 0:
-                    tnlcm_quantity, _ = self._tnlcm_component_resources(component_type)
-                    if sixg_sandbox_sites_component_quantity == tnlcm_quantity:
-                        raise CustomException(f"Component '{component_type}' is not available on the '{trial_network.deployment_site}' platform", 400)
-                    tnlcm_component_resources = ResourceManagerModel.objects(component=component_type).first()
-                    if not tnlcm_component_resources:
-                        tnlcm_component_resources = ResourceManagerModel(component=component_type, tn_id=trial_network.tn_id, quantity=1, ttl=sixg_sandbox_sites_component_ttl)
-                    else:
-                        tnlcm_component_resources.quantity += 1
-                    tnlcm_component_resources.save()
-        except ValidationError as e:
-            raise CustomException(e.message, 401)
-        except MongoEngineException as e:
-            raise CustomException(str(e), 401)
+        tn_descriptor = trial_network.tn_sorted_descriptor["trial_network"]
+        for _, entity_data in tn_descriptor.items():
+            component_type = entity_data["type"]
+            sixg_sandbox_sites_component_quantity, sixg_sandbox_sites_component_ttl = self._sixg_sandbox_sites_component_resources(component_type, site_available_components)
+            if sixg_sandbox_sites_component_quantity > 0:
+                tnlcm_quantity, _ = self._tnlcm_component_resources(component_type)
+                if sixg_sandbox_sites_component_quantity == tnlcm_quantity:
+                    raise CustomResourceManagerException(f"Component '{component_type}' is not available on the '{trial_network.deployment_site}' platform", 400)
+                tnlcm_component_resources = ResourceManagerModel.objects(component=component_type).first()
+                if not tnlcm_component_resources:
+                    tnlcm_component_resources = ResourceManagerModel(component=component_type, tn_id=trial_network.tn_id, quantity=1, ttl=sixg_sandbox_sites_component_ttl)
+                else:
+                    tnlcm_component_resources.quantity += 1
+                tnlcm_component_resources.save()
     
-    def release_resource_manager(self, trial_network: TrialNetworkModel) -> None:
+    def release_resource_manager(self, trial_network) -> None:
         """
         Release resources when destroy or suspend trial network
 
         :param trial_network: model of the trial network, ``TrialNetworkModel``
         """
-        try:
-            tn_descriptor = trial_network.json_to_descriptor(trial_network.tn_sorted_descriptor)["trial_network"]
-            for _, entity_data in tn_descriptor.items():
-                component_type = entity_data["type"]
-                tnlcm_component_resources = ResourceManagerModel.objects(component=component_type).first()
-                if tnlcm_component_resources:
-                    tnlcm_component_resources.quantity -= 1
-                    if tnlcm_component_resources.quantity == 0:
-                        tnlcm_component_resources.delete()
-                    tnlcm_component_resources.save()
-        except ValidationError as e:
-            raise CustomException(e.message, 401)
-        except MongoEngineException as e:
-            raise CustomException(str(e), 401)
+        tn_descriptor = trial_network.tn_sorted_descriptor["trial_network"]
+        for _, entity_data in tn_descriptor.items():
+            component_type = entity_data["type"]
+            tnlcm_component_resources = ResourceManagerModel.objects(component=component_type).first()
+            if tnlcm_component_resources:
+                tnlcm_component_resources.quantity -= 1
+                if tnlcm_component_resources.quantity == 0:
+                    tnlcm_component_resources.delete()
+                tnlcm_component_resources.save()
             
     def to_dict(self) -> dict:
         return {
