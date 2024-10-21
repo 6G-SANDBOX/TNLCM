@@ -9,7 +9,7 @@
   <!-- [![MIT License][license-shield]][license-url] -->
   <!-- [![LinkedIn][linkedin-shield]][linkedin-url] -->
 
-  <a href="https://github.com/6G-SANDBOX/TNLCM"><img src="./images/TNLCM.png" width="350" title="TNLCM"></a>
+  <a href="https://github.com/6G-SANDBOX/TNLCM"><img src="./images/TNLCM.png" width="300" title="TNLCM"></a>
 
   [![TNLCM][tnlcm-badge]][tnlcm-url]
 
@@ -18,9 +18,6 @@
 
 TNLCM has been designed as a modular application, with the intention of making certain components easily replaceable or extended, while minimizing the effect of changes in other parts of the application. At the same time, there is an emphasis on re-usability, where several data structures and generic logic can be shared between the different components of the application.
 
-> [!NOTE]
-> TNLCM is under development and is subject to continuous changes.
-
 <details>
 <summary>Table of Contents</summary>
 
@@ -28,7 +25,6 @@ TNLCM has been designed as a modular application, with the intention of making c
 - [:open\_file\_folder: Project Structure](#open_file_folder-project-structure)
 - [:mag: Overview of TNLCM and 6G-Library implementation](#mag-overview-of-tnlcm-and-6g-library-implementation)
 - [:arrows\_counterclockwise: State Machine](#arrows_counterclockwise-state-machine)
-- [:hourglass\_flowing\_sand: Current Status](#hourglass_flowing_sand-current-status)
 - [:rocket: Getting Started Locally](#rocket-getting-started-locally)
   - [:inbox\_tray: Download the installation script](#inbox_tray-download-the-installation-script)
   - [:gear: Configure environment variables](#gear-configure-environment-variables)
@@ -36,10 +32,9 @@ TNLCM has been designed as a modular application, with the intention of making c
   - [:snake: Start server](#snake-start-server)
 - [:page\_facing\_up: Trial Network Descriptor Schema](#page_facing_up-trial-network-descriptor-schema)
 - [:paperclip: Appendices](#paperclip-appendices)
-  - [Appendix A: Installation using Docker](#appendix-a-installation-using-docker)
-  - [Appendix B: How to use Swagger UI](#appendix-b-how-to-use-swagger-ui)
-  - [Appendix C: Database Schema](#appendix-c-database-schema)
-  - [Appendix D: TNLCM OpenNebula Appliance](#appendix-d-tnlcm-opennebula-appliance)
+  - [Appendix A: How to use Swagger UI](#appendix-a-how-to-use-swagger-ui)
+  - [Appendix B: Database Schema](#appendix-b-database-schema)
+  - [Appendix C: TNLCM OpenNebula Appliance](#appendix-c-tnlcm-opennebula-appliance)
 </details>
 
 ## :hammer_and_wrench: Stack
@@ -91,17 +86,29 @@ TNLCM/                       // main folder.
 
 ## :arrows_counterclockwise: State Machine
 
-TNLCM is a state machine that allows the automation of component deployment. <span style="color: green;">Green</span> indicates what is implemented and <span style="color: red;">red</span> indicates what is in the process of implementation.
+TNLCM is a **state machine** that allows the automation of component deployment. <span style="color: green;">Green</span> indicates what is implemented and <span style="color: red;">red</span> indicates what is in the process of implementation.
+
+### States <!-- omit in toc -->
+
+- **Validated**: trial network descriptor created is checked to see if it can be deployed. 6G-Library is used to validate it
+- **Activated**: trial network has been deployed in OpenNebula
+- **Suspended**: trial network has been suspended. It remains deployed, but turned off
+- **Failed**: there was an error during the trial network deployment
+- **Destroyed**: trial network deployment in OpenNebula is removed, but its content is kept in the database and locally
+- **Purge**: the trial network is removed from the database as well as its local content
+
+### Transitions <!-- omit in toc -->
+
+- Initial state &rarr; Validated: trial network descriptor validated and ready for deploy
+- Validated &rarr; Activated: trial network deployed and ready for use
+- Validated &rarr; Failed: trial network deployment failed
+- Failed &rarr; Failed: again, trial network deployment failed
+- Activated &rarr; Destroyed: trial network destroyed and ready for deploy again
+- Activated &rarr; Suspended: TODO
+- Destroyed &rarr; Activated: trial network deployed and ready for use 
+- Destroyed &rarr; Purge: trial network removed
 
 ![StateMachine](./images/stateMachine.png)
-
-<p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
-
-## :hourglass_flowing_sand: Current Status
-
-TNLCM is currently able to deploy the following types of components corresponding with the [6G-Library](https://github.com/6G-SANDBOX/6G-Library): **tn_vxlan**, **tn_bastion**, **tn_init**, **vnet**, **tsn**, **vm_kvm**, **oneKE**, **open5gs**, **ueransim**, **elcm**, **nokia_radio**, **ocf**, **stf_ue**, **xrext** and **loadcore_agent**.
-
-![CurrentStatus](./images/currentStatus.png)
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
@@ -115,7 +122,7 @@ TNLCM is currently able to deploy the following types of components correspondin
 > 
 > | Repository       | Release                                                                                |
 > | ---------------- | -------------------------------------------------------------------------------------- |
-> | OpenNebula       | [v6.10](https://github.com/OpenNebula/one/releases/tag/release-6.8.0)                 |
+> | OpenNebula       | [v6.10](https://github.com/OpenNebula/one/releases/tag/release-6.10.0)                 |
 > | Jenkins          | [v2.462.3](https://github.com/jenkinsci/jenkins/releases/tag/jenkins-2.462.3)          |
 > | MinIO            | [2024-07-04](https://github.com/minio/minio/releases/tag/RELEASE.2024-07-04T14-25-45Z) |
 
@@ -135,8 +142,8 @@ Download the installation script which is [deploy_vm.sh](../scripts/deploy_vm.sh
 
 Update the script and add the contents of the following variables:
 
-> [!NOTE]
-> There is a comment with a **TODO** in the script.
+> [!IMPORTANT]
+> There is a comment **TODO** in the script.
 
 - `TNLCM_ADMIN_USER`
 - `TNLCM_ADMIN_PASSWORD`
@@ -172,7 +179,7 @@ A MongoDB dashboard will be available at the url http://mongo-express-ip:8081 wh
 ### :snake: Start server
 
 ```bash
-gunicorn -c conf/gunicorn.conf.py
+gunicorn -c conf/gunicorn_conf.py
 ```
 
 A Swagger UI will be available at the url http://tnlcm-backend-ip:5000 where the API with the endpoints can be seen.
@@ -190,7 +197,7 @@ Trial Network Descriptors are yaml files with a set of expected fields and with 
 trial_network: # Mandatory, contains the description of all entities in the Trial Network
   type-name: # Mandatory, entity name. Unique identifier for each entity in the Trial Network
     type: # Mandatory, 6G-Library component type
-    name: # Mandatory, custom name. Not use character \- or \. Exclude tn_init, tn_bastion and tn_vxlan
+    name: # Mandatory, custom name. Not use character \- or \. Exclude components tn_init, tn_bastion and tn_vxlan
     debug: # Optional, param to debug component in Jenkins. Possible values true or false
     dependencies: # Mandatory, list of dependencies of the component with other components
       - type-name
@@ -208,53 +215,7 @@ This repository contains a variety of [descriptors](../tn_template_lib/). Access
 
 ## :paperclip: Appendices
 
-### Appendix A: Installation using Docker
-
-Clone repository
-
-```bash
-TNLCM_FOLDER="/opt/TNLCM"
-TNLCM_ENV_FILE=${TNLCM_FOLDER}/.env
-
-git clone https://github.com/6G-SANDBOX/TNLCM ${TNLCM_FOLDER}
-cp ${TNLCM_FOLDER}/.env.template ${TNLCM_FOLDER}/.env
-```
-
-Add the value of the following environment variables to .env:
-
-- `TNLCM_ADMIN_USER`
-- `TNLCM_ADMIN_PASSWORD`
-- `TNLCM_HOST`
-- `JENKINS_HOST`
-- `JENKINS_USERNAME`
-- `JENKINS_PASSWORD`
-- `JENKINS_TOKEN`
-- `SITES_TOKEN`
-
-Access the folder where the script is located to deploy using docker:
-
-```bash
-cd ${TNLCM_FOLDER}/scripts
-```
-
-> [!NOTE]  
-> Execute the script with the **root** user.
-
-Set execution permissions to the script:
-
-```bash
-sudo chmod 777 deploy_docker.sh
-```
-
-Execute the script:
-
-```bash
-./deploy_docker.sh
-```
-
-<p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
-
-### Appendix B: How to use Swagger UI
+### Appendix A: How to use Swagger UI
 
 The API set forth in the TNLCM is as follows:
 
@@ -302,7 +263,7 @@ When the request is made, it will return another access token that will need to 
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
-### Appendix C: Database Schema
+### Appendix B: Database Schema
 
 The TNLCM database consists of several collections that store important information about trial networks, users, and verification tokens. Below is the description of each collection:
 
@@ -318,6 +279,7 @@ The TNLCM database consists of several collections that store important informat
 | `tn_sorted_descriptor`              | The sorted descriptor of the trial network.                                             |
 | `tn_deployed_descriptor`            | The current status of descriptor with the last entity deployed of the trial network.    |
 | `tn_report`                         | The report related to the trial network.                                                |
+| `tn_folder`                         | The folder where trial network is saved.                                                |
 | `jenkins_deploy_pipeline`           | The pipeline used for the deployment of the descriptor.                                 |
 | `jenkins_destroy_pipeline`          | The pipeline used for destroy a trial network.                                          |
 | `deployment_site`                   | The site where the trial network has been deployed.                                     |
@@ -352,7 +314,7 @@ The TNLCM database consists of several collections that store important informat
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
-### Appendix D: TNLCM OpenNebula Appliance
+### Appendix C: TNLCM OpenNebula Appliance
 
 In the [marketplace-community](https://github.com/6G-SANDBOX/marketplace-community/wiki/tnlcm) repository, which is a fork of OpenNebula, detailed information about the TNLCM appliance can be found. 
 
@@ -370,8 +332,8 @@ To deploy 6G-SANDBOX TOOLKIT in OpenNebula, the documentation can be accessed fr
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 <!-- Urls, Shields and Badges -->
-[tnlcm-badge]: https://img.shields.io/badge/TNLCM-v0.3.2-blue
-[tnlcm-url]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.3.2
+[tnlcm-badge]: https://img.shields.io/badge/TNLCM-v0.4.0-blue
+[tnlcm-url]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.4.0
 [python-badge]: https://img.shields.io/badge/Python-3.13.0-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB
 [python-url]: https://www.python.org/downloads/release/python-3130/
 [flask-badge]: https://img.shields.io/badge/Flask-3.0.3-brightgreen?style=for-the-badge&logo=flask&logoColor=white&labelColor=000000
@@ -388,5 +350,5 @@ To deploy 6G-SANDBOX TOOLKIT in OpenNebula, the documentation can be accessed fr
 [issues-url]: https://github.com/6G-SANDBOX/TNLCM/issues
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://
-[license-shield]: https://
+[license-shield]: https://img.shields.io/badge/license-CC%20BY%204.0-black.svg?style=for-the-badge
 [license-url]: https://
