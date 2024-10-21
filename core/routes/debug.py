@@ -119,15 +119,15 @@ class AddDebugEntityName(Resource):
             trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
             if current_user.role == "admin":
                 trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
-            tn_raw_descriptor = trial_network.tn_raw_descriptor["trial_network"]
-            tn_sorted_descriptor = trial_network.tn_sorted_descriptor["trial_network"]
-            tn_deployed_descriptor = trial_network.tn_deployed_descriptor["trial_network"]
-            tn_raw_descriptor[entity_name]["debug"] = True
-            tn_sorted_descriptor[entity_name]["debug"] = True
-            tn_deployed_descriptor[entity_name]["debug"] = True
-            trial_network.tn_raw_descriptor = trial_network.descriptor_to_json(tn_raw_descriptor)
-            trial_network.tn_sorted_descriptor = trial_network.descriptor_to_json(tn_sorted_descriptor)
-            trial_network.tn_deployed_descriptor = trial_network.descriptor_to_json(tn_deployed_descriptor)
+            tn_raw_descriptor = trial_network.tn_raw_descriptor
+            tn_sorted_descriptor = trial_network.tn_sorted_descriptor
+            tn_deployed_descriptor = trial_network.tn_deployed_descriptor
+            tn_raw_descriptor["trial_network"][entity_name]["debug"] = True
+            tn_sorted_descriptor["trial_network"][entity_name]["debug"] = True
+            tn_deployed_descriptor["trial_network"][entity_name]["debug"] = True
+            trial_network.tn_raw_descriptor = tn_raw_descriptor
+            trial_network.tn_sorted_descriptor = tn_sorted_descriptor
+            trial_network.tn_deployed_descriptor = tn_deployed_descriptor
             trial_network.save()
             return {"message": f"Successfully added debug into '{entity_name}' entity name of the Trial Network '{tn_id}'"}, 201
         except CustomException as e:
