@@ -5,7 +5,7 @@
 ### Added
 
 - **Concurrency** support in the Flask application by integrating Gunicorn to handle multiple simultaneous requests, improving responsiveness and performance.
-- **Trial network isolation** to run several networks in parallel. The number of parallel trial networks is determined by the value of the environment variable `GUNICORN_WORKERS` minus 1. By default, `GUNICORN_WORKERS` is set to 3, allowing two trial networks to be executed concurrently.
+- **Trial network isolation** to run several networks in parallel. The number of parallel trial networks is determined by the value of the environment variable `GUNICORN_WORKERS` minus 1. By default, `GUNICORN_WORKERS` is set to 3, allowing two trial networks to be executed concurrently. To execute sequentially, the number of `GUNICORN_WORKERS` must be 2.
 - **Pipeline deployment check** a pipeline currently in use cannot be used to deploy a trial network, and users will receive a notification that the pipeline is already in use.
 - **README** file added in the `tn_template_lib` directory to explain defined trial networks.
 - **Initial CLI handler** to execute commands.
