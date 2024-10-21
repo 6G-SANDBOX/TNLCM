@@ -30,6 +30,13 @@ class CustomMongoDBException(CustomException):
     pass
 
 ##############################
+##### Callback exception #####
+##############################
+class CustomCallbackException(CustomException):
+    """Base class for callback related exceptions"""
+    pass
+
+##############################
 #### 6G-Library exception ####
 ##############################
 class CustomSixGLibraryException(CustomException):
@@ -62,4 +69,11 @@ class CustomTrialNetworkException(CustomException):
 ###########################
 class CustomJenkinsException(CustomException):
     """Base class for Jenkins related exceptions"""
+    pass
+
+####################################
+#### Resource manager exception ####
+####################################
+class CustomResourceManagerException(CustomException):
+    """Base class for resource manager related exceptions"""
     pass
