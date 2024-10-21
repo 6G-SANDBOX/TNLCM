@@ -8,13 +8,14 @@ from string import ascii_lowercase, digits
 from random import choice
 from werkzeug.utils import secure_filename
 from werkzeug.datastructures import FileStorage
-from mongoengine import Document, StringField, DateTimeField
+from mongoengine import Document, StringField, DictField, DateTimeField
 
-from core.exceptions.exceptions_handler import CustomException, CustomTrialNetworkException
+from core.utils.file_handler import load_markdown
+from core.exceptions.exceptions_handler import CustomTrialNetworkException
 
-TN_STATE_MACHINE = ["validated", "suspended", "activated", "failed", "destroyed"]
-COMPONENTS_EXCLUDE_CUSTOM_NAME = ["tn_vxlan", "tn_bastion", "tn_init", "tsn"]
-REQUIRED_FIELDS_DESCRIPTOR = ["type", "input"]
+TN_STATE_MACHINE = {"validated", "suspended", "activated", "failed", "destroyed"}
+COMPONENTS_EXCLUDE_CUSTOM_NAME = {"tn_vxlan", "tn_bastion", "tn_init", "tsn"}
+REQUIRED_FIELDS_DESCRIPTOR = {"type", "input"}
 
 class TrialNetworkModel(Document):
 
@@ -22,11 +23,11 @@ class TrialNetworkModel(Document):
     tn_id = StringField(max_length=15, unique=True)
     tn_state = StringField(max_length=50)
     tn_date_created_utc = DateTimeField(default=datetime.now(timezone.utc))
-    tn_raw_descriptor = StringField()
-    tn_sorted_descriptor = StringField()
-    tn_deployed_descriptor = StringField()
+    tn_raw_descriptor = DictField()
+    tn_sorted_descriptor = DictField()
+    tn_deployed_descriptor = DictField()
     tn_report = StringField()
-    tn_folder = StringField()
+    tn_directory_path = StringField()
     jenkins_deploy_pipeline = StringField()
     jenkins_destroy_pipeline = StringField()
     deployment_site = StringField()
@@ -35,7 +36,7 @@ class TrialNetworkModel(Document):
 
     meta = {
         "db_alias": "tnlcm-database-alias",
-        "collection": "trial_networks"
+        "collection": "trial_network"
     }
 
     def set_user_created(self, user_created: str) -> None:
@@ -84,17 +85,16 @@ class TrialNetworkModel(Document):
         Set the trial network raw descriptor from a file.
         
         :param tn_descriptor_file: descriptor file containing YAML data, ``FileStorage``
-        :raises CustomException:
+        :raises CustomTrialNetworkException:
         """
         try:
             filename = secure_filename(tn_descriptor_file.filename)
             if '.' in filename and filename.split('.')[-1].lower() in ["yml", "yaml"]:
-                tn_raw_descriptor = safe_load(tn_descriptor_file.stream)
+                self.tn_raw_descriptor = safe_load(tn_descriptor_file.stream)
             else:
-                raise CustomException("Invalid descriptor format. Only 'yml' or 'yaml' files will be further processed", 422)
-            self.tn_raw_descriptor = self.descriptor_to_json(tn_raw_descriptor)
+                raise CustomTrialNetworkException("Invalid descriptor format. Only 'yml' or 'yaml' files will be further processed", 422)
         except YAMLError:
-            raise CustomException("Trial network descriptor is not parsed correctly", 422)
+            raise CustomTrialNetworkException("Trial network descriptor is not parsed correctly", 422)
 
     def set_tn_sorted_descriptor(self) -> None:
         """
@@ -102,7 +102,7 @@ class TrialNetworkModel(Document):
 
         :raise CustomTrialNetworkException:
         """
-        entities = self.json_to_descriptor(self.tn_raw_descriptor)["trial_network"]
+        entities = self.tn_raw_descriptor["trial_network"]
         ordered_entities = {}
 
         def dfs(entity):
@@ -118,29 +118,27 @@ class TrialNetworkModel(Document):
         for entity in entities:
             dfs(entity)
         
-        self.tn_sorted_descriptor = self.descriptor_to_json({"trial_network": ordered_entities})
-        self.tn_deployed_descriptor = self.descriptor_to_json({"trial_network": ordered_entities})
+        self.tn_sorted_descriptor = {"trial_network": ordered_entities}
+        self.tn_deployed_descriptor = {"trial_network": ordered_entities}
 
-    def set_tn_report(self, report_file: str) -> None:
+    def set_tn_report(self, file_path: str) -> None:
         """
         Set the trial network report from a markdown file
 
-        :param report_file: path to the markdown report file, ``str``
+        :param file_path: path to the markdown report file, ``str``
         """
-        with open(report_file, "r") as file:
-            markdown_content = file.read()
-        self.tn_report = markdown_content
+        self.tn_report = load_markdown(file_path=file_path)
     
-    def set_tn_folder(self, tn_folder: str) -> None:
+    def set_tn_directory_path(self, tn_directory_path: str) -> None:
         """
-        Set the trial network folder where all information will save
+        Set the trial network directory where all information will save
 
-        :param tn_folder: path to the trial network folder, ``str``
+        :param tn_directory_path: path to the trial network directory, ``str``
         """
-        if os.path.exists(tn_folder):
-            raise CustomTrialNetworkException(f"Folder '{tn_folder}' already exists", 409)
-        os.makedirs(tn_folder)
-        self.tn_folder = tn_folder
+        if os.path.exists(tn_directory_path):
+            raise CustomTrialNetworkException(f"Directory '{tn_directory_path}' already exists", 409)
+        os.makedirs(tn_directory_path)
+        self.tn_directory_path = tn_directory_path
     
     def set_jenkins_deploy_pipeline(self, jenkins_deploy_pipeline: str) -> None:
         """
@@ -191,11 +189,11 @@ class TrialNetworkModel(Document):
         if not tn_deployed_descriptor:
             self.tn_deployed_descriptor = self.tn_sorted_descriptor
         else:
-            self.tn_deployed_descriptor = self.descriptor_to_json({"trial_network": tn_deployed_descriptor})
+            self.tn_deployed_descriptor = {"trial_network": tn_deployed_descriptor}
 
     def _logical_expression(
         self, 
-        tn_components_types: list[str], 
+        tn_components_types: set, 
         bool_expresion: bool, 
         tn_descriptor: dict, 
         component_name: str
@@ -203,7 +201,7 @@ class TrialNetworkModel(Document):
         """
         In case the type is a logical expression. For example: tn_vxlan or vnet
         
-        :param tn_components_types: list of the components that make up the descriptor, ``list[str]``
+        :param tn_components_types: set with the components that make up the descriptor, ``set``
         :param bool_expresion: bool expresion to evaluate, ``bool``
         :param tn_descriptor: trial network sorted descriptor, ``dict``
         :param component_name: component name that is in input part of descriptor, ``str``
@@ -235,7 +233,7 @@ class TrialNetworkModel(Document):
     
     def _validate_list_of_networks(
         self, 
-        tn_components_types: list[str], 
+        tn_components_types: set, 
         bool_expresion: bool, 
         tn_descriptor: dict, 
         component_list: list[str]
@@ -243,7 +241,7 @@ class TrialNetworkModel(Document):
         """
         Validates a list of networks with logical expression. For example: list[tn_vxlan or vnet]
         
-        :param tn_components_types: list of the components that make up the descriptor, ``list[str]``
+        :param tn_components_types: set with the components that make up the descriptor, ``set``
         :param bool_expresion: boolean expression to evaluate, ``bool``
         :param tn_descriptor: trial network sorted descriptor, ``dict``
         :param component_list: list of components that are in the input part of the descriptor, ``list[str]``
@@ -255,7 +253,7 @@ class TrialNetworkModel(Document):
             if not self._logical_expression(tn_components_types, bool_expresion, tn_descriptor, component_name):
                 raise CustomTrialNetworkException(f"Component '{component_name}' in the list does not match the type '{bool_expresion}'", 422)
 
-    def validate_tn_descriptor(self, tn_components_types: list[str], tn_component_inputs: dict) -> None:
+    def validate_tn_descriptor(self, tn_components_types: set, tn_component_inputs: dict) -> None:
         """
         If the descriptor follows the correct scheme
         It starts with trial_network and there is only that key
@@ -273,14 +271,13 @@ class TrialNetworkModel(Document):
         If it is a component
         It is checked the fields that are required_when
 
-        :param tn_components_types: list of the components that make up the descriptor, ``list[str]``
+        :param tn_components_types: set with the components that make up the descriptor, ``set``
         :param tn_component_inputs: correct component inputs from the 6G-Library, ``dict``
         :raises CustomTrialNetworkException:
         """
-        tn_raw_descriptor = self.json_to_descriptor(self.tn_raw_descriptor)
-        if len(tn_raw_descriptor.keys()) > 1 or "trial_network" not in tn_raw_descriptor:
+        if len(self.tn_raw_descriptor.keys()) > 1 or "trial_network" not in self.tn_raw_descriptor:
             raise CustomTrialNetworkException("Trial network descriptor must start with 'trial_network' key", 422)
-        tn_descriptor = tn_raw_descriptor["trial_network"]
+        tn_descriptor = self.tn_raw_descriptor["trial_network"]
         for entity_name, entity_data in tn_descriptor.items():
             if len(entity_name) <= 0:
                 raise CustomTrialNetworkException(f"There is an empty entity name in the trial network", 422)
@@ -354,36 +351,17 @@ class TrialNetworkModel(Document):
                                 if not input_descriptor_component[input_sixg_library_key] in sixg_library_choices:
                                     raise CustomTrialNetworkException(f"Component '{component_type}'. Value of the '{input_sixg_library_key}' field has to be one of then: '{sixg_library_choices}'", 422)
 
-    def get_tn_components_types(self) -> list[str]:
+    def get_tn_components_types(self) -> set:
         """
-        Function to get a list with components types that are in the descriptor
+        Function to get a set with components types that are in the descriptor
 
-        :return: list with components that compose trial network descriptor, ``list[str]``
+        :return: set with components that compose trial network descriptor, ``set``
         """
         component_types = set()
-        tn_descriptor = self.json_to_descriptor(self.tn_sorted_descriptor)["trial_network"]
-        for key, component in tn_descriptor.items():
-            component_type = component["type"]
-            component_types.add(component_type)
-        return list(component_types)
-
-    def descriptor_to_json(self, descriptor: dict) -> str:
-        """
-        Convert descriptor to JSON
-
-        :param descriptor: trial network descriptor, ``dict``
-        :return: JSON representation of the descriptor, ``str``
-        """
-        return dumps(descriptor)
-
-    def json_to_descriptor(self, descriptor: str) -> dict:
-        """
-        Convert descriptor in JSON to Python object
-
-        :param descriptor: trial network descriptor, ``str``
-        :return: corresponding Python object, ``dict``
-        """
-        return loads(descriptor)
+        tn_descriptor = self.tn_sorted_descriptor["trial_network"]
+        for _, component in tn_descriptor.items():
+            component_types.add(component["type"])
+        return component_types
 
     def to_dict(self) -> dict:
         return {
@@ -400,11 +378,11 @@ class TrialNetworkModel(Document):
             "tn_id": self.tn_id,
             "tn_state": self.tn_state,
             "tn_date_created_utc": self.tn_date_created_utc.isoformat(),
-            "tn_raw_descriptor": self.json_to_descriptor(self.tn_raw_descriptor),
-            "tn_sorted_descriptor": self.json_to_descriptor(self.tn_sorted_descriptor),
-            "tn_deployed_descriptor": self.json_to_descriptor(self.tn_deployed_descriptor),
+            "tn_raw_descriptor": self.tn_raw_descriptor,
+            "tn_sorted_descriptor": self.tn_sorted_descriptor,
+            "tn_deployed_descriptor": self.tn_deployed_descriptor,
             "tn_report": self.tn_report,
-            "tn_folder": self.tn_folder,
+            "tn_directory_path": self.tn_directory_path,
             "jenkins_deploy_pipeline": self.jenkins_deploy_pipeline,
             "jenkins_destroy_pipeline": self.jenkins_destroy_pipeline,
             "deployment_site": self.deployment_site,
