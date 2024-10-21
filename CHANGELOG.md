@@ -30,12 +30,11 @@
 
 - Resolved a bug when creating a trial network, where components were defined in the 6G-Sandbox-Sites repository but not in the 6G-Library.
 - Corrected function documentation to reflect accurate information.
-- The endpoint for returning repository branches now only lists branches created on the remote repository.
-- Fixed message display when checking if a user can access a trial network.
+- Message display when checking if a user can access a trial network.
 - Enhanced logging for TNLCM processes.
-- Fixed issues with JWT and MongoDB error handling.
+- Issues with JWT and MongoDB error handling.
 - Simplified class exception handling for improved readability and maintainability.
-- Improved storage of json in the database that become dictionaries.
+- Descriptors are converted from being stored in json to dictionaries in the `trial_networks` collection of the database.
 
 ### Removed
 
