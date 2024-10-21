@@ -320,7 +320,7 @@ class PurgeTrialNetwork(Resource):
             log_handler.info(f"[{trial_network.tn_id}] - Deleted trial network callbacks")
             rmtree(trial_network.tn_directory_path)
             log_handler.info(f"[{trial_network.tn_id}] - Deleted trial network directory '{trial_network.tn_directory_path}'")
-            log_handler.info(f"[{trial_network.tn_id}] - Trial network PURGE")
+            log_handler.info(f"[{trial_network.tn_id}] - Trial network update to state 'purge'")
             trial_network.delete()
             return {"message": f"The trial network with identifier '{tn_id}' has been PURGE"}, 200
         except CustomException as e:
