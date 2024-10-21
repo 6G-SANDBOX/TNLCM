@@ -50,7 +50,6 @@ TNLCM/                       // main folder.
 ├─ conf/                     // folder that handler the configuration files.
 ├─ core/                     // folder that the developed code is stored.
 │  ├─ auth/                  // folder that handler the authentication of users who have access.
-│  ├─ callback/              // folder that handler the results received by Jenkins.
 │  ├─ cli/                   // folder that handler the cli for run commands.
 │  ├─ database/              // folder that handler the connection with MongoDB database using mongoengine.
 │  ├─ exceptions/            // folder that handler the creation of custom exceptions.
@@ -62,7 +61,8 @@ TNLCM/                       // main folder.
 │  ├─ routes/                // folder that handler the API that is exposed.
 │  ├─ sixg_library/          // folder that handler the connection to the 6G-Library repository.
 │  ├─ sixg_sandbox_sites/    // folder that handler the connection to the 6G-Sandbox-Sites repository.
-│  └─ temp/                  // folder that handler the creation of temporary files.
+│  ├─ temp/                  // folder that handler the creation of temporary files.
+│  └─ utils/                 // folder that handler data conversions and storage in YAML, Markdown, and JSON formats.
 ├─ docker/                   // folder containing Docker-related configuration and setup files.
 ├─ docs/                     // folder where all documentation is stored.
 ├─ scripts/                  // folder contains scripts for automated deployments.
@@ -95,7 +95,7 @@ TNLCM is a **state machine** that allows the automation of component deployment.
 - **Suspended**: trial network has been suspended. It remains deployed, but turned off
 - **Failed**: there was an error during the trial network deployment
 - **Destroyed**: trial network deployment in OpenNebula is removed, but its content is kept in the database and locally
-- **Purge**: the trial network is removed from the database as well as its local content
+- **Purge**: the trial network and the callbacks are removed from the database as well as its local content
 
 ### Transitions <!-- omit in toc -->
 
@@ -267,7 +267,24 @@ When the request is made, it will return another access token that will need to 
 
 The TNLCM database consists of several collections that store important information about trial networks, users, and verification tokens. Below is the description of each collection:
 
-#### Collection `trial_networks` <!-- omit in toc -->
+#### Collection `callback` <!-- omit in toc -->
+
+| Field          | Description                                               |
+| -------------- | --------------------------------------------------------- |
+| `tn_id`        | The ID of the trial network.                              |
+| `entity_name`  | The type-name of component deployed                       |
+| `decoded_data` | The data received by Jenkins decoded for the entitiy_name |
+
+#### Collection `resource_manager` <!-- omit in toc -->
+
+| Field       | Description                                                      |
+| ----------- | ---------------------------------------------------------------- |
+| `component` | The component over which the resources are controlled.           |
+| `tn_id`     | The ID of the trial network.                                     |
+| `quantity`  | The amount of component available.                               |
+| `ttl`       | The amount of time the component can be used in a trial network. |
+
+#### Collection `trial_network` <!-- omit in toc -->
 
 | Field                               | Description                                                                             |
 | ----------------------------------- | --------------------------------------------------------------------------------------- |
@@ -279,14 +296,14 @@ The TNLCM database consists of several collections that store important informat
 | `tn_sorted_descriptor`              | The sorted descriptor of the trial network.                                             |
 | `tn_deployed_descriptor`            | The current status of descriptor with the last entity deployed of the trial network.    |
 | `tn_report`                         | The report related to the trial network.                                                |
-| `tn_folder`                         | The folder where trial network is saved.                                                |
+| `tn_directory_path`                 | The directory where trial network is saved.                                             |
 | `jenkins_deploy_pipeline`           | The pipeline used for the deployment of the descriptor.                                 |
 | `jenkins_destroy_pipeline`          | The pipeline used for destroy a trial network.                                          |
 | `deployment_site`                   | The site where the trial network has been deployed.                                     |
 | `github_6g_library_commit_id`       | The commit id of 6G-Library (branch, commit or tag) used to deploy trial network.       |
 | `github_6g_sandbox_sites_commit_id` | The commid id of 6G-Sandbox-Sites (branch, commit or tag) used to deploy trial network. |
 
-#### Collection `users` <!-- omit in toc -->
+#### Collection `user` <!-- omit in toc -->
 
 | Field      | Description                                 |
 | ---------- | ------------------------------------------- |
@@ -295,22 +312,13 @@ The TNLCM database consists of several collections that store important informat
 | `password` | The password of the user (hashed).          |
 | `org`      | The organization to which the user belongs. |
 
-#### Collection `verifications_tokens` <!-- omit in toc -->
+#### Collection `verifications_token` <!-- omit in toc -->
 
 | Field                | Description                                           |
 | -------------------- | ----------------------------------------------------- |
 | `new_account_email`  | The email associated with the new account.            |
 | `verification_token` | The verification token generated for the new account. |
 | `creation_date`      | The creation date of the verification token.          |
-
-#### Collection `resource_manager` <!-- omit in toc -->
-
-| Field       | Description                                                      |
-| ----------- | ---------------------------------------------------------------- |
-| `component` | The component over which the resources are controlled.           |
-| `tn_id`     | The ID of the trial network.                                     |
-| `quantity`  | The amount of component available.                               |
-| `ttl`       | The amount of time the component can be used in a trial network. |
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
