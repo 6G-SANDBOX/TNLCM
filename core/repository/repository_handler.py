@@ -1,9 +1,9 @@
 import os
 
 from git import Repo
-from git.exc import InvalidGitRepositoryError, GitCommandError
+from git.exc import GitError
 
-from core.exceptions.exceptions_handler import GitCloneError, GitCheckoutError
+from core.exceptions.exceptions_handler import CustomGitException
 
 class RepositoryHandler:
 
@@ -22,8 +22,8 @@ class RepositoryHandler:
         :param github_https_url: HTTPS URL of the GitHub repository, ``str``
         :param github_repository_name: name of the GitHub repository, ``str``
         :param github_local_directory: local directory where the repository will be cloned, ``str``        
-        :param github_reference_type: type of reference (branch, tag, commit) to checkout, ``str``
-        :param github_reference_value: value of the reference (branch name, tag name, commit ID) to checkout, ``str``
+        :param github_reference_type: type of reference (branch, tag, commit) to switch, ``str``
+        :param github_reference_value: value of the reference (branch name, tag name, commit ID) to switch, ``str``
         :param github_token: value of token in case of private repository, ``str``
         """
         self.github_https_url = github_https_url
@@ -40,51 +40,63 @@ class RepositoryHandler:
 
     def git_clone(self) -> None:
         """
-        Apply git clone
+        Git clone
 
-        :raise GitCloneError: if the specified directory is not a valid Git repository (error code 500)
+        :raise CustomGitException:
         """
         try:
             if not os.path.exists(self.github_local_directory) or not os.path.exists(os.path.join(self.github_local_directory, ".git")):
                 self.repo = Repo.clone_from(self.github_https_url, self.github_local_directory)
             else:
                 self.repo = Repo(self.github_local_directory)
-        except InvalidGitRepositoryError:
-            raise GitCloneError(f"Cannot clone because the '{self.github_https_url}' url is not a GitHub repository", 500)
-
+        except GitError:
+            raise CustomGitException(f"Cannot clone because the '{self.github_https_url}' url is not a GitHub repository", 500)
+    
     def git_checkout(self) -> None:
         """
-        Apply git checkout
+        Git checkout
 
-        :raise GitCheckoutError: if git checkout cannot apply (error code 404)
+        :raise CustomGitException:
         """
         try:
             if not self.repo:
-                raise GitCheckoutError(f"Clone repository '{self.github_repository_name}' first", 404)
+                raise CustomGitException(f"Clone repository '{self.github_repository_name}' first", 404)
             self.repo.git.checkout(self.github_reference_value, "--")
-            if self.github_reference_type != "commit":
-                self.github_commit_id = self.repo.head.commit.hexsha
-                self.repo.git.checkout(self.github_commit_id, "--")
-            else:
-                self.github_commit_id = self.github_reference_value
-        except GitCommandError:
-            raise GitCheckoutError(f"Reference '{self.github_reference_type}' with value '{self.github_reference_value}' is not in '{self.github_repository_name}' repository", 404)
+        except GitError:
+            raise CustomGitException(f"Reference '{self.github_reference_type}' with value '{self.github_reference_value}' is not in '{self.github_repository_name}' repository", 404)
 
-    def get_tags(self) -> list[str]:
+    def git_switch(self) -> None:
         """
-        Function to get repository tags
+        Git switch
 
-        :return: list with all tags in the repository, ``list[str]``
-        :raise GitCloneError: if repository not cloned (error code 500)
+        :raise CustomGitException:
+        """
+        try:
+            if not self.repo:
+                raise CustomGitException(f"Clone repository '{self.github_repository_name}' first", 404)
+            self.github_commit_id = self.repo.head.commit.hexsha
+            self.repo.git.switch("--detach", self.github_commit_id)
+        except CustomGitException:
+            raise CustomGitException(f"Reference '{self.github_reference_type}' with value '{self.github_reference_value}' is not in '{self.github_repository_name}' repository", 404)
+
+    def git_branches(self):
+        """
+        Git branches
+
+        :return: list with all remote branches, ``list[str]``
+        :raise CustomGitException:
         """
         if not self.repo:
-            raise GitCloneError(f"Clone repository '{self.github_repository_name}' first", 404)
-        return [tag.name for tag in self.repo.tags]
-
-    def get_branches(self):
-        """
-        Return repository branches
-        """
-        if not self.repo:
-            raise GitCloneError(f"Clone repository '{self.github_repository_name}' first", 500)
+            raise CustomGitException(f"Clone repository '{self.github_repository_name}' first", 500)
         return [ref.remote_head for ref in self.repo.remotes.origin.refs if ref.remote_head != "HEAD"]
+
+    def git_tags(self) -> list[str]:
+        """
+        Git tags
+
+        :return: list with all tags, ``list[str]``
+        :raise CustomGitException:
+        """
+        if not self.repo:
+            raise CustomGitException(f"Clone repository '{self.github_repository_name}' first", 404)
+        return [tag.name for tag in self.repo.tags]
