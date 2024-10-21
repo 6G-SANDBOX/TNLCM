@@ -1,38 +1,44 @@
 # Changelog
 
-## [v0.3.2] - 2024-10-XX
+## [v0.4.0] - 2024-10-XX
 
 ### Added
 
-- README file in `tn_template_lib` folder for explain trial networks defined.
-- First version CLI handler for execute commands.
-- Implementation git fetch prune.
-- Implementation git delete branches after git fetch prune.
-- Endpoint to return the components available on a site.
-- `scripts` folder that contains:
-  - Implementation `deploy_vm.sh` to deploy TNLCM and MongoDB in vm.
-  - Implementation `deploy_docker.sh` to deploy TNLCM and MongoDB in docker.
+- **Concurrency** support in the Flask application by integrating Gunicorn to handle multiple simultaneous requests, improving responsiveness and performance.
+- **Trial network isolation** to run several networks in parallel. The number of parallel trial networks is determined by the value of the environment variable `GUNICORN_WORKERS` minus 1. By default, `GUNICORN_WORKERS` is set to 3, allowing two trial networks to be executed concurrently.
+- **Pipeline deployment check** a pipeline currently in use cannot be used to deploy a trial network, and users will receive a notification that the pipeline is already in use.
+- **README** file added in the `tn_template_lib` directory to explain defined trial networks.
+- **Initial CLI handler** to execute commands.
+- **Git switch method** for streamlined repository management.
+- **Scripts directory** with the following deployment scripts:
+  - `deploy_vm.sh`: deploy TNLCM and MongoDB in a virtual machine.
+  - `deploy_docker.sh`: deploy TNLCM and MongoDB using Docker.
 
 ### Changed
 
-- Python version to 3.13.0.
-- MongoDB version to 8.0.
-- Migrated from `ansible-vault` library to `ansible-core`.
-- Rename `ANSIBLE_VAULT` variable in .env.template and .env to `SITES_TOKEN`.
-- The implementation that was inside the `resource_manager` folder is moved to the resource manager of the `models` folder.
+- Updated Python to version **3.13.0**.
+- Updated MongoDB to version **8.0**.
+- Migrated from the `ansible-vault` library to `ansible-core` since only this module is of interest.
+- Renamed `ANSIBLE_VAULT` variable in `.env.template` to `SITES_TOKEN` for clarity.
+- Moved the implementation from the `resource_manager` directory to the resource manager within the `models` directory.
+- **Improved README documentation** for better clarity and usage guidelines.
 
 ### Fixed
 
-- Bug detected when trying to create a trial network and there were components defined in the 6G-Sandbox-Sites repository, but not defined in the 6G-Library.
-- Functions documentation.
-- The endpoint to return the branches of a repository now only returns the branches that are created in the remote repository.
-- Message when checking if a user can access a trial network.
-- Divergence between the local branch and the remote branch.
+- Resolved a bug when creating a trial network, where components were defined in the 6G-Sandbox-Sites repository but not in the 6G-Library.
+- Corrected function documentation to reflect accurate information.
+- The endpoint for returning repository branches now only lists branches created on the remote repository.
+- Fixed message display when checking if a user can access a trial network.
+- Enhanced logging for TNLCM processes.
+- Fixed issues with JWT and MongoDB error handling.
+- Simplified class exception handling for improved readability and maintainability.
 
 ### Removed
 
-- `resource_manager` folder.
-- Trial Network Template implementation.
+- **Deprecated API namespaces**:
+  - Trial network templates.
+  - 6G-Library.
+  - 6G-Sandbox-Sites.
 
 ## [v0.3.1] - 2024-10-04
 
@@ -155,7 +161,7 @@
 
 - Frontend implementation.
 
-[v0.3.2]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.3.1...v0.3.2
+[v0.4.0]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.3.1...v0.4.0
 [v0.3.1]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.3.0...v0.3.1
 [v0.3.0]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.2.1...v0.3.0
 [v0.2.1]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.2.0...v0.2.1
