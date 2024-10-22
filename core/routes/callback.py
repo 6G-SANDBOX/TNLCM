@@ -32,11 +32,11 @@ class Callback(Resource):
             # if callback_model.success != "true":
             #     return {"message": f"Pipeline for entity '{callback_model.entity_name}' failed"}, 500
 
-            if not callback_model.matches_expected_output():
-                return {"message": "Output keys received by Jenkins does not match output keys from the 6G-Library"}, 500
+            if callback_model.success == "true":
+                if not callback_model.matches_expected_output():
+                    return {"message": "Output keys received by Jenkins does not match output keys from the 6G-Library"}, 500
+                log_handler.info(f"[{callback_model.tn_id}] - Output keys received by Jenkins match with output keys from the 6G-Library")
             
-            log_handler.info(f"[{callback_model.tn_id}] - Output keys received by Jenkins match with output keys from the 6G-Library")
-
             callback_model.save_data_file(data=decoded_data)
             callback_model.save()
             return {"message": f"Results of '{callback_model.entity_name}' entity received by jenkins saved"}, 200
