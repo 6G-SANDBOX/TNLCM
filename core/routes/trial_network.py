@@ -174,7 +174,7 @@ class TrialNetwork(Resource):
             
             if not trial_network:
                 return {"message": f"No trial network with the name '{tn_id}' created by the user '{current_user.username}'"}, 404
-            
+
             state = trial_network.state
             if state == "validated":
                 jenkins_handler = JenkinsHandler(trial_network=trial_network)
@@ -191,11 +191,12 @@ class TrialNetwork(Resource):
                 log_handler.info(f"[{trial_network.tn_id}] - Start deployment of the trial network using Jenkins")
                 jenkins_handler.trial_network_deployment()
                 log_handler.info(f"[{trial_network.tn_id}] - End deployment of the trial network using Jenkins")
-                trial_network.set_report(os.path.join(f"{trial_network.directory_path}", f"{trial_network.tn_id}.md"))
+                report_path = os.path.join(f"{trial_network.directory_path}", f"{trial_network.tn_id}.md")
+                trial_network.set_report(report_path)
                 trial_network.set_state("activated")
                 trial_network.save()
                 log_handler.info(f"[{trial_network.tn_id}] - Trial network update to status '{trial_network.state}'")
-                return {"message": f"Trial network ACTIVATED. Report of the trial network can be found in the directory '{trial_network.directory_path}/{trial_network.tn_id}.md'"}, 200
+                return {"message": f"Trial network ACTIVATED. Report of the trial network can be found in the directory '{report_path}'"}, 200
             elif state == "failed":
                 jenkins_handler = JenkinsHandler(trial_network=trial_network)
                 deployed_descriptor = trial_network.deployed_descriptor["trial_network"]
@@ -203,11 +204,12 @@ class TrialNetwork(Resource):
                 log_handler.info(f"[{trial_network.tn_id}] - Deployment of the trial network continues in the entity_name '{first_key}'")
                 jenkins_handler.trial_network_deployment()
                 log_handler.info(f"[{trial_network.tn_id}] - End deployment of the trial network using Jenkins")
-                trial_network.set_report(os.path.join(f"{trial_network.directory_path}", f"{trial_network.tn_id}.md"))
+                report_path = os.path.join(f"{trial_network.directory_path}", f"{trial_network.tn_id}.md")
+                trial_network.set_report(report_path)
                 trial_network.set_state("activated")
                 trial_network.save()
                 log_handler.info(f"[{trial_network.tn_id}] - Trial network update to status '{trial_network.state}'")
-                return {"message": f"Trial network ACTIVATED. Report of the trial network can be found in the directory '{trial_network.directory_path}/{trial_network.tn_id}.md'"}, 200
+                return {"message": f"Trial network ACTIVATED. Report of the trial network can be found in the directory '{report_path}'"}, 200
             elif state == "destroyed":
                 jenkins_handler = JenkinsHandler(trial_network=trial_network)
                 sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type="commit", reference_value=trial_network.github_6g_sandbox_sites_commit_id, directory_path=trial_network.directory_path)
@@ -220,11 +222,12 @@ class TrialNetwork(Resource):
                 log_handler.info(f"[{trial_network.tn_id}] - Start again deployment of the trial network using Jenkins")
                 jenkins_handler.trial_network_deployment(trial_network.jenkins_deploy_pipeline)
                 log_handler.info(f"[{trial_network.tn_id}] - End deployment of the trial network using Jenkins")
-                trial_network.set_report(os.path.join(f"{trial_network.directory_path}", f"{trial_network.tn_id}.md"))
+                report_path = os.path.join(f"{trial_network.directory_path}", f"{trial_network.tn_id}.md")
+                trial_network.set_report(report_path)
                 trial_network.set_state("activated")
                 trial_network.save()
                 log_handler.info(f"[{trial_network.tn_id}] - Trial network update to status '{trial_network.state}'")
-                return {"message": f"Trial network ACTIVATED. Report of the trial network can be found in the directory '{trial_network.directory_path}/{trial_network.tn_id}.md'"}, 200
+                return {"message": f"Trial network ACTIVATED. Report of the trial network can be found in the directory '{report_path}'"}, 200
             elif state == "activated":
                 # TODO: see what to do with trial network resources
                 return {"message": "TODO: SUSPEND trial network"}, 400

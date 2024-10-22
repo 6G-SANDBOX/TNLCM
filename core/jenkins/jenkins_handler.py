@@ -126,11 +126,11 @@ class JenkinsHandler:
             if "debug" in entity_data:
                 debug = entity_data["debug"]
             log_handler.info(f"[{self.trial_network.tn_id}] - Start deployment of the '{entity_name}' entity")
-            path_entity_name_input_file = os.path.join(self.trial_network.directory_path, f"{self.trial_network.tn_id}-{entity_name}.yaml")
-            save_yaml(data=dict(entity_data["input"]), file_path=path_entity_name_input_file)
+            entity_name_input_file_path = os.path.join(self.trial_network.directory_path, f"{self.trial_network.tn_id}-{entity_name}.yaml")
+            save_yaml(data=dict(entity_data["input"]), file_path=entity_name_input_file_path)
             log_handler.info(f"[{self.trial_network.tn_id}] - Created input file for entity '{entity_name}' to send to Jenkins pipeline")
-            with open(path_entity_name_input_file, "rb") as entity_name_input_file:
-                file = {"FILE": (path_entity_name_input_file, entity_name_input_file)}
+            with open(entity_name_input_file_path, "rb") as entity_name_input_file:
+                file = {"FILE": (entity_name_input_file_path, entity_name_input_file)}
                 log_handler.info(f"[{self.trial_network.tn_id}] - Add Jenkins parameters to the pipeline of the '{entity_name}' entity")
                 jenkins_build_job_url = self.jenkins_client.build_job_url(name=self.trial_network.jenkins_deploy_pipeline, parameters=self._jenkins_deployment_parameters(component_type, custom_name, debug))
                 response = post(jenkins_build_job_url, auth=(self.jenkins_username, self.jenkins_token), files=file)
