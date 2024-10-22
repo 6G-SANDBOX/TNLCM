@@ -1,10 +1,9 @@
 import os
 
-from yaml import safe_load, YAMLError
-
 from conf import SixGLibrarySettings
 from core.repository.repository_handler import RepositoryHandler
-from core.exceptions.exceptions_handler import CustomSixGLibraryException, CustomException
+from core.utils.file_handler import load_yaml
+from core.exceptions.exceptions_handler import CustomSixGLibraryException
 
 class SixGLibraryHandler:
 
@@ -12,18 +11,18 @@ class SixGLibraryHandler:
         self, 
         reference_type: str = None, 
         reference_value: str = None,
-        tn_folder: str = None
+        directory_path: str = None
     ) -> None:
         """
         Constructor
         
         :param reference_type: type of reference (branch, tag, commit) to switch, ``str``
         :param reference_value: value of the reference (branch name, tag name, commit ID) to switch, ``str``
-        :param tn_folder: path folder into which the 6G-Library is to be cloned, ``str``
+        :param directory_path: directory path into which the 6G-Library is to be cloned, ``str``
         """
         self.github_6g_library_https_url = SixGLibrarySettings.GITHUB_6G_LIBRARY_HTTPS_URL
         self.github_6g_library_repository_name = SixGLibrarySettings.GITHUB_6G_LIBRARY_REPOSITORY_NAME
-        self.github_6g_library_local_directory = os.path.join(tn_folder, self.github_6g_library_repository_name)
+        self.github_6g_library_local_directory = os.path.join(directory_path, self.github_6g_library_repository_name)
         self.github_6g_library_reference_type = reference_type
         self.github_6g_library_reference_value = reference_value
         if reference_type == "branch" and reference_value:
@@ -73,15 +72,14 @@ class SixGLibraryHandler:
         """
         return self.repository_handler.git_tags()
     
-    def get_tn_components_parts(self, parts: list[str], tn_components_types: list[str]) -> dict:
+    def get_tn_components_parts(self, parts: list[str], tn_components_types: set) -> dict:
         """
         Function to traverse component types and return their parts (metadata, inputs and outputs)
         
         :param part: list with the indicated part of the component types, ``list[str]``
-        :param tn_components_types: list of the components that make up the descriptor, ``list[str]``
+        :param tn_components_types: set with the components that make up the descriptor, ``set``
         :return components_data: the specified part of the component types, ``dict``
         :raise CustomSixGLibraryException:
-        :raise CustomException:
         """
         components_data = {}
         for component in tn_components_types:
@@ -90,12 +88,9 @@ class SixGLibraryHandler:
                 raise CustomSixGLibraryException(f"Folder of the component '{component}' is not created in commit '{self.github_6g_library_commit_id}' of 6G-Library", 404)
             public_file = os.path.join(self.github_6g_library_local_directory, component, ".tnlcm", "public.yaml")
             if not os.path.exists(public_file):
-                raise CustomException(f"File '{public_file}' not found", 404)
-            with open(public_file, "rt", encoding="utf8") as f:
-                try:
-                    public_data = safe_load(f)
-                except YAMLError:
-                    raise CustomException(f"File '{public_file}' is not parsed correctly", 422)
+                raise CustomSixGLibraryException(f"File '{public_file}' not found", 404)
+            
+            public_data = load_yaml(file_path=public_file, mode="rt", encoding="utf-8")
             
             part_data = {}
             for part in parts:

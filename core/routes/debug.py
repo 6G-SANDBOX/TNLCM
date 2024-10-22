@@ -48,7 +48,7 @@ class UpdateCommitSixGLibrary(Resource):
             if current_user.role == "admin":
                 trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
             
-            sixg_library_handler = SixGLibraryHandler(reference_type="commit", reference_value=trial_network.github_6g_library_commit_id, tn_folder=trial_network.tn_folder)
+            sixg_library_handler = SixGLibraryHandler(reference_type="commit", reference_value=trial_network.github_6g_library_commit_id, directory_path=trial_network.directory_path)
             sixg_library_handler.git_switch()
             trial_network.set_github_6g_library_commit_id(commit_id)
             trial_network.save()
@@ -84,7 +84,7 @@ class UpdateCommitSixGSandboxSites(Resource):
             if current_user.role == "admin":
                 trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
             
-            sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type="commit", reference_value=trial_network.github_6g_library_commit_id, tn_folder=trial_network.tn_folder)
+            sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type="commit", reference_value=trial_network.github_6g_library_commit_id, directory_path=trial_network.directory_path)
             sixg_sandbox_sites_handler.git_switch()
             trial_network.set_github_6g_sandbox_sites_commit_id(commit_id)
             trial_network.save()
@@ -119,15 +119,15 @@ class AddDebugEntityName(Resource):
             trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
             if current_user.role == "admin":
                 trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
-            tn_raw_descriptor = trial_network.json_to_descriptor(trial_network.tn_raw_descriptor)
-            tn_sorted_descriptor = trial_network.json_to_descriptor(trial_network.tn_sorted_descriptor)
-            tn_deployed_descriptor = trial_network.json_to_descriptor(trial_network.tn_deployed_descriptor)
-            tn_raw_descriptor["trial_network"][entity_name]["debug"] = True
-            tn_sorted_descriptor["trial_network"][entity_name]["debug"] = True
-            tn_deployed_descriptor["trial_network"][entity_name]["debug"] = True
-            trial_network.tn_raw_descriptor = trial_network.descriptor_to_json(tn_raw_descriptor)
-            trial_network.tn_sorted_descriptor = trial_network.descriptor_to_json(tn_sorted_descriptor)
-            trial_network.tn_deployed_descriptor = trial_network.descriptor_to_json(tn_deployed_descriptor)
+            raw_descriptor = trial_network.raw_descriptor
+            sorted_descriptor = trial_network.sorted_descriptor
+            deployed_descriptor = trial_network.deployed_descriptor
+            raw_descriptor["trial_network"][entity_name]["debug"] = True
+            sorted_descriptor["trial_network"][entity_name]["debug"] = True
+            deployed_descriptor["trial_network"][entity_name]["debug"] = True
+            trial_network.raw_descriptor = raw_descriptor
+            trial_network.sorted_descriptor = sorted_descriptor
+            trial_network.deployed_descriptor = deployed_descriptor
             trial_network.save()
             return {"message": f"Successfully added debug into '{entity_name}' entity name of the Trial Network '{tn_id}'"}, 201
         except CustomException as e:
@@ -160,15 +160,15 @@ class DeleteDebugEntityName(Resource):
             trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
             if current_user.role == "admin":
                 trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
-            tn_raw_descriptor = trial_network.json_to_descriptor(trial_network.tn_raw_descriptor)
-            tn_sorted_descriptor = trial_network.json_to_descriptor(trial_network.tn_sorted_descriptor)
-            tn_deployed_descriptor = trial_network.json_to_descriptor(trial_network.tn_deployed_descriptor)
-            del tn_raw_descriptor["trial_network"][entity_name]["debug"]
-            del tn_sorted_descriptor["trial_network"][entity_name]["debug"]
-            del tn_deployed_descriptor["trial_network"][entity_name]["debug"]
-            trial_network.tn_raw_descriptor = trial_network.descriptor_to_json(tn_raw_descriptor)
-            trial_network.tn_sorted_descriptor = trial_network.descriptor_to_json(tn_sorted_descriptor)
-            trial_network.tn_deployed_descriptor = trial_network.descriptor_to_json(tn_deployed_descriptor)
+            raw_descriptor = trial_network.raw_descriptor["trial_network"]
+            sorted_descriptor = trial_network.sorted_descriptor["trial_network"]
+            deployed_descriptor = trial_network.deployed_descriptor["trial_network"]
+            del raw_descriptor[entity_name]["debug"]
+            del sorted_descriptor[entity_name]["debug"]
+            del deployed_descriptor[entity_name]["debug"]
+            trial_network.raw_descriptor = raw_descriptor
+            trial_network.sorted_descriptor = sorted_descriptor
+            trial_network.deployed_descriptor = deployed_descriptor
             trial_network.save()
             return {"message": f"Successfully deleted debug into '{entity_name}' entity name of the Trial Network '{tn_id}'"}, 201
         except CustomException as e:

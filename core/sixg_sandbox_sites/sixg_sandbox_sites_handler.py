@@ -1,14 +1,14 @@
 import os
 
-from yaml import safe_load, YAMLError, safe_dump
+from yaml import safe_load
 from ansible.parsing.vault import VaultLib, VaultSecret
 from ansible.constants import DEFAULT_VAULT_ID_MATCH
-from ansible.errors import AnsibleError
 
 from conf import SixGSandboxSitesSettings
 from core.logs.log_handler import log_handler
 from core.repository.repository_handler import RepositoryHandler
-from core.exceptions.exceptions_handler import CustomSixGSandboxSitesException, CustomException
+from core.utils.file_handler import load_yaml, save_yaml
+from core.exceptions.exceptions_handler import CustomSixGSandboxSitesException
 
 class SixGSandboxSitesHandler():
 
@@ -16,18 +16,18 @@ class SixGSandboxSitesHandler():
         self, 
         reference_type: str = None, 
         reference_value: str = None,
-        tn_folder: str = None
+        directory_path: str = None
     ) -> None:
         """
         Constructor
         
         :param reference_type: type of reference (branch, tag, commit) to switch, ``str``
         :param reference_value: value of the reference (branch name, tag name, commit ID) to switch, ``str``
-        :param tn_folder: folder into which the 6G-Sandbox-Sites is to be cloned, ``str``
+        :param directory_path: directory path into which the 6G-Sandbox-Sites is to be cloned, ``str``
         """
         self.github_6g_sandbox_sites_https_url = SixGSandboxSitesSettings.GITHUB_6G_SANDBOX_SITES_HTTPS_URL
         self.github_6g_sandbox_sites_repository_name = SixGSandboxSitesSettings.GITHUB_6G_SANDBOX_SITES_REPOSITORY_NAME
-        self.github_6g_sandbox_sites_local_directory = os.path.join(tn_folder, self.github_6g_sandbox_sites_repository_name)
+        self.github_6g_sandbox_sites_local_directory = os.path.join(directory_path, self.github_6g_sandbox_sites_repository_name)
         self.github_6g_sandbox_sites_reference_type = reference_type
         self.github_6g_sandbox_sites_reference_value = reference_value
         if reference_type == "branch" and reference_value:
@@ -47,23 +47,17 @@ class SixGSandboxSitesHandler():
         Decrypt core.yaml file of site stored in 6G-Sandbox-Sites repository
 
         :param deployment_site: trial network deployment site, ``str``
-        :raise CustomSixGSandboxSitesException:
         """
-        try:
-            password = SixGSandboxSitesSettings.SITES_TOKEN
-            secret = password.encode("utf-8")
-            vault = VaultLib([(DEFAULT_VAULT_ID_MATCH, VaultSecret(secret))])
-            core_file = os.path.join(self.github_6g_sandbox_sites_local_directory, deployment_site, "core.yaml")
-            with open(core_file, "rb") as f:
-                encrypted_data = f.read()
-            decrypted_data = vault.decrypt(encrypted_data)
-            decrypted_yaml = safe_load(decrypted_data)
-            decrypted_core_file = os.path.join(self.github_6g_sandbox_sites_local_directory, deployment_site, "core_decrypt.yaml")
-            with open(decrypted_core_file, "w") as f:
-                safe_dump(decrypted_yaml, f)
-        except AnsibleError as e:
-            raise CustomSixGSandboxSitesException(str(e), 500)
-        
+        password = SixGSandboxSitesSettings.SITES_TOKEN
+        secret = password.encode("utf-8")
+        vault = VaultLib([(DEFAULT_VAULT_ID_MATCH, VaultSecret(secret))])
+        core_file = os.path.join(self.github_6g_sandbox_sites_local_directory, deployment_site, "core.yaml")
+        with open(core_file, "rb") as cf:
+            encrypted_data = cf.read()
+        decrypted_data = vault.decrypt(encrypted_data)
+        decrypted_yaml = safe_load(decrypted_data)
+        save_yaml(data=decrypted_yaml, file_path=os.path.join(self.github_6g_sandbox_sites_local_directory, deployment_site, "core_decrypt.yaml"))
+    
     def validate_site(self, deployment_site: str) -> None:
         """
         Check if deployment site is valid for deploy trial network
@@ -117,16 +111,12 @@ class SixGSandboxSitesHandler():
 
         :param deployment_site: trial network deployment site, ``str``
         :return: dictionary with all information of all components available on a site, ``dict``
-        :raise CustomException:
+        :raise CustomSixGSandboxSitesException:
         """
         decrypted_core_file = os.path.join(self.github_6g_sandbox_sites_local_directory, deployment_site, "core_decrypt.yaml")
         if not os.path.exists(decrypted_core_file):
-            raise CustomException(f"File '{decrypted_core_file}' not found", 404)
-        with open(decrypted_core_file, "rt", encoding="utf8") as f:
-            try:
-                data = safe_load(f)
-            except YAMLError:
-                raise CustomException(f"File '{decrypted_core_file}' is not parsed correctly", 422)
+            raise CustomSixGSandboxSitesException(f"File '{decrypted_core_file}' not found", 404)
+        data = load_yaml(file_path=decrypted_core_file, mode="rt", encoding="utf-8")
         if not data or "site_available_components" not in data:
             return {}
         site_available_components = data["site_available_components"]
@@ -140,13 +130,13 @@ class SixGSandboxSitesHandler():
         """
         return [site for site in os.listdir(self.github_6g_sandbox_sites_local_directory) if not site.startswith(".") and os.path.isdir(os.path.join(self.github_6g_sandbox_sites_local_directory, site))]
     
-    def validate_components_site(self, tn_id: str, deployment_site: str, tn_components_types: list[str]) -> None:
+    def validate_components_site(self, tn_id: str, deployment_site: str, tn_components_types: set) -> None:
         """
         Function to check if components in the descriptor are in the site
 
         :param tn_id: trial network identifier, ``str``
         :param deployment_site: trial network deployment site, ``str``
-        :param tn_components_types: list of components that compose the descriptor, ``list[str]``
+        :param tn_components_types: set with the components that make up the descriptor, ``set``
         :raise CustomSixGSandboxSitesException:
         """
         site_available_components = self.get_site_available_components(deployment_site)

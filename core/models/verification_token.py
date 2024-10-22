@@ -9,7 +9,7 @@ class VerificationTokenModel(Document):
 
     meta = {
         "db_alias": "tnlcm-database-alias",
-        "collection": "verification_tokens"
+        "collection": "verification_token"
     }
 
     def to_dict(self):

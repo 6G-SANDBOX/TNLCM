@@ -1,6 +1,5 @@
 import os
 
-from yaml import dump
 from requests import post
 from time import sleep
 from jenkins import Jenkins, JenkinsException
@@ -8,9 +7,9 @@ from requests.exceptions import RequestException
 
 from conf import JenkinsSettings, TnlcmSettings, SixGLibrarySettings, SixGSandboxSitesSettings
 from core.logs.log_handler import log_handler
-from core.models.trial_network import TrialNetworkModel
-from core.callback.callback_handler import CallbackHandler
+from core.models import CallbackModel, TrialNetworkModel
 from core.sixg_library.sixg_library_handler import SixGLibraryHandler
+from core.utils.file_handler import save_yaml
 from core.exceptions.exceptions_handler import CustomJenkinsException
 
 class JenkinsHandler:
@@ -18,19 +17,16 @@ class JenkinsHandler:
     def __init__(
         self, 
         trial_network: TrialNetworkModel = None, 
-        callback_handler: CallbackHandler = None, 
         sixg_library_handler: SixGLibraryHandler = None, 
     ) -> None:
         """
         Constructor
 
         :param trial_network: model of the trial network to be deployed, ``TrialNetworkModel``
-        :param callback_handler: handler to save results obtained by Jenkins, ``CallbackHandler``
         :param sixg_library_handler: handler to 6G-Library, ``SixGLibraryHandler``
         :raises JenkinsConnectionError:
         """
         self.trial_network = trial_network
-        self.callback_handler = callback_handler
         self.sixg_library_handler = sixg_library_handler
         self.jenkins_url = JenkinsSettings.JENKINS_URL
         self.jenkins_username = JenkinsSettings.JENKINS_USERNAME
@@ -86,20 +82,6 @@ class JenkinsHandler:
                 raise CustomJenkinsException(f"The pipeline '{jenkins_deploy_pipeline}' is currently in use. Try again later", 500)
             log_handler.info(f"[{self.trial_network.tn_id}] - Use the pipeline '{jenkins_deploy_pipeline}' defined in Jenkins to deploy the trial network")
             return jenkins_deploy_pipeline
-    
-    def _create_entity_name_input_file(self, entity_name: str, content: dict) -> str:
-        """
-        Return the path including the temporary file name
-        
-        :param entity_name: component type-name, ``str``
-        :param content: content to be written into the temporary file, ``dict``
-        :return: path to the file to be passed to Jenkins in which the component inputs are defined
-        """
-        log_handler.info(f"[{self.trial_network.tn_id}] - Create input file for entity '{entity_name}' to send to Jenkins pipeline")
-        path_entity_name_input_file = os.path.join(self.trial_network.tn_folder, f"{self.trial_network.tn_id}-{entity_name}.yaml")
-        with open(path_entity_name_input_file, "w") as yaml_file:
-            dump(content, yaml_file, default_flow_style=False)
-        return path_entity_name_input_file
 
     def _jenkins_deployment_parameters(self, component_type: str, custom_name: str, debug: str) -> dict:
         """
@@ -133,8 +115,8 @@ class JenkinsHandler:
         
         :raises CustomJenkinsException:
         """
-        tn_deployed_descriptor = self.trial_network.json_to_descriptor(self.trial_network.tn_deployed_descriptor)["trial_network"]
-        tn_descriptor = tn_deployed_descriptor.copy()
+        deployed_descriptor = self.trial_network.deployed_descriptor["trial_network"]
+        tn_descriptor = deployed_descriptor.copy()
         for entity_name, entity_data in tn_descriptor.items():
             component_type = entity_data["type"]
             custom_name = None
@@ -144,7 +126,9 @@ class JenkinsHandler:
             if "debug" in entity_data:
                 debug = entity_data["debug"]
             log_handler.info(f"[{self.trial_network.tn_id}] - Start deployment of the '{entity_name}' entity")
-            path_entity_name_input_file = self._create_entity_name_input_file(entity_name, entity_data["input"])
+            path_entity_name_input_file = os.path.join(self.trial_network.directory_path, f"{self.trial_network.tn_id}-{entity_name}.yaml")
+            save_yaml(data=dict(entity_data["input"]), file_path=path_entity_name_input_file)
+            log_handler.info(f"[{self.trial_network.tn_id}] - Created input file for entity '{entity_name}' to send to Jenkins pipeline")
             with open(path_entity_name_input_file, "rb") as entity_name_input_file:
                 file = {"FILE": (path_entity_name_input_file, entity_name_input_file)}
                 log_handler.info(f"[{self.trial_network.tn_id}] - Add Jenkins parameters to the pipeline of the '{entity_name}' entity")
@@ -163,13 +147,16 @@ class JenkinsHandler:
                 if self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["lastSuccessfulBuild"]["number"] != next_build_number:
                     raise CustomJenkinsException(f"Pipeline for the entity '{entity_name}' has failed", 500)
                 log_handler.info(f"[{self.trial_network.tn_id}] - Entity '{entity_name}' successfully deployed")
-                sleep(5)
-                if not self.callback_handler.exists_path_entity_name_json(entity_name):
-                    raise CustomJenkinsException(f"File with the results of the entity '{entity_name}' not found", 404)
-            del tn_deployed_descriptor[entity_name]
-            self.trial_network.set_tn_deployed_descriptor(tn_deployed_descriptor)
-            self.trial_network.save()
-            log_handler.info(f"[{self.trial_network.tn_id}] - End of deployment of entity '{entity_name}'")
+                sleep(3)
+                callback = CallbackModel.objects(tn_id=self.trial_network.tn_id, entity_name=entity_name).first()
+                if not callback:
+                    raise CustomJenkinsException(f"Callback with the results of the entity '{entity_name}' not found", 404)
+                del deployed_descriptor[entity_name]
+                self.trial_network.set_deployed_descriptor(deployed_descriptor)
+                self.trial_network.save()
+                log_handler.info(f"[{self.trial_network.tn_id}] - End of deployment of entity '{entity_name}'")
+            if not os.path.join(f"{self.trial_network.directory_path}", f"{self.trial_network.tn_id}.md"):
+                raise CustomJenkinsException(f"File with the report of the trial network '{self.trial_network.tn_id}' not found", 404)
 
     def generate_jenkins_destroy_pipeline(self, jenkins_destroy_pipeline: str) -> str:
         """
@@ -208,9 +195,9 @@ class JenkinsHandler:
         """
         tn_components_types = self.trial_network.get_tn_components_types()
         metadata_part = self.sixg_library_handler.get_tn_components_parts(parts=["metadata"], tn_components_types=tn_components_types)["metadata"]
-        tn_sorted_descriptor = self.trial_network.json_to_descriptor(self.trial_network.tn_sorted_descriptor)["trial_network"]
+        sorted_descriptor = self.trial_network.sorted_descriptor["trial_network"]
         entities_with_destroy_script = []
-        for entity_name, entity_data in tn_sorted_descriptor.items():
+        for entity_name, entity_data in sorted_descriptor.items():
             component_type = entity_data["type"]
             if "destroy_script" in metadata_part[component_type] and metadata_part[component_type]["destroy_script"]:
                 entities_with_destroy_script.append(entity_name)
