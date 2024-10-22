@@ -115,9 +115,9 @@ class JenkinsHandler:
         
         :raises CustomJenkinsException:
         """
-        deployed_descriptor = self.trial_network.deployed_descriptor["trial_network"]
-        tn_descriptor = deployed_descriptor.copy()
-        for entity_name, entity_data in tn_descriptor.items():
+        deployed_descriptor = self.trial_network.to_mongo()["deployed_descriptor"]["trial_network"]
+        deployed_descriptor_copy = deployed_descriptor.copy()
+        for entity_name, entity_data in deployed_descriptor_copy.items():
             component_type = entity_data["type"]
             custom_name = None
             if "name" in entity_data:
@@ -127,7 +127,7 @@ class JenkinsHandler:
                 debug = entity_data["debug"]
             log_handler.info(f"[{self.trial_network.tn_id}] - Start deployment of the '{entity_name}' entity")
             entity_name_input_file_path = os.path.join(self.trial_network.directory_path, f"{self.trial_network.tn_id}-{entity_name}.yaml")
-            save_yaml(data=dict(entity_data["input"]), file_path=entity_name_input_file_path)
+            save_yaml(data=entity_data["input"], file_path=entity_name_input_file_path)
             log_handler.info(f"[{self.trial_network.tn_id}] - Created input file for entity '{entity_name}' to send to Jenkins pipeline")
             with open(entity_name_input_file_path, "rb") as entity_name_input_file:
                 file = {"FILE": (entity_name_input_file_path, entity_name_input_file)}
