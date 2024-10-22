@@ -54,7 +54,7 @@ class ResourceManagerModel(Document):
         :param site_available_components: dictionary with all information of all components available on a site, ``dict``
         :raise CustomResourceManagerException:
         """
-        tn_descriptor = trial_network.tn_sorted_descriptor["trial_network"]
+        tn_descriptor = trial_network.sorted_descriptor["trial_network"]
         for _, entity_data in tn_descriptor.items():
             component_type = entity_data["type"]
             sixg_sandbox_sites_component_quantity, sixg_sandbox_sites_component_ttl = self._sixg_sandbox_sites_component_resources(component_type, site_available_components)
@@ -75,7 +75,7 @@ class ResourceManagerModel(Document):
 
         :param trial_network: model of the trial network, ``TrialNetworkModel``
         """
-        tn_descriptor = trial_network.tn_sorted_descriptor["trial_network"]
+        tn_descriptor = trial_network.sorted_descriptor["trial_network"]
         for _, entity_data in tn_descriptor.items():
             component_type = entity_data["type"]
             tnlcm_component_resources = ResourceManagerModel.objects(component=component_type).first()

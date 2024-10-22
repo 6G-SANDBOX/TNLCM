@@ -1,7 +1,6 @@
 import os
 import re
 
-from json import dumps, loads
 from yaml import safe_load, YAMLError
 from datetime import datetime, timezone
 from string import ascii_lowercase, digits
@@ -13,7 +12,7 @@ from mongoengine import Document, StringField, DictField, DateTimeField
 from core.utils.file_handler import load_markdown
 from core.exceptions.exceptions_handler import CustomTrialNetworkException
 
-TN_STATE_MACHINE = {"validated", "suspended", "activated", "failed", "destroyed"}
+STATE_MACHINE = {"validated", "suspended", "activated", "failed", "destroyed"}
 COMPONENTS_EXCLUDE_CUSTOM_NAME = {"tn_vxlan", "tn_bastion", "tn_init", "tsn"}
 REQUIRED_FIELDS_DESCRIPTOR = {"type", "input"}
 
@@ -21,13 +20,13 @@ class TrialNetworkModel(Document):
 
     user_created = StringField(max_length=100)
     tn_id = StringField(max_length=15, unique=True)
-    tn_state = StringField(max_length=50)
-    tn_date_created_utc = DateTimeField(default=datetime.now(timezone.utc))
-    tn_raw_descriptor = DictField()
-    tn_sorted_descriptor = DictField()
-    tn_deployed_descriptor = DictField()
-    tn_report = StringField()
-    tn_directory_path = StringField()
+    state = StringField(max_length=50)
+    date_created_utc = DateTimeField(default=datetime.now(timezone.utc))
+    raw_descriptor = DictField()
+    sorted_descriptor = DictField()
+    deployed_descriptor = DictField()
+    report = StringField()
+    directory_path = StringField()
     jenkins_deploy_pipeline = StringField()
     jenkins_destroy_pipeline = StringField()
     deployment_site = StringField()
@@ -69,18 +68,18 @@ class TrialNetworkModel(Document):
                 raise CustomTrialNetworkException(f"The tn_id '{tn_id}' already exists in the database", 409)
             self.tn_id = tn_id
 
-    def set_tn_state(self, tn_state: str) -> None:
+    def set_state(self, state: str) -> None:
         """
         Set state of trial network
         
-        :param tn_state: new state to set for the trial network, ``str``
+        :param state: new state to set for the trial network, ``str``
         :raise CustomTrialNetworkException:
         """
-        if tn_state not in TN_STATE_MACHINE:
-            raise CustomTrialNetworkException(f"Trial network '{tn_state}' state not found", 404)
-        self.tn_state = tn_state
+        if state not in STATE_MACHINE:
+            raise CustomTrialNetworkException(f"Trial network '{state}' state not found", 404)
+        self.state = state
 
-    def set_tn_raw_descriptor(self, tn_descriptor_file: FileStorage) -> None:
+    def set_raw_descriptor(self, tn_descriptor_file: FileStorage) -> None:
         """
         Set the trial network raw descriptor from a file.
         
@@ -90,19 +89,19 @@ class TrialNetworkModel(Document):
         try:
             filename = secure_filename(tn_descriptor_file.filename)
             if '.' in filename and filename.split('.')[-1].lower() in ["yml", "yaml"]:
-                self.tn_raw_descriptor = safe_load(tn_descriptor_file.stream)
+                self.raw_descriptor = safe_load(tn_descriptor_file.stream)
             else:
                 raise CustomTrialNetworkException("Invalid descriptor format. Only 'yml' or 'yaml' files will be further processed", 422)
         except YAMLError:
             raise CustomTrialNetworkException("Trial network descriptor is not parsed correctly", 422)
 
-    def set_tn_sorted_descriptor(self) -> None:
+    def set_sorted_descriptor(self) -> None:
         """
         Recursive method that return the raw descriptor and a new descriptor sorted according to dependencies
 
         :raise CustomTrialNetworkException:
         """
-        entities = self.tn_raw_descriptor["trial_network"]
+        entities = self.raw_descriptor["trial_network"]
         ordered_entities = {}
 
         def dfs(entity):
@@ -118,27 +117,27 @@ class TrialNetworkModel(Document):
         for entity in entities:
             dfs(entity)
         
-        self.tn_sorted_descriptor = {"trial_network": ordered_entities}
-        self.tn_deployed_descriptor = {"trial_network": ordered_entities}
+        self.sorted_descriptor = {"trial_network": ordered_entities}
+        self.deployed_descriptor = {"trial_network": ordered_entities}
 
-    def set_tn_report(self, file_path: str) -> None:
+    def set_report(self, file_path: str) -> None:
         """
         Set the trial network report from a markdown file
 
         :param file_path: path to the markdown report file, ``str``
         """
-        self.tn_report = load_markdown(file_path=file_path)
+        self.report = load_markdown(file_path=file_path)
     
-    def set_tn_directory_path(self, tn_directory_path: str) -> None:
+    def set_directory_path(self, directory_path: str) -> None:
         """
         Set the trial network directory where all information will save
 
-        :param tn_directory_path: path to the trial network directory, ``str``
+        :param directory_path: path to the trial network directory, ``str``
         """
-        if os.path.exists(tn_directory_path):
-            raise CustomTrialNetworkException(f"Directory '{tn_directory_path}' already exists", 409)
-        os.makedirs(tn_directory_path)
-        self.tn_directory_path = tn_directory_path
+        if os.path.exists(directory_path):
+            raise CustomTrialNetworkException(f"Directory '{directory_path}' already exists", 409)
+        os.makedirs(directory_path)
+        self.directory_path = directory_path
     
     def set_jenkins_deploy_pipeline(self, jenkins_deploy_pipeline: str) -> None:
         """
@@ -180,16 +179,16 @@ class TrialNetworkModel(Document):
         """
         self.github_6g_sandbox_sites_commit_id = github_6g_sandbox_sites_commit_id
 
-    def set_tn_deployed_descriptor(self, tn_deployed_descriptor: dict = None) -> None:
+    def set_deployed_descriptor(self, deployed_descriptor: dict = None) -> None:
         """
         Set deployed descriptor
         
-        :param tn_deployed_descriptor: deployed descriptor, ``dict``
+        :param deployed_descriptor: deployed descriptor, ``dict``
         """
-        if not tn_deployed_descriptor:
-            self.tn_deployed_descriptor = self.tn_sorted_descriptor
+        if not deployed_descriptor:
+            self.deployed_descriptor = self.sorted_descriptor
         else:
-            self.tn_deployed_descriptor = {"trial_network": tn_deployed_descriptor}
+            self.deployed_descriptor = {"trial_network": deployed_descriptor}
 
     def _logical_expression(
         self, 
@@ -275,9 +274,9 @@ class TrialNetworkModel(Document):
         :param tn_component_inputs: correct component inputs from the 6G-Library, ``dict``
         :raises CustomTrialNetworkException:
         """
-        if len(self.tn_raw_descriptor.keys()) > 1 or "trial_network" not in self.tn_raw_descriptor:
+        if len(self.raw_descriptor.keys()) > 1 or "trial_network" not in self.raw_descriptor:
             raise CustomTrialNetworkException("Trial network descriptor must start with 'trial_network' key", 422)
-        tn_descriptor = self.tn_raw_descriptor["trial_network"]
+        tn_descriptor = self.raw_descriptor["trial_network"]
         for entity_name, entity_data in tn_descriptor.items():
             if len(entity_name) <= 0:
                 raise CustomTrialNetworkException(f"There is an empty entity name in the trial network", 422)
@@ -358,7 +357,7 @@ class TrialNetworkModel(Document):
         :return: set with components that compose trial network descriptor, ``set``
         """
         component_types = set()
-        tn_descriptor = self.tn_sorted_descriptor["trial_network"]
+        tn_descriptor = self.sorted_descriptor["trial_network"]
         for _, component in tn_descriptor.items():
             component_types.add(component["type"])
         return component_types
@@ -368,6 +367,7 @@ class TrialNetworkModel(Document):
             "user_created": self.user_created,
             "tn_id": self.tn_id,
             "deployment_site": self.deployment_site,
+            "directory_path": self.directory_path,
             "github_6g_library_commit_id": self.github_6g_library_commit_id,
             "github_6g_sandbox_sites_commit_id": self.github_6g_sandbox_sites_commit_id
         }
@@ -376,13 +376,13 @@ class TrialNetworkModel(Document):
         return {
             "user_created": self.user_created,
             "tn_id": self.tn_id,
-            "tn_state": self.tn_state,
-            "tn_date_created_utc": self.tn_date_created_utc.isoformat(),
-            "tn_raw_descriptor": self.tn_raw_descriptor,
-            "tn_sorted_descriptor": self.tn_sorted_descriptor,
-            "tn_deployed_descriptor": self.tn_deployed_descriptor,
-            "tn_report": self.tn_report,
-            "tn_directory_path": self.tn_directory_path,
+            "state": self.state,
+            "date_created_utc": self.date_created_utc.isoformat(),
+            "raw_descriptor": self.raw_descriptor,
+            "sorted_descriptor": self.sorted_descriptor,
+            "deployed_descriptor": self.deployed_descriptor,
+            "report": self.report,
+            "directory_path": self.directory_path,
             "jenkins_deploy_pipeline": self.jenkins_deploy_pipeline,
             "jenkins_destroy_pipeline": self.jenkins_destroy_pipeline,
             "deployment_site": self.deployment_site,

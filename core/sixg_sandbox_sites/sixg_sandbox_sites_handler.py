@@ -16,18 +16,18 @@ class SixGSandboxSitesHandler():
         self, 
         reference_type: str = None, 
         reference_value: str = None,
-        tn_directory_path: str = None
+        directory_path: str = None
     ) -> None:
         """
         Constructor
         
         :param reference_type: type of reference (branch, tag, commit) to switch, ``str``
         :param reference_value: value of the reference (branch name, tag name, commit ID) to switch, ``str``
-        :param tn_directory_path: directory path into which the 6G-Sandbox-Sites is to be cloned, ``str``
+        :param directory_path: directory path into which the 6G-Sandbox-Sites is to be cloned, ``str``
         """
         self.github_6g_sandbox_sites_https_url = SixGSandboxSitesSettings.GITHUB_6G_SANDBOX_SITES_HTTPS_URL
         self.github_6g_sandbox_sites_repository_name = SixGSandboxSitesSettings.GITHUB_6G_SANDBOX_SITES_REPOSITORY_NAME
-        self.github_6g_sandbox_sites_local_directory = os.path.join(tn_directory_path, self.github_6g_sandbox_sites_repository_name)
+        self.github_6g_sandbox_sites_local_directory = os.path.join(directory_path, self.github_6g_sandbox_sites_repository_name)
         self.github_6g_sandbox_sites_reference_type = reference_type
         self.github_6g_sandbox_sites_reference_value = reference_value
         if reference_type == "branch" and reference_value:

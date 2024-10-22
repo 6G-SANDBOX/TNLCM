@@ -25,6 +25,7 @@
 - Renamed `ANSIBLE_VAULT` variable in `.env.template` to `SITES_TOKEN` for clarity.
 - Moved the implementation from the `resource_manager` directory to the resource manager within the `models` directory.
 - Rename `trial_networks`, `users` and `verification_tokens` collections to `trial_network`, `user` and `verification_token`.
+- Rename columns in `trial_network` collection.
 
 ### Fixed
 
