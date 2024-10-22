@@ -269,11 +269,15 @@ The TNLCM database consists of several collections that store important informat
 
 #### Collection `callback` <!-- omit in toc -->
 
-| Field          | Description                                               |
-| -------------- | --------------------------------------------------------- |
-| `tn_id`        | The ID of the trial network.                              |
-| `entity_name`  | The type-name of component deployed                       |
-| `decoded_data` | The data received by Jenkins decoded for the entitiy_name |
+| Field            | Description                                                    |
+| ---------------- | -------------------------------------------------------------- |
+| `tn_id`          | The ID of the trial network.                                   |
+| `entity_name`    | The component_type-custom_name of component deployed.          |
+| `component_type` | Type of component deployed.                                    |
+| `custom_name`    | Significant name of what is deployed.                          |
+| `success`        | Verification of successful or unsuccessful pipeline operation. |
+| `markdown`       | The entity_name report.                                        |
+| `output`         | The data received by Jenkins decoded for the entitiy_name.     |
 
 #### Collection `resource_manager` <!-- omit in toc -->
 

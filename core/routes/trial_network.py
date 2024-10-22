@@ -160,7 +160,7 @@ class TrialNetwork(Resource):
     @trial_network_namespace.expect(parser_put)
     def put(self, tn_id: str) -> tuple[dict, int]:
         """
-        Play or suspend trial network
+        Activate or suspend trial network
         If nothing is specified in *jenkins_deploy_pipeline*, a pipeline will be created inside TNLCM folder in Jenkins with the name **TN_DEPLOY_<tn_id>**
         If a deployment pipeline is specified, it will be checked that it exists in Jenkins and that it has nothing queued to execute
         """
@@ -269,8 +269,8 @@ class TrialNetwork(Resource):
             if not trial_network:
                 return {"message": f"No trial network with the name '{tn_id}' created by the user '{current_user.username}'"}, 404
             
-            if trial_network.state != "activated":
-                return {"message": "Trial network cannot be destroyed because the current status of Trial Network is different to ACTIVATED"}, 400
+            if trial_network.state != "activated" and trial_network.state != "failed":
+                return {"message": "Trial network cannot be destroyed because the current status of Trial Network is different to ACTIVATED or FAILED"}, 400
             
             sixg_library_handler = SixGLibraryHandler(reference_type="commit", reference_value=trial_network.github_6g_library_commit_id, directory_path=trial_network.directory_path)
             jenkins_handler = JenkinsHandler(trial_network=trial_network, sixg_library_handler=sixg_library_handler)
@@ -316,6 +316,9 @@ class PurgeTrialNetwork(Resource):
             
             if not trial_network:
                 return {"message": f"No trial network with the name '{tn_id}' created by the user '{current_user.username}'"}, 404
+            
+            if trial_network.state != "destroyed":
+                return {"message": "Trial network cannot be purge because the current status of Trial Network is different to DESTROYED"}, 400
             
             callback = CallbackModel.objects(tn_id=trial_network.tn_id)
             callback.delete()
