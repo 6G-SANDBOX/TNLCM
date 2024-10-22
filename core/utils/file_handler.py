@@ -39,7 +39,7 @@ def save_yaml(data, file_path: str) -> None:
     :param file_path: The file path where the data will be saved, ``str``
     """
     with open(file_path, "w") as yaml_file:
-        yaml.dump(data, yaml_file, default_flow_style=False)
+        yaml.safe_dump(data, yaml_file, default_flow_style=False)
 
 def append_markdown(data: str, file_path: str) -> None:
     """

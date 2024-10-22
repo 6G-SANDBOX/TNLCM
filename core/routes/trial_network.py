@@ -58,8 +58,8 @@ class CreateTrialNetwork(Resource):
     def post(self) -> tuple[dict, int]:
         """
         Create and validate trial network
-        Can specify a branch, commit or tag of the 6G-Library.
-        Can specify a branch, commit or tag of the 6G-Sandbox-Sites.
+        Can specify a branch, commit or tag of the 6G-Library
+        Can specify a branch, commit or tag of the 6G-Sandbox-Sites
         The tn_id can be specified if desired. **If the value is specified, it should begin with character. If nothing is specified, it will return a random tn_id**
         """
         try:
