@@ -30,6 +30,7 @@
 ### Fixed
 
 - Resolved a bug when creating a trial network, where components were defined in the 6G-Sandbox-Sites repository but not in the 6G-Library.
+- Trial network can be destroyed if it is in **failed** state.
 - Corrected function documentation to reflect accurate information.
 - Message display when checking if a user can access a trial network.
 - Enhanced logging for TNLCM processes.

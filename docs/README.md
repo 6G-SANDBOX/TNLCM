@@ -136,7 +136,7 @@ TNLCM is a **state machine** that allows the automation of component deployment.
 
 ### :inbox_tray: Download the installation script
 
-Download the installation script which is [deploy_vm.sh](../scripts/deploy_vm.sh) and is located in the `scripts` folder.
+Download the installation script which is [`deploy_vm.sh`](../scripts/deploy_vm.sh) and is located in the `scripts` folder.
 
 ### :gear: Configure environment variables
 

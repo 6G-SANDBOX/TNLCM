@@ -46,6 +46,7 @@ class TnlcmSettings:
         "TNLCM_HOST": TNLCM_HOST,
         "TNLCM_PORT": TNLCM_PORT,
         "TNLCM_CALLBACK": TNLCM_CALLBACK,
+        "TRIAL_NETWORKS_DIRECTORY": TRIAL_NETWORKS_DIRECTORY
     }
     
     log_handler.info(f"Load TNLCM configuration: {config_dict}")
