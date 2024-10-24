@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 
 dotenv_path = os.path.join(os.getcwd(), ".env")
-# dotenv_path_dev = os.path.join(os.getcwd(), ".env.dev")
+# dotenv_path = os.path.join(os.getcwd(), ".env.dev")
 load_dotenv(dotenv_path=dotenv_path)
 
 from core.logs.log_handler import log_handler
