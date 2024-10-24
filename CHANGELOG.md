@@ -1,5 +1,18 @@
 # Changelog
 
+## [Unreleased] - 2024-XX-XX
+
+### Added
+
+### Changed
+
+### Fixed
+
+- Generalization of the functions defined in the file `file_handler.py` in the `utils` directory.
+- Purge trial network when state is **validated**.
+
+### Removed
+
 ## [v0.4.0] - 2024-10-24
 
 ### Added
@@ -166,6 +179,7 @@
 
 - Frontend implementation.
 
+[unreleased]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.0...HEAD
 [v0.4.0]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.3.1...v0.4.0
 [v0.3.1]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.3.0...v0.3.1
 [v0.3.0]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.2.1...v0.3.0

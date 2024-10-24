@@ -3,7 +3,7 @@ import os
 from mongoengine import Document, StringField, DictField
 
 from conf import SixGLibrarySettings, TnlcmSettings
-from core.utils.file_handler import load_yaml, save_json, append_markdown
+from core.utils.file_handler import load_yaml, save_json, save_file
 from core.utils.parser_handler import decode_base64
 from core.exceptions.exceptions_handler import CustomCallbackException
 
@@ -62,7 +62,7 @@ class CallbackModel(Document):
         :param data: dictionary with decode values, ``dict``
         """
         save_json(data=data, file_path=os.path.join(TnlcmSettings.TRIAL_NETWORKS_DIRECTORY, self.tn_id, f"{self.entity_name}.json"))
-        append_markdown(data=self.markdown, file_path=os.path.join(TnlcmSettings.TRIAL_NETWORKS_DIRECTORY, self.tn_id, f"{self.tn_id}.md"))
+        save_file(data=self.markdown, file_path=os.path.join(TnlcmSettings.TRIAL_NETWORKS_DIRECTORY, self.tn_id, f"{self.tn_id}.md"), mode="a", encoding="utf-8")
 
     def matches_expected_output(self) -> bool:
         """

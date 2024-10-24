@@ -9,7 +9,7 @@ from werkzeug.utils import secure_filename
 from werkzeug.datastructures import FileStorage
 from mongoengine import Document, StringField, DictField, DateTimeField
 
-from core.utils.file_handler import load_markdown
+from core.utils.file_handler import load_file
 from core.exceptions.exceptions_handler import CustomTrialNetworkException
 
 STATE_MACHINE = {"validated", "suspended", "activated", "failed", "destroyed"}
@@ -126,7 +126,7 @@ class TrialNetworkModel(Document):
 
         :param file_path: path to the markdown report file, ``str``
         """
-        self.report = load_markdown(file_path=file_path)
+        self.report = load_file(file_path=file_path, mode="rt", encoding="utf-8")
     
     def set_directory_path(self, directory_path: str) -> None:
         """
