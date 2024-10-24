@@ -317,8 +317,8 @@ class PurgeTrialNetwork(Resource):
             if not trial_network:
                 return {"message": f"No trial network with the name '{tn_id}' created by the user '{current_user.username}'"}, 404
             
-            if trial_network.state != "destroyed":
-                return {"message": "Trial network cannot be purge because the current status of Trial Network is different to DESTROYED"}, 400
+            if trial_network.state != "validated" and trial_network.state != "destroyed":
+                return {"message": "Trial network cannot be purge because the current status of Trial Network is different to VALIDATED and DESTROYED"}, 400
             
             callback = CallbackModel.objects(tn_id=trial_network.tn_id)
             callback.delete()
