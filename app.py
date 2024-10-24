@@ -32,4 +32,4 @@ api.add_namespace(trial_network_namespace, path="/tnlcm/trial-network")
 api.add_namespace(user_namespace, path="/tnlcm/user")
 api.add_namespace(verification_token_namespace, path="/tnlcm/verification-token")
 
-log_handler.info(f"Start Trial Network Life Cycle Manager (TNLCM) v{TnlcmSettings.VERSION} on http://0.0.0.0:{TnlcmSettings.TNLCM_PORT}")
+log_handler.info(f"Start Trial Network Lifecycle Manager (TNLCM) v{TnlcmSettings.VERSION} on http://0.0.0.0:{TnlcmSettings.TNLCM_PORT}")
