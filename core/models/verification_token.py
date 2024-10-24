@@ -2,13 +2,14 @@ from datetime import datetime, timezone
 from mongoengine import Document, EmailField, IntField, DateTimeField
 
 class VerificationTokenModel(Document):
+    
     new_account_email = EmailField(max_length=50, unique=True)
     verification_token = IntField(max_length=50)
     creation_date = DateTimeField(default=datetime.now(timezone.utc))
 
     meta = {
         "db_alias": "tnlcm-database-alias",
-        "collection": "verification_tokens"
+        "collection": "verification_token"
     }
 
     def to_dict(self):

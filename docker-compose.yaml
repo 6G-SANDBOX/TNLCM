@@ -10,15 +10,10 @@ services:
       - mongo-config:/data/configdb
       - ./core/database/tnlcm-structure.js:/docker-entrypoint-initdb.d/tnlcm-structure.js
     restart: unless-stopped
-    networks:
-      - mongo-network
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
-      MONGO_DATABASE: ${MONGO_DATABASE}
-      TNLCM_ADMIN_USER: ${TNLCM_ADMIN_USER}
-      TNLCM_ADMIN_PASSWORD: ${TNLCM_ADMIN_PASSWORD}
-      TNLCM_ADMIN_EMAIL: ${TNLCM_ADMIN_EMAIL}
+    network_mode: "host"
+    env_file:
+      - path: .env
+        required: true
 
   mongo-express:
     container_name: ${MONGO_DATABASE}-frontend
@@ -26,21 +21,29 @@ services:
     ports:
       - 8081:8081
     restart: unless-stopped
-    networks:
-      - mongo-network
+    network_mode: "host"
     depends_on:
       - mongo
-    environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: ${ME_CONFIG_MONGODB_ADMINUSERNAME}
-      ME_CONFIG_MONGODB_ADMINPASSWORD: ${ME_CONFIG_MONGODB_ADMINPASSWORD}
-      ME_CONFIG_MONGODB_URL: ${ME_CONFIG_MONGODB_URL}
-      ME_CONFIG_BASICAUTH_USERNAME: ${ME_CONFIG_BASICAUTH_USERNAME}
-      ME_CONFIG_BASICAUTH_PASSWORD: ${ME_CONFIG_BASICAUTH_PASSWORD}
+    env_file:
+      - path: .env
+        required: true
+
+  tnlcm:
+    container_name: tnlcm
+    image: tnlcm:0.4.0
+    ports:
+      - ${TNLCM_PORT}:${TNLCM_PORT}
+    build: 
+      context: .
+      dockerfile: docker/flask/Dockerfile
+    restart: unless-stopped
+    network_mode: "host"
+    depends_on:
+      - mongo-express
+    env_file:
+      - path: .env
+        required: true
 
 volumes:
   mongo-data:
   mongo-config:
-
-networks:
-  mongo-network:
-    driver: bridge

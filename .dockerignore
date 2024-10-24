@@ -1,0 +1,9 @@
+.github/
+.vscode/
+docs/
+scripts/
+tn_template_lib/
+venv/
+**/__pycache__/
+core/logs/executions/
+core/trial_networks/

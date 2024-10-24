@@ -1,8 +1,6 @@
-import os
-
+from random import randint
 from flask_restx import Resource, Namespace, reqparse, abort
 from flask_mail import Message
-from random import randint
 
 from conf import MailSettings
 from core.mail.mail import mail
@@ -21,7 +19,7 @@ class RequestVerificationToken(Resource):
     parser_post.add_argument("email", type=str, location="json", required=True)
 
     @verification_token_namespace.expect(parser_post)
-    def post(self):
+    def post(self) -> tuple[dict, int]:
         """
         Request a verification token via email for registering a new account
         """
@@ -37,7 +35,7 @@ class RequestVerificationToken(Resource):
 
             user = UserModel.objects(email=receiver_email).first()
             if user:
-                return abort(409, "Email already exist in the database")
+                return {"message": "Email already exist in the database"}, 409
 
             with mail.connect() as conn:
                 msg = Message(
@@ -52,7 +50,9 @@ class RequestVerificationToken(Resource):
 
             return {"message": "Verification token sent by email successfully"}, 200
         except CustomException as e:
-            return abort(e.error_code, str(e))
+            return {"message": str(e)}, e.error_code
+        except Exception as e:
+            return abort(500, str(e))
 
 @verification_token_namespace.route("/new-user-verification")
 class NewUserVerification(Resource):
@@ -65,7 +65,7 @@ class NewUserVerification(Resource):
     parser_post.add_argument("org", type=str, location="json", required=True)
 
     @verification_token_namespace.expect(parser_post)
-    def post(self):
+    def post(self) -> tuple[dict, int]:
         """
         Verify a new user account via email with the verification token
         """
@@ -78,15 +78,15 @@ class NewUserVerification(Resource):
 
             user = UserModel.objects(username=username).first()
             if user:
-                return abort(409, "Username already exist in the database")
+                return {"message": "Username already exist in the database"}, 409
             
             user = UserModel.objects(email=email).first()
             if user:
-                return abort(409, "Email already exist in the database")
+                return {"message": "Email already exist in the database"}, 409
 
             latest_verification_token = VerificationTokenModel.objects(new_account_email=email).order_by("-creation_date").first()
             if latest_verification_token.verification_token != verification_token:
-                return abort(401, "Token provided not correct")
+                return {"message": "Token provided not correct"}, 401
             
             user = UserModel(
                 username=username,
@@ -99,7 +99,9 @@ class NewUserVerification(Resource):
 
             return {"message": "User added"}, 201
         except CustomException as e:
-            return abort(e.error_code, str(e))
+            return {"message": str(e)}, e.error_code
+        except Exception as e:
+            return abort(500, str(e))
 
 @verification_token_namespace.route("/request-reset-token")
 class RequestResetToken(Resource):
@@ -108,7 +110,7 @@ class RequestResetToken(Resource):
     parser_post.add_argument("email", type=str, location="json", required=True)
 
     @verification_token_namespace.expect(parser_post)
-    def post(self):
+    def post(self) -> tuple[dict, int]:
         """
         Request a reset token via email for changing password
         """
@@ -119,7 +121,7 @@ class RequestResetToken(Resource):
 
             user = UserModel.objects(email=receiver_email).first()
             if not user:
-                return abort(404, "User not found")
+                return {"message": "User not found"}, 404
             
             verification_token = VerificationTokenModel.objects(new_account_email=receiver_email).first()
             verification_token.verification_token = _six_digit_random
@@ -136,7 +138,9 @@ class RequestResetToken(Resource):
 
             return {"message": "New token sent by email successfully"}, 200
         except CustomException as e:
-            return abort(e.error_code, str(e))
+            return {"message": str(e)}, e.error_code
+        except Exception as e:
+            return abort(500, str(e))
 
 @verification_token_namespace.route("/change-password")
 class ChangePassword(Resource):
@@ -147,7 +151,7 @@ class ChangePassword(Resource):
     parser_post.add_argument("verification_token", type=int, location="json", required=True)
 
     @verification_token_namespace.expect(parser_post)
-    def post(self):
+    def post(self) -> tuple[dict, int]:
         """
         Change an user password with a reset token
         """
@@ -159,11 +163,11 @@ class ChangePassword(Resource):
             
             user = UserModel.objects(email=receiver_email).first()
             if not user:
-                return abort(404, "User not found")
+                return {"message": "User not found"}, 404
 
             latest_verification_token = VerificationTokenModel.objects(new_account_email=receiver_email).order_by("-creation_date").first()
             if latest_verification_token.verification_token != verification_token:
-                return abort(401, "Token provided not correct")
+                return {"message": "Token provided not correct"}, 401
 
             user.set_password(password)
             user.save()
@@ -179,4 +183,6 @@ class ChangePassword(Resource):
 
             return {"message": "Password change confirmation sent by email successfully"}, 200
         except CustomException as e:
-            return abort(e.error_code, str(e))
+            return {"message": str(e)}, e.error_code
+        except Exception as e:
+            return abort(500, str(e))

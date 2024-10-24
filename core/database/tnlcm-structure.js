@@ -1,47 +1,55 @@
-const crypto = require('crypto');
+const crypto = require("crypto");
+require("/opt/yarn_global/node_modules/dotenv").config({ 
+    path: require("path").resolve(__dirname, "../../.env")
+});
 
 var dbName = process.env.MONGO_DATABASE;
-var adminUser = process.env.TNLCM_ADMIN_USER;
-var adminPassword = process.env.TNLCM_ADMIN_PASSWORD;
-var adminEmail = process.env.TNLCM_ADMIN_EMAIL;
+var dbRootUsername = process.env.ME_CONFIG_MONGODB_ADMINUSERNAME;
+var dbRootPassword = process.env.ME_CONFIG_MONGODB_ADMINPASSWORD;
+var tnlcmAdminUser = process.env.TNLCM_ADMIN_USER;
+var tnlcmAdminPassword = process.env.TNLCM_ADMIN_PASSWORD;
+var tnlcmAdminEmail = process.env.TNLCM_ADMIN_EMAIL;
 
-// PBKDF2 parameters
-const salt = crypto.randomBytes(16).toString('hex');
-const iterations = 600000;
-const keyLength = 32;
-const digest = 'sha256';
-
-// Generate password hash
-const hash = crypto.pbkdf2Sync(adminPassword, salt, iterations, keyLength, digest).toString('hex');
-const hashedPassword = `pbkdf2:sha256:${iterations}$${salt}$${hash}`;
-
-var resourceManager = 'resource_manager';
-var trialNetworks = 'trial_networks';
-var trialNetworksTemplates = 'trial_networks_templates';
-var users = 'users';
-var verificationTokens = 'verification_tokens';
-
+// Create the database if it doesn't exist
 var db = db.getSiblingDB(dbName);
 
 // Create collections
-db.createCollection(resourceManager)
-db.createCollection(trialNetworks);
-db.createCollection(trialNetworksTemplates);
-db.createCollection(users);
-db.createCollection(verificationTokens);
+db.createCollection("callback");
+db.createCollection("resource_manager");
+db.createCollection("trial_network");
+db.createCollection("user");
+db.createCollection("verification_tokens");
+
+// Create the root user
+db.createUser({
+    user: dbRootUsername,
+    pwd: dbRootPassword,
+    roles: [
+        { role: "readWrite", db: `${dbName}` },
+        { role: "dbAdmin", db: `${dbName}` }
+    ]
+});
+
+// Generate password hash for the admin user
+const salt = crypto.randomBytes(16).toString("hex");
+const iterations = 600000;
+const keyLength = 32;
+const digest = "sha256";
+const hash = crypto.pbkdf2Sync(tnlcmAdminPassword, salt, iterations, keyLength, digest).toString("hex");
+const hashedPassword = `pbkdf2:sha256:${iterations}$${salt}$${hash}`;
 
 // Insert administrator user in the users collection
 db.users.insertOne({
-    username: adminUser,
+    username: tnlcmAdminUser,
     password: hashedPassword,
-    email: adminEmail,
+    email: tnlcmAdminEmail,
     role: "admin",
-    org: 'ADMIN'
+    org: "ADMIN"
 });
 
 // Insert a verification token into the collection verification_tokens
 db.verification_tokens.insertOne({
-    new_account_email: adminEmail,
+    new_account_email: tnlcmAdminEmail,
     verification_token: Math.floor(Math.random() * 1000000),
     creation_date: new Date()
 });

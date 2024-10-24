@@ -7,8 +7,6 @@ class JenkinsSettings:
     """
     Jenkins Settings
     """
-    
-    log_handler.info("Load Jenkins configuration")
 
     JENKINS_HOST = os.getenv("JENKINS_HOST")
     JENKINS_PORT = os.getenv("JENKINS_PORT")
@@ -37,3 +35,16 @@ class JenkinsSettings:
         missing_variables.append("JENKINS_DESTROY_PIPELINE")
     if missing_variables:
         raise UndefinedEnvVariableError(missing_variables)
+    
+    config_dict = {
+        "JENKINS_HOST": JENKINS_HOST,
+        "JENKINS_PORT": JENKINS_PORT,
+        "JENKINS_URL": JENKINS_URL,
+        "JENKINS_USERNAME": JENKINS_USERNAME,
+        "JENKINS_PASSWORD": JENKINS_PASSWORD,
+        "JENKINS_TOKEN": JENKINS_TOKEN,
+        "JENKINS_DEPLOY_PIPELINE": JENKINS_DEPLOY_PIPELINE,
+        "JENKINS_DESTROY_PIPELINE": JENKINS_DESTROY_PIPELINE,
+    }
+
+    log_handler.info(f"Load Jenkins configuration: {config_dict}")

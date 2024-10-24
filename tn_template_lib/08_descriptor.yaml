@@ -1,5 +1,5 @@
 # Result: pass
-# Platform: UMA, FOKUS, ATHENS, OULU
+# Platform: UMA, ATHENS, BERLIN, OULU
 trial_network:
 
   tn_init:
@@ -50,7 +50,7 @@ trial_network:
       one_open5gs_apn: "internet"
       one_open5gs_tac: 200
       one_open5gs_s_nssai_sst: 1
-      one_open5gs_s_nssai_sd: "1"
+      one_open5gs_s_nssai_sd: "000001"
       one_open5gs_amf_ip: "10.10.10.200"
       one_open5gs_upf_ip: "10.10.10.201"
       one_open5gs_webui_subdomain: "open5gs"
@@ -72,7 +72,7 @@ trial_network:
       one_ueransim_gnb_tac: 200
       one_ueransim_gnb_amf_address: "10.10.10.200"
       one_ueransim_gnb_slices_sst: 1
-      one_ueransim_gnb_slices_sd: "1"
+      one_ueransim_gnb_slices_sd: "000001"
   ueransim-ue:
     type: "ueransim"
     name: "ue"
@@ -94,8 +94,8 @@ trial_network:
       one_ueransim_ue_gnbSearchList: ""
       one_ueransim_ue_session_apn: "internet"
       one_ueransim_ue_session_sst: 1
-      one_ueransim_ue_session_sd: 1
+      one_ueransim_ue_session_sd: "000001"
       one_ueransim_ue_configured_nssai_sst: 1
-      one_ueransim_ue_configured_nssai_sd: 1
+      one_ueransim_ue_configured_nssai_sd: "000001"
       one_ueransim_ue_default_nssai_sst: 1
-      one_ueransim_ue_default_nssai_sd: 1
+      one_ueransim_ue_default_nssai_sd: "000001"

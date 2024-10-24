@@ -1,26 +1,28 @@
 import os
 
-from yaml import safe_load, YAMLError
-
 from conf import SixGLibrarySettings
-from core.logs.log_handler import log_handler
 from core.repository.repository_handler import RepositoryHandler
-from core.exceptions.exceptions_handler import SixGLibraryComponentsNotFoundError, InvalidContentFileError, CustomFileNotFoundError
-
-SIXG_LIBRARY_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
+from core.utils.file_handler import load_yaml
+from core.exceptions.exceptions_handler import CustomSixGLibraryException
 
 class SixGLibraryHandler:
 
-    def __init__(self, reference_type=None, reference_value=None):
+    def __init__(
+        self, 
+        reference_type: str = None, 
+        reference_value: str = None,
+        directory_path: str = None
+    ) -> None:
         """
         Constructor
         
-        :param reference_type: type of reference (branch, tag, commit) to checkout, ``str``
-        :param reference_value: value of the reference (branch name, tag name, commit ID) to checkout, ``str``
+        :param reference_type: type of reference (branch, tag, commit) to switch, ``str``
+        :param reference_value: value of the reference (branch name, tag name, commit ID) to switch, ``str``
+        :param directory_path: directory path into which the 6G-Library is to be cloned, ``str``
         """
         self.github_6g_library_https_url = SixGLibrarySettings.GITHUB_6G_LIBRARY_HTTPS_URL
         self.github_6g_library_repository_name = SixGLibrarySettings.GITHUB_6G_LIBRARY_REPOSITORY_NAME
-        self.github_6g_library_local_directory = os.path.join(SIXG_LIBRARY_DIRECTORY, self.github_6g_library_repository_name)
+        self.github_6g_library_local_directory = os.path.join(directory_path, self.github_6g_library_repository_name)
         self.github_6g_library_reference_type = reference_type
         self.github_6g_library_reference_value = reference_value
         if reference_type == "branch" and reference_value:
@@ -33,55 +35,70 @@ class SixGLibraryHandler:
             self.github_6g_library_reference_type = "branch"
             self.github_6g_library_reference_value = SixGLibrarySettings.GITHUB_6G_LIBRARY_BRANCH
         self.repository_handler = RepositoryHandler(github_https_url=self.github_6g_library_https_url, github_repository_name=self.github_6g_library_repository_name, github_local_directory=self.github_6g_library_local_directory, github_reference_type=self.github_6g_library_reference_type, github_reference_value=self.github_6g_library_reference_value)
+        self.github_6g_library_commit_id = None
+
+    def git_clone(self) -> None:
+        """
+        Git clone
+        """
+        self.repository_handler.git_clone()
+    
+    def git_checkout(self) -> None:
+        """
+        Git checkout
+        """
+        self.repository_handler.git_checkout()
+    
+    def git_switch(self) -> None:
+        """
+        Git switch
+        """
+        self.repository_handler.git_switch()
         self.github_6g_library_commit_id = self.repository_handler.github_commit_id
 
-    def get_tags(self):
+    def git_branches(self) -> list[str]:
         """
-        Return tags
-        """
-        return self.repository_handler.get_tags()
+        Git branches
 
-    def get_branches(self):
+        :return: list with 6G-Library branches, ``list[str]``
         """
-        Return branches
-        """
-        return self.repository_handler.get_branches()
+        return self.repository_handler.git_branches()
     
-    def get_parts_components(self, site, list_site_available_components):
+    def git_tags(self) -> list[str]:
         """
-        Return the metadata, inputs and outputs of the components of a specific site
+        Git tags
+
+        :return: list with 6G-Library tags, ``list[str]``
+        """
+        return self.repository_handler.git_tags()
+    
+    def get_tn_components_parts(self, parts: list[str], tn_components_types: set) -> dict:
+        """
+        Function to traverse component types and return their parts (metadata, inputs and outputs)
         
-        :param site: specific site for which components data is to be retrieved, ``str``
-        :param list_site_available_components: list of components available on a site, ``list[str]``
+        :param part: list with the indicated part of the component types, ``list[str]``
+        :param tn_components_types: set with the components that make up the descriptor, ``set``
+        :return components_data: the specified part of the component types, ``dict``
+        :raise CustomSixGLibraryException:
         """
-        log_handler.info(f"Get metadata, input and output part of components of a '{site}' site from the 6G-Library")
         components_data = {}
-        for component in list_site_available_components:
-            if not os.path.isdir(os.path.join(self.github_6g_library_local_directory, component)):
-                raise SixGLibraryComponentsNotFoundError(f"Component '{component}' not in commit '{self.github_6g_library_commit_id}' of 6G-Library", 404) 
-            if os.path.isdir(os.path.join(self.github_6g_library_local_directory, component)):
-                public_file = os.path.join(self.github_6g_library_local_directory, component, ".tnlcm", "public.yaml")
-                if not os.path.exists(public_file):
-                    raise CustomFileNotFoundError(f"File '{public_file}' not found", 404)
-                with open(public_file, "rt", encoding="utf8") as f:
-                    try:
-                        public_data = safe_load(f)
-                    except YAMLError:
-                        raise InvalidContentFileError(f"File '{public_file}' is not parsed correctly", 422)
-                metadata_part = {}
-                input_part = {}
-                output_part = {}
-                if not public_data:
-                    raise InvalidContentFileError(f"File '{public_file}' is empty", 422)
-                if "metadata" in public_data and public_data["metadata"]:
-                    metadata_part = public_data["metadata"]
-                if "input" in public_data and public_data["input"]:
-                    input_part = public_data["input"]
-                if "output" in public_data and public_data["output"]:
-                    output_part = public_data["output"]
-                components_data[component] = {
-                    "metadata": metadata_part,
-                    "input": input_part,
-                    "output": output_part
-                }
+        for component in tn_components_types:
+            component_path = os.path.join(self.github_6g_library_local_directory, component)
+            if not os.path.isdir(component_path):
+                raise CustomSixGLibraryException(f"Folder of the component '{component}' is not created in commit '{self.github_6g_library_commit_id}' of 6G-Library", 404)
+            public_file = os.path.join(self.github_6g_library_local_directory, component, ".tnlcm", "public.yaml")
+            if not os.path.exists(public_file):
+                raise CustomSixGLibraryException(f"File '{public_file}' not found", 404)
+            
+            public_data = load_yaml(file_path=public_file, mode="rt", encoding="utf-8")
+            
+            part_data = {}
+            for part in parts:
+                if public_data and part in public_data:
+                    part_data[component] = public_data[part]
+                    if part not in components_data:
+                        components_data[part] = {}
+                    if part_data:
+                        components_data[part].update(part_data)
+
         return components_data
