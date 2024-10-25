@@ -79,7 +79,7 @@ class RepositoryHandler:
         except CustomGitException:
             raise CustomGitException(f"Reference '{self.github_reference_type}' with value '{self.github_reference_value}' is not in '{self.github_repository_name}' repository", 404)
 
-    def git_branches(self):
+    def git_branches(self) -> list[str]:
         """
         Git branches
 
