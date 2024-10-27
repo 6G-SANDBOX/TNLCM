@@ -41,10 +41,11 @@ class MailSettings:
     if missing_variables:
         raise UndefinedEnvVariableError(missing_variables)
     try:
-        valid = validate_email(MAIL_USERNAME)
+        valid = validate_email(MAIL_USERNAME, check_deliverability=False)
         email = valid.email
     except EmailNotValidError:
         raise UndefinedEnvVariableError("Invalid 'MAIL_USERNAME' entered in .env file", 500)
+
     MAIL_PORT = int(MAIL_PORT)
     MAIL_USE_TLS = str_to_bool(MAIL_USE_TLS)
     MAIL_USE_SSL = str_to_bool(MAIL_USE_SSL)
