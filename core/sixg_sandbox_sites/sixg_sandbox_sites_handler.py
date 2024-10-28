@@ -42,12 +42,16 @@ class SixGSandboxSitesHandler():
         self.repository_handler = RepositoryHandler(github_https_url=self.github_6g_sandbox_sites_https_url, github_repository_name=self.github_6g_sandbox_sites_repository_name, github_local_directory=self.github_6g_sandbox_sites_local_directory, github_reference_type=self.github_6g_sandbox_sites_reference_type, github_reference_value=self.github_6g_sandbox_sites_reference_value)
         self.github_6g_sandbox_sites_commit_id = None
 
-    def _decrypt_site(self, deployment_site: str) -> None:
+    def validate_site(self, deployment_site: str) -> None:
         """
-        Decrypt core.yaml file of site stored in 6G-Sandbox-Sites repository
-
+        Check if deployment site is valid for deploy trial network
+        
         :param deployment_site: trial network deployment site, ``str``
+        :raise CustomSixGSandboxSitesException:
         """
+        if deployment_site not in self.get_sites():
+            raise CustomSixGSandboxSitesException(f"The 'site' should be one: {', '.join(self.get_sites())}", 404)
+
         password = SixGSandboxSitesSettings.SITES_TOKEN
         secret = password.encode("utf-8")
         vault = VaultLib([(DEFAULT_VAULT_ID_MATCH, VaultSecret(secret))])
@@ -56,18 +60,6 @@ class SixGSandboxSitesHandler():
         decrypted_data = vault.decrypt(encrypted_data)
         decrypted_yaml = safe_load(decrypted_data)
         save_yaml(data=decrypted_yaml, file_path=os.path.join(self.github_6g_sandbox_sites_local_directory, deployment_site, "core_decrypt.yaml"))
-    
-    def validate_site(self, deployment_site: str) -> None:
-        """
-        Check if deployment site is valid for deploy trial network
-        
-        :param deployment_site: trial network deployment site, ``str``
-        :return: True if the deployment site is valid. Otherwise False, ``bool``
-        :raise CustomSixGSandboxSitesException:
-        """
-        if deployment_site not in self.get_sites():
-            raise CustomSixGSandboxSitesException(f"The 'site' should be one: {', '.join(self.get_sites())}", 404)
-        self._decrypt_site(deployment_site)
     
     def git_clone(self) -> None:
         """

@@ -12,12 +12,12 @@ class VerificationTokenModel(Document):
         "collection": "verification_token"
     }
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
         return {
             "new_account_email": self.new_account_email,
             "verification_token": self.verification_token,
             "creation_date": self.creation_date.isoformat() if self.creation_date else None
         }
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "<VerificationToken #%s: %s>" % (self.new_account_email, self.verification_token)

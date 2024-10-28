@@ -64,7 +64,7 @@ class UserLogin(Resource):
             if not user:
                 return {"message": "User not found"}, 404
             
-            if user.check_password(auth.password):
+            if user.verify_password(auth.password):
                 access_token = create_access_token(identity=user.username, expires_delta=timedelta(minutes=EXP_MINUTES_ACCESS_TOKEN))
                 refresh_token = create_refresh_token(identity=user.username, expires_delta=timedelta(days=EXP_DAYS_REFRESH_TOKEN))
                 return {
