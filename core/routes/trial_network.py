@@ -24,7 +24,8 @@ trial_network_namespace = Namespace(
         "Bearer Auth": {
             "type": "apiKey",
             "in": "header",
-            "name": "Authorization"
+            "name": "Authorization",
+            "description": "Type in the *'Value'* input box below: **'Bearer &lt;JWT&gt;'**, where JWT is the token"
         }
     }
 )
