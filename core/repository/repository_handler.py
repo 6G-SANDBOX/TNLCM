@@ -1,7 +1,6 @@
 import os
 
 from git import Repo
-from git.exc import GitError
 
 from core.exceptions.exceptions_handler import CustomGitException
 
@@ -41,16 +40,11 @@ class RepositoryHandler:
     def git_clone(self) -> None:
         """
         Git clone
-
-        :raise CustomGitException:
         """
-        try:
-            if not os.path.exists(self.github_local_directory) or not os.path.exists(os.path.join(self.github_local_directory, ".git")):
-                self.repo = Repo.clone_from(self.github_https_url, self.github_local_directory)
-            else:
-                self.repo = Repo(self.github_local_directory)
-        except GitError:
-            raise CustomGitException(f"Cannot clone because the '{self.github_https_url}' url is not a GitHub repository", 500)
+        if not os.path.exists(self.github_local_directory) or not os.path.exists(os.path.join(self.github_local_directory, ".git")):
+            self.repo = Repo.clone_from(self.github_https_url, self.github_local_directory)
+        else:
+            self.repo = Repo(self.github_local_directory)
     
     def git_checkout(self) -> None:
         """
@@ -58,12 +52,9 @@ class RepositoryHandler:
 
         :raise CustomGitException:
         """
-        try:
-            if not self.repo:
-                raise CustomGitException(f"Clone repository '{self.github_repository_name}' first", 404)
-            self.repo.git.checkout(self.github_reference_value, "--")
-        except GitError:
-            raise CustomGitException(f"Reference '{self.github_reference_type}' with value '{self.github_reference_value}' is not in '{self.github_repository_name}' repository", 404)
+        if not self.repo:
+            raise CustomGitException(f"Clone repository '{self.github_repository_name}' first", 404)
+        self.repo.git.checkout(self.github_reference_value, "--")
 
     def git_switch(self) -> None:
         """
@@ -71,13 +62,10 @@ class RepositoryHandler:
 
         :raise CustomGitException:
         """
-        try:
-            if not self.repo:
-                raise CustomGitException(f"Clone repository '{self.github_repository_name}' first", 404)
-            self.github_commit_id = self.repo.head.commit.hexsha
-            self.repo.git.switch("--detach", self.github_commit_id)
-        except CustomGitException:
-            raise CustomGitException(f"Reference '{self.github_reference_type}' with value '{self.github_reference_value}' is not in '{self.github_repository_name}' repository", 404)
+        if not self.repo:
+            raise CustomGitException(f"Clone repository '{self.github_repository_name}' first", 404)
+        self.github_commit_id = self.repo.head.commit.hexsha
+        self.repo.git.switch("--detach", self.github_commit_id)
 
     def git_branches(self) -> list[str]:
         """
@@ -87,7 +75,7 @@ class RepositoryHandler:
         :raise CustomGitException:
         """
         if not self.repo:
-            raise CustomGitException(f"Clone repository '{self.github_repository_name}' first", 500)
+            raise CustomGitException(f"Clone repository '{self.github_repository_name}' first", 404)
         return [ref.remote_head for ref in self.repo.remotes.origin.refs if ref.remote_head != "HEAD"]
 
     def git_tags(self) -> list[str]:

@@ -22,9 +22,9 @@ class UserModel(Document):
         """
         self.password = generate_password_hash(secret, method="pbkdf2")
 
-    def check_password(self, secret: str) -> bool:
+    def verify_password(self, secret: str) -> bool:
         """
-        Check the hash associated with the password
+        Verify the hash associated with the password
         
         :param secret: password value, ``str``
         :return: True if the provided password matches the stored hash. Otherwise False, ``bool``
