@@ -1,7 +1,7 @@
 import os
 import re
 
-from yaml import safe_load, YAMLError
+from yaml import safe_load
 from datetime import datetime, timezone
 from string import ascii_lowercase, digits
 from random import choice
@@ -9,7 +9,7 @@ from werkzeug.utils import secure_filename
 from werkzeug.datastructures import FileStorage
 from mongoengine import Document, StringField, DictField, DateTimeField
 
-from core.utils.file_handler import load_markdown
+from core.utils.file_handler import load_file
 from core.exceptions.exceptions_handler import CustomTrialNetworkException
 
 STATE_MACHINE = {"validated", "suspended", "activated", "failed", "destroyed"}
@@ -79,21 +79,17 @@ class TrialNetworkModel(Document):
             raise CustomTrialNetworkException(f"Trial network '{state}' state not found", 404)
         self.state = state
 
-    def set_raw_descriptor(self, tn_descriptor_file: FileStorage) -> None:
+    def set_raw_descriptor(self, file: FileStorage) -> None:
         """
-        Set the trial network raw descriptor from a file.
+        Set the trial network raw descriptor from a file
         
-        :param tn_descriptor_file: descriptor file containing YAML data, ``FileStorage``
+        :param file: descriptor file containing YAML data, ``FileStorage``
         :raises CustomTrialNetworkException:
         """
-        try:
-            filename = secure_filename(tn_descriptor_file.filename)
-            if '.' in filename and filename.split('.')[-1].lower() in ["yml", "yaml"]:
-                self.raw_descriptor = safe_load(tn_descriptor_file.stream)
-            else:
-                raise CustomTrialNetworkException("Invalid descriptor format. Only 'yml' or 'yaml' files will be further processed", 422)
-        except YAMLError:
-            raise CustomTrialNetworkException("Trial network descriptor is not parsed correctly", 422)
+        filename = secure_filename(file.filename)
+        if not "." in filename or not filename.split(".")[-1].lower() in ["yml", "yaml"]:
+            raise CustomTrialNetworkException("Invalid descriptor format. Only 'yml' or 'yaml' files will be further processed", 422)
+        self.raw_descriptor = safe_load(file.stream)
 
     def set_sorted_descriptor(self) -> None:
         """
@@ -126,7 +122,7 @@ class TrialNetworkModel(Document):
 
         :param file_path: path to the markdown report file, ``str``
         """
-        self.report = load_markdown(file_path=file_path)
+        self.report = load_file(file_path=file_path, mode="rt", encoding="utf-8")
     
     def set_directory_path(self, directory_path: str) -> None:
         """
@@ -252,7 +248,7 @@ class TrialNetworkModel(Document):
             if not self._logical_expression(tn_components_types, bool_expresion, tn_descriptor, component_name):
                 raise CustomTrialNetworkException(f"Component '{component_name}' in the list does not match the type '{bool_expresion}'", 422)
 
-    def validate_tn_descriptor(self, tn_components_types: set, tn_component_inputs: dict) -> None:
+    def validate_descriptor(self, tn_components_types: set, tn_component_inputs: dict) -> None:
         """
         If the descriptor follows the correct scheme
         It starts with trial_network and there is only that key
@@ -350,9 +346,9 @@ class TrialNetworkModel(Document):
                                 if not input_descriptor_component[input_sixg_library_key] in sixg_library_choices:
                                     raise CustomTrialNetworkException(f"Component '{component_type}'. Value of the '{input_sixg_library_key}' field has to be one of then: '{sixg_library_choices}'", 422)
 
-    def get_tn_components_types(self) -> set:
+    def get_components_types(self) -> set:
         """
-        Function to get a set with components types that are in the descriptor
+        Function to get the components types that are in the descriptor
 
         :return: set with components that compose trial network descriptor, ``set``
         """

@@ -7,7 +7,7 @@ from ansible.constants import DEFAULT_VAULT_ID_MATCH
 from conf import SixGSandboxSitesSettings
 from core.logs.log_handler import log_handler
 from core.repository.repository_handler import RepositoryHandler
-from core.utils.file_handler import load_yaml, save_yaml
+from core.utils.file_handler import load_yaml, load_file, save_yaml
 from core.exceptions.exceptions_handler import CustomSixGSandboxSitesException
 
 class SixGSandboxSitesHandler():
@@ -42,33 +42,24 @@ class SixGSandboxSitesHandler():
         self.repository_handler = RepositoryHandler(github_https_url=self.github_6g_sandbox_sites_https_url, github_repository_name=self.github_6g_sandbox_sites_repository_name, github_local_directory=self.github_6g_sandbox_sites_local_directory, github_reference_type=self.github_6g_sandbox_sites_reference_type, github_reference_value=self.github_6g_sandbox_sites_reference_value)
         self.github_6g_sandbox_sites_commit_id = None
 
-    def _decrypt_site(self, deployment_site: str) -> None:
-        """
-        Decrypt core.yaml file of site stored in 6G-Sandbox-Sites repository
-
-        :param deployment_site: trial network deployment site, ``str``
-        """
-        password = SixGSandboxSitesSettings.SITES_TOKEN
-        secret = password.encode("utf-8")
-        vault = VaultLib([(DEFAULT_VAULT_ID_MATCH, VaultSecret(secret))])
-        core_file = os.path.join(self.github_6g_sandbox_sites_local_directory, deployment_site, "core.yaml")
-        with open(core_file, "rb") as cf:
-            encrypted_data = cf.read()
-        decrypted_data = vault.decrypt(encrypted_data)
-        decrypted_yaml = safe_load(decrypted_data)
-        save_yaml(data=decrypted_yaml, file_path=os.path.join(self.github_6g_sandbox_sites_local_directory, deployment_site, "core_decrypt.yaml"))
-    
     def validate_site(self, deployment_site: str) -> None:
         """
         Check if deployment site is valid for deploy trial network
         
         :param deployment_site: trial network deployment site, ``str``
-        :return: True if the deployment site is valid. Otherwise False, ``bool``
         :raise CustomSixGSandboxSitesException:
         """
         if deployment_site not in self.get_sites():
             raise CustomSixGSandboxSitesException(f"The 'site' should be one: {', '.join(self.get_sites())}", 404)
-        self._decrypt_site(deployment_site)
+
+        password = SixGSandboxSitesSettings.SITES_TOKEN
+        secret = password.encode("utf-8")
+        vault = VaultLib([(DEFAULT_VAULT_ID_MATCH, VaultSecret(secret))])
+        core_file = os.path.join(self.github_6g_sandbox_sites_local_directory, deployment_site, "core.yaml")
+        encrypted_data = load_file(file_path=core_file, mode="rb", encoding=None)
+        decrypted_data = vault.decrypt(encrypted_data)
+        decrypted_yaml = safe_load(decrypted_data)
+        save_yaml(data=decrypted_yaml, file_path=os.path.join(self.github_6g_sandbox_sites_local_directory, deployment_site, "core_decrypt.yaml"))
     
     def git_clone(self) -> None:
         """

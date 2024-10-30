@@ -38,8 +38,8 @@ const digest = "sha256";
 const hash = crypto.pbkdf2Sync(tnlcmAdminPassword, salt, iterations, keyLength, digest).toString("hex");
 const hashedPassword = `pbkdf2:sha256:${iterations}$${salt}$${hash}`;
 
-// Insert administrator user in the users collection
-db.users.insertOne({
+// Insert administrator user in the user collection
+db.user.insertOne({
     username: tnlcmAdminUser,
     password: hashedPassword,
     email: tnlcmAdminEmail,

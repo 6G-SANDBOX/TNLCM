@@ -9,7 +9,7 @@ from conf import JenkinsSettings, TnlcmSettings, SixGLibrarySettings, SixGSandbo
 from core.logs.log_handler import log_handler
 from core.models import CallbackModel, TrialNetworkModel
 from core.sixg_library.sixg_library_handler import SixGLibraryHandler
-from core.utils.file_handler import save_yaml
+from core.utils.file_handler import load_file, save_yaml
 from core.exceptions.exceptions_handler import CustomJenkinsException
 
 class JenkinsHandler:
@@ -129,34 +129,34 @@ class JenkinsHandler:
             entity_name_input_file_path = os.path.join(self.trial_network.directory_path, f"{self.trial_network.tn_id}-{entity_name}.yaml")
             save_yaml(data=entity_data["input"], file_path=entity_name_input_file_path)
             log_handler.info(f"[{self.trial_network.tn_id}] - Created input file for entity '{entity_name}' to send to Jenkins pipeline")
-            with open(entity_name_input_file_path, "rb") as entity_name_input_file:
-                file = {"FILE": (entity_name_input_file_path, entity_name_input_file)}
-                log_handler.info(f"[{self.trial_network.tn_id}] - Add Jenkins parameters to the pipeline of the '{entity_name}' entity")
-                jenkins_build_job_url = self.jenkins_client.build_job_url(name=self.trial_network.jenkins_deploy_pipeline, parameters=self._jenkins_deployment_parameters(component_type, custom_name, debug))
-                response = post(jenkins_build_job_url, auth=(self.jenkins_username, self.jenkins_token), files=file)
-                log_handler.info(f"[{self.trial_network.tn_id}] - Deployment request code of the '{entity_name}' entity '{response.status_code}'")
-                if response.status_code != 201:
-                    raise CustomJenkinsException(f"Error in the response received by Jenkins when trying to deploy the '{entity_name}' entity", response.status_code)
-                next_build_number = self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["nextBuildNumber"]
-                while not self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["lastCompletedBuild"]:
-                    log_handler.info(f"[{self.trial_network.tn_id}] - Deploying '{entity_name}'")
-                    sleep(10)
-                while next_build_number != self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["lastCompletedBuild"]["number"]:
-                    log_handler.info(f"[{self.trial_network.tn_id}] - Deploying '{entity_name}'")
-                    sleep(10)
-                if self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["lastSuccessfulBuild"]["number"] != next_build_number:
-                    raise CustomJenkinsException(f"Pipeline for the entity '{entity_name}' has failed", 500)
-                log_handler.info(f"[{self.trial_network.tn_id}] - Entity '{entity_name}' successfully deployed")
-                sleep(3)
-                callback = CallbackModel.objects(tn_id=self.trial_network.tn_id, entity_name=entity_name).first()
-                if not callback:
-                    raise CustomJenkinsException(f"Callback with the results of the entity '{entity_name}' not found", 404)
-                del deployed_descriptor[entity_name]
-                self.trial_network.set_deployed_descriptor(deployed_descriptor)
-                self.trial_network.save()
-                log_handler.info(f"[{self.trial_network.tn_id}] - End of deployment of entity '{entity_name}'")
-            if not os.path.join(f"{self.trial_network.directory_path}", f"{self.trial_network.tn_id}.md"):
-                raise CustomJenkinsException(f"File with the report of the trial network '{self.trial_network.tn_id}' not found", 404)
+            entity_name_input_file_content = load_file(entity_name_input_file_path, mode="rb", encoding=None)
+            file = {"FILE": (entity_name_input_file_path, entity_name_input_file_content)}
+            log_handler.info(f"[{self.trial_network.tn_id}] - Add Jenkins parameters to the pipeline of the '{entity_name}' entity")
+            jenkins_build_job_url = self.jenkins_client.build_job_url(name=self.trial_network.jenkins_deploy_pipeline, parameters=self._jenkins_deployment_parameters(component_type, custom_name, debug))
+            response = post(jenkins_build_job_url, auth=(self.jenkins_username, self.jenkins_token), files=file)
+            log_handler.info(f"[{self.trial_network.tn_id}] - Deployment request code of the '{entity_name}' entity '{response.status_code}'")
+            if response.status_code != 201:
+                raise CustomJenkinsException(f"Error in the response received by Jenkins when trying to deploy the '{entity_name}' entity", response.status_code)
+            next_build_number = self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["nextBuildNumber"]
+            while not self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["lastCompletedBuild"]:
+                log_handler.info(f"[{self.trial_network.tn_id}] - Deploying '{entity_name}'")
+                sleep(10)
+            while next_build_number != self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["lastCompletedBuild"]["number"]:
+                log_handler.info(f"[{self.trial_network.tn_id}] - Deploying '{entity_name}'")
+                sleep(10)
+            if self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["lastSuccessfulBuild"]["number"] != next_build_number:
+                raise CustomJenkinsException(f"Pipeline for the entity '{entity_name}' has failed", 500)
+            log_handler.info(f"[{self.trial_network.tn_id}] - Entity '{entity_name}' successfully deployed")
+            sleep(3)
+            callback = CallbackModel.objects(tn_id=self.trial_network.tn_id, entity_name=entity_name).first()
+            if not callback:
+                raise CustomJenkinsException(f"Callback with the results of the entity '{entity_name}' not found", 404)
+            del deployed_descriptor[entity_name]
+            self.trial_network.set_deployed_descriptor(deployed_descriptor)
+            self.trial_network.save()
+            log_handler.info(f"[{self.trial_network.tn_id}] - End of deployment of entity '{entity_name}'")
+        if not os.path.join(f"{self.trial_network.directory_path}", f"{self.trial_network.tn_id}.md"):
+            raise CustomJenkinsException(f"File with the report of the trial network '{self.trial_network.tn_id}' not found", 404)
 
     def generate_jenkins_destroy_pipeline(self, jenkins_destroy_pipeline: str) -> str:
         """
@@ -193,7 +193,7 @@ class JenkinsHandler:
 
         :return: dictionary containing mandatory and optional parameters for the Jenkins destroy pipeline, ``dict``
         """
-        tn_components_types = self.trial_network.get_tn_components_types()
+        tn_components_types = self.trial_network.get_components_types()
         metadata_part = self.sixg_library_handler.get_tn_components_parts(parts=["metadata"], tn_components_types=tn_components_types)["metadata"]
         sorted_descriptor = self.trial_network.sorted_descriptor["trial_network"]
         entities_with_destroy_script = []

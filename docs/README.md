@@ -102,9 +102,11 @@ TNLCM is a **state machine** that allows the automation of component deployment.
 - Initial state &rarr; Validated: trial network descriptor validated and ready for deploy
 - Validated &rarr; Activated: trial network deployed and ready for use
 - Validated &rarr; Failed: trial network deployment failed
+- Validated &rarr; Purge: trial network invalid
 - Failed &rarr; Failed: again, trial network deployment failed
 - Activated &rarr; Destroyed: trial network destroyed and ready for deploy again
 - Activated &rarr; Suspended: TODO
+- Suspended &rarr; Activated: TODO
 - Destroyed &rarr; Activated: trial network deployed and ready for use 
 - Destroyed &rarr; Purge: trial network removed
 
@@ -350,7 +352,7 @@ To deploy 6G-SANDBOX TOOLKIT in OpenNebula, the documentation can be accessed fr
 [python-url]: https://www.python.org/downloads/release/python-3130/
 [flask-badge]: https://img.shields.io/badge/Flask-3.0.3-brightgreen?style=for-the-badge&logo=flask&logoColor=white&labelColor=000000
 [flask-url]: https://flask.palletsprojects.com/en/3.0.x/
-[mongodb-badge]: https://img.shields.io/badge/MongoDB-8.0.0-green?style=for-the-badge&logo=mongodb&logoColor=white&labelColor=47A248
+[mongodb-badge]: https://img.shields.io/badge/MongoDB-8.0-green?style=for-the-badge&logo=mongodb&logoColor=white&labelColor=47A248
 [mongodb-url]: https://www.mongodb.com/
 [contributors-shield]: https://img.shields.io/github/contributors/6G-SANDBOX/TNLCM.svg?style=for-the-badge
 [contributors-url]: https://github.com/6G-SANDBOX/TNLCM/graphs/contributors
