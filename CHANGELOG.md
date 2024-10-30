@@ -1,18 +1,13 @@
 # Changelog
 
-## [Unreleased] - 2024-XX-XX
-
-### Added
-
-### Changed
+## [v0.4.1] - 2024-10-30
 
 ### Fixed
 
 - Generalization of the functions defined in the file `file_handler.py` in the `utils` directory.
 - Purge trial network when state is **validated**.
-- Adjusted email validation to skip MX record check for `MAIL_USERNAME`. Now allows sending emails from domains without an MX record by setting `check_deliverability=False` in the `validate_email` function.
-
-### Removed
+- Email validation updated to skip MX record check for `MAIL_USERNAME`. Now allows sending emails from domains without an MX record by setting `check_deliverability=False` in the `validate_email` function.
+- Remove `users` collection create by default. The correct name of collection is `user`.
 
 ## [v0.4.0] - 2024-10-24
 
