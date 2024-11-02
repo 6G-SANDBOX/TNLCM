@@ -1,5 +1,17 @@
 # Changelog
 
+## [Unreleased] - 2024-XX-XX
+
+### Added
+
+- Workflow to check linting in Python files using Pylint on push to the main branch.
+
+### Changed
+
+### Fixed
+
+### Removed
+
 ## [v0.4.1] - 2024-10-30
 
 ### Fixed
@@ -175,6 +187,7 @@
 
 - Frontend implementation.
 
+[Unreleased]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.1...HEAD
 [v0.4.1]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.0...v0.4.1
 [v0.4.0]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.3.1...v0.4.0
 [v0.3.1]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.3.0...v0.3.1
