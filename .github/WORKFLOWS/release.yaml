@@ -1,0 +1,41 @@
+name: release
+
+on:
+  workflow_run:
+    workflows: 
+      - "pylint"
+    types: 
+      - completed
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Extract version from tnlcm/conf/tnlcm.py
+        id: get_version
+        run: |
+          version=$(grep -oP '(?<=VERSION = ")[^"]+' tnlcm/conf/tnlcm.py)
+          echo "Version found: $version"
+          echo "VERSION=$version" >> $GITHUB_ENV
+      - name: Extract changelog for version
+        id: get_changelog
+        run: |
+          changelog=$(awk "/## \\[v${{ env.VERSION }}\\]/{flag=1; next} /## \\[/{flag=0} flag" Changelog)
+          echo "Changelog found for version ${{ env.VERSION }}:"
+          echo "$changelog"
+          echo "CHANGELOG=$changelog" >> $GITHUB_ENV
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # this token is provided by Actions, you do not need to create your own token
+        with:
+          tag_name: "v${{ env.VERSION }}"
+          release_name: "v${{ env.VERSION }}"
+          body: "${{ env.CHANGELOG }}"
+          draft: false
+          prerelease: false
