@@ -24,7 +24,7 @@ class Callback(Resource):
             
             trial_network = TrialNetworkModel.objects(tn_id=callback_model.tn_id).first()
             if not trial_network:
-                return {"message": f"No trial network with the name '{callback_model.tn_id}'"}, 404
+                return {"message": f"No trial network with the name '{callback_model.tn_id}' in database"}, 404
             
             log_handler.info(f"[{callback_model.tn_id}] - Save entity deployment results received by Jenkins")
             

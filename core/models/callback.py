@@ -61,12 +61,14 @@ class CallbackModel(Document):
 
         :param data: dictionary with decode values, ``dict``
         """
-        save_json(data=data, file_path=os.path.join(TnlcmSettings.TRIAL_NETWORKS_DIRECTORY, self.tn_id, f"{self.entity_name}.json"))
-        save_file(data=self.markdown, file_path=os.path.join(TnlcmSettings.TRIAL_NETWORKS_DIRECTORY, self.tn_id, f"{self.tn_id}.md"), mode="a", encoding="utf-8")
+        directory_path = os.path.join(TnlcmSettings.TRIAL_NETWORKS_DIRECTORY, self.tn_id)
+        os.makedirs(os.path.join(directory_path, "output"))
+        save_json(data=data, file_path=os.path.join(directory_path, "output", f"{self.entity_name}.json"))
+        save_file(data=self.markdown, file_path=os.path.join(directory_path, f"{self.tn_id}.md"), mode="a", encoding="utf-8")
 
     def matches_expected_output(self) -> bool:
         """
-        Function to check that the output keys received by Jenkins are the same as the output keys defined in 6G-Library
+        Function to verify that the output keys received by Jenkins are the same as the output keys defined in 6G-Library
 
         :return: True if output received by Jenkins is the same as the output defined in 6G-Library. Otherwise False, ``bool``
         :raises CustomCallbackException:
