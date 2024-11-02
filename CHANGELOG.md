@@ -10,6 +10,8 @@
 
 ### Fixed
 
+- If an error occurs during TN creation, the created directory is now deleted to prevent inconsistencies.
+
 ### Removed
 
 ## [v0.4.1] - 2024-10-30
