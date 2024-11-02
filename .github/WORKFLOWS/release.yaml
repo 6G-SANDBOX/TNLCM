@@ -2,9 +2,9 @@ name: release
 
 on:
   workflow_run:
-    workflows: 
+    workflows:
       - "pylint"
-    types: 
+    types:
       - completed
 
 jobs:
