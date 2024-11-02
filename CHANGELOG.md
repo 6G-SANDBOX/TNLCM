@@ -5,6 +5,7 @@
 ### Added
 
 - Workflow to check linting in Python files using Pylint on push to the main branch.
+- Workflow to publish new release when push to main branch.
 
 ### Changed
 
