@@ -11,7 +11,8 @@ class UserModel(Document):
 
     meta = {
         "db_alias": "tnlcm-database-alias",
-        "collection": "user"
+        "collection": "user",
+        "description": "This collection stores user information"
     }
 
     def set_password(self, secret: str) -> None:

@@ -7,7 +7,7 @@ from requests.exceptions import RequestException
 
 from conf import JenkinsSettings, TnlcmSettings, SixGLibrarySettings, SixGSandboxSitesSettings
 from core.logs.log_handler import log_handler
-from core.models import CallbackModel, TrialNetworkModel
+from core.models import TrialNetworkModel
 from core.sixg_library.sixg_library_handler import SixGLibraryHandler
 from core.utils.file_handler import load_file, save_yaml
 from core.exceptions.exceptions_handler import CustomJenkinsException
@@ -117,6 +117,7 @@ class JenkinsHandler:
         """
         deployed_descriptor = self.trial_network.to_mongo()["deployed_descriptor"]["trial_network"]
         deployed_descriptor_copy = deployed_descriptor.copy()
+        os.makedirs(os.path.join(self.trial_network.directory_path, "input"))
         for entity_name, entity_data in deployed_descriptor_copy.items():
             component_type = entity_data["type"]
             custom_name = None
@@ -126,8 +127,10 @@ class JenkinsHandler:
             if "debug" in entity_data:
                 debug = entity_data["debug"]
             log_handler.info(f"[{self.trial_network.tn_id}] - Start deployment of the '{entity_name}' entity")
-            entity_name_input_file_path = os.path.join(self.trial_network.directory_path, f"{self.trial_network.tn_id}-{entity_name}.yaml")
-            save_yaml(data=entity_data["input"], file_path=entity_name_input_file_path)
+            entity_name_input_file_path = os.path.join(self.trial_network.directory_path, "input", f"{self.trial_network.tn_id}-{entity_name}.yaml")
+            entity_name_input = entity_data["input"]
+            self.trial_network.set_input(entity_name, entity_name_input)
+            save_yaml(data=entity_name_input, file_path=entity_name_input_file_path)
             log_handler.info(f"[{self.trial_network.tn_id}] - Created input file for entity '{entity_name}' to send to Jenkins pipeline")
             entity_name_input_file_content = load_file(entity_name_input_file_path, mode="rb", encoding=None)
             file = {"FILE": (entity_name_input_file_path, entity_name_input_file_content)}
@@ -148,8 +151,8 @@ class JenkinsHandler:
                 raise CustomJenkinsException(f"Pipeline for the entity '{entity_name}' has failed", 500)
             log_handler.info(f"[{self.trial_network.tn_id}] - Entity '{entity_name}' successfully deployed")
             sleep(3)
-            callback = CallbackModel.objects(tn_id=self.trial_network.tn_id, entity_name=entity_name).first()
-            if not callback:
+            entity_name_output = TrialNetworkModel.objects(tn_id=self.trial_network.tn_id).first().output
+            if not entity_name in entity_name_output:
                 raise CustomJenkinsException(f"Callback with the results of the entity '{entity_name}' not found", 404)
             del deployed_descriptor[entity_name]
             self.trial_network.set_deployed_descriptor(deployed_descriptor)
@@ -232,6 +235,14 @@ class JenkinsHandler:
             sleep(15)
         if self.jenkins_client.get_job_info(name=jenkins_destroy_pipeline)["lastSuccessfulBuild"]["number"] != last_build_number:
             raise CustomJenkinsException(f"Pipeline for destroy '{self.trial_network.tn_id}' trial network has failed", 500)
+
+    def remove_pipeline(self, pipeline_name: str) -> None:
+        """
+        Remove pipeline in Jenkins
+
+        :param pipeline_name: name of pipeline, ``str`` 
+        """
+        self.jenkins_client.delete_job(pipeline_name)
 
     def get_all_pipelines(self) -> list[str]:
         """

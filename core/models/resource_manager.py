@@ -11,7 +11,8 @@ class ResourceManagerModel(Document):
 
     meta = {
         "db_alias": "tnlcm-database-alias",
-        "collection": "resource_manager"
+        "collection": "resource_manager",
+        "description": "This collection manages resources"
     }
 
     def _sixg_sandbox_sites_component_resources(self, component_type: str, site_available_components: dict) -> tuple[int, str]:

@@ -4,16 +4,23 @@
 
 ### Added
 
-- Workflow to check linting in Python files using Pylint on push to the main branch.
-- Workflow to publish new release when push to main branch.
+- Workflow to check linting in Python files using Pylint on push to the `main` branch.
+- Workflow to publish new release when push to `main` branch.
+- Create `input` and `output` directories per each trial networks.
+- New field in `trial_network` collection called `input` that contains the inputs files sent to Jenkins.
+- New field in `trial_network` collection called `output` that contains the json received by Jenkins.
+- New directory `callback_handler` for control the data received by Jenkins.
 
 ### Changed
 
 ### Fixed
 
 - If an error occurs during TN creation, the created directory is now deleted to prevent inconsistencies.
+- When purge trial network, also remove pipelines in Jenkins used for deploy and destroy trial network.
 
 ### Removed
+
+- Collection `callback` from Mongo database.
 
 ## [v0.4.1] - 2024-10-30
 
