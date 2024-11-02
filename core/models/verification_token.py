@@ -9,7 +9,8 @@ class VerificationTokenModel(Document):
 
     meta = {
         "db_alias": "tnlcm-database-alias",
-        "collection": "verification_token"
+        "collection": "verification_token",
+        "description": "This collection stores verification tokens used for user authentication and account verification"
     }
 
     def to_dict(self) -> dict:
