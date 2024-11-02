@@ -12,7 +12,7 @@ from conf import TnlcmSettings
 from core.auth.auth import get_current_user_from_jwt
 from core.jenkins.jenkins_handler import JenkinsHandler
 from core.logs.log_handler import log_handler
-from core.models import CallbackModel, TrialNetworkModel, ResourceManagerModel
+from core.models import TrialNetworkModel, ResourceManagerModel
 from core.sixg_library.sixg_library_handler import SixGLibraryHandler
 from core.sixg_sandbox_sites.sixg_sandbox_sites_handler import SixGSandboxSitesHandler
 from core.exceptions.exceptions_handler import CustomException
@@ -326,10 +326,10 @@ class PurgeTrialNetwork(Resource):
             
             if trial_network.state != "validated" and trial_network.state != "destroyed":
                 return {"message": "Trial network cannot be purge because the current status of Trial Network is different to VALIDATED and DESTROYED"}, 400
-            
-            callback = CallbackModel.objects(tn_id=trial_network.tn_id)
-            callback.delete()
-            log_handler.info(f"[{trial_network.tn_id}] - Deleted trial network callbacks")
+
+            jenkins_handler = JenkinsHandler(trial_network=trial_network)
+            jenkins_handler.remove_pipeline(trial_network.jenkins_deploy_pipeline)
+            jenkins_handler.remove_pipeline(trial_network.jenkins_destroy_pipeline)
             rmtree(trial_network.directory_path)
             log_handler.info(f"[{trial_network.tn_id}] - Deleted trial network directory '{trial_network.directory_path}'")
             log_handler.info(f"[{trial_network.tn_id}] - Trial network update to state 'purge'")
