@@ -14,7 +14,6 @@ var tnlcmAdminEmail = process.env.TNLCM_ADMIN_EMAIL;
 var db = db.getSiblingDB(dbName);
 
 // Create collections
-db.createCollection("callback");
 db.createCollection("resource_manager");
 db.createCollection("trial_network");
 db.createCollection("user");
