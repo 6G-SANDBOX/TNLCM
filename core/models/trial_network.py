@@ -46,6 +46,15 @@ class TrialNetworkModel(Document):
         """
         self.user_created = user_created
 
+    def verify_tn_id(self, tn_id: str) -> bool:
+        """
+        Verify if tn_id exists in database
+
+        :param tn_id: trial network identifier, ``str``
+        :return: True if tn_id is in database. Otherwise False, ``bool``
+        """
+        return bool(TrialNetworkModel.objects(tn_id=tn_id))
+
     def set_tn_id(self, size: int = 6, chars: str = ascii_lowercase+digits, tn_id: str = None) -> None:
         """
         Generate and set a random tn_id using characters [a-z][0-9]
@@ -64,8 +73,6 @@ class TrialNetworkModel(Document):
         else:
             if not tn_id[0].isalpha():
                 raise CustomTrialNetworkException(f"The tn_id '{tn_id}' must start with a character (a-z)", 400)
-            if TrialNetworkModel.objects(tn_id=tn_id):
-                raise CustomTrialNetworkException(f"The tn_id '{tn_id}' already exists in the database", 409)
             self.tn_id = tn_id
 
     def set_state(self, state: str) -> None:
@@ -130,8 +137,6 @@ class TrialNetworkModel(Document):
 
         :param directory_path: path to the trial network directory, ``str``
         """
-        if os.path.exists(directory_path):
-            raise CustomTrialNetworkException(f"Directory '{directory_path}' already exists", 409)
         os.makedirs(directory_path)
         self.directory_path = directory_path
     
