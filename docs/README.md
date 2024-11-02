@@ -50,6 +50,7 @@ TNLCM/                       // main folder.
 ├─ conf/                     // folder that handler the configuration files.
 ├─ core/                     // folder that the developed code is stored.
 │  ├─ auth/                  // folder that handler the authentication of users who have access.
+│  ├─ callback/              // folder that handler the callback received by Jenkins.
 │  ├─ cli/                   // folder that handler the cli for run commands.
 │  ├─ database/              // folder that handler the connection with MongoDB database using mongoengine.
 │  ├─ exceptions/            // folder that handler the creation of custom exceptions.
@@ -268,18 +269,6 @@ When the request is made, it will return another access token that will need to 
 ### Appendix B: Database Schema
 
 The TNLCM database consists of several collections that store important information about trial networks, users, and verification tokens. Below is the description of each collection:
-
-#### Collection `callback` <!-- omit in toc -->
-
-| Field            | Description                                                    |
-| ---------------- | -------------------------------------------------------------- |
-| `tn_id`          | The ID of the trial network.                                   |
-| `entity_name`    | The component_type-custom_name of component deployed.          |
-| `component_type` | Type of component deployed.                                    |
-| `custom_name`    | Significant name of what is deployed.                          |
-| `success`        | Verification of successful or unsuccessful pipeline operation. |
-| `markdown`       | The entity_name report.                                        |
-| `output`         | The data received by Jenkins decoded for the entitiy_name.     |
 
 #### Collection `resource_manager` <!-- omit in toc -->
 
