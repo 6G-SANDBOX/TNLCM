@@ -25,7 +25,7 @@ jobs:
       - name: Extract changelog for version
         id: get_changelog
         run: |
-          changelog=$(awk "/## \\[v${{ env.VERSION }}\\]/{flag=1; next} /## \\[/{flag=0} flag" Changelog)
+          changelog=$(awk "/## \\[${{ env.VERSION }}\\]/{flag=1; next} /## \\[/{flag=0} flag" Changelog)
           echo "Changelog found for version ${{ env.VERSION }}:"
           echo "$changelog"
           echo "CHANGELOG=$changelog" >> $GITHUB_ENV
@@ -34,8 +34,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # this token is provided by Actions, you do not need to create your own token
         with:
-          tag_name: "v${{ env.VERSION }}"
-          release_name: "v${{ env.VERSION }}"
+          tag_name: "${{ env.VERSION }}"
+          release_name: "${{ env.VERSION }}"
           body: "${{ env.CHANGELOG }}"
           draft: false
           prerelease: false
