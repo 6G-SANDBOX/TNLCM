@@ -30,12 +30,15 @@ class TrialNetworkModel(Document):
     jenkins_deploy_pipeline = StringField()
     jenkins_destroy_pipeline = StringField()
     deployment_site = StringField()
+    input = DictField(default={})
+    output = DictField(default={})
     github_6g_library_commit_id = StringField()
     github_6g_sandbox_sites_commit_id = StringField()
 
     meta = {
         "db_alias": "tnlcm-database-alias",
-        "collection": "trial_network"
+        "collection": "trial_network",
+        "description": "This collection stores information about trial networks"
     }
 
     def set_user_created(self, user_created: str) -> None:
@@ -164,6 +167,24 @@ class TrialNetworkModel(Document):
         """
         self.deployment_site = deployment_site
 
+    def set_input(self, entity_name: str, entity_data_input: dict) -> None:
+        """
+        Set input parameters used for the entity name
+
+        :param entity_name: name of the entity, ``str``
+        :param entity_data_input: dictionary of input parameters for the entity, ``dict``
+        """
+        self.input[entity_name] = entity_data_input
+    
+    def set_output(self, entity_name: str, entity_data_output: dict) -> None:
+        """
+        Set output received by Jenkins
+
+        :param entity_name: name of the entity, ``str``
+        :param entity_data_output: dictionary of output message received by Jenkins, ``dict``
+        """
+        self.output[entity_name] = entity_data_output
+    
     def set_github_6g_library_commit_id(self, github_6g_library_commit_id: str) -> None:
         """
         Set commit id from 6G-Library to be used for deploy trial network
@@ -387,6 +408,8 @@ class TrialNetworkModel(Document):
             "jenkins_deploy_pipeline": self.jenkins_deploy_pipeline,
             "jenkins_destroy_pipeline": self.jenkins_destroy_pipeline,
             "deployment_site": self.deployment_site,
+            "input": self.input,
+            "output": self.output,
             "github_6g_library_commit_id": self.github_6g_library_commit_id,
             "github_6g_sandbox_sites_commit_id": self.github_6g_sandbox_sites_commit_id
         }
