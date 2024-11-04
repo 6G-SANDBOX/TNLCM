@@ -5,7 +5,7 @@ class UserModel(Document):
         
     username = StringField(max_length=50, unique=True)
     password = StringField(max_length=255)
-    email = EmailField(max_length=50, unique=True)
+    email = EmailField(max_length=50)
     role = StringField(max_length=20, default="user")
     org = StringField(max_length=50)
 

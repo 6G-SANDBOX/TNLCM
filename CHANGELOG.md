@@ -13,6 +13,8 @@
 
 ### Changed
 
+- Rename collection `verification_tokens` to `verification_token` in MongoDB.
+
 ### Fixed
 
 - If an error occurs during TN creation, the created directory is now deleted to prevent inconsistencies.

@@ -33,7 +33,7 @@ TNLCM has been designed as a modular application, with the intention of making c
 - [:page\_facing\_up: Trial Network Descriptor Schema](#page_facing_up-trial-network-descriptor-schema)
 - [:paperclip: Appendices](#paperclip-appendices)
   - [Appendix A: How to use Swagger UI](#appendix-a-how-to-use-swagger-ui)
-  - [Appendix B: Database Model](#appendix-b-database-model)
+  - [Appendix B: Database Schema](#appendix-b-database-schema)
   - [Appendix C: TNLCM OpenNebula Appliance](#appendix-c-tnlcm-opennebula-appliance)
 </details>
 
@@ -266,62 +266,63 @@ When the request is made, it will return another access token that will need to 
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
-### Appendix B: Database Model
+### Appendix B: Database Schema
 
 TNLCM database, created with MongoDB, consists of several collections that store important information about `resource manager`, `trial network`, `user`, and `verification token`. Below is a description of each collection, along with a graphical representation using SQL syntax created with [dbdiagram.io](https://dbdiagram.io/).
 
 #### Collection `resource_manager` <!-- omit in toc -->
 
-| Field       | Type    | Description                                        |
-| ----------- | ------- | -------------------------------------------------- |
-| `component` | string  | Component over which resources are controlled.     |
-| `tn_id`     | string  | ID of the trial network.                           |
-| `quantity`  | integer | Amount of component available.                     |
-| `ttl`       | float   | Time the component can be used in a trial network. |
+| Field       | Type    | Description                                       |
+| ----------- | ------- | ------------------------------------------------- |
+| `component` | string  | Component over which resources are controlled     |
+| `tn_id`     | string  | ID of the trial network                           |
+| `quantity`  | integer | Amount of component available                     |
+| `ttl`       | float   | Time the component can be used in a trial network |
 
 #### Collection `trial_network` <!-- omit in toc -->
 
-| Field                               | Type     | Description                                 |
-| ----------------------------------- | -------- | ------------------------------------------- |
-| `user_created`                      | string   | User that created the trial network.        |
-| `tn_id`                             | string   | ID of the trial network. (primary key)      |
-| `state`                             | string   | State of the trial network.                 |
-| `date_created_utc`                  | date     | Creation date and time in UTC.              |
-| `raw_descriptor`                    | dict     | Raw descriptor of the trial network.        |
-| `sorted_descriptor`                 | dict     | Sorted descriptor.                          |
-| `deployed_descriptor`               | dict     | Current status of descriptor.               |
-| `report`                            | markdown | Report related to the trial network.        |
-| `directory_path`                    | string   | Directory where trial network is saved.     |
-| `jenkins_deploy_pipeline`           | string   | Pipeline for descriptor deployment.         |
-| `jenkins_destroy_pipeline`          | string   | Pipeline for destroying trial network.      |
-| `deployment_site`                   | string   | Deployment site of trial network.           |
-| `input`                             | dict     | YAML files per entity-name sent to Jenkins. |
-| `output`                            | dict     | JSON received by Jenkins per entity-name.   |
-| `github_6g_library_commit_id`       | string   | 6G-Library commit ID.                       |
-| `github_6g_sandbox_sites_commit_id` | string   | 6G-Sandbox-Sites commit ID.                 |
+| Field                               | Type     | Description                                |
+| ----------------------------------- | -------- | ------------------------------------------ |
+| `user_created`                      | string   | User that created the trial network        |
+| `tn_id`                             | string   | ID of the trial network (primary key)      |
+| `state`                             | string   | State of the trial network                 |
+| `date_created_utc`                  | date     | Creation date and time in UTC              |
+| `raw_descriptor`                    | dict     | Raw descriptor of the trial network        |
+| `sorted_descriptor`                 | dict     | Sorted descriptor                          |
+| `deployed_descriptor`               | dict     | Current status of descriptor               |
+| `report`                            | markdown | Report related to the trial network        |
+| `directory_path`                    | string   | Directory where trial network is saved     |
+| `jenkins_deploy_pipeline`           | string   | Pipeline for descriptor deployment         |
+| `jenkins_destroy_pipeline`          | string   | Pipeline for destroying trial network      |
+| `deployment_site`                   | string   | Deployment site of trial network           |
+| `input`                             | dict     | YAML files per entity-name sent to Jenkins |
+| `output`                            | dict     | JSON received by Jenkins per entity-name   |
+| `github_6g_library_commit_id`       | string   | 6G-Library commit ID                       |
+| `github_6g_sandbox_sites_commit_id` | string   | 6G-Sandbox-Sites commit ID                 |
 
 #### Collection `user` <!-- omit in toc -->
 
-| Field      | Type   | Description                         |
-| ---------- | ------ | ----------------------------------- |
-| `email`    | string | User's email address. (primary key) |
-| `username` | string | User's username.                    |
-| `password` | string | User's hashed password.             |
-| `org`      | string | Organization of the user.           |
+| Field      | Type   | Description                   |
+| ---------- | ------ | ----------------------------- |
+| `email`    | string | User's email address          |
+| `username` | string | User's username (primary key) |
+| `password` | string | User's hashed password        |
+| `role`     | string | User's role                   |
+| `org`      | string | User's organization           |
 
 #### Collection `verification_token` <!-- omit in toc -->
 
-| Field                | Type   | Description                              |
-| -------------------- | ------ | ---------------------------------------- |
-| `new_account_email`  | string | Email for the new account.               |
-| `verification_token` | string | Verification token for the account.      |
-| `creation_date`      | date   | Creation date of the verification token. |
+| Field                | Type   | Description                             |
+| -------------------- | ------ | --------------------------------------- |
+| `new_account_email`  | string | Email for the new account (primary key) |
+| `verification_token` | string | Verification token for the account      |
+| `creation_date`      | date   | Creation date of the verification token |
 
 #### Relationships <!-- omit in toc -->
 
 - `resource_manager.tn_id > trial_network.tn_id` // resource_manager references trial_network
-- `trial_network.user_created > user.email` // A user can have multiple trial_networks (one-to-many)
-- `verifications_token.new_account_email - user.email` // One-to-one relationship between verifications_token and user
+- `trial_network.user_created > user.username` // A user can have multiple trial_networks (one-to-many)
+- `verification_token.new_account_email - user.email` // One-to-one relationship between verification_token and user
 
 #### Model <!-- omit in toc -->
 
