@@ -227,14 +227,14 @@ class TrialNetwork(Resource):
                     resource_manager.apply_resource_manager(trial_network, site_available_components)
                     log_handler.info(f"[{trial_network.tn_id}] - Resource manager is applied")
                 log_handler.info(f"[{trial_network.tn_id}] - Start again deployment of the trial network using Jenkins")
-                jenkins_handler.trial_network_deployment(trial_network.jenkins_deploy_pipeline)
+                jenkins_handler.trial_network_deployment()
                 log_handler.info(f"[{trial_network.tn_id}] - End deployment of the trial network using Jenkins")
                 report_path = os.path.join(f"{trial_network.directory_path}", f"{trial_network.tn_id}.md")
                 trial_network.set_report(report_path)
                 trial_network.set_state("activated")
                 trial_network.save()
                 log_handler.info(f"[{trial_network.tn_id}] - Trial network update to status '{trial_network.state}'")
-                return {"message": f"Trial network ACTIVATED. Report of the trial network can be found in the directory '{report_path}'"}, 200
+                return {"message": f"Trial network RE-ACTIVATED. Report of the trial network can be found in the directory '{report_path}'"}, 200
             elif state == "activated":
                 # TODO: see what to do with trial network resources
                 return {"message": "TODO: SUSPEND trial network"}, 400
@@ -328,8 +328,8 @@ class PurgeTrialNetwork(Resource):
                 return {"message": "Trial network cannot be purge because the current status of Trial Network is different to VALIDATED and DESTROYED"}, 400
 
             jenkins_handler = JenkinsHandler(trial_network=trial_network)
-            jenkins_handler.remove_pipeline(trial_network.jenkins_deploy_pipeline)
-            jenkins_handler.remove_pipeline(trial_network.jenkins_destroy_pipeline)
+            jenkins_handler.delete_pipeline(trial_network.jenkins_deploy_pipeline)
+            jenkins_handler.delete_pipeline(trial_network.jenkins_destroy_pipeline)
             rmtree(trial_network.directory_path)
             log_handler.info(f"[{trial_network.tn_id}] - Deleted trial network directory '{trial_network.directory_path}'")
             log_handler.info(f"[{trial_network.tn_id}] - Trial network update to state 'purge'")
