@@ -73,6 +73,6 @@ class CallbackHandler:
         Save data in files
         """
         directory_path = os.path.join(TnlcmSettings.TRIAL_NETWORKS_DIRECTORY, self.tn_id)
-        os.makedirs(os.path.join(directory_path, "output"))
+        os.makedirs(os.path.join(directory_path, "output"), exist_ok=True)
         save_json(data=self.decoded_data, file_path=os.path.join(directory_path, "output", f"{self.entity_name}.json"))
         save_file(data=self.markdown, file_path=os.path.join(directory_path, f"{self.tn_id}.md"), mode="a", encoding="utf-8")
