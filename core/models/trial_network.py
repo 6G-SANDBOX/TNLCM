@@ -97,7 +97,7 @@ class TrialNetworkModel(Document):
         :raises CustomTrialNetworkException:
         """
         filename = secure_filename(file.filename)
-        if not "." in filename or not filename.split(".")[-1].lower() in ["yml", "yaml"]:
+        if "." not in filename or filename.split(".")[-1].lower() not in ["yml", "yaml"]:
             raise CustomTrialNetworkException("Invalid descriptor format. Only 'yml' or 'yaml' files will be further processed", 422)
         self.raw_descriptor = safe_load(file.stream)
 
