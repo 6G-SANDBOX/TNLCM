@@ -2,7 +2,7 @@ import os
 
 from requests import post
 from time import sleep
-from jenkins import Jenkins, JenkinsException
+from jenkins import Jenkins
 from requests.exceptions import RequestException
 
 from conf import JenkinsSettings, TnlcmSettings, SixGLibrarySettings, SixGSandboxSitesSettings
@@ -38,19 +38,15 @@ class JenkinsHandler:
             self.jenkins_client.get_whoami()
         except RequestException:
             raise CustomJenkinsException("Error establishing connection with Jenkins", 500)
-
-    def _is_folder_jenkins(self, folder_name: str) -> bool:
+    
+    def _is_folder_created(self, folder_name: str) -> bool:
         """
         Check if a Jenkins folder exists
 
         :param folder_name: name of the folder to check, ``str``
         :return: True if the folder exists, False otherwise, ``bool``
         """
-        try:
-            self.jenkins_client.get_job_info(folder_name)
-            return True
-        except JenkinsException:
-            return False
+        return any(job["name"] == folder_name for job in self.jenkins_client.get_jobs(folder_depth=0))
 
     def generate_jenkins_deploy_pipeline(self, jenkins_deploy_pipeline: str) -> str:
         """
@@ -60,28 +56,29 @@ class JenkinsHandler:
         :return: pipeline use for deploy trial network, ``str``
         :raises CustomJenkinsException:
         """
-        if not jenkins_deploy_pipeline:
-            tn_deploy_pipeline = JenkinsSettings.JENKINS_DEPLOY_PIPELINE
-            if tn_deploy_pipeline not in self.get_all_pipelines():
-                raise CustomJenkinsException(f"The 'jenkins_deploy_pipeline' should be one: {', '.join(self.get_all_pipelines())}", 404)
-            tn_jenkins = "TNLCM"
-            if not self._is_folder_jenkins(tn_jenkins):
-                self.jenkins_client.create_folder(tn_jenkins)
-            tn_new_deploy_pipeline = f"{tn_deploy_pipeline}_{self.trial_network.tn_id}"
-            config_tn_deploy_pipeline = self.jenkins_client.get_job_config(tn_deploy_pipeline)
-            config_tn_new_deploy_pipeline = config_tn_deploy_pipeline.replace(tn_deploy_pipeline, tn_new_deploy_pipeline)
-            config_tn_new_deploy_pipeline = config_tn_new_deploy_pipeline.replace(f"{tn_new_deploy_pipeline}.groovy", f"{tn_deploy_pipeline}.groovy")
-            tn_jenkins_deploy_path = f"{tn_jenkins}/{tn_new_deploy_pipeline}"
-            self.jenkins_client.create_job(tn_jenkins_deploy_path, config_tn_new_deploy_pipeline)
-            log_handler.info(f"[{self.trial_network.tn_id}] - Created '{tn_jenkins_deploy_path}' pipeline in Jenkins to deploy the trial network")
-            return tn_jenkins_deploy_path
-        else:
-            if jenkins_deploy_pipeline not in self.get_all_pipelines():
-                raise CustomJenkinsException(f"The 'jenkins_deploy_pipeline' should be one: {', '.join(self.get_all_pipelines())}", 404)
+        if jenkins_deploy_pipeline:
+            pipelines = self.get_all_pipelines()
+            if jenkins_deploy_pipeline not in pipelines:
+                raise CustomJenkinsException(f"The 'jenkins_deploy_pipeline' should be one: {', '.join(pipelines)}", 404)
             if self.jenkins_client.get_job_info(jenkins_deploy_pipeline)["inQueue"]:
                 raise CustomJenkinsException(f"The pipeline '{jenkins_deploy_pipeline}' is currently in use. Try again later", 500)
-            log_handler.info(f"[{self.trial_network.tn_id}] - Use the pipeline '{jenkins_deploy_pipeline}' defined in Jenkins to deploy the trial network")
+            log_handler.info(f"[{self.trial_network.tn_id}] - Using existing pipeline '{jenkins_deploy_pipeline}' to deploy the trial network")
             return jenkins_deploy_pipeline
+
+        tn_deploy_pipeline = JenkinsSettings.JENKINS_DEPLOY_PIPELINE
+        tn_new_deploy_pipeline = f"{tn_deploy_pipeline}_{self.trial_network.tn_id}"
+        if not self._is_folder_created("TNLCM"):
+            self.jenkins_client.create_folder("TNLCM")
+
+        config = self.jenkins_client.get_job_config(tn_deploy_pipeline)
+        config = config.replace(tn_deploy_pipeline, tn_new_deploy_pipeline)
+        config = config.replace(f"{tn_new_deploy_pipeline}.groovy", f"{tn_deploy_pipeline}.groovy")
+        
+        tn_jenkins_deploy_path = f"TNLCM/{tn_new_deploy_pipeline}"
+        self.jenkins_client.create_job(tn_jenkins_deploy_path, config)
+        log_handler.info(f"[{self.trial_network.tn_id}] - Created '{tn_jenkins_deploy_path}' pipeline in Jenkins to deploy the trial network")
+        
+        return tn_jenkins_deploy_path
 
     def _jenkins_deployment_parameters(self, component_type: str, custom_name: str, debug: str) -> dict:
         """
@@ -117,7 +114,7 @@ class JenkinsHandler:
         """
         deployed_descriptor = self.trial_network.to_mongo()["deployed_descriptor"]["trial_network"]
         deployed_descriptor_copy = deployed_descriptor.copy()
-        os.makedirs(os.path.join(self.trial_network.directory_path, "input"))
+        os.makedirs(os.path.join(self.trial_network.directory_path, "input"), exist_ok=True)
         for entity_name, entity_data in deployed_descriptor_copy.items():
             component_type = entity_data["type"]
             custom_name = None
@@ -152,7 +149,7 @@ class JenkinsHandler:
             log_handler.info(f"[{self.trial_network.tn_id}] - Entity '{entity_name}' successfully deployed")
             sleep(3)
             entity_name_output = TrialNetworkModel.objects(tn_id=self.trial_network.tn_id).first().output
-            if not entity_name in entity_name_output:
+            if entity_name not in entity_name_output:
                 raise CustomJenkinsException(f"Callback with the results of the entity '{entity_name}' not found", 404)
             del deployed_descriptor[entity_name]
             self.trial_network.set_deployed_descriptor(deployed_descriptor)
@@ -169,26 +166,26 @@ class JenkinsHandler:
         :return: pipeline use for destroy trial network, ``str``
         :raises CustomJenkinsException:
         """
-        if not jenkins_destroy_pipeline:
-            tn_destroy_pipeline = JenkinsSettings.JENKINS_DESTROY_PIPELINE
-            if tn_destroy_pipeline not in self.get_all_pipelines():
-                raise CustomJenkinsException(f"The 'jenkins_destroy_pipeline' should be one: {', '.join(self.get_all_pipelines())}", 404)
-            tn_jenkins = "TNLCM"
-            tn_new_destroy_pipeline = f"{tn_destroy_pipeline}_{self.trial_network.tn_id}"
-            config_tn_destroy_pipeline = self.jenkins_client.get_job_config(tn_destroy_pipeline)
-            config_tn_new_destroy_pipeline = config_tn_destroy_pipeline.replace(tn_destroy_pipeline, tn_new_destroy_pipeline)
-            config_tn_new_destroy_pipeline = config_tn_new_destroy_pipeline.replace(f"{tn_new_destroy_pipeline}.groovy", f"{tn_destroy_pipeline}.groovy")
-            tn_jenkins_destroy_path = f"{tn_jenkins}/{tn_new_destroy_pipeline}"
-            self.jenkins_client.create_job(tn_jenkins_destroy_path, config_tn_new_destroy_pipeline)
-            log_handler.info(f"[{self.trial_network.tn_id}] - Created '{tn_jenkins_destroy_path}' pipeline in Jenkins to destroy the trial network")
-            return tn_jenkins_destroy_path
-        else:
-            if jenkins_destroy_pipeline not in self.get_all_pipelines():
-                raise CustomJenkinsException(f"The 'jenkins_destroy_pipeline' should be one: {', '.join(self.get_all_pipelines())}", 404)
+        if jenkins_destroy_pipeline:
+            pipelines = self.get_all_pipelines()
+            if jenkins_destroy_pipeline not in pipelines:
+                raise CustomJenkinsException(f"The 'jenkins_destroy_pipeline' should be one: {', '.join(pipelines)}", 404)
             if self.jenkins_client.get_job_info(jenkins_destroy_pipeline)["inQueue"]:
                 raise CustomJenkinsException(f"The pipeline '{jenkins_destroy_pipeline}' is currently in use. Try again later", 500)
-            log_handler.info(f"[{self.trial_network.tn_id}] - Use the pipeline '{jenkins_destroy_pipeline}' defined in Jenkins to destroy the trial network")
+            log_handler.info(f"[{self.trial_network.tn_id}] - Using existing pipeline '{jenkins_destroy_pipeline}' to destroy the trial network")
             return jenkins_destroy_pipeline
+
+        tn_destroy_pipeline = JenkinsSettings.JENKINS_DESTROY_PIPELINE
+        tn_new_destroy_pipeline = f"{tn_destroy_pipeline}_{self.trial_network.tn_id}"
+        config = self.jenkins_client.get_job_config(tn_destroy_pipeline)
+        config = config.replace(tn_destroy_pipeline, tn_new_destroy_pipeline)
+        config = config.replace(f"{tn_new_destroy_pipeline}.groovy", f"{tn_destroy_pipeline}.groovy")
+        
+        tn_jenkins_destroy_path = f"TNLCM/{tn_new_destroy_pipeline}"
+        if tn_jenkins_destroy_path not in self.get_all_pipelines():
+            self.jenkins_client.create_job(tn_jenkins_destroy_path, config)
+            log_handler.info(f"[{self.trial_network.tn_id}] - Created '{tn_jenkins_destroy_path}' pipeline in Jenkins to destroy the trial network")
+        return tn_jenkins_destroy_path
 
     def _jenkins_destroy_parameters(self) -> dict:
         """
@@ -236,9 +233,9 @@ class JenkinsHandler:
         if self.jenkins_client.get_job_info(name=jenkins_destroy_pipeline)["lastSuccessfulBuild"]["number"] != last_build_number:
             raise CustomJenkinsException(f"Pipeline for destroy '{self.trial_network.tn_id}' trial network has failed", 500)
 
-    def remove_pipeline(self, pipeline_name: str) -> None:
+    def delete_pipeline(self, pipeline_name: str) -> None:
         """
-        Remove pipeline in Jenkins
+        Delete pipeline in Jenkins
 
         :param pipeline_name: name of pipeline, ``str`` 
         """
