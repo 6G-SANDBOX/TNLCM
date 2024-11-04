@@ -28,7 +28,7 @@ class RequestVerificationToken(Resource):
             receiver_email = self.parser_post.parse_args()["email"]
             _six_digit_random = randint(100000, 999999)
 
-            user = VerificationTokenModel.objects(email=receiver_email).first()
+            user = VerificationTokenModel.objects(new_account_email=receiver_email).first()
             if user:
                 return {"message": "Email already exist in the database"}, 409
 
