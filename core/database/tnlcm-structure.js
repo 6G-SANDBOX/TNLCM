@@ -17,7 +17,7 @@ var db = db.getSiblingDB(dbName);
 db.createCollection("resource_manager");
 db.createCollection("trial_network");
 db.createCollection("user");
-db.createCollection("verification_tokens");
+db.createCollection("verification_token");
 
 // Create the root user
 db.createUser({
@@ -46,8 +46,8 @@ db.user.insertOne({
     org: "ADMIN"
 });
 
-// Insert a verification token into the collection verification_tokens
-db.verification_tokens.insertOne({
+// Insert a verification token into the collection verification_token
+db.verification_token.insertOne({
     new_account_email: tnlcmAdminEmail,
     verification_token: Math.floor(Math.random() * 1000000),
     creation_date: new Date()
