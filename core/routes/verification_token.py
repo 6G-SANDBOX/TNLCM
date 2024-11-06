@@ -28,14 +28,14 @@ class RequestVerificationToken(Resource):
             receiver_email = self.parser_post.parse_args()["email"]
             _six_digit_random = randint(100000, 999999)
 
+            user = VerificationTokenModel.objects(new_account_email=receiver_email).first()
+            if user:
+                return {"message": "Email already exist in the database"}, 409
+
             verification_token = VerificationTokenModel(
                 new_account_email=receiver_email,
                 verification_token=_six_digit_random
             )
-
-            user = UserModel.objects(email=receiver_email).first()
-            if user:
-                return {"message": "Email already exist in the database"}, 409
 
             with mail.connect() as conn:
                 msg = Message(

@@ -199,7 +199,10 @@
 * berlin
 * oulu
 
-## [Descriptor WP5](./reference_tn.yaml)
+## [Descriptor WP5 - REFERENCE TN](./reference_tn.yaml)
+
+> [!NOTE]  
+> There is a provisional descriptor for the reference TN because of a bug deploying VMs with many network interfaces into the same virtual network. 
 
 ### Components
 

@@ -30,12 +30,15 @@ class TrialNetworkModel(Document):
     jenkins_deploy_pipeline = StringField()
     jenkins_destroy_pipeline = StringField()
     deployment_site = StringField()
+    input = DictField(default={})
+    output = DictField(default={})
     github_6g_library_commit_id = StringField()
     github_6g_sandbox_sites_commit_id = StringField()
 
     meta = {
         "db_alias": "tnlcm-database-alias",
-        "collection": "trial_network"
+        "collection": "trial_network",
+        "description": "This collection stores information about trial networks"
     }
 
     def set_user_created(self, user_created: str) -> None:
@@ -45,6 +48,15 @@ class TrialNetworkModel(Document):
         :param user_created: username, `str`
         """
         self.user_created = user_created
+
+    def verify_tn_id(self, tn_id: str) -> bool:
+        """
+        Verify if tn_id exists in database
+
+        :param tn_id: trial network identifier, ``str``
+        :return: True if tn_id is in database. Otherwise False, ``bool``
+        """
+        return bool(TrialNetworkModel.objects(tn_id=tn_id))
 
     def set_tn_id(self, size: int = 6, chars: str = ascii_lowercase+digits, tn_id: str = None) -> None:
         """
@@ -64,8 +76,6 @@ class TrialNetworkModel(Document):
         else:
             if not tn_id[0].isalpha():
                 raise CustomTrialNetworkException(f"The tn_id '{tn_id}' must start with a character (a-z)", 400)
-            if TrialNetworkModel.objects(tn_id=tn_id):
-                raise CustomTrialNetworkException(f"The tn_id '{tn_id}' already exists in the database", 409)
             self.tn_id = tn_id
 
     def set_state(self, state: str) -> None:
@@ -87,7 +97,7 @@ class TrialNetworkModel(Document):
         :raises CustomTrialNetworkException:
         """
         filename = secure_filename(file.filename)
-        if not "." in filename or not filename.split(".")[-1].lower() in ["yml", "yaml"]:
+        if "." not in filename or filename.split(".")[-1].lower() not in ["yml", "yaml"]:
             raise CustomTrialNetworkException("Invalid descriptor format. Only 'yml' or 'yaml' files will be further processed", 422)
         self.raw_descriptor = safe_load(file.stream)
 
@@ -130,8 +140,6 @@ class TrialNetworkModel(Document):
 
         :param directory_path: path to the trial network directory, ``str``
         """
-        if os.path.exists(directory_path):
-            raise CustomTrialNetworkException(f"Directory '{directory_path}' already exists", 409)
         os.makedirs(directory_path)
         self.directory_path = directory_path
     
@@ -159,6 +167,24 @@ class TrialNetworkModel(Document):
         """
         self.deployment_site = deployment_site
 
+    def set_input(self, entity_name: str, entity_data_input: dict) -> None:
+        """
+        Set input parameters used for the entity name
+
+        :param entity_name: name of the entity, ``str``
+        :param entity_data_input: dictionary of input parameters for the entity, ``dict``
+        """
+        self.input[entity_name] = entity_data_input
+    
+    def set_output(self, entity_name: str, entity_data_output: dict) -> None:
+        """
+        Set output received by Jenkins
+
+        :param entity_name: name of the entity, ``str``
+        :param entity_data_output: dictionary of output message received by Jenkins, ``dict``
+        """
+        self.output[entity_name] = entity_data_output
+    
     def set_github_6g_library_commit_id(self, github_6g_library_commit_id: str) -> None:
         """
         Set commit id from 6G-Library to be used for deploy trial network
@@ -382,6 +408,8 @@ class TrialNetworkModel(Document):
             "jenkins_deploy_pipeline": self.jenkins_deploy_pipeline,
             "jenkins_destroy_pipeline": self.jenkins_destroy_pipeline,
             "deployment_site": self.deployment_site,
+            "input": self.input,
+            "output": self.output,
             "github_6g_library_commit_id": self.github_6g_library_commit_id,
             "github_6g_sandbox_sites_commit_id": self.github_6g_sandbox_sites_commit_id
         }

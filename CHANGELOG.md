@@ -1,5 +1,29 @@
 # Changelog
 
+## [Unreleased] - 2024-XX-XX
+
+### Added
+
+- Workflow to check linting in Python files using Pylint on push to the `main` branch.
+- Workflow to publish new release when push to `main` branch.
+- Create `input` and `output` directories per each trial networks.
+- New field in `trial_network` collection called `input` that contains the inputs files sent to Jenkins.
+- New field in `trial_network` collection called `output` that contains the json received by Jenkins.
+- New directory `callback_handler` for control the data received by Jenkins.
+
+### Changed
+
+- Rename collection `verification_tokens` to `verification_token` in MongoDB.
+
+### Fixed
+
+- If an error occurs during TN creation, the created directory is now deleted to prevent inconsistencies.
+- When purge trial network, also remove pipelines in Jenkins used for deploy and destroy trial network.
+
+### Removed
+
+- Collection `callback` from Mongo database.
+
 ## [v0.4.1] - 2024-10-30
 
 ### Fixed
@@ -175,6 +199,7 @@
 
 - Frontend implementation.
 
+[Unreleased]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.1...HEAD
 [v0.4.1]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.0...v0.4.1
 [v0.4.0]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.3.1...v0.4.0
 [v0.3.1]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.3.0...v0.3.1

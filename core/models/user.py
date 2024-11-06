@@ -5,13 +5,14 @@ class UserModel(Document):
         
     username = StringField(max_length=50, unique=True)
     password = StringField(max_length=255)
-    email = EmailField(max_length=50, unique=True)
+    email = EmailField(max_length=50)
     role = StringField(max_length=20, default="user")
     org = StringField(max_length=50)
 
     meta = {
         "db_alias": "tnlcm-database-alias",
-        "collection": "user"
+        "collection": "user",
+        "description": "This collection stores user information"
     }
 
     def set_password(self, secret: str) -> None:
