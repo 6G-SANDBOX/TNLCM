@@ -9,6 +9,7 @@
 - New field in `trial_network` collection called `input` that contains the inputs files sent to Jenkins.
 - New field in `trial_network` collection called `output` that contains the json received by Jenkins.
 - New directory `callback_handler` for control the data received by Jenkins.
+- Image of trial networks templates.
 
 ### Changed
 
