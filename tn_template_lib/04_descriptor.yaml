@@ -6,14 +6,12 @@ trial_network:
     type: "tn_init"
     dependencies: []
     input: {}
-  vnet-private_vnet_oneKE:
-    type: "vnet"
-    name: "private_vnet_oneKE"
+  vm_kvm-ubuntu22_04:
+    type: "vm_kvm"
+    name: "ubuntu22_04"
     dependencies:
       - "tn_init"
     input:
-      one_vnet_first_ip: "10.10.10.1"
-      one_vnet_netmask: "255.255.255.0"
-      one_vnet_address_size: 100
-      one_vnet_gw: "10.10.10.1"
-      one_vnet_dns: "1.1.1.1"
+      one_vm_kvm_size: "small" # extra_large, large, medium, small, very_small
+      one_vm_kvm_networks:
+        - "tn_vxlan"
