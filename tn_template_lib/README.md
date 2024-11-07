@@ -2,6 +2,8 @@
 
 ## [Descriptor 1](./01_descriptor.yaml)
 
+![01_descriptor](./images/01_descriptor.png)
+
 ### Components
 
 * tn_vxlan
@@ -14,6 +16,8 @@
 * oulu
 
 ## [Descriptor 2](./02_descriptor.yaml)
+
+![02_descriptor](./images/02_descriptor.png)
 
 ### Components
 
@@ -29,6 +33,8 @@
 
 ## [Descriptor 3](./03_descriptor.yaml)
 
+![03_descriptor](./images/03_descriptor.png)
+
 ### Components
 
 * tn_init
@@ -42,19 +48,7 @@
 
 ## [Descriptor 4](./04_descriptor.yaml)
 
-### Components
-
-* tn_init
-* vnet
-
-### Platforms
-
-* uma
-* athens
-* berlin
-* oulu
-
-## [Descriptor 5](./05_descriptor.yaml)
+![04_descriptor](./images/04_descriptor.png)
 
 ### Components
 
@@ -68,7 +62,9 @@
 * berlin
 * oulu
 
-## [Descriptor 6](./06_descriptor.yaml)
+## [Descriptor 5](./05_descriptor.yaml)
+
+![05_descriptor](./images/05_descriptor.png)
 
 ### Components
 
@@ -83,7 +79,9 @@
 * berlin
 * oulu
 
-## [Descriptor 7](./07_descriptor.yaml)
+## [Descriptor 6](./06_descriptor.yaml)
+
+![06_descriptor](./images/06_descriptor.png)
 
 ### Components
 
@@ -99,7 +97,9 @@
 * berlin
 * oulu
 
-## [Descriptor 8](./08_descriptor.yaml)
+## [Descriptor 7](./07_descriptor.yaml)
+
+![07_descriptor](./images/07_descriptor.png)
 
 ### Components
 
@@ -116,7 +116,9 @@
 * berlin
 * oulu
 
-## [Descriptor 9](./09_descriptor.yaml)
+## [Descriptor 8](./08_descriptor.yaml)
+
+![08_descriptor](./images/08_descriptor.png)
 
 ### Components
 
@@ -133,7 +135,9 @@
 * berlin
 * oulu
 
-## [Descriptor 10](./10_descriptor.yaml)
+## [Descriptor 9](./09_descriptor.yaml)
+
+![09_descriptor](./images/09_descriptor.png)
 
 ### Components
 
@@ -144,17 +148,9 @@
 
 * uma
 
-## [Descriptor 11](./11_descriptor.yaml)
+## [Descriptor 10](./10_descriptor.yaml)
 
-### Components
-
-* tn_test
-
-### Platforms
-
-* Should not work
-
-## [Descriptor 12](./12_descriptor.yaml)
+![10_descriptor](./images/10_descriptor.png)
 
 ### Components
 
@@ -169,7 +165,9 @@
 
 * uma
 
-## [Descriptor 13](./13_descriptor.yaml)
+## [Descriptor 11](./11_descriptor.yaml)
+
+![11_descriptor](./images/11_descriptor.png)
 
 ### Components
 
@@ -185,7 +183,9 @@
 * berlin
 * oulu
 
-## [Descriptor 14](./14_descriptor.yaml)
+## [Descriptor 12](./12_descriptor.yaml)
+
+![12_descriptor](./images/12_descriptor.png)
 
 ### Components
 
@@ -202,7 +202,9 @@
 ## [Descriptor WP5 - REFERENCE TN](./reference_tn.yaml)
 
 > [!NOTE]  
-> There is a provisional descriptor for the reference TN because of a bug deploying VMs with many network interfaces into the same virtual network. 
+> There is a [provisional descriptor](./reference_tn_provisional.yaml) for the reference TN because of a bug deploying VMs with many network interfaces into the same virtual network. 
+
+![reference_tn](./images/reference_tn.png)
 
 ### Components
 
