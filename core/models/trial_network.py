@@ -232,7 +232,7 @@ class TrialNetworkModel(Document):
         def eval_part(part: str) -> bool:
             part = part.strip()
             cn = component_name
-            if component_name == "tn_vxlan" and component_name not in tn_descriptor:
+            if (component_name == "tn_vxlan" or component_name == "tn_bastion") and component_name not in tn_descriptor:
                 cn = "tn_init"
                 part = "tn_init"
             if part not in tn_components_types:
@@ -299,6 +299,13 @@ class TrialNetworkModel(Document):
         if len(self.raw_descriptor.keys()) > 1 or "trial_network" not in self.raw_descriptor:
             raise CustomTrialNetworkException("Trial network descriptor must start with 'trial_network' key", 422)
         tn_descriptor = self.raw_descriptor["trial_network"]
+        if "tn_init" in tn_components_types:
+            tn_components_types.add("tn_vxlan")
+            tn_components_types.add("tn_bastion")
+        elif "tn_vxlan" in tn_components_types and "tn_bastion" in tn_components_types:
+            tn_components_types.add("tn_init")
+        else:
+            raise CustomTrialNetworkException(f"Mandatory components of trial network required", 404)
         for entity_name, entity_data in tn_descriptor.items():
             if len(entity_name) <= 0:
                 raise CustomTrialNetworkException(f"There is an empty entity name in the trial network", 422)

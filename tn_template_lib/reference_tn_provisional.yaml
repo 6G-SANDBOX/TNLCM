@@ -1,20 +1,21 @@
 trial_network:
+
   tn_init:
-     type: "tn_init"
-     dependencies: []
-     input:
-       one_bastion_wireguard_allowedips: "192.168.199.0/24,10.10.10.0/24"
+    type: "tn_init"
+    dependencies: []
+    input:
+      one_bastion_wireguard_allowedips: "192.168.199.0/24,10.10.10.0/24"
   vnet-private_oneKE:
-     type: "vnet"
-     name: "private_oneKE"
-     dependencies:
-       - "tn_init"
-     input:
-       one_vnet_first_ip: "10.10.10.1"
-       one_vnet_netmask: "255.255.255.0"
-       one_vnet_address_size: 100
-       one_vnet_gw: "10.10.10.1"
-       one_vnet_dns: "1.1.1.1"
+    type: "vnet"
+    name: "private_oneKE"
+    dependencies:
+      - "tn_init"
+    input:
+      one_vnet_first_ip: "10.10.10.1"
+      one_vnet_netmask: "255.255.255.0"
+      one_vnet_address_size: 100
+      one_vnet_gw: "10.10.10.1"
+      one_vnet_dns: "1.1.1.1"
   oneKE-k8s:
     type: "oneKE"
     name: "k8s"
@@ -55,6 +56,8 @@ trial_network:
   loadcore_agent-dn:
     type: "loadcore_agent"
     name: "dn"
+    dependencies:
+      - "vnet-private_oneKE"
     input:
       one_loadcore_agent_networks:
         - "tn_vxlan"
@@ -62,6 +65,8 @@ trial_network:
   loadcore_agent-gnb:
     type: "loadcore_agent"
     name: "gnb"
+    dependencies:
+      - "loadcore_agent-dn"
     input:
       one_loadcore_agent_networks:
         - "tn_vxlan"
