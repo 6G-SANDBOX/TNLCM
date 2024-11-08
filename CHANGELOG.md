@@ -4,7 +4,6 @@
 
 ### Added
 
-- Workflow to check linting in Python files using Pylint on push to the `main` branch.
 - Create `input` and `output` directories per each trial networks.
 - New field in `trial_network` collection called `input` that contains the inputs files sent to Jenkins.
 - New field in `trial_network` collection called `output` that contains the json received by Jenkins.
