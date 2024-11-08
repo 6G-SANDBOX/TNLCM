@@ -299,6 +299,13 @@ class TrialNetworkModel(Document):
         if len(self.raw_descriptor.keys()) > 1 or "trial_network" not in self.raw_descriptor:
             raise CustomTrialNetworkException("Trial network descriptor must start with 'trial_network' key", 422)
         tn_descriptor = self.raw_descriptor["trial_network"]
+        if "tn_init" in tn_components_types:
+            tn_components_types.add("tn_vxlan")
+            tn_components_types.add("tn_bastion")
+        elif "tn_vxlan" in tn_components_types and "tn_bastion" in tn_components_types:
+            tn_components_types.add("tn_init")
+        else:
+            raise CustomTrialNetworkException(f"Mandatory components of trial network required", 404)
         for entity_name, entity_data in tn_descriptor.items():
             if len(entity_name) <= 0:
                 raise CustomTrialNetworkException(f"There is an empty entity name in the trial network", 422)

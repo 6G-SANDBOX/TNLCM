@@ -57,6 +57,8 @@ trial_network:
   loadcore_agent-dn:
     type: "loadcore_agent"
     name: "dn"
+    dependencies:
+      - "open5gs-core"
     input:
       one_loadcore_agent_networks:
         - "vnet-private_oneKE"
@@ -64,6 +66,8 @@ trial_network:
   loadcore_agent-gnb:
     type: "loadcore_agent"
     name: "gnb"
+    dependencies:
+      - "open5gs-core"
     input:
       one_loadcore_agent_networks:
         - "vnet-private_oneKE"
