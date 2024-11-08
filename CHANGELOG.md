@@ -19,6 +19,7 @@
 
 - If an error occurs during TN creation, the created directory is now deleted to prevent inconsistencies.
 - When purge trial network, also remove pipelines in Jenkins used for deploy and destroy trial network.
+- Validate trial network descriptor when one of the components forming the trial network is tn_init, add tn_vxlan and tn_bastion.
 
 ### Removed
 

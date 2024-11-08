@@ -232,7 +232,7 @@ class TrialNetworkModel(Document):
         def eval_part(part: str) -> bool:
             part = part.strip()
             cn = component_name
-            if component_name == "tn_vxlan" and component_name not in tn_descriptor:
+            if (component_name == "tn_vxlan" or component_name == "tn_bastion") and component_name not in tn_descriptor:
                 cn = "tn_init"
                 part = "tn_init"
             if part not in tn_components_types:
