@@ -338,14 +338,11 @@ To deploy 6G-SANDBOX TOOLKIT in OpenNebula, the documentation can be accessed fr
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
-## :construction_worker: Development Team <!-- omit in toc -->
+## Contributors <!-- omit in toc -->
 
-|                               Photo                                |        Name         | Email |                                                                        GitHub                                                                        |                                                         Linkedin                                                          |
-| :----------------------------------------------------------------: | :-----------------: | :---: | :--------------------------------------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------: |
-| <img src="https://github.com/CarlosAndreo.png?size=50" width=50px> | Carlos Andreo López |   -   | <a href="https://github.com/CarlosAndreo"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href=""><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
-| <img src="https://github.com/NaniteBased.png?size=50" width=50px>  | Bruno García García |   -   | <a href="https://github.com/NaniteBased"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a>  | <a href=""><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
-
-<p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
+<a href="https://github.com/6G-SANDBOX/TNLCM/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=6G-SANDBOX/TNLCM" />
+</a>
 
 <!-- Urls, Shields and Badges -->
 [tnlcm-badge]: https://img.shields.io/badge/TNLCM-v0.4.2-blue
