@@ -1,5 +1,17 @@
 # Changelog
 
+## [Unreleased] - 2024-XX-XX
+
+### Added
+
+### Changed
+
+- Migrated from `requirements.txt` to `pyproject.toml` for dependency management.
+
+### Fixed
+
+### Removed
+
 ## [v0.4.2] - 2024-11-08
 
 ### Added
@@ -199,6 +211,7 @@
 
 - Frontend implementation.
 
+[unreleased]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.2...HEAD
 [v0.4.2]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.1...v0.4.2
 [v0.4.1]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.0...v0.4.1
 [v0.4.0]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.3.1...v0.4.0
