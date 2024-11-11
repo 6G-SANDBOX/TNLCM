@@ -31,7 +31,6 @@ class TnlcmSettings:
         raise UndefinedEnvVariableError(missing_variables)
     
     TITLE = "Trial Network Lifecycle Manager - TNLCM"
-    VERSION = "v0.4.2"
     DESCRIPTION = ("[[6G-SANDBOX] TNLCM](https://github.com/6G-SANDBOX/TNLCM)")
     DOC = False
 
