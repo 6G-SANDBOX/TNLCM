@@ -13,7 +13,7 @@
 
   [![TNLCM][tnlcm-badge]][tnlcm-url]
 
-  [WiKi](https://github.com/6G-SANDBOX/TNLCM/wiki) · [Report error](https://github.com/6G-SANDBOX/TNLCM/issues/new?assignees=&labels=&projects=&template=bug_report.md) · [Feature request](https://github.com/6G-SANDBOX/TNLCM/issues/new?assignees=&labels=&projects=&template=feature_request.md)
+  [Wiki](https://github.com/6G-SANDBOX/TNLCM/wiki) · [Report error](https://github.com/6G-SANDBOX/TNLCM/issues/new?assignees=&labels=&projects=&template=bug_report.md) · [Feature request](https://github.com/6G-SANDBOX/TNLCM/issues/new?assignees=&labels=&projects=&template=feature_request.md)
 </div>
 
 TNLCM has been designed as a modular application, with the intention of making certain components easily replaceable or extended, while minimizing the effect of changes in other parts of the application. At the same time, there is an emphasis on re-usability, where several data structures and generic logic can be shared between the different components of the application.
@@ -101,6 +101,7 @@ gunicorn -c conf/gunicorn_conf.py
 A Swagger UI will be available at the url http://tnlcm-backend-ip:5000 where the API with the endpoints can be seen.
 
 ## 📚 Documentation
+
 Find the complete documentation and usage guides in our [Wiki](https://github.com/6G-SANDBOX/TNLCM/wiki).
 
 ## Contributors <!-- omit in toc -->
