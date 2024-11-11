@@ -17,7 +17,4 @@ class RepositorySettings:
             r"^https://github.com/.+/.+\.git$",
             r"^git@github.com:.+/.+\.git$"
         ]
-        for pattern in github_url_patterns:
-            if re.match(pattern, url):
-                return True
-        return False
+        return any(re.match(pattern, url) for pattern in github_url_patterns)
