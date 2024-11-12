@@ -15,12 +15,12 @@ echo "--------------- Install python ---------------"
 PYTHON_VERSION="3.13"
 PYTHON_BIN="python${PYTHON_VERSION}"
 
-apt install -y python${PYTHON_VERSION}-venv
-
 if ! python3 --version | awk '{print $2}' | grep -qE '^3\.1[3-9]|^[4-9]'; then
     add-apt-repository ppa:deadsnakes/ppa -y
     apt-get install python${PYTHON_VERSION}-full -y
 fi
+
+apt install -y ${PYTHON_BIN}-venv
 
 echo "--------------- Install Poetry ---------------"
 POETRY_FOLDER="/opt/poetry"
