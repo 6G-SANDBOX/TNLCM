@@ -7,6 +7,7 @@
 ### Changed
 
 - Migrated from `requirements.txt` to `pyproject.toml` for dependency management.
+- Documentation updated with priority information and the rest of the documentation added on the [Wiki](https://github.com/6G-SANDBOX/TNLCM/wiki).
 
 ### Fixed
 
