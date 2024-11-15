@@ -204,7 +204,7 @@
 > [!NOTE]  
 > There is a [provisional descriptor](./reference_tn_provisional.yaml) for the reference TN because of a bug deploying VMs with many network interfaces into the same virtual network. 
 
-![reference_tn](./images/reference_tn.png)
+![loadcore_wp5](./images/loadcore_wp5.png)
 
 ### Components
 
