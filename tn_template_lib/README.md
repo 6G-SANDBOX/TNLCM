@@ -199,10 +199,7 @@
 * berlin
 * oulu
 
-## [Descriptor WP5 - REFERENCE TN](./reference_tn.yaml)
-
-> [!NOTE]  
-> There is a [provisional descriptor](./reference_tn_provisional.yaml) for the reference TN because of a bug deploying VMs with many network interfaces into the same virtual network. 
+## [Descriptor WP5 - LOADCORE WP5](loadcore_wp5.yaml)
 
 ![reference_tn](./images/reference_tn.png)
 
