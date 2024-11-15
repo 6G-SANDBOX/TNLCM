@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 from pyfiglet import figlet_format
 
 print(figlet_format("Trial Network Lifecycle Management", font="small"))
-print(figlet_format("TNLCM", font="small"))
 # TODO: add subtitulo, tamanio de la letra
 
 dotenv_path = os.path.join(os.getcwd(), ".env")
