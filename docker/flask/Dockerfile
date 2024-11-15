@@ -1,15 +1,23 @@
 FROM python:3.13.0-slim
 
-WORKDIR /python-docker
+ENV GIT_PYTHON_REFRESH=quiet
 
-COPY requirements.txt requirements.txt
+ENV TNLCM_FOLDER="/python-docker"
 
-RUN python3.13 -m venv /python-docker/venv
+ENV POETRY_FOLDER="/opt/poetry"
 
-RUN /python-docker/venv/bin/pip install -r requirements.txt
+ENV POETRY_BIN="/opt/poetry/bin/poetry"
+
+RUN apt update && apt install -y curl
+
+RUN curl -sSL https://install.python-poetry.org | POETRY_HOME=${POETRY_FOLDER} python3 -
+
+RUN ${POETRY_BIN} config virtualenvs.in-project true
+
+WORKDIR ${TNLCM_FOLDER}
 
 COPY . .
 
-ENV GIT_PYTHON_REFRESH=quiet
+RUN ${POETRY_BIN} install --no-root
 
-CMD ["/python-docker/venv/bin/gunicorn", "-c", "conf/gunicorn_conf.py"]
+CMD ["/opt/poetry/bin/poetry", "run", "gunicorn", "-c", "conf/gunicorn_conf.py"]

@@ -201,7 +201,7 @@
 
 ## [Descriptor WP5 - LOADCORE WP5](loadcore_wp5.yaml)
 
-![reference_tn](./images/reference_tn.png)
+![loadcore_wp5](./images/loadcore_wp5.png)
 
 ### Components
 

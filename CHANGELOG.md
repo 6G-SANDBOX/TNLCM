@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.3] - 2024-11-15
+
+### Changed
+
+- Flask library to latest version 3.1.0.
+- Migrated from `requirements.txt` to `pyproject.toml` for dependency management.
+- Documentation updated with priority information and the rest of the documentation added on the [wiki](https://github.com/6G-SANDBOX/TNLCM/wiki).
+
 ## [v0.4.2] - 2024-11-08
 
 ### Added
@@ -199,6 +207,7 @@
 
 - Frontend implementation.
 
+[v0.4.3]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.2...v0.4.3
 [v0.4.2]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.1...v0.4.2
 [v0.4.1]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.0...v0.4.1
 [v0.4.0]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.3.1...v0.4.0

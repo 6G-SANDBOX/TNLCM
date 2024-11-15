@@ -1,6 +1,9 @@
 import os
 
 from dotenv import load_dotenv
+from pyfiglet import figlet_format
+
+print(figlet_format("Trial Network Lifecycle Management", font="small"))
 
 dotenv_path = os.path.join(os.getcwd(), ".env")
 # dotenv_path = os.path.join(os.getcwd(), ".env.dev")

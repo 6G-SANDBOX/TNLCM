@@ -1,5 +1,6 @@
 import json
 import yaml
+import tomlkit
 
 def load_yaml(file_path: str, mode: str, encoding: str) -> dict:
     """
@@ -12,6 +13,18 @@ def load_yaml(file_path: str, mode: str, encoding: str) -> dict:
     """
     with open(file_path, mode=mode, encoding=encoding) as yaml_file:
         return yaml.safe_load(yaml_file)
+
+def load_toml(file_path: str, mode: str, encoding: str) -> dict:
+    """
+    Load data from a TOML file
+
+    :param file_path: the path to the TOML file to be loaded, ``str``
+    :param mode: the mode in which the file is opened (e.g. rt, rb), ``str``
+    :param encoding: the file encoding (e.g. utf-8), ``str``
+    :return: the data loaded from the TOML file, ``dict``
+    """
+    with open(file_path, mode=mode, encoding=encoding) as toml_file:
+        return tomlkit.loads(toml_file.read())
 
 def load_file(file_path: str, mode: str, encoding: str) -> str:
     """

@@ -15,23 +15,27 @@ echo "--------------- Install python ---------------"
 PYTHON_VERSION="3.13"
 PYTHON_BIN="python${PYTHON_VERSION}"
 
-apt install -y python${PYTHON_VERSION}-venv
-
 if ! python3 --version | awk '{print $2}' | grep -qE '^3\.1[3-9]|^[4-9]'; then
     add-apt-repository ppa:deadsnakes/ppa -y
     apt-get install python${PYTHON_VERSION}-full -y
 fi
+
+apt install -y ${PYTHON_BIN}-venv
+
+echo "--------------- Install Poetry ---------------"
+POETRY_FOLDER="/opt/poetry"
+POETRY_BIN="/opt/poetry/bin/poetry"
+curl -sSL https://install.python-poetry.org | POETRY_HOME=${POETRY_FOLDER} python3 -
+${POETRY_BIN} config virtualenvs.in-project true
 
 echo "--------------- Clone TNLCM ---------------"
 TNLCM_FOLDER="/opt/TNLCM"
 TNLCM_ENV_FILE=${TNLCM_FOLDER}/.env
 
 git clone https://github.com/6G-SANDBOX/TNLCM ${TNLCM_FOLDER}
+${POETRY_BIN} install --no-root --directory ${TNLCM_FOLDER}
+
 cp ${TNLCM_FOLDER}/.env.template ${TNLCM_FOLDER}/.env
-${PYTHON_BIN} -m venv ${TNLCM_FOLDER}/venv
-source ${TNLCM_FOLDER}/venv/bin/activate
-${TNLCM_FOLDER}/venv/bin/pip install -r ${TNLCM_FOLDER}/requirements.txt
-deactivate
 
 # TODO: Fill in the environment variables
 TNLCM_ADMIN_USER=""
@@ -111,7 +115,6 @@ EOF
 
 systemctl enable --now mongo-express.service
 
-cd ${TNLCM_FOLDER}
-source venv/bin/activate
+${POETRY_BIN} shell --directory ${TNLCM_FOLDER}
 
 echo "TNLCM, mongo and mongo-express installed"
