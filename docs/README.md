@@ -13,7 +13,7 @@
 
   [![TNLCM][tnlcm-badge]][tnlcm-url]
 
-  [Wiki](https://github.com/6G-SANDBOX/TNLCM/wiki) · [Report error](https://github.com/6G-SANDBOX/TNLCM/issues/new?assignees=&labels=&projects=&template=bug_report.md) · [Feature request](https://github.com/6G-SANDBOX/TNLCM/issues/new?assignees=&labels=&projects=&template=feature_request.md)
+  [Report error](https://github.com/6G-SANDBOX/TNLCM/issues/new?assignees=&labels=&projects=&template=bug_report.md) · [Feature request](https://github.com/6G-SANDBOX/TNLCM/issues/new?assignees=&labels=&projects=&template=feature_request.md) · [Wiki](https://github.com/6G-SANDBOX/TNLCM/wiki)
 </div>
 
 TNLCM has been designed as a modular application, with the intention of making certain components easily replaceable or extended, while minimizing the effect of changes in other parts of the application. At the same time, there is an emphasis on re-usability, where several data structures and generic logic can be shared between the different components of the application.
@@ -79,7 +79,7 @@ Update the script and add the contents of the following variables:
 
 ### :desktop_computer: Execute installation script
 
-> [!NOTE]  
+> [!NOTE]
 > Execute the script with the **root** user.
 
 Once the environment variables have been filled in, run the script:
@@ -102,7 +102,7 @@ A Swagger UI will be available at the url http://tnlcm-backend-ip:5000 where the
 
 ## 📚 Documentation
 
-Find the complete documentation and usage guides in our [Wiki](https://github.com/6G-SANDBOX/TNLCM/wiki).
+Find the complete documentation and usage guides in our [wiki](https://github.com/6G-SANDBOX/TNLCM/wiki).
 
 ## Contributors <!-- omit in toc -->
 
@@ -113,12 +113,12 @@ Find the complete documentation and usage guides in our [Wiki](https://github.co
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 <!-- Urls, Shields and Badges -->
-[tnlcm-badge]: https://img.shields.io/badge/TNLCM-v0.4.2-blue
-[tnlcm-url]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.4.2
+[tnlcm-badge]: https://img.shields.io/badge/TNLCM-v0.4.3-blue
+[tnlcm-url]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.4.3
 [python-badge]: https://img.shields.io/badge/Python-3.13.0-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB
 [python-url]: https://www.python.org/downloads/release/python-3130/
-[flask-badge]: https://img.shields.io/badge/Flask-3.0.3-brightgreen?style=for-the-badge&logo=flask&logoColor=white&labelColor=000000
-[flask-url]: https://flask.palletsprojects.com/en/3.0.x/
+[flask-badge]: https://img.shields.io/badge/Flask-3.1.0-brightgreen?style=for-the-badge&logo=flask&logoColor=white&labelColor=000000
+[flask-url]: https://flask.palletsprojects.com/en/stable/
 [mongodb-badge]: https://img.shields.io/badge/MongoDB-8.0-green?style=for-the-badge&logo=mongodb&logoColor=white&labelColor=47A248
 [mongodb-url]: https://www.mongodb.com/
 [contributors-shield]: https://img.shields.io/github/contributors/6G-SANDBOX/TNLCM.svg?style=for-the-badge

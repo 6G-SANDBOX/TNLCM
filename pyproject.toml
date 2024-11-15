@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "tnlcm"
-version = "v0.4.2"
+version = "v0.4.3"
 description = "TNLCM has been designed as a modular application, with the intention of making certain components easily replaceable or extended, while minimizing the effect of changes in other parts of the application."
 authors = ["CarlosAndreo <c.andreo@uma.es>"]
 package-mode = false
