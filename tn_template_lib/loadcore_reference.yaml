@@ -1,5 +1,4 @@
 trial_network:
-
   tn_init:
     type: "tn_init"
     dependencies: []
@@ -56,8 +55,6 @@ trial_network:
   loadcore_agent-dn:
     type: "loadcore_agent"
     name: "dn"
-    dependencies:
-      - "vnet-private_oneKE"
     input:
       one_loadcore_agent_networks:
         - "tn_vxlan"
@@ -66,8 +63,6 @@ trial_network:
   loadcore_agent-gnb:
     type: "loadcore_agent"
     name: "gnb"
-    dependencies:
-      - "loadcore_agent-dn"
     input:
       one_loadcore_agent_networks:
         - "tn_vxlan"
