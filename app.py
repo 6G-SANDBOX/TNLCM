@@ -8,7 +8,7 @@ from core.logs.log_handler import log_handler
 from core.mail.mail import init_mail
 from core.database.database import init_db
 from core.routes import callback_namespace, debug_namespace, trial_network_namespace, user_namespace, verification_token_namespace
-from core.utils.file_handler import load_toml
+from core.utils.file_handler import loads_toml
 
 app = Flask(__name__)
 CORS(app)
@@ -18,7 +18,7 @@ app.config.from_object(FlaskConf)
 
 init_db(app)
 init_mail(app)
-__version__ = load_toml("pyproject.toml", "rt", "utf-8")["tool"]["poetry"]["version"]
+__version__ = loads_toml("pyproject.toml", "rt", "utf-8")["tool"]["poetry"]["version"]
 
 api = Api(
     app=app,

@@ -14,7 +14,7 @@ def load_yaml(file_path: str, mode: str, encoding: str) -> dict:
     with open(file_path, mode=mode, encoding=encoding) as yaml_file:
         return yaml.safe_load(yaml_file)
 
-def load_toml(file_path: str, mode: str, encoding: str) -> dict:
+def loads_toml(file_path: str, mode: str, encoding: str) -> dict:
     """
     Load data from a TOML file
 
