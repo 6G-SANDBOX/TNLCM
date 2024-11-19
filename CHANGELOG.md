@@ -1,5 +1,17 @@
 # Changelog
 
+## [unreleased] - 2024-XX-XX
+
+### Added
+
+### Changed
+
+### Fixed
+
+- Validate descriptor evaluate boolean expression.
+
+### Removed
+
 ## [v0.4.3] - 2024-11-15
 
 ### Changed
@@ -207,6 +219,7 @@
 
 - Frontend implementation.
 
+[unreleased]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.3...HEAD
 [v0.4.3]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.2...v0.4.3
 [v0.4.2]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.1...v0.4.2
 [v0.4.1]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.0...v0.4.1
