@@ -217,3 +217,18 @@
 * athens
 * berlin
 * oulu
+
+## [Descriptor 13](./13_descriptor.yaml)
+
+<!-- ![13_descriptor](./images/13_descriptor.png) -->
+
+### Components
+
+* tn_init
+* vnet
+* upf_p4_sw
+* ueransim (gnb and ue separated)
+
+### Platforms
+
+* uma
