@@ -81,7 +81,7 @@ trial_network:
       one_ueransim_ue_gnbSearchList: ""
       one_ueransim_ue_session_apn: "internet"
       one_ueransim_ue_session_sst: 1
-      one_ueransim_ue_session_sd: 1
+      one_ueransim_ue_session_sd: "000001"
       one_ueransim_ue_configured_nssai_sst: 1
       one_ueransim_ue_configured_nssai_sd: "000001"
       one_ueransim_ue_default_nssai_sst: 1
