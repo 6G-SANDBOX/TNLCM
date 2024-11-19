@@ -236,7 +236,7 @@ class TrialNetworkModel(Document):
                 cn = "tn_init"
                 part = "tn_init"
             if part not in tn_components_types:
-                raise CustomTrialNetworkException(f"Component '{cn}'. The type '{part}' is not recognized as a valid type.", 422)
+                raise CustomTrialNetworkException(f"Component '{cn}'. The type '{part}' is not recognized as a valid type", 422)
             if cn not in tn_descriptor:
                 raise CustomTrialNetworkException(f"Component '{cn}' does not exist in the descriptor", 422)
             if "type" not in tn_descriptor[cn]:
