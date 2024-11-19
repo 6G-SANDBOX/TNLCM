@@ -229,28 +229,40 @@ class TrialNetworkModel(Document):
         :return: result of evaluating whether the component type matches the logical expression, ``bool``
         :raises CustomTrialNetworkException:
         """
-        def eval_part(part: str) -> bool:
+        def is_valid_part(part: str) -> bool:
+            """
+            Check if the part of the logical expression is valid
+            
+            :param part: part of the logical expression, ``str``
+            :return: True if the part is valid. Otherwise False, ``bool``
+            """
             part = part.strip()
             cn = component_name
             if (component_name == "tn_vxlan" or component_name == "tn_bastion") and component_name not in tn_descriptor:
                 cn = "tn_init"
                 part = "tn_init"
             if part not in tn_components_types:
-                raise CustomTrialNetworkException(f"Component '{cn}'. The type '{part}' is not recognized as a valid type", 422)
+                return False
             if cn not in tn_descriptor:
-                raise CustomTrialNetworkException(f"Component '{cn}' does not exist in the descriptor", 422)
+                return False
             if "type" not in tn_descriptor[cn]:
-                raise CustomTrialNetworkException(f"Component '{cn}' must have a 'type' field", 422)
+                return False
             if not tn_descriptor[cn]["type"]:
-                raise CustomTrialNetworkException(f"The 'type' field of the component '{cn}' cannot be empty", 422)
+                return False
+            
             return tn_descriptor[cn]["type"] == part
-
+        
         parts = bool_expresion.split(" or ")
+        is_valid = False
         for part in parts:
-            if eval_part(part):
-                return True
+            if is_valid_part(part):
+                is_valid = True
+                break
 
-        return False
+        if not is_valid:
+            raise CustomTrialNetworkException(f"The boolean expression '{bool_expresion}' does not match any valid component type", 422)
+
+        return is_valid
     
     def _validate_list_of_networks(
         self, 
