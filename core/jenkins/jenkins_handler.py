@@ -140,10 +140,10 @@ class JenkinsHandler:
             next_build_number = self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["nextBuildNumber"]
             while not self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["lastCompletedBuild"]:
                 log_handler.info(f"[{self.trial_network.tn_id}] - Deploying '{entity_name}'")
-                sleep(10)
+                sleep(15)
             while next_build_number != self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["lastCompletedBuild"]["number"]:
                 log_handler.info(f"[{self.trial_network.tn_id}] - Deploying '{entity_name}'")
-                sleep(10)
+                sleep(15)
             if self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["lastSuccessfulBuild"]["number"] != next_build_number:
                 raise CustomJenkinsException(f"Pipeline for the entity '{entity_name}' has failed", 500)
             log_handler.info(f"[{self.trial_network.tn_id}] - Entity '{entity_name}' successfully deployed")
