@@ -199,9 +199,9 @@
 * berlin
 * oulu
 
-## [upf](./upf.yaml)
+## [upf_p4](./upf_p4.yaml)
 
-![upf](./images/upf.png)
+![upf_p4](./images/upf_p4.png)
 
 ### Components
 
