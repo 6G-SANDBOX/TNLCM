@@ -6,7 +6,7 @@ authors = ["CarlosAndreo <c.andreo@uma.es>"]
 package-mode = false
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.13"
 ansible-core = "2.18.0"
 email-validator = "2.2.0"
 Flask = "3.1.0"
