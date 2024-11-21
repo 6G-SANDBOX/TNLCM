@@ -6,9 +6,12 @@
 
 ### Changed
 
+- Increase sleep time to verify if the component is deployed in Jenkins.
+- Rename descriptors names in the `tn_template_lib` folder.
+
 ### Fixed
 
-- Validate descriptor evaluate boolean expression.
+- Validate trial network descriptor in evaluate boolean expression.
 
 ### Removed
 

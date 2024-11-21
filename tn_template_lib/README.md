@@ -1,8 +1,8 @@
 # TRIAL NETWORKS
 
-## [Descriptor 1](./01_descriptor.yaml)
+## [tn_vxlan](./tn_vxlan.yaml)
 
-![01_descriptor](./images/01_descriptor.png)
+![tn_vxlan](./images/tn_vxlan.png)
 
 ### Components
 
@@ -15,9 +15,9 @@
 * berlin
 * oulu
 
-## [Descriptor 2](./02_descriptor.yaml)
+## [tn_bastion](./tn_bastion.yaml)
 
-![02_descriptor](./images/02_descriptor.png)
+![tn_bastion](./images/tn_bastion.png)
 
 ### Components
 
@@ -31,9 +31,9 @@
 * berlin
 * oulu
 
-## [Descriptor 3](./03_descriptor.yaml)
+## [tn_init](./tn_init.yaml)
 
-![03_descriptor](./images/03_descriptor.png)
+![tn_init](./images/tn_init.png)
 
 ### Components
 
@@ -46,9 +46,9 @@
 * berlin
 * oulu
 
-## [Descriptor 4](./04_descriptor.yaml)
+## [vm_kvm](./vm_kvm.yaml)
 
-![04_descriptor](./images/04_descriptor.png)
+![vm_kvm](./images/vm_kvm.png)
 
 ### Components
 
@@ -62,9 +62,9 @@
 * berlin
 * oulu
 
-## [Descriptor 5](./05_descriptor.yaml)
+## [oneKE](./oneKE.yaml)
 
-![05_descriptor](./images/05_descriptor.png)
+![oneKE](./images/oneKE.png)
 
 ### Components
 
@@ -79,9 +79,9 @@
 * berlin
 * oulu
 
-## [Descriptor 6](./06_descriptor.yaml)
+## [open5gs](./open5gs.yaml)
 
-![06_descriptor](./images/06_descriptor.png)
+![open5gs](./images/open5gs.png)
 
 ### Components
 
@@ -97,9 +97,9 @@
 * berlin
 * oulu
 
-## [Descriptor 7](./07_descriptor.yaml)
+## [ueransim_split](./ueransim_split.yaml)
 
-![07_descriptor](./images/07_descriptor.png)
+![ueransim_split](./images/ueransim_split.png)
 
 ### Components
 
@@ -116,9 +116,9 @@
 * berlin
 * oulu
 
-## [Descriptor 8](./08_descriptor.yaml)
+## [ueransim-both](./ueransim-both.yaml)
 
-![08_descriptor](./images/08_descriptor.png)
+![ueransim-both](./images/ueransim-both.png)
 
 ### Components
 
@@ -135,9 +135,9 @@
 * berlin
 * oulu
 
-## [Descriptor 9](./09_descriptor.yaml)
+## [tsn](./tsn.yaml)
 
-![09_descriptor](./images/09_descriptor.png)
+![tsn](./images/tsn.png)
 
 ### Components
 
@@ -148,9 +148,9 @@
 
 * uma
 
-## [Descriptor 10](./10_descriptor.yaml)
+## [nokia](./nokia.yaml)
 
-![10_descriptor](./images/10_descriptor.png)
+![nokia](./images/nokia.png)
 
 ### Components
 
@@ -165,9 +165,9 @@
 
 * uma
 
-## [Descriptor 11](./11_descriptor.yaml)
+## [ocf](./ocf.yaml)
 
-![11_descriptor](./images/11_descriptor.png)
+![ocf](./images/ocf.png)
 
 ### Components
 
@@ -183,9 +183,9 @@
 * berlin
 * oulu
 
-## [Descriptor 12](./12_descriptor.yaml)
+## [elcm](./elcm.yaml)
 
-![12_descriptor](./images/12_descriptor.png)
+![elcm](./images/elcm.png)
 
 ### Components
 
@@ -199,7 +199,22 @@
 * berlin
 * oulu
 
-## [Descriptor WP5 - LOADCORE WP5](loadcore_wp5.yaml)
+## [upf](./upf.yaml)
+
+<!-- ![13_descriptor](./images/13_descriptor.png) -->
+
+### Components
+
+* tn_init
+* vnet
+* upf_p4_sw
+* ueransim (gnb and ue separated)
+
+### Platforms
+
+* uma
+
+## [LOADCORE_WP5](loadcore_wp5.yaml)
 
 ![loadcore_wp5](./images/loadcore_wp5.png)
 
@@ -217,18 +232,3 @@
 * athens
 * berlin
 * oulu
-
-## [Descriptor 13](./13_descriptor.yaml)
-
-<!-- ![13_descriptor](./images/13_descriptor.png) -->
-
-### Components
-
-* tn_init
-* vnet
-* upf_p4_sw
-* ueransim (gnb and ue separated)
-
-### Platforms
-
-* uma
