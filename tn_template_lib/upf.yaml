@@ -89,4 +89,15 @@ trial_network:
       one_ueransim_ue_configured_nssai_sst: 1
       one_ueransim_ue_configured_nssai_sd: "000001"
       one_ueransim_ue_default_nssai_sst: 1
-      one_ueransim_ue_default_nssai_sd: "000001" 
+      one_ueransim_ue_default_nssai_sd: "000001"
+  vm_kvm-pdn:
+    type: "vm_kvm"
+    name: "pdn"
+    dependencies:
+      - "tn_init"
+      - "upf_p4_sw-upf"
+    input:
+      one_vm_kvm_size: "small" # extra_large, large, medium, small, very_small
+      one_vm_kvm_networks:
+        - "tn_vxlan"
+        - "vnet-n6"

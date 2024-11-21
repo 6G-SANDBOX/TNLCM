@@ -201,7 +201,7 @@
 
 ## [upf](./upf.yaml)
 
-<!-- ![13_descriptor](./images/13_descriptor.png) -->
+![upf](./images/upf.png)
 
 ### Components
 
@@ -209,6 +209,7 @@
 * vnet
 * upf_p4_sw
 * ueransim (gnb and ue separated)
+* vm_kvm
 
 ### Platforms
 
