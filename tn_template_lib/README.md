@@ -116,9 +116,9 @@
 * berlin
 * oulu
 
-## [ueransim-both](./ueransim-both.yaml)
+## [ueransim_both](./ueransim_both.yaml)
 
-![ueransim-both](./images/ueransim-both.png)
+![ueransim_both](./images/ueransim_both.png)
 
 ### Components
 
