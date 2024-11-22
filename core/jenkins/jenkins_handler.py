@@ -225,10 +225,10 @@ class JenkinsHandler:
         self.jenkins_client.build_job(name=jenkins_destroy_pipeline, parameters=self._jenkins_destroy_parameters(), token=self.jenkins_token)
         last_build_number = self.jenkins_client.get_job_info(name=jenkins_destroy_pipeline)["nextBuildNumber"]
         while not self.jenkins_client.get_job_info(name=jenkins_destroy_pipeline)["lastCompletedBuild"]:
-            log_handler.info(f"[{self.trial_network.tn_id}] - Destroying trial network")
+            log_handler.info(f"[{self.trial_network.tn_id}] - Destroying trial network in '{self.trial_network.deployment_site}' site")
             sleep(15)
         while last_build_number != self.jenkins_client.get_job_info(name=jenkins_destroy_pipeline)["lastCompletedBuild"]["number"]:
-            log_handler.info(f"[{self.trial_network.tn_id}] - Destroying trial network")
+            log_handler.info(f"[{self.trial_network.tn_id}] - Destroying trial network in '{self.trial_network.deployment_site}' site")
             sleep(15)
         if self.jenkins_client.get_job_info(name=jenkins_destroy_pipeline)["lastSuccessfulBuild"]["number"] != last_build_number:
             raise CustomJenkinsException(f"Pipeline for destroy '{self.trial_network.tn_id}' trial network has failed", 500)
