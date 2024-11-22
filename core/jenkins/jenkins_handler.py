@@ -239,6 +239,8 @@ class JenkinsHandler:
 
         :param pipeline_name: name of pipeline, ``str`` 
         """
+        if pipeline_name not in self.get_all_pipelines():
+            raise CustomJenkinsException(f"Pipeline '{pipeline_name}' not found", 404)
         self.jenkins_client.delete_job(pipeline_name)
 
     def get_all_pipelines(self) -> list[str]:
