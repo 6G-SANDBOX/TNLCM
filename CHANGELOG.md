@@ -12,6 +12,7 @@
 ### Fixed
 
 - Validate trial network descriptor in evaluate boolean expression.
+- Different flows according to the possible states that can occur when purge a trial network.
 
 ### Removed
 

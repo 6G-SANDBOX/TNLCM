@@ -326,10 +326,11 @@ class PurgeTrialNetwork(Resource):
             
             if trial_network.state != "validated" and trial_network.state != "destroyed":
                 return {"message": "Trial network cannot be purge because the current status of Trial Network is different to VALIDATED and DESTROYED"}, 400
-
-            jenkins_handler = JenkinsHandler(trial_network=trial_network)
-            jenkins_handler.delete_pipeline(trial_network.jenkins_deploy_pipeline)
-            jenkins_handler.delete_pipeline(trial_network.jenkins_destroy_pipeline)
+            
+            if trial_network.state == "destroyed":
+                jenkins_handler = JenkinsHandler(trial_network=trial_network)
+                jenkins_handler.delete_pipeline(trial_network.jenkins_deploy_pipeline)
+                jenkins_handler.delete_pipeline(trial_network.jenkins_destroy_pipeline)
             rmtree(trial_network.directory_path)
             log_handler.info(f"[{trial_network.tn_id}] - Deleted trial network directory '{trial_network.directory_path}'")
             log_handler.info(f"[{trial_network.tn_id}] - Trial network update to state 'purge'")
