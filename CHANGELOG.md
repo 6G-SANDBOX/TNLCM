@@ -1,8 +1,10 @@
 # Changelog
 
-## [unreleased] - 2024-XX-XX
+## [unreleased] - 2024-11-XX
 
 ### Added
+
+- File `CONTRIBUTING.md` in `tn_template_lib` directory to explain the steps for how to add new descriptors.
 
 ### Changed
 
@@ -13,8 +15,6 @@
 
 - Validate trial network descriptor in evaluate boolean expression.
 - Different flows according to the possible states that can occur when purge a trial network.
-
-### Removed
 
 ## [v0.4.3] - 2024-11-15
 
