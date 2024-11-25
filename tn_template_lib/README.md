@@ -148,9 +148,9 @@
 
 * uma
 
-## [nokia](./nokia.yaml)
+## [nokia_radio](./nokia_radio.yaml)
 
-![nokia](./images/nokia.png)
+![nokia_radio](./images/nokia_radio.png)
 
 ### Components
 
@@ -215,9 +215,9 @@
 
 * uma
 
-## [LOADCORE_WP5](loadcore_wp5.yaml)
+## [loadcore_open5gs_oneKE](loadcore_open5gs_oneKE.yaml)
 
-![loadcore_wp5](./images/loadcore_wp5.png)
+![loadcore_open5gs_oneKE](./images/loadcore_open5gs_oneKE.png)
 
 ### Components
 
@@ -234,9 +234,9 @@
 * berlin
 * oulu
 
-## [LOADCORE_WP5](loadcore_wp5_vm.yaml)
+## [loadcore_open5gs_vm](loadcore_open5gs_vm.yaml)
 
-![loadcore_wp5](./images/loadcore_wp5_vm.png)
+![loadcore_open5gs_vm](./images/loadcore_open5gs_vm.png)
 
 ### Components
 
@@ -252,9 +252,9 @@
 * athens ?
 * oulu ?
 
-## [ueransim_both](./open5gs_vm-ueransim_both.yaml)
+## [open5gs_vm_ueransim_both](./open5gs_vm_ueransim_both.yaml)
 
-![ueransim_both](./images/open5gs_vm-ueransim_both.png)
+![open5gs_vm_ueransim_both](./images/open5gs_vm_ueransim_both.png)
 
 ### Components
 
