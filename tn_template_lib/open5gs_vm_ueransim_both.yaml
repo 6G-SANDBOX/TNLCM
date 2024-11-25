@@ -1,4 +1,5 @@
 trial_network:
+
   tn_init:
     type: "tn_init"
     dependencies: []
@@ -49,7 +50,7 @@ trial_network:
         #- "vnet-randn"
       one_ueransim_run_gnb: "YES"
       one_ueransim_run_ue: "YES"
-      one_ueransim_gnb_linked_open5gs: "open5gs_vm-core" ## this needs TNLCM #64 (https://github.com/6G-SANDBOX/TNLCM/pull/64)
+      one_ueransim_gnb_linked_open5gs: "open5gs_vm-core"
       one_ueransim_gnb_proxy: ""
       one_ueransim_gnb_mcc: "001"
       one_ueransim_gnb_mnc: "01"
