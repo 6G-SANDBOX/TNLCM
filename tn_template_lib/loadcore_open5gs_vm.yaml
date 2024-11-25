@@ -16,9 +16,9 @@ trial_network:
       #one_vnet_gw: "10.10.10.1"
       #one_vnet_dns: "1.1.1.1"
 #######
-  open5gs_vm-core1:
+  open5gs_vm-core:
     type: open5gs_vm
-    name: core1
+    name: core
     dependencies:
      - tn_init
      - vnet-randn
