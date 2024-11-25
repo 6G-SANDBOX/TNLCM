@@ -233,3 +233,39 @@
 * athens
 * berlin
 * oulu
+
+## [LOADCORE_WP5](loadcore_wp5_vm.yaml)
+
+![loadcore_wp5](./images/loadcore_wp5_vm.png)
+
+### Components
+
+* tn_init
+* vnet
+* open5gs_vm
+* loadcore_agent
+
+### Platforms
+
+* berlin
+* uma ?
+* athens ?
+* oulu ?
+
+## [ueransim_both](./open5gs_vm-ueransim_both.yaml)
+
+![ueransim_both](./images/open5gs_vm-ueransim_both.png)
+
+### Components
+
+* tn_init
+* vnet
+* open5gs_vm
+* ueransim (all in one)
+
+### Platforms
+
+* berlin
+* uma ?
+* athens ?
+* oulu ?

@@ -1,0 +1,46 @@
+trial_network:
+  tn_init:
+    type: "tn_init"
+    dependencies: []
+    input: {}
+  vnet-randn:
+    type: "vnet"
+    name: "randn"
+    dependencies:
+      - "tn_init"
+    input:
+      one_vnet_first_ip: "10.10.10.1"
+      one_vnet_netmask: "255.255.255.0"
+      one_vnet_address_size: 100
+      #one_vnet_gw: "10.10.10.1"
+      #one_vnet_dns: "1.1.1.1"
+#######
+  open5gs_vm-core1:
+    type: open5gs_vm
+    name: core1
+    dependencies:
+     - tn_init
+     - vnet-randn
+    input:
+      one_open5gs_vm_size: "small"
+      one_open5gs_vm_networks:
+        - tn_vxlan
+        - vnet-randn
+      one_open5gs_vm_mcc: "001"
+      one_open5gs_vm_mnc: "01"
+      one_open5gs_vm_ue_count: 5
+#######
+  loadcore_agent-dn:
+    type: "loadcore_agent"
+    name: "dn"
+    input:
+      one_loadcore_agent_networks:
+        - "tn_vxlan"
+        - "vnet-randn"
+  loadcore_agent-gnb:
+    type: "loadcore_agent"
+    name: "gnb"
+    input:
+      one_loadcore_agent_networks:
+        - "tn_vxlan"
+        - "vnet-randn"
