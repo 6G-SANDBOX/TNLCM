@@ -47,6 +47,8 @@ JENKINS_PASSWORD=""
 JENKINS_TOKEN=""
 # Ansible password to decrypt file 6G-Sandbox-Sites (not use \" or \' or \`)
 SITES_TOKEN=''
+MAIL_USERNAME=""
+MAIL_PASSWORD=""
 
 sed -i "s/^TNLCM_ADMIN_USER=.*/TNLCM_ADMIN_USER=\"${TNLCM_ADMIN_USER}\"/" ${TNLCM_ENV_FILE}
 sed -i "s/^TNLCM_ADMIN_PASSWORD=.*/TNLCM_ADMIN_PASSWORD=\"${TNLCM_ADMIN_PASSWORD}\"/" ${TNLCM_ENV_FILE}
@@ -56,6 +58,8 @@ sed -i "s/^JENKINS_USERNAME=.*/JENKINS_USERNAME=\"${JENKINS_USERNAME}\"/" ${TNLC
 sed -i "s/^JENKINS_PASSWORD=.*/JENKINS_PASSWORD=\"${JENKINS_PASSWORD}\"/" ${TNLCM_ENV_FILE}
 sed -i "s/^JENKINS_TOKEN=.*/JENKINS_TOKEN=\"${JENKINS_TOKEN}\"/" ${TNLCM_ENV_FILE}
 sed -i "s/^SITES_TOKEN=.*/SITES_TOKEN='${SITES_TOKEN}'/" ${TNLCM_ENV_FILE}
+sed -i "s/^MAIL_USERNAME=.*/MAIL_USERNAME='${MAIL_USERNAME}'/" ${MAIL_USERNAME}
+sed -i "s/^MAIL_PASSWORD=.*/MAIL_PASSWORD='${MAIL_PASSWORD}'/" ${MAIL_PASSWORD}
 
 echo "--------------- Install mongo ---------------"
 MONGODB_VERSION="8.0"
@@ -116,5 +120,7 @@ EOF
 systemctl enable --now mongo-express.service
 
 ${POETRY_BIN} shell --directory ${TNLCM_FOLDER}
+
+cd ${TNLCM_FOLDER}
 
 echo "TNLCM, mongo and mongo-express installed"
