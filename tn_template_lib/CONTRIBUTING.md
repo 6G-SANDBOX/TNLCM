@@ -38,13 +38,11 @@ To add a descriptor file for a trial network, follow these steps:
 
 5. Add the trial network to the [`README.md`](./README.md) file in the [`tn_template_lib`](../tn_template_lib/) folder at the end. 
 
-    4.1. To do this, add a section with the trial network name and its image.
+    5.1. To do this, add a section with the trial network name and its image.
 
-    4.2. Add a list of the components that describe the descriptor of the trial network.
+    5.2. Add a list of the components that describe the descriptor of the trial network.
 
-    4.3. Add a list with the platforms where the trial network can be deployed.
-
-    4.4. Format:
+    5.3. Add a list with the platforms where the trial network can be deployed.
 
     ```markdown
     ## [<component_name>](./<component_name>.yaml)
@@ -66,7 +64,7 @@ To add a descriptor file for a trial network, follow these steps:
 
 6. Submit a pull request with the changes to the `develop` branch and include **@CarlosAndreo** as a reviewer.
 
-    5.1. The pull request must include:
+    6.1. The pull request must include:
     
     * The **descriptor file** for the trial network.
     * The **image** of the trial network.
