@@ -87,7 +87,7 @@ Update the script and add the contents of the following variables:
 Once the environment variables have been filled in, run the script:
 
 ```bash
-chmod 777 deploy_vm.sh
+chmod +x deploy_vm.sh
 ```
 
 ```bash
