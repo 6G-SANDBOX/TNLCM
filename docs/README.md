@@ -76,6 +76,8 @@ Update the script and add the contents of the following variables:
 - `JENKINS_PASSWORD`
 - `JENKINS_TOKEN`
 - `SITES_TOKEN`
+- `MAIL_USERNAME`
+- `MAIL_PASSWORD`
 
 ### :desktop_computer: Execute installation script
 
