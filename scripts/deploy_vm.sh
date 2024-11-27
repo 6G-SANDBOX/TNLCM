@@ -1,8 +1,36 @@
 #!/usr/bin/env bash
 
-echo "========== Starting TNLCM, MongoDB, and Mongo-Express Installation =========="
-
 export DEBIAN_FRONTEND=noninteractive
+
+echo "============================================="
+echo "     🚀 TNLCM INSTALLATION SCRIPT 🚀          "
+echo "============================================="
+
+echo "========== Starting Pre-Checks for Script Execution =========="
+
+echo "Checking if the script is being executed as root..."
+if [[ $EUID -ne 0 ]]; then
+    echo "This script must be run as root. Please use 'sudo' or switch to the root user."
+    exit 1
+else
+    echo "Script is running as root."
+fi
+
+echo "Detecting Ubuntu version..."
+UBUNTU_VERSION=$(lsb_release -rs)
+echo "Detected Ubuntu version: $UBUNTU_VERSION"
+if [[ "$UBUNTU_VERSION" != "22.04" && "$UBUNTU_VERSION" != "24.04" ]]; then
+    echo "Unsupported Ubuntu version: $UBUNTU_VERSION. This script only supports Ubuntu 22.04 LTS and 24.04 LTS."
+    exit 1
+else
+    echo "Ubuntu version $UBUNTU_VERSION is supported."
+fi
+
+echo "Running as root. Ubuntu version detected: $UBUNTU_VERSION."
+
+echo "========== Pre-Checks Completed Successfully =========="
+
+echo "========== Starting TNLCM, MongoDB, and Mongo-Express Installation =========="
 
 echo "Updating package lists..."
 apt-get update
@@ -63,8 +91,9 @@ echo "Prompting user for configuration details..."
 read -p "Enter the TNLCM admin username: " TNLCM_ADMIN_USER
 read -sp "Enter the TNLCM admin password: " TNLCM_ADMIN_PASSWORD
 echo
-read -p "Enter the TNLCM host (example: 10.10.10.10): " TNLCM_HOST
-read -p "Enter the Jenkins host (example: 10.10.10.11): " JENKINS_HOST
+HOST_IP=$(hostname -I | awk '{print $1}')
+read -e -i "${HOST_IP}" -p "Enter the TNLCM host IP (format example: 10.10.10.10): " TNLCM_HOST
+read -p "Enter the Jenkins host IP (format example: 10.10.10.11): " JENKINS_HOST
 read -p "Enter the Jenkins username: " JENKINS_USERNAME
 read -sp "Enter the Jenkins password: " JENKINS_PASSWORD
 echo
