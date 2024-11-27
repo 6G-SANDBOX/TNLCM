@@ -101,11 +101,15 @@ read -sp "Enter the Jenkins token: " JENKINS_TOKEN
 echo
 read -sp "Enter the sites token (not use \" or ' or \`): " SITES_TOKEN
 echo
-echo "Now configure email credentials necessary for TNLCM to send emails for double authentication."
-echo "You can create an email account or use an existing one. It is required to create an app password for the email as indicated in the first section of the following page https://mailtrap.io/blog/flask-send-email-gmail/"
-read -p "Enter the mail username: " MAIL_USERNAME
-read -sp "Enter the mail password: " MAIL_PASSWORD
-echo
+# echo "Now configure two-factor authentication for TNLCM."
+# read -p "Enter if you want to enable two-factor authentication (true/false): " TWO_FACTOR_AUTH
+# if [ "$TWO_FACTOR_AUTH" = "true" ]; then
+    # echo "Now configure email credentials necessary for TNLCM to send emails for double authentication."
+    # echo "You can create an email account or use an existing one. It is required to create an app password for the email as indicated in the first section of the following page https://mailtrap.io/blog/flask-send-email-gmail/"
+    # read -p "Enter the mail username (format example: noreplay@domain.com): " MAIL_USERNAME
+    # read -sp "Enter the mail password: " MAIL_PASSWORD
+    # echo
+# fi
 
 echo "Updating the .env file with the provided information..."
 sed -i "s/^TNLCM_ADMIN_USER=.*/TNLCM_ADMIN_USER=\"${TNLCM_ADMIN_USER}\"/" ${TNLCM_ENV_FILE}
@@ -116,8 +120,9 @@ sed -i "s/^JENKINS_USERNAME=.*/JENKINS_USERNAME=\"${JENKINS_USERNAME}\"/" ${TNLC
 sed -i "s/^JENKINS_PASSWORD=.*/JENKINS_PASSWORD=\"${JENKINS_PASSWORD}\"/" ${TNLCM_ENV_FILE}
 sed -i "s/^JENKINS_TOKEN=.*/JENKINS_TOKEN=\"${JENKINS_TOKEN}\"/" ${TNLCM_ENV_FILE}
 sed -i "s/^SITES_TOKEN=.*/SITES_TOKEN='${SITES_TOKEN}'/" ${TNLCM_ENV_FILE}
-sed -i "s/^MAIL_USERNAME=.*/MAIL_USERNAME='${MAIL_USERNAME}'/" ${TNLCM_ENV_FILE}
-sed -i "s/^MAIL_PASSWORD=.*/MAIL_PASSWORD='${MAIL_PASSWORD}'/" ${TNLCM_ENV_FILE}
+# sed -i "s/^TWO_FACTOR_AUTH=.*/TWO_FACTOR_AUTH='${TWO_FACTOR_AUTH}'/" ${TNLCM_ENV_FILE}
+# sed -i "s/^MAIL_USERNAME=.*/MAIL_USERNAME='${MAIL_USERNAME}'/" ${TNLCM_ENV_FILE}
+# sed -i "s/^MAIL_PASSWORD=.*/MAIL_PASSWORD='${MAIL_PASSWORD}'/" ${TNLCM_ENV_FILE}
 echo "Environment variables successfully configured!"
 
 echo "--------------- Installing MongoDB ---------------"

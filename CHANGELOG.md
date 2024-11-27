@@ -5,6 +5,7 @@
 ### Added
 
 - File `CONTRIBUTING.md` in `tn_template_lib` directory to explain the steps for how to add new descriptors.
+- Possibility of skip two factor authentication.
 
 ### Changed
 
@@ -15,6 +16,7 @@
 
 - Validate trial network descriptor in evaluate boolean expression.
 - Different flows according to the possible states that can occur when purge a trial network.
+- Script `deploy_vm.sh` to install TNLCM and MongoDB in a virtual machine.
 
 ## [v0.4.3] - 2024-11-15
 

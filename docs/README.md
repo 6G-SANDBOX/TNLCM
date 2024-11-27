@@ -24,7 +24,6 @@ TNLCM has been designed as a modular application, with the intention of making c
 - [:hammer\_and\_wrench: Stack](#hammer_and_wrench-stack)
 - [:rocket: Getting Started Locally](#rocket-getting-started-locally)
   - [:inbox\_tray: Download the installation script](#inbox_tray-download-the-installation-script)
-  - [:gear: Configure environment variables](#gear-configure-environment-variables)
   - [:desktop\_computer: Execute installation script](#desktop_computer-execute-installation-script)
   - [:snake: Start server](#snake-start-server)
 - [📚 Documentation](#-documentation)
@@ -36,9 +35,6 @@ TNLCM has been designed as a modular application, with the intention of making c
 - [![MongoDB][mongodb-badge]][mongodb-url] - NoSQL database designed to store Trial Networks.
 
 ## :rocket: Getting Started Locally
-
-> [!NOTE]
-> TNLCM is being developed and tested on Ubuntu in version 24.04 LTS.
 
 > [!IMPORTANT]
 > TNLCM requires the prior installation of:
@@ -59,36 +55,17 @@ TNLCM has been designed as a modular application, with the intention of making c
 
 ### :inbox_tray: Download the installation script
 
-Download the installation script which is [`deploy_vm.sh`](../scripts/deploy_vm.sh) and is located in the `scripts` folder.
-
-### :gear: Configure environment variables
-
-Update the script and add the contents of the following variables:
-
-> [!IMPORTANT]
-> There is a comment **TODO** in the script.
-
-- `TNLCM_ADMIN_USER`
-- `TNLCM_ADMIN_PASSWORD`
-- `TNLCM_HOST`
-- `JENKINS_HOST`
-- `JENKINS_USERNAME`
-- `JENKINS_PASSWORD`
-- `JENKINS_TOKEN`
-- `SITES_TOKEN`
-- `MAIL_USERNAME`
-- `MAIL_PASSWORD`
+Download the installation script which is [`deploy_vm.sh`](../scripts/deploy_vm.sh) and is located in the `scripts` directory.
 
 ### :desktop_computer: Execute installation script
 
-> [!NOTE]
-> Execute the script with the **root** user.
-
-Once the environment variables have been filled in, run the script:
+Give execution permissions to the script:
 
 ```bash
 chmod +x deploy_vm.sh
 ```
+
+Run the script and follow the instructions:
 
 ```bash
 ./deploy_vm.sh
