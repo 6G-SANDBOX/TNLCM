@@ -97,7 +97,7 @@ read -p "Enter the TNLCM admin username: " TNLCM_ADMIN_USER
 read -sp "Enter the TNLCM admin password: " TNLCM_ADMIN_PASSWORD
 echo
 HOST_IP=$(hostname -I | awk '{print $1}')
-read -e -i "${HOST_IP}" -p "Enter the TNLCM host IP (format example: 10.10.10.10): " TNLCM_HOST
+read -e -i ${HOST_IP} -p "Enter the TNLCM host IP (format example: 10.10.10.10): " TNLCM_HOST
 read -p "Enter the Jenkins host IP (format example: 10.10.10.11): " JENKINS_HOST
 read -p "Enter the Jenkins username: " JENKINS_USERNAME
 read -sp "Enter the Jenkins password: " JENKINS_PASSWORD
