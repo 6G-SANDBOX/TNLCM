@@ -6,6 +6,21 @@ echo "============================================="
 echo "     🚀 TNLCM INSTALLATION SCRIPT 🚀          "
 echo "============================================="
 
+echo "============================================="
+echo "               GLOBAL VARIABLES                "
+echo "============================================="
+UBUNTU_VERSION=$(lsb_release -rs)
+PYTHON_VERSION="3.13"
+PYTHON_BIN="python${PYTHON_VERSION}"
+POETRY_FOLDER="/opt/poetry"
+POETRY_BIN="/opt/poetry/bin/poetry"
+TNLCM_FOLDER="/opt/TNLCM"
+TNLCM_ENV_FILE=${TNLCM_FOLDER}/.env
+MONGODB_VERSION="8.0"
+YARN_GLOBAL_LIBRARIES="/opt/yarn_global"
+MONGO_EXPRESS_VERSION="v1.0.2"
+MONGO_EXPRESS_FOLDER=/opt/mongo-express-${MONGO_EXPRESS_VERSION}
+
 echo "========== Starting Pre-Checks for Script Execution =========="
 
 echo "Checking if the script is being executed as root..."
@@ -17,7 +32,6 @@ else
 fi
 
 echo "Detecting Ubuntu version..."
-UBUNTU_VERSION=$(lsb_release -rs)
 echo "Detected Ubuntu version: $UBUNTU_VERSION"
 if [[ "$UBUNTU_VERSION" != "22.04" && "$UBUNTU_VERSION" != "24.04" ]]; then
     echo "Unsupported Ubuntu version: $UBUNTU_VERSION. This script only supports Ubuntu 22.04 LTS and 24.04 LTS."
@@ -44,9 +58,6 @@ else
 fi
 
 echo "--------------- Installing Python ---------------"
-PYTHON_VERSION="3.13"
-PYTHON_BIN="python${PYTHON_VERSION}"
-
 if python3 --version | awk '{print $2}' | grep -qE '^3\.1[3-9]|^[4-9]'; then
     echo "Python ${PYTHON_VERSION} is already installed."
 else
@@ -59,9 +70,6 @@ echo "Installing Python venv module..."
 apt install -y ${PYTHON_BIN}-venv
 
 echo "--------------- Installing Poetry ---------------"
-POETRY_FOLDER="/opt/poetry"
-POETRY_BIN="/opt/poetry/bin/poetry"
-
 if [[ -f ${POETRY_BIN} ]]; then
     echo "Poetry is already installed."
 else
@@ -71,9 +79,6 @@ else
 fi
 
 echo "--------------- Cloning TNLCM Repository ---------------"
-TNLCM_FOLDER="/opt/TNLCM"
-TNLCM_ENV_FILE=${TNLCM_FOLDER}/.env
-
 if [[ -d ${TNLCM_FOLDER} ]]; then
     echo "TNLCM repository already cloned."
 else
@@ -126,8 +131,6 @@ sed -i "s/^SITES_TOKEN=.*/SITES_TOKEN='${SITES_TOKEN}'/" ${TNLCM_ENV_FILE}
 echo "Environment variables successfully configured!"
 
 echo "--------------- Installing MongoDB ---------------"
-MONGODB_VERSION="8.0"
-
 echo "Adding MongoDB repository and installing MongoDB..."
 apt-get install -y gnupg curl
 curl -fsSL https://www.mongodb.org/static/pgp/server-${MONGODB_VERSION}.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-${MONGODB_VERSION}.gpg --dearmor
@@ -145,8 +148,6 @@ apt-get install -y yarn
 echo "Yarn installed successfully."
 
 echo "--------------- Installing dotenv library ---------------"
-YARN_GLOBAL_LIBRARIES="/opt/yarn_global"
-
 yarn config set global-folder ${YARN_GLOBAL_LIBRARIES}
 yarn global add dotenv
 echo "dotenv library installed globally."
@@ -163,9 +164,6 @@ rm nodesource_setup.sh
 echo "Node.js installed successfully."
 
 echo "--------------- Installing Mongo-Express ---------------"
-MONGO_EXPRESS_VERSION="v1.0.2"
-MONGO_EXPRESS_FOLDER=/opt/mongo-express-${MONGO_EXPRESS_VERSION}
-
 echo "Cloning and building Mongo-Express..."
 git clone --depth 1 --branch release/${MONGO_EXPRESS_VERSION} -c advice.detachedHead=false https://github.com/mongo-express/mongo-express.git ${MONGO_EXPRESS_FOLDER}
 cd ${MONGO_EXPRESS_FOLDER}
