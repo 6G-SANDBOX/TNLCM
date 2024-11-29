@@ -63,7 +63,6 @@ trial_network:
       one_loadcore_agent_networks:
         - "tn_vxlan"
         - "vnet-private_oneKE"
-        - "vnet-private_oneKE"
   loadcore_agent-gnb:
     type: "loadcore_agent"
     name: "gnb"
@@ -72,6 +71,5 @@ trial_network:
     input:
       one_loadcore_agent_networks:
         - "tn_vxlan"
-        - "vnet-private_oneKE"
         - "vnet-private_oneKE"
         - "vnet-private_oneKE"

@@ -37,7 +37,7 @@ trial_network:
       one_open5gs_vm_size: "small"
       one_open5gs_vm_external_vnet: "tn_vxlan"
       one_open5gs_vm_internal_vnet:
-        - "vnet-n2"  # network used for n2 and n3 (when list length =1)
+        - "vnet-n2"  # network used for n2 and n3 (when list length=1)
         #- "vnet-n3" # optional network used for n3
       one_open5gs_vm_ue_subnet: "10.45.0.0/16"
       one_open5gs_vm_mcc: "001"
