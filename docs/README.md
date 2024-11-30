@@ -2,6 +2,8 @@
 
 <div align="center">
 
+  # Trial Network Lifecycle Manager <!-- omit in toc -->
+
   [![Contributors][contributors-shield]][contributors-url]
   [![Forks][forks-shield]][forks-url]
   [![Stargazers][stars-shield]][stars-url]
@@ -9,14 +11,14 @@
   <!-- [![MIT License][license-shield]][license-url] -->
   <!-- [![LinkedIn][linkedin-shield]][linkedin-url] -->
 
-  <a href="https://github.com/6G-SANDBOX/TNLCM"><img src="./images/logo.png" width="300" title="TNLCM"></a>
+  <a href="https://github.com/6G-SANDBOX/TNLCM"><img src="./images/logo.png" width="100" title="TNLCM"></a>
 
   [![TNLCM][tnlcm-badge]][tnlcm-url]
 
   [Report error](https://github.com/6G-SANDBOX/TNLCM/issues/new?assignees=&labels=&projects=&template=bug_report.md) · [Feature request](https://github.com/6G-SANDBOX/TNLCM/issues/new?assignees=&labels=&projects=&template=feature_request.md) · [Wiki](https://github.com/6G-SANDBOX/TNLCM/wiki)
 </div>
 
-TNLCM has been designed as a modular application, with the intention of making certain components easily replaceable or extended, while minimizing the effect of changes in other parts of the application. At the same time, there is an emphasis on re-usability, where several data structures and generic logic can be shared between the different components of the application.
+TNLCM (Trial Network Life Cycle Manager) is a tool designed to manage the lifecycle of trial networks in research and development environments, including integration with advanced technologies such as 6G. It provides features for creating, deploying, monitoring, and deleting experimental networks, ensuring efficient resource management. Additionally, it includes an API, a clear MongoDB database schema and support for defining networks through customizable descriptors.
 
 <details>
 <summary>Table of Contents</summary>
@@ -37,7 +39,7 @@ TNLCM has been designed as a modular application, with the intention of making c
 ## :rocket: Getting Started Locally
 
 > [!IMPORTANT]
-> TNLCM requires the prior installation of:
+> TNLCM requires the **prior** installation of:
 > 
 > | Repository       | Release                                                                                |
 > | ---------------- | -------------------------------------------------------------------------------------- |
@@ -46,7 +48,7 @@ TNLCM has been designed as a modular application, with the intention of making c
 > | MinIO            | [2024-07-04](https://github.com/minio/minio/releases/tag/RELEASE.2024-07-04T14-25-45Z) |
 
 > [!TIP]
-> Additionally, TNLCM depends on:
+> Additionally TNLCM depends on:
 >
 > | Repository       | Branch                                                        | Release                                                                   |
 > | ---------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------- |
@@ -77,7 +79,7 @@ Run the script and follow the instructions:
 gunicorn -c conf/gunicorn_conf.py
 ```
 
-A Swagger UI will be available at the url http://tnlcm-backend-ip:5000 where the API with the endpoints can be seen.
+A Swagger UI will be available at the url http://tnlcm-backend-ip:5000 where the API with the endpoints exposed.
 
 ## 📚 Documentation
 
@@ -110,5 +112,5 @@ Find the complete documentation and usage guides in our [wiki](https://github.co
 [issues-url]: https://github.com/6G-SANDBOX/TNLCM/issues
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://
-[license-shield]: https://img.shields.io/badge/license-CC%20BY%204.0-black.svg?style=for-the-badge
+[license-shield]: https://
 [license-url]: https://
