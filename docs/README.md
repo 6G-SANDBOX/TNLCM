@@ -2,7 +2,7 @@
 
 <div align="center">
 
-  # Trial Network Lifecycle Manager <!-- omit in toc -->
+  # TRIAL NETWORK LIFECYCLE MANAGER <!-- omit in toc -->
 
   [![Contributors][contributors-shield]][contributors-url]
   [![Forks][forks-shield]][forks-url]
@@ -18,7 +18,7 @@
   [Report error](https://github.com/6G-SANDBOX/TNLCM/issues/new?assignees=&labels=&projects=&template=bug_report.md) · [Feature request](https://github.com/6G-SANDBOX/TNLCM/issues/new?assignees=&labels=&projects=&template=feature_request.md) · [Wiki](https://github.com/6G-SANDBOX/TNLCM/wiki)
 </div>
 
-TNLCM (Trial Network Life Cycle Manager) is a tool designed to manage the lifecycle of trial networks in research and development environments, including integration with advanced technologies such as 6G. It provides features for creating, deploying, monitoring, and deleting experimental networks, ensuring efficient resource management. Additionally, it includes an API, a clear MongoDB database schema and support for defining networks through customizable descriptors.
+TNLCM (Trial Network Lifecycle Manager) is a tool designed to manage the lifecycle of trial networks in research and development environments, including integration with advanced technologies such as 6G. It provides features for creating, deploying, monitoring, and deleting experimental networks, ensuring efficient resource management. Additionally, it includes an API, a clear MongoDB database schema and support for defining networks through customizable descriptors.
 
 <details>
 <summary>Table of Contents</summary>
