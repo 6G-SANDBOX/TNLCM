@@ -427,7 +427,9 @@ class TrialNetworkModel(Document):
             "tn_id": self.tn_id,
             "deployment_site": self.deployment_site,
             "directory_path": self.directory_path,
+            "github_6g_library_https_url": self.github_6g_library_https_url,
             "github_6g_library_commit_id": self.github_6g_library_commit_id,
+            "github_6g_sandbox_sites_https_url": self.github_6g_sandbox_sites_https_url,
             "github_6g_sandbox_sites_commit_id": self.github_6g_sandbox_sites_commit_id
         }
     
@@ -447,7 +449,9 @@ class TrialNetworkModel(Document):
             "deployment_site": self.deployment_site,
             "input": self.input,
             "output": self.output,
+            "github_6g_library_https_url": self.github_6g_library_https_url,
             "github_6g_library_commit_id": self.github_6g_library_commit_id,
+            "github_6g_sandbox_sites_https_url": self.github_6g_sandbox_sites_https_url,
             "github_6g_sandbox_sites_commit_id": self.github_6g_sandbox_sites_commit_id
         }
 

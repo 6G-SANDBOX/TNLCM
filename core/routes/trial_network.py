@@ -41,6 +41,25 @@ tn_resource_manager_lock = Lock()
 #########################################
 @trial_network_namespace.route("")
 class CreateTrialNetwork(Resource):
+    
+    @trial_network_namespace.doc(security="Bearer Auth")
+    @trial_network_namespace.errorhandler(PyJWTError)
+    @trial_network_namespace.errorhandler(JWTExtendedException)
+    @jwt_required()
+    def get(self):
+        """
+        Retrieve all trial networks
+        """
+        try:
+            current_user = get_current_user_from_jwt(get_jwt_identity())
+            trial_networks = TrialNetworkModel.objects(user_created=current_user.username)
+            if current_user.role == "admin":
+                trial_networks = TrialNetworkModel.objects()
+            return {"trial_networks": [trial_network.to_dict() for trial_network in trial_networks]}, 200
+        except CustomException as e:
+            return {"message": str(e)}, e.error_code
+        except Exception as e:
+            return abort(500, str(e))
 
     parser_post = reqparse.RequestParser()
     parser_post.add_argument("tn_id", type=str, required=False)
