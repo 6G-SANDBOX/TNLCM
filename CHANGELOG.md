@@ -1,11 +1,12 @@
 # Changelog
 
-## [unreleased] - 2024-11-XX
+## [unreleased] - 2024-12-XX
 
 ### Added
 
 - File `CONTRIBUTING.md` in `tn_template_lib` directory to explain the steps for how to add new descriptors.
 - Possibility of skip two factor authentication.
+- Possibility to specify the repository url of 6G-Library and 6G-Sandbox-Sites when create a trial network.
 
 ### Changed
 

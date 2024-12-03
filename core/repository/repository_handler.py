@@ -1,4 +1,5 @@
 import os
+import re
 
 from git import Repo
 
@@ -36,6 +37,20 @@ class RepositoryHandler:
             self.github_https_url = github_https_url.replace("https://", f"https://{github_token}@")
         self.repo = None
         self.github_commit_id = None
+
+    @staticmethod
+    def is_github_repo(url: str) -> bool:
+        """
+        Check if the repository url is a git repository
+
+        :param url: url to be checked, ``str``
+        :return: True if the URL is a valid GitHub repository. Otherwise False, ``bool``
+        """
+        github_url_patterns = [
+            r"^https://github.com/.+/.+\.git$",
+            r"^git@github.com:.+/.+\.git$"
+        ]
+        return any(re.match(pattern, url) for pattern in github_url_patterns)
 
     def git_clone(self) -> None:
         """

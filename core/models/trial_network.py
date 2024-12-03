@@ -32,7 +32,9 @@ class TrialNetworkModel(Document):
     deployment_site = StringField()
     input = DictField(default={})
     output = DictField(default={})
+    github_6g_library_https_url = StringField()
     github_6g_library_commit_id = StringField()
+    github_6g_sandbox_sites_https_url = StringField()
     github_6g_sandbox_sites_commit_id = StringField()
 
     meta = {
@@ -185,6 +187,14 @@ class TrialNetworkModel(Document):
         """
         self.output[entity_name] = entity_data_output
     
+    def set_github_6g_library_https_url(self, github_6g_library_https_url: str) -> None:
+        """
+        Set HTTPS URL from 6G-Library to be used for deploy trial network
+        
+        :param github_6g_library_https_url: HTTPS URL from 6G-Library, ``str``
+        """
+        self.github_6g_library_https_url = github_6g_library_https_url
+    
     def set_github_6g_library_commit_id(self, github_6g_library_commit_id: str) -> None:
         """
         Set commit id from 6G-Library to be used for deploy trial network
@@ -192,6 +202,14 @@ class TrialNetworkModel(Document):
         :param github_6g_library_commit_id: commit ID from 6G-Library, ``str``
         """
         self.github_6g_library_commit_id = github_6g_library_commit_id
+    
+    def set_github_6g_sandbox_sites_https_url(self, github_6g_sandbox_sites_https_url: str) -> None:
+        """
+        Set HTTPS URL from 6G-Sandbox-Sites to be used for deploy trial network
+        
+        :param github_6g_sandbox_sites_https_url: HTTPS URL from 6G-Sandbox-Sites, ``str``
+        """
+        self.github_6g_sandbox_sites_https_url = github_6g_sandbox_sites_https_url
 
     def set_github_6g_sandbox_sites_commit_id(self, github_6g_sandbox_sites_commit_id: str) -> None:
         """

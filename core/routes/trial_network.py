@@ -46,8 +46,10 @@ class CreateTrialNetwork(Resource):
     parser_post.add_argument("tn_id", type=str, required=False)
     parser_post.add_argument("descriptor", location="files", type=FileStorage, required=True)
     parser_post.add_argument("deployment_site", type=str, required=True)
+    parser_post.add_argument("github_6g_library_https_url", type=str, required=True)
     parser_post.add_argument("github_6g_library_reference_type", type=str, required=True, choices=("branch", "commit", "tag"))
     parser_post.add_argument("github_6g_library_reference_value", type=str, required=True)
+    parser_post.add_argument("github_6g_sandbox_sites_https_url", type=str, required=True)
     parser_post.add_argument("github_6g_sandbox_sites_reference_type", type=str, required=True, choices=("branch", "commit", "tag"))
     parser_post.add_argument("github_6g_sandbox_sites_reference_value", type=str, required=True)
 
@@ -67,8 +69,10 @@ class CreateTrialNetwork(Resource):
             tn_id = self.parser_post.parse_args()["tn_id"]
             descriptor_file = self.parser_post.parse_args()["descriptor"]
             deployment_site = self.parser_post.parse_args()["deployment_site"]
+            github_6g_library_https_url = self.parser_post.parse_args()["github_6g_library_https_url"]
             github_6g_library_reference_type = self.parser_post.parse_args()["github_6g_library_reference_type"]
             github_6g_library_reference_value = self.parser_post.parse_args()["github_6g_library_reference_value"]
+            github_6g_sandbox_sites_https_url = self.parser_post.parse_args()["github_6g_sandbox_sites_https_url"]
             github_6g_sandbox_sites_reference_type = self.parser_post.parse_args()["github_6g_sandbox_sites_reference_type"]
             github_6g_sandbox_sites_reference_value = self.parser_post.parse_args()["github_6g_sandbox_sites_reference_value"]
 
@@ -88,7 +92,7 @@ class CreateTrialNetwork(Resource):
             log_handler.info(f"[{trial_network.tn_id}] - Apply the sorting algorithm according to the dependencies of the components specified in the trial network descriptor")
             trial_network.set_sorted_descriptor()
             log_handler.info(f"[{trial_network.tn_id}] - Trial network descriptor sorted")
-            sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type=github_6g_sandbox_sites_reference_type, reference_value=github_6g_sandbox_sites_reference_value, directory_path=directory_path)
+            sixg_sandbox_sites_handler = SixGSandboxSitesHandler(https_url=github_6g_sandbox_sites_https_url, reference_type=github_6g_sandbox_sites_reference_type, reference_value=github_6g_sandbox_sites_reference_value, directory_path=directory_path)
             sixg_sandbox_sites_handler.git_clone()
             log_handler.info(f"[{trial_network.tn_id}] - Git clone '{sixg_sandbox_sites_handler.github_6g_sandbox_sites_repository_name}' repository into '{trial_network.directory_path}'")
             sixg_sandbox_sites_handler.git_checkout()
@@ -103,7 +107,7 @@ class CreateTrialNetwork(Resource):
             log_handler.info(f"[{trial_network.tn_id}] - Validate if the components that make up the descriptor are available on the deployment site '{trial_network.deployment_site}'")
             sixg_sandbox_sites_handler.validate_components_site(tn_id=trial_network.tn_id, deployment_site=trial_network.deployment_site, tn_components_types=tn_components_types)
             log_handler.info(f"[{trial_network.tn_id}] - Descriptor components are available on the deployment site '{trial_network.deployment_site}'")
-            sixg_library_handler = SixGLibraryHandler(reference_type=github_6g_library_reference_type, reference_value=github_6g_library_reference_value, directory_path=directory_path)
+            sixg_library_handler = SixGLibraryHandler(https_url=github_6g_library_https_url, reference_type=github_6g_library_reference_type, reference_value=github_6g_library_reference_value, directory_path=directory_path)
             sixg_library_handler.git_clone()
             log_handler.info(f"[{trial_network.tn_id}] - Git clone '{sixg_library_handler.github_6g_library_repository_name}' repository into '{trial_network.directory_path}'")
             sixg_library_handler.git_checkout()
@@ -114,8 +118,10 @@ class CreateTrialNetwork(Resource):
             log_handler.info(f"[{trial_network.tn_id}] - Validate trial network descriptor")
             trial_network.validate_descriptor(tn_components_types, tn_component_inputs)
             log_handler.info(f"[{trial_network.tn_id}] - Trial network descriptor valid")
-            trial_network.set_github_6g_library_commit_id(sixg_library_handler.github_6g_library_commit_id)
+            trial_network.set_github_6g_sandbox_sites_https_url(sixg_sandbox_sites_handler.github_6g_sandbox_sites_https_url)
             trial_network.set_github_6g_sandbox_sites_commit_id(sixg_sandbox_sites_handler.github_6g_sandbox_sites_commit_id)
+            trial_network.set_github_6g_library_https_url(sixg_library_handler.github_6g_library_https_url)
+            trial_network.set_github_6g_library_commit_id(sixg_library_handler.github_6g_library_commit_id)
             trial_network.set_state("validated")
             trial_network.save()
             log_handler.info(f"[{trial_network.tn_id}] - Trial network update to status '{trial_network.state}'")
@@ -188,7 +194,7 @@ class TrialNetwork(Resource):
                 jenkins_deploy_pipeline = jenkins_handler.generate_jenkins_deploy_pipeline(jenkins_deploy_pipeline)
                 trial_network.set_jenkins_deploy_pipeline(jenkins_deploy_pipeline)
                 trial_network.save()
-                sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type="commit", reference_value=trial_network.github_6g_sandbox_sites_commit_id, directory_path=trial_network.directory_path)
+                sixg_sandbox_sites_handler = SixGSandboxSitesHandler(https_url=trial_network.github_6g_sandbox_sites_https_url, reference_type="commit", reference_value=trial_network.github_6g_sandbox_sites_commit_id, directory_path=trial_network.directory_path)
                 site_available_components = sixg_sandbox_sites_handler.get_site_available_components(deployment_site=trial_network.deployment_site)
                 log_handler.info(f"[{trial_network.tn_id}] - Apply resource manager")
                 resource_manager = ResourceManagerModel()
@@ -219,7 +225,7 @@ class TrialNetwork(Resource):
                 return {"message": f"Trial network ACTIVATED. Report of the trial network can be found in the directory '{report_path}'"}, 200
             elif state == "destroyed":
                 jenkins_handler = JenkinsHandler(trial_network=trial_network)
-                sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type="commit", reference_value=trial_network.github_6g_sandbox_sites_commit_id, directory_path=trial_network.directory_path)
+                sixg_sandbox_sites_handler = SixGSandboxSitesHandler(https_url=trial_network.github_6g_sandbox_sites_https_url, reference_type="commit", reference_value=trial_network.github_6g_sandbox_sites_commit_id, directory_path=trial_network.directory_path)
                 site_available_components = sixg_sandbox_sites_handler.get_site_available_components(deployment_site=trial_network.deployment_site)
                 log_handler.info(f"[{trial_network.tn_id}] - Apply resource manager")
                 resource_manager = ResourceManagerModel()
@@ -279,7 +285,7 @@ class TrialNetwork(Resource):
             if trial_network.state != "activated" and trial_network.state != "failed":
                 return {"message": "Trial network cannot be destroyed because the current status of Trial Network is different to ACTIVATED or FAILED"}, 400
             
-            sixg_library_handler = SixGLibraryHandler(reference_type="commit", reference_value=trial_network.github_6g_library_commit_id, directory_path=trial_network.directory_path)
+            sixg_library_handler = SixGLibraryHandler(https_url=trial_network.github_6g_library_https_url, reference_type="commit", reference_value=trial_network.github_6g_library_commit_id, directory_path=trial_network.directory_path)
             jenkins_handler = JenkinsHandler(trial_network=trial_network, sixg_library_handler=sixg_library_handler)
             jenkins_destroy_pipeline = jenkins_handler.generate_jenkins_destroy_pipeline(jenkins_destroy_pipeline=jenkins_destroy_pipeline)
             trial_network.set_jenkins_destroy_pipeline(jenkins_destroy_pipeline)
