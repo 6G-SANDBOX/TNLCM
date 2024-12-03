@@ -46,10 +46,10 @@ class CreateTrialNetwork(Resource):
     parser_post.add_argument("tn_id", type=str, required=False)
     parser_post.add_argument("descriptor", location="files", type=FileStorage, required=True)
     parser_post.add_argument("deployment_site", type=str, required=True)
-    parser_post.add_argument("github_6g_library_https_url", type=str, required=True)
+    parser_post.add_argument("github_6g_library_https_url", type=str, required=False)
     parser_post.add_argument("github_6g_library_reference_type", type=str, required=True, choices=("branch", "commit", "tag"))
     parser_post.add_argument("github_6g_library_reference_value", type=str, required=True)
-    parser_post.add_argument("github_6g_sandbox_sites_https_url", type=str, required=True)
+    parser_post.add_argument("github_6g_sandbox_sites_https_url", type=str, required=False)
     parser_post.add_argument("github_6g_sandbox_sites_reference_type", type=str, required=True, choices=("branch", "commit", "tag"))
     parser_post.add_argument("github_6g_sandbox_sites_reference_value", type=str, required=True)
 
