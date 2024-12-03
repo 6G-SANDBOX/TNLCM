@@ -8,7 +8,7 @@ from threading import Lock
 from flask_jwt_extended.exceptions import JWTExtendedException
 from jwt.exceptions import PyJWTError
 
-from conf import TnlcmSettings
+from conf import TnlcmSettings, SixGLibrarySettings, SixGSandboxSitesSettings
 from core.auth.auth import get_current_user_from_jwt
 from core.jenkins.jenkins_handler import JenkinsHandler
 from core.logs.log_handler import log_handler
@@ -46,10 +46,10 @@ class CreateTrialNetwork(Resource):
     parser_post.add_argument("tn_id", type=str, required=False)
     parser_post.add_argument("descriptor", location="files", type=FileStorage, required=True)
     parser_post.add_argument("deployment_site", type=str, required=True)
-    parser_post.add_argument("github_6g_library_https_url", type=str, required=False)
+    parser_post.add_argument("github_6g_library_https_url", type=str, required=True, default=SixGLibrarySettings.GITHUB_6G_LIBRARY_HTTPS_URL)
     parser_post.add_argument("github_6g_library_reference_type", type=str, required=True, choices=("branch", "commit", "tag"))
     parser_post.add_argument("github_6g_library_reference_value", type=str, required=True)
-    parser_post.add_argument("github_6g_sandbox_sites_https_url", type=str, required=False)
+    parser_post.add_argument("github_6g_sandbox_sites_https_url", type=str, required=True, default=SixGSandboxSitesSettings.GITHUB_6G_SANDBOX_SITES_HTTPS_URL)
     parser_post.add_argument("github_6g_sandbox_sites_reference_type", type=str, required=True, choices=("branch", "commit", "tag"))
     parser_post.add_argument("github_6g_sandbox_sites_reference_value", type=str, required=True)
 
