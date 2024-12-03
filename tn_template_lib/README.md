@@ -248,9 +248,9 @@
 ### Platforms
 
 * berlin
-* uma ?
-* athens ?
-* oulu ?
+* uma
+* athens
+* oulu
 
 ## [open5gs_vm_ueransim_both](./open5gs_vm_ueransim_both.yaml)
 
@@ -266,6 +266,6 @@
 ### Platforms
 
 * berlin
-* uma ?
-* athens ?
-* oulu ?
+* uma
+* athens
+* oulu
