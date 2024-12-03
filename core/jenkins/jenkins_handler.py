@@ -5,7 +5,7 @@ from time import sleep
 from jenkins import Jenkins
 from requests.exceptions import RequestException
 
-from conf import JenkinsSettings, TnlcmSettings, SixGLibrarySettings, SixGSandboxSitesSettings
+from conf import JenkinsSettings, TnlcmSettings
 from core.logs.log_handler import log_handler
 from core.models import TrialNetworkModel
 from core.sixg_library.sixg_library_handler import SixGLibraryHandler
