@@ -425,6 +425,7 @@ class TrialNetworkModel(Document):
         return {
             "user_created": self.user_created,
             "tn_id": self.tn_id,
+            "state": self.state,
             "deployment_site": self.deployment_site,
             "directory_path": self.directory_path,
             "github_6g_library_https_url": self.github_6g_library_https_url,
