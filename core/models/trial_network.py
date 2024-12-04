@@ -332,10 +332,8 @@ class TrialNetworkModel(Document):
         if "tn_init" in tn_components_types:
             tn_components_types.add("tn_vxlan")
             tn_components_types.add("tn_bastion")
-        elif "tn_vxlan" in tn_components_types and "tn_bastion" in tn_components_types:
+        if "tn_vxlan" in tn_components_types and "tn_bastion" in tn_components_types:
             tn_components_types.add("tn_init")
-        else:
-            raise CustomTrialNetworkException(f"Mandatory components of trial network required", 404)
         for entity_name, entity_data in tn_descriptor.items():
             if len(entity_name) <= 0:
                 raise CustomTrialNetworkException(f"There is an empty entity name in the trial network", 422)
