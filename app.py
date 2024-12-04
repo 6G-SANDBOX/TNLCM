@@ -3,7 +3,7 @@ from flask_restx import Api
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 
-from conf import TnlcmSettings, FlaskConf
+from conf import TnlcmSettings, FlaskConf, MailSettings
 from core.logs.log_handler import log_handler
 from core.mail.mail import init_mail
 from core.database.database import init_db
@@ -17,7 +17,7 @@ JWTManager(app)
 app.config.from_object(FlaskConf)
 
 init_db(app)
-if FlaskConf.TWO_FACTOR_AUTH:
+if MailSettings.TWO_FACTOR_AUTH:
     init_mail(app)
 __version__ = loads_toml("pyproject.toml", "rt", "utf-8")["tool"]["poetry"]["version"]
 
@@ -34,7 +34,7 @@ if FlaskConf.FLASK_ENV == "development":
     api.add_namespace(debug_namespace, path="/tnlcm/debug")
 api.add_namespace(trial_network_namespace, path="/tnlcm/trial-network")
 api.add_namespace(user_namespace, path="/tnlcm/user")
-if not FlaskConf.TWO_FACTOR_AUTH:
+if not MailSettings.TWO_FACTOR_AUTH:
     api.add_namespace(user_no_two_factor_namespace, path="/tnlcm/user")
 else:
     api.add_namespace(verification_token_namespace, path="/tnlcm/verification-token")

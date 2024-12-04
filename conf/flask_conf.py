@@ -2,7 +2,7 @@ import os
 
 from core.logs.log_handler import log_handler
 from conf import MailSettings, MongoDBSettings
-from core.exceptions.exceptions_handler import UndefinedEnvVariableError
+from core.exceptions.exceptions_handler import InvalidEnvVariableError
 
 class FlaskConf(object):
     """
@@ -17,9 +17,8 @@ class FlaskConf(object):
     ME_CONFIG_MONGODB_URL = MongoDBSettings.ME_CONFIG_MONGODB_URL
     FLASK_ENV=os.getenv("FLASK_ENV")
     if FLASK_ENV != "production" and FLASK_ENV != "development":
-        raise UndefinedEnvVariableError(["FLASK_ENV"])
-    TWO_FACTOR_AUTH=MailSettings.TWO_FACTOR_AUTH
-    if not TWO_FACTOR_AUTH:
+        raise InvalidEnvVariableError("FLASK_ENV", ["production", "development"])
+    if not MailSettings.TWO_FACTOR_AUTH:
         config_dict = {
             "DEBUG": DEBUG,
             "TESTING": TESTING,

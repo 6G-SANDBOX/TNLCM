@@ -3,7 +3,7 @@ import os
 from email_validator import validate_email, EmailNotValidError
 
 from core.logs.log_handler import log_handler
-from core.exceptions.exceptions_handler import UndefinedEnvVariableError
+from core.exceptions.exceptions_handler import UndefinedEnvVariableError, InvalidEnvVariableError
 
 def str_to_bool(s: str) -> bool:
     """
@@ -20,6 +20,8 @@ class MailSettings:
     """
 
     TWO_FACTOR_AUTH=os.getenv("TWO_FACTOR_AUTH")
+    if TWO_FACTOR_AUTH != "True" and TWO_FACTOR_AUTH != "False":
+        raise InvalidEnvVariableError("TWO_FACTOR_AUTH", ["True", "False"])
     TWO_FACTOR_AUTH=str_to_bool(TWO_FACTOR_AUTH)
     if not TWO_FACTOR_AUTH:
         log_handler.info("Two Factor Authentication is disabled")
