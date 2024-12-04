@@ -22,6 +22,12 @@ class UndefinedEnvVariableError(CustomException):
         message = f"Set the value of the variables {', '.join(missing_variables)} in the .env file"
         super().__init__(message, 500)
 
+class InvalidEnvVariableError(CustomException):
+    """Error thrown when the variables are invalid in the .env file"""
+    def __init__(self, variable, possible_values):
+        message = f"Possible values for the variable {variable} are {', '.join(possible_values)}"
+        super().__init__(message, 500)
+
 ###################################
 ######## MongoDB exception ########
 ###################################
