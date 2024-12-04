@@ -30,7 +30,7 @@ services:
 
   tnlcm:
     container_name: tnlcm
-    image: tnlcm:0.4.3
+    image: tnlcm:0.4.4
     ports:
       - ${TNLCM_PORT}:${TNLCM_PORT}
     build: 

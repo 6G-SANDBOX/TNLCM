@@ -1,17 +1,20 @@
 # Changelog
 
-## [unreleased] - 2024-12-XX
+## [v0.4.4] - 2024-12-04
 
 ### Added
 
 - File `CONTRIBUTING.md` in `tn_template_lib` directory to explain the steps for how to add new descriptors.
 - Possibility of skip two factor authentication.
-- Possibility to specify the repository url of 6G-Library and 6G-Sandbox-Sites when create a trial network.
+- Endpoint that enable download report file of trial network in pdf format.
+- `FLASK_ENV` variable in `.env` file to set the environment of the application.
+- If `FLASK_ENV=development` can specify the repository url of 6G-Library and 6G-Sandbox-Sites when create a trial network.
 
 ### Changed
 
 - Increase sleep time to verify if the component is deployed in Jenkins.
 - Rename descriptors names in the `tn_template_lib` folder.
+- If `FLASK_ENV=development` Swagger UI show `debug` namespace.
 
 ### Fixed
 
@@ -226,7 +229,7 @@
 
 - Frontend implementation.
 
-[unreleased]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.3...HEAD
+[v0.4.4]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.3...v0.4.4
 [v0.4.3]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.2...v0.4.3
 [v0.4.2]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.1...v0.4.2
 [v0.4.1]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.0...v0.4.1

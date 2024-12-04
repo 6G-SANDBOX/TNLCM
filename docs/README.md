@@ -94,8 +94,8 @@ Find the complete documentation and usage guides in our [wiki](https://github.co
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 <!-- Urls, Shields and Badges -->
-[tnlcm-badge]: https://img.shields.io/badge/TNLCM-v0.4.3-blue
-[tnlcm-url]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.4.3
+[tnlcm-badge]: https://img.shields.io/badge/TNLCM-v0.4.4-blue
+[tnlcm-url]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.4.4
 [python-badge]: https://img.shields.io/badge/Python-3.13.0-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB
 [python-url]: https://www.python.org/downloads/release/python-3130/
 [flask-badge]: https://img.shields.io/badge/Flask-3.1.0-brightgreen?style=for-the-badge&logo=flask&logoColor=white&labelColor=000000
