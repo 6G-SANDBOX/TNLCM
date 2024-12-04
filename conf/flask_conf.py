@@ -2,6 +2,7 @@ import os
 
 from core.logs.log_handler import log_handler
 from conf import MailSettings, MongoDBSettings
+from core.exceptions.exceptions_handler import UndefinedEnvVariableError
 
 class FlaskConf(object):
     """
@@ -14,7 +15,9 @@ class FlaskConf(object):
     ERROR_404_HELP = False
 
     ME_CONFIG_MONGODB_URL = MongoDBSettings.ME_CONFIG_MONGODB_URL
-    
+    FLASK_ENV=os.getenv("FLASK_ENV")
+    if FLASK_ENV != "production" and FLASK_ENV != "development":
+        raise UndefinedEnvVariableError(["FLASK_ENV"])
     TWO_FACTOR_AUTH=MailSettings.TWO_FACTOR_AUTH
     if not TWO_FACTOR_AUTH:
         config_dict = {

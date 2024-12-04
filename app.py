@@ -30,7 +30,8 @@ api = Api(
 )
 
 api.add_namespace(callback_namespace, path="/tnlcm/callback")
-api.add_namespace(debug_namespace, path="/tnlcm/debug")
+if FlaskConf.FLASK_ENV == "development":
+    api.add_namespace(debug_namespace, path="/tnlcm/debug")
 api.add_namespace(trial_network_namespace, path="/tnlcm/trial-network")
 api.add_namespace(user_namespace, path="/tnlcm/user")
 if not FlaskConf.TWO_FACTOR_AUTH:
