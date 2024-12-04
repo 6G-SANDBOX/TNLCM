@@ -6,7 +6,7 @@
 
 - File `CONTRIBUTING.md` in `tn_template_lib` directory to explain the steps for how to add new descriptors.
 - Possibility of skip two factor authentication.
-- Endpoint that enable download report file of trial network in pdf format.
+- Endpoint that enable download report file of trial network in mardown format.
 - `FLASK_ENV` variable in `.env` file to set the environment of the application.
 - If `FLASK_ENV=development` can specify the repository url of 6G-Library and 6G-Sandbox-Sites when create a trial network.
 

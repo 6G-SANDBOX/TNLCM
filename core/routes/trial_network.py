@@ -8,7 +8,6 @@ from werkzeug.datastructures import FileStorage
 from threading import Lock
 from flask_jwt_extended.exceptions import JWTExtendedException
 from jwt.exceptions import PyJWTError
-from md2pdf.core import md2pdf
 
 from conf import TnlcmSettings, SixGLibrarySettings, SixGSandboxSitesSettings, FlaskConf
 from core.auth.auth import get_current_user_from_jwt
@@ -215,8 +214,6 @@ class TrialNetwork(Resource):
                 jenkins_handler.trial_network_deployment()
                 log_handler.info(f"[{trial_network.tn_id}] - End deployment of the trial network using Jenkins")
                 report_path = os.path.join(f"{trial_network.directory_path}", f"{trial_network.tn_id}.md")
-                report_path_pdf = os.path.join(f"{trial_network.directory_path}", f"{trial_network.tn_id}.pdf")
-                md2pdf(pdf_file_path=report_path_pdf, md_file_path=report_path)
                 trial_network.set_report(report_path)
                 trial_network.set_state("activated")
                 trial_network.save()
@@ -435,16 +432,16 @@ class DownloadReportTrialNetwork(Resource):
             if trial_network.report == "":
                 return {"message": "Trial network report is empty"}, 404
             
-            file_name_pdf = f"{trial_network.tn_id}.pdf"
-            report_path_pdf = os.path.join(trial_network.directory_path, file_name_pdf)
+            file_name = f"{trial_network.tn_id}.md"
+            report_path_md = os.path.join(trial_network.directory_path, file_name)
 
-            if not os.path.exists(report_path_pdf):
-                return {"message": f"Report file '{file_name_pdf}' not found at '{report_path_pdf}'"}, 404
+            if not os.path.exists(report_path_md):
+                return {"message": f"Report file '{file_name}' not found at '{report_path_md}'"}, 404
             
             return send_file(
-                report_path_pdf,
+                report_path_md,
                 as_attachment=True,
-                download_name=file_name_pdf,
+                download_name=file_name,
                 mimetype="application/octet-stream"
             )
         except CustomException as e:
