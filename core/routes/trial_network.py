@@ -8,6 +8,7 @@ from werkzeug.datastructures import FileStorage
 from threading import Lock
 from flask_jwt_extended.exceptions import JWTExtendedException
 from jwt.exceptions import PyJWTError
+from md2pdf.core import md2pdf
 
 from conf import TnlcmSettings, SixGLibrarySettings, SixGSandboxSitesSettings, FlaskConf
 from core.auth.auth import get_current_user_from_jwt
@@ -49,14 +50,10 @@ class CreateTrialNetwork(Resource):
     parser_post.add_argument("deployment_site", type=str, required=True)
     if FlaskConf.FLASK_ENV == "development":
         parser_post.add_argument("github_6g_library_https_url", type=str, required=True, default=SixGLibrarySettings.GITHUB_6G_LIBRARY_HTTPS_URL)
-    else:
-        parser_post.add_argument("github_6g_library_https_url", type=str, required=True)
     parser_post.add_argument("github_6g_library_reference_type", type=str, required=True, choices=("branch", "commit", "tag"))
     parser_post.add_argument("github_6g_library_reference_value", type=str, required=True)
     if FlaskConf.FLASK_ENV == "development":
         parser_post.add_argument("github_6g_sandbox_sites_https_url", type=str, required=True, default=SixGSandboxSitesSettings.GITHUB_6G_SANDBOX_SITES_HTTPS_URL)
-    else:
-        parser_post.add_argument("github_6g_sandbox_sites_https_url", type=str, required=True)
     parser_post.add_argument("github_6g_sandbox_sites_reference_type", type=str, required=True, choices=("branch", "commit", "tag"))
     parser_post.add_argument("github_6g_sandbox_sites_reference_value", type=str, required=True)
 
@@ -76,10 +73,16 @@ class CreateTrialNetwork(Resource):
             tn_id = self.parser_post.parse_args()["tn_id"]
             descriptor_file = self.parser_post.parse_args()["descriptor"]
             deployment_site = self.parser_post.parse_args()["deployment_site"]
-            github_6g_library_https_url = self.parser_post.parse_args()["github_6g_library_https_url"]
+            if FlaskConf.FLASK_ENV == "development":
+                github_6g_library_https_url = self.parser_post.parse_args()["github_6g_library_https_url"]
+            else:
+                github_6g_library_https_url = SixGLibrarySettings.GITHUB_6G_LIBRARY_HTTPS_URL
             github_6g_library_reference_type = self.parser_post.parse_args()["github_6g_library_reference_type"]
             github_6g_library_reference_value = self.parser_post.parse_args()["github_6g_library_reference_value"]
-            github_6g_sandbox_sites_https_url = self.parser_post.parse_args()["github_6g_sandbox_sites_https_url"]
+            if FlaskConf.FLASK_ENV == "development":
+                github_6g_sandbox_sites_https_url = self.parser_post.parse_args()["github_6g_sandbox_sites_https_url"]
+            else:
+                github_6g_sandbox_sites_https_url = SixGSandboxSitesSettings.GITHUB_6G_SANDBOX_SITES_HTTPS_URL
             github_6g_sandbox_sites_reference_type = self.parser_post.parse_args()["github_6g_sandbox_sites_reference_type"]
             github_6g_sandbox_sites_reference_value = self.parser_post.parse_args()["github_6g_sandbox_sites_reference_value"]
 
@@ -212,6 +215,7 @@ class TrialNetwork(Resource):
                 jenkins_handler.trial_network_deployment()
                 log_handler.info(f"[{trial_network.tn_id}] - End deployment of the trial network using Jenkins")
                 report_path = os.path.join(f"{trial_network.directory_path}", f"{trial_network.tn_id}.md")
+                md2pdf(report_path, os.path.join(f"{trial_network.directory_path}", f"{trial_network.tn_id}.pdf"))
                 trial_network.set_report(report_path)
                 trial_network.set_state("activated")
                 trial_network.save()
@@ -430,16 +434,16 @@ class DownloadReportTrialNetwork(Resource):
             if trial_network.report == "":
                 return {"message": "Trial network report is empty"}, 404
             
-            file_name = f"{trial_network.tn_id}.md"
-            report_path = os.path.join(trial_network.directory_path, file_name)
+            file_name_pdf = f"{trial_network.tn_id}.pdf"
+            report_path_pdf = os.path.join(trial_network.directory_path, file_name_pdf)
 
-            if not os.path.exists(report_path):
-                return {"message": f"Report file '{file_name}' not found at '{report_path}'"}, 404
+            if not os.path.exists(report_path_pdf):
+                return {"message": f"Report file '{file_name_pdf}' not found at '{report_path_pdf}'"}, 404
             
             return send_file(
-                report_path,
+                report_path_pdf,
                 as_attachment=True,
-                download_name=file_name,
+                download_name=file_name_pdf,
                 mimetype="application/octet-stream"
             )
         except CustomException as e:
