@@ -1,5 +1,27 @@
 # Changelog
 
+## [v0.4.4] - 2024-12-04
+
+### Added
+
+- File `CONTRIBUTING.md` in `tn_template_lib` directory to explain the steps for how to add new descriptors.
+- Possibility of skip two factor authentication.
+- Endpoint that enable download report file of trial network in mardown format.
+- `FLASK_ENV` variable in `.env` file to set the environment of the application.
+- If `FLASK_ENV=development` can specify the repository url of 6G-Library and 6G-Sandbox-Sites when create a trial network.
+
+### Changed
+
+- Increase sleep time to verify if the component is deployed in Jenkins.
+- Rename descriptors names in the `tn_template_lib` folder.
+- If `FLASK_ENV=development` Swagger UI show `debug` namespace.
+
+### Fixed
+
+- Validate trial network descriptor in evaluate boolean expression.
+- Different flows according to the possible states that can occur when purge a trial network.
+- Script `deploy_vm.sh` to install TNLCM and MongoDB in a virtual machine.
+
 ## [v0.4.3] - 2024-11-15
 
 ### Changed
@@ -207,6 +229,7 @@
 
 - Frontend implementation.
 
+[v0.4.4]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.3...v0.4.4
 [v0.4.3]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.2...v0.4.3
 [v0.4.2]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.1...v0.4.2
 [v0.4.1]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.0...v0.4.1

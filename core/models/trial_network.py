@@ -32,7 +32,9 @@ class TrialNetworkModel(Document):
     deployment_site = StringField()
     input = DictField(default={})
     output = DictField(default={})
+    github_6g_library_https_url = StringField()
     github_6g_library_commit_id = StringField()
+    github_6g_sandbox_sites_https_url = StringField()
     github_6g_sandbox_sites_commit_id = StringField()
 
     meta = {
@@ -185,6 +187,14 @@ class TrialNetworkModel(Document):
         """
         self.output[entity_name] = entity_data_output
     
+    def set_github_6g_library_https_url(self, github_6g_library_https_url: str) -> None:
+        """
+        Set HTTPS URL from 6G-Library to be used for deploy trial network
+        
+        :param github_6g_library_https_url: HTTPS URL from 6G-Library, ``str``
+        """
+        self.github_6g_library_https_url = github_6g_library_https_url
+    
     def set_github_6g_library_commit_id(self, github_6g_library_commit_id: str) -> None:
         """
         Set commit id from 6G-Library to be used for deploy trial network
@@ -192,6 +202,14 @@ class TrialNetworkModel(Document):
         :param github_6g_library_commit_id: commit ID from 6G-Library, ``str``
         """
         self.github_6g_library_commit_id = github_6g_library_commit_id
+    
+    def set_github_6g_sandbox_sites_https_url(self, github_6g_sandbox_sites_https_url: str) -> None:
+        """
+        Set HTTPS URL from 6G-Sandbox-Sites to be used for deploy trial network
+        
+        :param github_6g_sandbox_sites_https_url: HTTPS URL from 6G-Sandbox-Sites, ``str``
+        """
+        self.github_6g_sandbox_sites_https_url = github_6g_sandbox_sites_https_url
 
     def set_github_6g_sandbox_sites_commit_id(self, github_6g_sandbox_sites_commit_id: str) -> None:
         """
@@ -229,28 +247,40 @@ class TrialNetworkModel(Document):
         :return: result of evaluating whether the component type matches the logical expression, ``bool``
         :raises CustomTrialNetworkException:
         """
-        def eval_part(part: str) -> bool:
+        def is_valid_part(part: str) -> bool:
+            """
+            Check if the part of the logical expression is valid
+            
+            :param part: part of the logical expression, ``str``
+            :return: True if the part is valid. Otherwise False, ``bool``
+            """
             part = part.strip()
             cn = component_name
             if (component_name == "tn_vxlan" or component_name == "tn_bastion") and component_name not in tn_descriptor:
                 cn = "tn_init"
                 part = "tn_init"
             if part not in tn_components_types:
-                raise CustomTrialNetworkException(f"Component '{cn}'. The type '{part}' is not recognized as a valid type.", 422)
+                return False
             if cn not in tn_descriptor:
-                raise CustomTrialNetworkException(f"Component '{cn}' does not exist in the descriptor", 422)
+                return False
             if "type" not in tn_descriptor[cn]:
-                raise CustomTrialNetworkException(f"Component '{cn}' must have a 'type' field", 422)
+                return False
             if not tn_descriptor[cn]["type"]:
-                raise CustomTrialNetworkException(f"The 'type' field of the component '{cn}' cannot be empty", 422)
+                return False
+            
             return tn_descriptor[cn]["type"] == part
-
+        
         parts = bool_expresion.split(" or ")
+        is_valid = False
         for part in parts:
-            if eval_part(part):
-                return True
+            if is_valid_part(part):
+                is_valid = True
+                break
 
-        return False
+        if not is_valid:
+            raise CustomTrialNetworkException(f"The boolean expression '{bool_expresion}' does not match any valid component type", 422)
+
+        return is_valid
     
     def _validate_list_of_networks(
         self, 
@@ -302,10 +332,8 @@ class TrialNetworkModel(Document):
         if "tn_init" in tn_components_types:
             tn_components_types.add("tn_vxlan")
             tn_components_types.add("tn_bastion")
-        elif "tn_vxlan" in tn_components_types and "tn_bastion" in tn_components_types:
+        if "tn_vxlan" in tn_components_types and "tn_bastion" in tn_components_types:
             tn_components_types.add("tn_init")
-        else:
-            raise CustomTrialNetworkException(f"Mandatory components of trial network required", 404)
         for entity_name, entity_data in tn_descriptor.items():
             if len(entity_name) <= 0:
                 raise CustomTrialNetworkException(f"There is an empty entity name in the trial network", 422)
@@ -395,9 +423,12 @@ class TrialNetworkModel(Document):
         return {
             "user_created": self.user_created,
             "tn_id": self.tn_id,
+            "state": self.state,
             "deployment_site": self.deployment_site,
             "directory_path": self.directory_path,
+            "github_6g_library_https_url": self.github_6g_library_https_url,
             "github_6g_library_commit_id": self.github_6g_library_commit_id,
+            "github_6g_sandbox_sites_https_url": self.github_6g_sandbox_sites_https_url,
             "github_6g_sandbox_sites_commit_id": self.github_6g_sandbox_sites_commit_id
         }
     
@@ -417,7 +448,9 @@ class TrialNetworkModel(Document):
             "deployment_site": self.deployment_site,
             "input": self.input,
             "output": self.output,
+            "github_6g_library_https_url": self.github_6g_library_https_url,
             "github_6g_library_commit_id": self.github_6g_library_commit_id,
+            "github_6g_sandbox_sites_https_url": self.github_6g_sandbox_sites_https_url,
             "github_6g_sandbox_sites_commit_id": self.github_6g_sandbox_sites_commit_id
         }
 

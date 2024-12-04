@@ -5,7 +5,7 @@ from time import sleep
 from jenkins import Jenkins
 from requests.exceptions import RequestException
 
-from conf import JenkinsSettings, TnlcmSettings, SixGLibrarySettings, SixGSandboxSitesSettings
+from conf import JenkinsSettings, TnlcmSettings
 from core.logs.log_handler import log_handler
 from core.models import TrialNetworkModel
 from core.sixg_library.sixg_library_handler import SixGLibraryHandler
@@ -96,9 +96,9 @@ class JenkinsHandler:
             "DEPLOYMENT_SITE": self.trial_network.deployment_site,
             "TNLCM_CALLBACK": self.tnlcm_callback,
             # OPTIONAL
-            "LIBRARY_URL": SixGLibrarySettings.GITHUB_6G_LIBRARY_HTTPS_URL,
+            "LIBRARY_URL": self.trial_network.github_6g_library_https_url,
             "LIBRARY_BRANCH": self.trial_network.github_6g_library_commit_id,
-            "SITES_URL": SixGSandboxSitesSettings.GITHUB_6G_SANDBOX_SITES_HTTPS_URL,
+            "SITES_URL": self.trial_network.github_6g_sandbox_sites_https_url,
             "SITES_BRANCH": self.trial_network.github_6g_sandbox_sites_commit_id,
             "DEBUG": debug
         }
@@ -139,11 +139,11 @@ class JenkinsHandler:
                 raise CustomJenkinsException(f"Error in the response received by Jenkins when trying to deploy the '{entity_name}' entity", response.status_code)
             next_build_number = self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["nextBuildNumber"]
             while not self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["lastCompletedBuild"]:
-                log_handler.info(f"[{self.trial_network.tn_id}] - Deploying '{entity_name}'")
-                sleep(10)
+                log_handler.info(f"[{self.trial_network.tn_id}] - Deploying '{entity_name}' in '{self.trial_network.deployment_site}' site")
+                sleep(15)
             while next_build_number != self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["lastCompletedBuild"]["number"]:
-                log_handler.info(f"[{self.trial_network.tn_id}] - Deploying '{entity_name}'")
-                sleep(10)
+                log_handler.info(f"[{self.trial_network.tn_id}] - Deploying '{entity_name}' in '{self.trial_network.deployment_site}' site")
+                sleep(15)
             if self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["lastSuccessfulBuild"]["number"] != next_build_number:
                 raise CustomJenkinsException(f"Pipeline for the entity '{entity_name}' has failed", 500)
             log_handler.info(f"[{self.trial_network.tn_id}] - Entity '{entity_name}' successfully deployed")
@@ -207,9 +207,9 @@ class JenkinsHandler:
             "DEPLOYMENT_SITE": self.trial_network.deployment_site,
             "TNLCM_CALLBACK": self.tnlcm_callback,
             # OPTIONAL
-            "LIBRARY_URL": SixGLibrarySettings.GITHUB_6G_LIBRARY_HTTPS_URL,
+            "LIBRARY_URL": self.trial_network.github_6g_library_https_url,
             "LIBRARY_BRANCH": self.trial_network.github_6g_library_commit_id,
-            "SITES_URL": SixGSandboxSitesSettings.GITHUB_6G_SANDBOX_SITES_HTTPS_URL,
+            "SITES_URL": self.trial_network.github_6g_sandbox_sites_https_url,
             "SITES_BRANCH": self.trial_network.github_6g_sandbox_sites_commit_id,
             # "SCRIPTED_DESTROY_COMPONENTS": entities_with_destroy_script
             # "DEBUG": true
@@ -225,10 +225,10 @@ class JenkinsHandler:
         self.jenkins_client.build_job(name=jenkins_destroy_pipeline, parameters=self._jenkins_destroy_parameters(), token=self.jenkins_token)
         last_build_number = self.jenkins_client.get_job_info(name=jenkins_destroy_pipeline)["nextBuildNumber"]
         while not self.jenkins_client.get_job_info(name=jenkins_destroy_pipeline)["lastCompletedBuild"]:
-            log_handler.info(f"[{self.trial_network.tn_id}] - Destroying trial network")
+            log_handler.info(f"[{self.trial_network.tn_id}] - Destroying trial network in '{self.trial_network.deployment_site}' site")
             sleep(15)
         while last_build_number != self.jenkins_client.get_job_info(name=jenkins_destroy_pipeline)["lastCompletedBuild"]["number"]:
-            log_handler.info(f"[{self.trial_network.tn_id}] - Destroying trial network")
+            log_handler.info(f"[{self.trial_network.tn_id}] - Destroying trial network in '{self.trial_network.deployment_site}' site")
             sleep(15)
         if self.jenkins_client.get_job_info(name=jenkins_destroy_pipeline)["lastSuccessfulBuild"]["number"] != last_build_number:
             raise CustomJenkinsException(f"Pipeline for destroy '{self.trial_network.tn_id}' trial network has failed", 500)
@@ -239,7 +239,10 @@ class JenkinsHandler:
 
         :param pipeline_name: name of pipeline, ``str`` 
         """
-        self.jenkins_client.delete_job(pipeline_name)
+        if pipeline_name not in self.get_all_pipelines():
+            raise CustomJenkinsException(f"Pipeline '{pipeline_name}' not found", 404)
+        if pipeline_name != JenkinsSettings.JENKINS_DEPLOY_PIPELINE and pipeline_name != JenkinsSettings.JENKINS_DESTROY_PIPELINE:
+            self.jenkins_client.delete_job(pipeline_name)
 
     def get_all_pipelines(self) -> list[str]:
         """

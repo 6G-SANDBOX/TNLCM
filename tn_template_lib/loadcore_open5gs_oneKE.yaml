@@ -5,7 +5,8 @@ trial_network:
   tn_init:
     type: "tn_init"
     dependencies: []
-    input: {}
+    input:
+      one_bastion_wireguard_allowedips: "192.168.199.0/24,10.10.10.0/24"
   vnet-private_oneKE:
     type: "vnet"
     name: "private_oneKE"
@@ -26,10 +27,10 @@ trial_network:
     input:
       one_oneKE_external_vnet: "tn_vxlan"
       one_oneKE_internal_vnet: "vnet-private_oneKE"
-      one_oneKE_version: "129" # (127 not working)
+      one_oneKE_version: "129"
       one_oneKE_multus: "YES"
       one_oneKE_cni_plugin: "canal"
-      one_oneKE_cilium_range: "" # In case of one_k8s_cni_plugin is cilium
+      one_oneKE_cilium_range: ""
       one_oneKE_longhorn: "YES"
       one_oneKE_metallb: "YES"
       one_oneKE_metallb_range: "10.10.10.200-10.10.10.240"
@@ -54,3 +55,23 @@ trial_network:
       one_open5gs_amf_ip: "10.10.10.200"
       one_open5gs_upf_ip: "10.10.10.201"
       one_open5gs_webui_subdomain: "open5gs"
+      one_open5gs_ue_count: 20
+  loadcore_agent-dn:
+    type: "loadcore_agent"
+    name: "dn"
+    dependencies:
+    - "vnet-private_oneKE"
+    input:
+      one_loadcore_agent_networks:
+        - "tn_vxlan"
+        - "vnet-private_oneKE"
+  loadcore_agent-gnb:
+    type: "loadcore_agent"
+    name: "gnb"
+    dependencies:
+    - "vnet-private_oneKE"
+    input:
+      one_loadcore_agent_networks:
+        - "tn_vxlan"
+        - "vnet-private_oneKE"
+        - "vnet-private_oneKE"

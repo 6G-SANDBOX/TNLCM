@@ -8,7 +8,8 @@ from core.exceptions.exceptions_handler import CustomSixGLibraryException
 class SixGLibraryHandler:
 
     def __init__(
-        self, 
+        self,
+        https_url: str = None,
         reference_type: str = None, 
         reference_value: str = None,
         directory_path: str = None
@@ -20,7 +21,7 @@ class SixGLibraryHandler:
         :param reference_value: value of the reference (branch name, tag name, commit ID) to switch, ``str``
         :param directory_path: directory path into which the 6G-Library is to be cloned, ``str``
         """
-        self.github_6g_library_https_url = SixGLibrarySettings.GITHUB_6G_LIBRARY_HTTPS_URL
+        self.github_6g_library_https_url = https_url
         self.github_6g_library_repository_name = SixGLibrarySettings.GITHUB_6G_LIBRARY_REPOSITORY_NAME
         self.github_6g_library_local_directory = os.path.join(directory_path, self.github_6g_library_repository_name)
         self.github_6g_library_reference_type = reference_type

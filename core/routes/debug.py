@@ -49,7 +49,7 @@ class UpdateCommitSixGLibrary(Resource):
             if current_user.role == "admin":
                 trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
             
-            sixg_library_handler = SixGLibraryHandler(reference_type="commit", reference_value=trial_network.github_6g_library_commit_id, directory_path=trial_network.directory_path)
+            sixg_library_handler = SixGLibraryHandler(https_url=trial_network.github_6g_library_https_url, reference_type="commit", reference_value=trial_network.github_6g_library_commit_id, directory_path=trial_network.directory_path)
             sixg_library_handler.git_switch()
             trial_network.set_github_6g_library_commit_id(commit_id)
             trial_network.save()
@@ -85,7 +85,7 @@ class UpdateCommitSixGSandboxSites(Resource):
             if current_user.role == "admin":
                 trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
             
-            sixg_sandbox_sites_handler = SixGSandboxSitesHandler(reference_type="commit", reference_value=trial_network.github_6g_library_commit_id, directory_path=trial_network.directory_path)
+            sixg_sandbox_sites_handler = SixGSandboxSitesHandler(https_url=trial_network.github_6g_sandbox_sites_https_url, reference_type="commit", reference_value=trial_network.github_6g_library_commit_id, directory_path=trial_network.directory_path)
             sixg_sandbox_sites_handler.git_switch()
             trial_network.set_github_6g_sandbox_sites_commit_id(commit_id)
             trial_network.save()
