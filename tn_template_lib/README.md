@@ -79,9 +79,9 @@
 * berlin
 * oulu
 
-## [open5gs](./open5gs.yaml)
+## [open5gs_oneKE](./open5gs_oneKE.yaml)
 
-![open5gs](./images/open5gs.png)
+![open5gs_oneKE](./images/open5gs_oneKE.png)
 
 ### Components
 
