@@ -49,6 +49,9 @@ echo "========== Starting TNLCM, MongoDB, and Mongo-Express Installation =======
 echo "Updating package lists..."
 apt-get update
 
+echo "--------------- Installing weasyprint ---------------"
+apt install -y weasyprint
+
 echo "--------------- Installing Git ---------------"
 if git --version &>/dev/null; then
     echo "Git is already installed."
