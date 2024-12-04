@@ -1,10 +1,12 @@
 import os
 
 from shutil import rmtree
+from flask import send_file
 from flask_restx import Namespace, Resource, reqparse, abort
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.datastructures import FileStorage
 from threading import Lock
+from mimetypes import guess_type
 from flask_jwt_extended.exceptions import JWTExtendedException
 from jwt.exceptions import PyJWTError
 
@@ -41,25 +43,6 @@ tn_resource_manager_lock = Lock()
 #########################################
 @trial_network_namespace.route("")
 class CreateTrialNetwork(Resource):
-    
-    @trial_network_namespace.doc(security="Bearer Auth")
-    @trial_network_namespace.errorhandler(PyJWTError)
-    @trial_network_namespace.errorhandler(JWTExtendedException)
-    @jwt_required()
-    def get(self):
-        """
-        Retrieve all trial networks
-        """
-        try:
-            current_user = get_current_user_from_jwt(get_jwt_identity())
-            trial_networks = TrialNetworkModel.objects(user_created=current_user.username)
-            if current_user.role == "admin":
-                trial_networks = TrialNetworkModel.objects()
-            return {"trial_networks": [trial_network.to_dict() for trial_network in trial_networks]}, 200
-        except CustomException as e:
-            return {"message": str(e)}, e.error_code
-        except Exception as e:
-            return abort(500, str(e))
 
     parser_post = reqparse.RequestParser()
     parser_post.add_argument("tn_id", type=str, required=False)
@@ -392,4 +375,69 @@ class ReportTrialNetwork(Resource):
             return {"message": str(e)}, e.error_code
         except Exception as e:
             log_handler.error(f"[{trial_network.tn_id}] - {e}")
+            return abort(500, str(e))
+
+@trial_network_namespace.route("s")
+class TrialNetwors(Resource):
+
+    @trial_network_namespace.doc(security="Bearer Auth")
+    @trial_network_namespace.errorhandler(PyJWTError)
+    @trial_network_namespace.errorhandler(JWTExtendedException)
+    @jwt_required()
+    def get(self):
+        """
+        Retrieve all trial networks
+        """
+        try:
+            current_user = get_current_user_from_jwt(get_jwt_identity())
+            trial_networks = TrialNetworkModel.objects(user_created=current_user.username)
+            if current_user.role == "admin":
+                trial_networks = TrialNetworkModel.objects()
+            return {"trial_networks": [trial_network.to_dict() for trial_network in trial_networks]}, 200
+        except CustomException as e:
+            return {"message": str(e)}, e.error_code
+        except Exception as e:
+            return abort(500, str(e))
+
+@trial_network_namespace.route("/download-report/<string:tn_id>.md")
+class DownloadReportTrialNetwork(Resource):
+
+    @trial_network_namespace.doc(security="Bearer Auth")
+    @trial_network_namespace.errorhandler(PyJWTError)
+    @trial_network_namespace.errorhandler(JWTExtendedException)
+    @jwt_required()
+    def get(self, tn_id: str):
+        """
+        Download report generated after trial network deployment
+        """
+        try:
+            current_user = get_current_user_from_jwt(get_jwt_identity())
+            trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
+            if current_user.role == "admin":
+                trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
+            
+            if not trial_network:
+                return {"message": f"No trial network with the name '{tn_id}' created by the user '{current_user.username}'"}, 404
+
+            if trial_network.state != "activated":
+                return {"message": "Trial network report can only be downloaded when the status of the trial network is ACTIVATED"}, 400
+            
+            if trial_network.report == "":
+                return {"message": "Trial network report is empty"}, 404
+            
+            file_name = f"{trial_network.tn_id}.md"
+            report_path = os.path.join(trial_network.directory_path, file_name)
+
+            if not os.path.exists(report_path):
+                return {"message": f"Report file '{file_name}' not found at '{report_path}'"}, 404
+            
+            return send_file(
+                report_path,
+                as_attachment=True,
+                download_name=file_name,
+                mimetype="application/octet-stream"
+            )
+        except CustomException as e:
+            return {"message": str(e)}, e.error_code
+        except Exception as e:
             return abort(500, str(e))
