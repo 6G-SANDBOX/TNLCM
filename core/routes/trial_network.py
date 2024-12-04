@@ -8,7 +8,7 @@ from werkzeug.datastructures import FileStorage
 from threading import Lock
 from flask_jwt_extended.exceptions import JWTExtendedException
 from jwt.exceptions import PyJWTError
-from pypandoc import convert_file
+from md2pdf.core import md2pdf
 
 from conf import TnlcmSettings, SixGLibrarySettings, SixGSandboxSitesSettings, FlaskConf
 from core.auth.auth import get_current_user_from_jwt
@@ -216,7 +216,7 @@ class TrialNetwork(Resource):
                 log_handler.info(f"[{trial_network.tn_id}] - End deployment of the trial network using Jenkins")
                 report_path = os.path.join(f"{trial_network.directory_path}", f"{trial_network.tn_id}.md")
                 report_path_pdf = os.path.join(f"{trial_network.directory_path}", f"{trial_network.tn_id}.pdf")
-                convert_file(source_file=report_path, to="pdf", outputfile=report_path_pdf)
+                md2pdf(pdf_file_path=report_path_pdf, md_file_path=report_path)
                 trial_network.set_report(report_path)
                 trial_network.set_state("activated")
                 trial_network.save()
@@ -230,8 +230,6 @@ class TrialNetwork(Resource):
                 jenkins_handler.trial_network_deployment()
                 log_handler.info(f"[{trial_network.tn_id}] - End deployment of the trial network using Jenkins")
                 report_path = os.path.join(f"{trial_network.directory_path}", f"{trial_network.tn_id}.md")
-                report_path_pdf = os.path.join(f"{trial_network.directory_path}", f"{trial_network.tn_id}.pdf")
-                convert_file(source_file=report_path, to="pdf", outputfile=report_path_pdf)
                 trial_network.set_report(report_path)
                 trial_network.set_state("activated")
                 trial_network.save()
@@ -250,8 +248,6 @@ class TrialNetwork(Resource):
                 jenkins_handler.trial_network_deployment()
                 log_handler.info(f"[{trial_network.tn_id}] - End deployment of the trial network using Jenkins")
                 report_path = os.path.join(f"{trial_network.directory_path}", f"{trial_network.tn_id}.md")
-                report_path_pdf = os.path.join(f"{trial_network.directory_path}", f"{trial_network.tn_id}.pdf")
-                convert_file(source_file=report_path, to="pdf", outputfile=report_path_pdf)
                 trial_network.set_report(report_path)
                 trial_network.set_state("activated")
                 trial_network.save()
