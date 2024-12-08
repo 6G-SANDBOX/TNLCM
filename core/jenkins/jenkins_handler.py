@@ -114,7 +114,6 @@ class JenkinsHandler:
         """
         deployed_descriptor = self.trial_network.to_mongo()["deployed_descriptor"]["trial_network"]
         deployed_descriptor_copy = deployed_descriptor.copy()
-        os.makedirs(os.path.join(self.trial_network.directory_path, "input"), exist_ok=True)
         for entity_name, entity_data in deployed_descriptor_copy.items():
             component_type = entity_data["type"]
             custom_name = None

@@ -55,12 +55,12 @@ class CallbackHandler:
         :return: True if output received by Jenkins is the same as the output defined in 6G-Library. Otherwise False, ``bool``
         :raises CustomCallbackException:
         """
-        public_file = os.path.join(TnlcmSettings.TRIAL_NETWORKS_DIRECTORY, self.tn_id, SixGLibrarySettings.GITHUB_6G_LIBRARY_REPOSITORY_NAME, self.component_type, ".tnlcm", "public.yaml")
-        if not os.path.exists(public_file):
-            raise CustomCallbackException(f"File '{public_file}' not found", 404)
-        public_data = load_yaml(file_path=public_file, mode="rt", encoding="utf-8")
+        public_file_path = os.path.join(TnlcmSettings.TRIAL_NETWORKS_DIRECTORY, self.tn_id, SixGLibrarySettings.GITHUB_6G_LIBRARY_REPOSITORY_NAME, self.component_type, ".tnlcm", "public.yaml")
+        if not os.path.exists(public_file_path):
+            raise CustomCallbackException(f"File {public_file_path} not found", 404)
+        public_data = load_yaml(file_path=public_file_path)
         if "output" not in public_data:
-            raise CustomCallbackException(f"Key 'output' is missing in the file located in the path '{public_file}'", 404)
+            raise CustomCallbackException(f"Key output is missing in the file located in the path {public_file_path}", 404)
         output_library = public_data["output"]
         if output_library and len(self.component_type) > 0 and self.output and len(self.output) > 0:
             return set(self.output.keys()) == set(output_library.keys())
@@ -73,6 +73,5 @@ class CallbackHandler:
         Save data in files
         """
         directory_path = os.path.join(TnlcmSettings.TRIAL_NETWORKS_DIRECTORY, self.tn_id)
-        os.makedirs(os.path.join(directory_path, "output"), exist_ok=True)
         save_json(data=self.decoded_data, file_path=os.path.join(directory_path, "output", f"{self.entity_name}.json"))
         save_file(data=self.markdown, file_path=os.path.join(directory_path, f"{self.tn_id}.md"), mode="a", encoding="utf-8")
