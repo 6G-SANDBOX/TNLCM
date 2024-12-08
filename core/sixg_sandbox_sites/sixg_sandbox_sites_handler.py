@@ -1,13 +1,10 @@
 import os
 
-from yaml import safe_load
-from ansible.parsing.vault import VaultLib, VaultSecret
-from ansible.constants import DEFAULT_VAULT_ID_MATCH
-
 from conf import SixGSandboxSitesSettings
 from core.logs.log_handler import log_handler
 from core.repository.repository_handler import RepositoryHandler
 from core.utils.file_handler import load_yaml, load_file, save_yaml
+from core.utils.parser_handler import yaml_to_dict, ansible_decrypt
 from core.exceptions.exceptions_handler import CustomSixGSandboxSitesException
 
 class SixGSandboxSitesHandler():
@@ -42,25 +39,6 @@ class SixGSandboxSitesHandler():
             self.github_6g_sandbox_sites_reference_value = SixGSandboxSitesSettings.GITHUB_6G_SANDBOX_SITES_BRANCH
         self.repository_handler = RepositoryHandler(github_https_url=self.github_6g_sandbox_sites_https_url, github_repository_name=self.github_6g_sandbox_sites_repository_name, github_local_directory=self.github_6g_sandbox_sites_local_directory, github_reference_type=self.github_6g_sandbox_sites_reference_type, github_reference_value=self.github_6g_sandbox_sites_reference_value)
         self.github_6g_sandbox_sites_commit_id = None
-
-    def validate_site(self, deployment_site: str) -> None:
-        """
-        Check if deployment site is valid for deploy trial network
-        
-        :param deployment_site: trial network deployment site, ``str``
-        :raise CustomSixGSandboxSitesException:
-        """
-        if deployment_site not in self.get_sites():
-            raise CustomSixGSandboxSitesException(f"The 'site' should be one: {', '.join(self.get_sites())}", 404)
-
-        password = SixGSandboxSitesSettings.SITES_TOKEN
-        secret = password.encode("utf-8")
-        vault = VaultLib([(DEFAULT_VAULT_ID_MATCH, VaultSecret(secret))])
-        core_file = os.path.join(self.github_6g_sandbox_sites_local_directory, deployment_site, "core.yaml")
-        encrypted_data = load_file(file_path=core_file, mode="rb", encoding=None)
-        decrypted_data = vault.decrypt(encrypted_data)
-        decrypted_yaml = safe_load(decrypted_data)
-        save_yaml(data=decrypted_yaml, file_path=os.path.join(self.github_6g_sandbox_sites_local_directory, deployment_site, "core_decrypt.yaml"))
     
     def git_clone(self) -> None:
         """
@@ -97,6 +75,30 @@ class SixGSandboxSitesHandler():
         """
         return self.repository_handler.git_tags()
 
+    def get_sites(self) -> list[str]:
+        """
+        Function to get sites available to deploy trial networks
+
+        :return: list with deployment sites available for deploy trial networks
+        """
+        return [site for site in os.listdir(self.github_6g_sandbox_sites_local_directory) if not site.startswith(".") and os.path.isdir(os.path.join(self.github_6g_sandbox_sites_local_directory, site))]
+
+    def validate_site(self, deployment_site: str) -> None:
+        """
+        Check if deployment site is valid for deploy trial network
+        
+        :param deployment_site: trial network deployment site, ``str``
+        :raise CustomSixGSandboxSitesException:
+        """
+        if deployment_site not in self.get_sites():
+            raise CustomSixGSandboxSitesException(f"Site should be one: {', '.join(self.get_sites())}", 404)
+
+        core_file = os.path.join(self.github_6g_sandbox_sites_local_directory, deployment_site, "core.yaml")
+        encrypted_data = load_file(file_path=core_file, mode="rb", encoding=None)
+        decrypted_data = ansible_decrypt(encrypted_data=encrypted_data, token=SixGSandboxSitesSettings.SITES_TOKEN)
+        decrypted_yaml = yaml_to_dict(data=decrypted_data)
+        save_yaml(data=decrypted_yaml, file_path=os.path.join(self.github_6g_sandbox_sites_local_directory, deployment_site, "core_decrypt.yaml"))
+
     def get_site_available_components(self, deployment_site: str) -> dict:
         """
         Function to get all information of all components available on a site
@@ -105,22 +107,14 @@ class SixGSandboxSitesHandler():
         :return: dictionary with all information of all components available on a site, ``dict``
         :raise CustomSixGSandboxSitesException:
         """
-        decrypted_core_file = os.path.join(self.github_6g_sandbox_sites_local_directory, deployment_site, "core_decrypt.yaml")
-        if not os.path.exists(decrypted_core_file):
-            raise CustomSixGSandboxSitesException(f"File '{decrypted_core_file}' not found", 404)
-        data = load_yaml(file_path=decrypted_core_file, mode="rt", encoding="utf-8")
+        decrypted_core_path = os.path.join(self.github_6g_sandbox_sites_local_directory, deployment_site, "core_decrypt.yaml")
+        if not os.path.exists(decrypted_core_path):
+            raise CustomSixGSandboxSitesException(f"File {decrypted_core_path} not found", 404)
+        data = load_yaml(file_path=decrypted_core_path)
         if not data or "site_available_components" not in data:
             return {}
         site_available_components = data["site_available_components"]
         return site_available_components
-
-    def get_sites(self) -> list[str]:
-        """
-        Function to get sites available to deploy trial networks
-
-        :return: list with deployment sites available for deploy trial networks
-        """
-        return [site for site in os.listdir(self.github_6g_sandbox_sites_local_directory) if not site.startswith(".") and os.path.isdir(os.path.join(self.github_6g_sandbox_sites_local_directory, site))]
     
     def validate_components_site(self, tn_id: str, deployment_site: str, tn_components_types: set) -> None:
         """

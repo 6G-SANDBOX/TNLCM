@@ -1,7 +1,6 @@
 import os
 import re
 
-from yaml import safe_load
 from datetime import datetime, timezone
 from string import ascii_lowercase, digits
 from random import choice
@@ -10,6 +9,7 @@ from werkzeug.datastructures import FileStorage
 from mongoengine import Document, StringField, DictField, DateTimeField
 
 from core.utils.file_handler import load_file
+from core.utils.parser_handler import yaml_to_dict
 from core.exceptions.exceptions_handler import CustomTrialNetworkException
 
 STATE_MACHINE = {"validated", "suspended", "activated", "failed", "destroyed"}
@@ -51,15 +51,6 @@ class TrialNetworkModel(Document):
         """
         self.user_created = user_created
 
-    def verify_tn_id(self, tn_id: str) -> bool:
-        """
-        Verify if tn_id exists in database
-
-        :param tn_id: trial network identifier, ``str``
-        :return: True if tn_id is in database. Otherwise False, ``bool``
-        """
-        return bool(TrialNetworkModel.objects(tn_id=tn_id))
-
     def set_tn_id(self, size: int = 6, chars: str = ascii_lowercase+digits, tn_id: str = None) -> None:
         """
         Generate and set a random tn_id using characters [a-z][0-9]
@@ -76,9 +67,22 @@ class TrialNetworkModel(Document):
                     self.tn_id = random_tn_id
                     break
         else:
+            if bool(TrialNetworkModel.objects(tn_id=tn_id)):
+                raise CustomTrialNetworkException(f"Trial network with tn_id {tn_id} already exists", 409)
             if not tn_id[0].isalpha():
-                raise CustomTrialNetworkException(f"The tn_id '{tn_id}' must start with a character (a-z)", 400)
+                raise CustomTrialNetworkException(f"The tn_id has to start with a character (a-z)", 400)
             self.tn_id = tn_id
+
+    def set_directory_path(self, directory_path: str) -> None:
+        """
+        Set the trial network directory where all information will save
+
+        :param directory_path: path to the trial network directory, ``str``
+        """
+        os.makedirs(directory_path)
+        os.makedirs(os.path.join(directory_path, "input"))
+        os.makedirs(os.path.join(directory_path, "output"))
+        self.directory_path = directory_path
 
     def set_state(self, state: str) -> None:
         """
@@ -88,10 +92,10 @@ class TrialNetworkModel(Document):
         :raise CustomTrialNetworkException:
         """
         if state not in STATE_MACHINE:
-            raise CustomTrialNetworkException(f"Trial network '{state}' state not found", 404)
+            raise CustomTrialNetworkException(f"Trial network state {state} not found", 404)
         self.state = state
 
-    def set_raw_descriptor(self, file: FileStorage) -> None:
+    def set_descriptor(self, file: FileStorage) -> None:
         """
         Set the trial network raw descriptor from a file
         
@@ -100,15 +104,9 @@ class TrialNetworkModel(Document):
         """
         filename = secure_filename(file.filename)
         if "." not in filename or filename.split(".")[-1].lower() not in ["yml", "yaml"]:
-            raise CustomTrialNetworkException("Invalid descriptor format. Only 'yml' or 'yaml' files will be further processed", 422)
-        self.raw_descriptor = safe_load(file.stream)
+            raise CustomTrialNetworkException("Invalid descriptor format. Only yml or yaml files will be further processed", 422)
+        self.raw_descriptor = yaml_to_dict(file.stream)
 
-    def set_sorted_descriptor(self) -> None:
-        """
-        Recursive method that return the raw descriptor and a new descriptor sorted according to dependencies
-
-        :raise CustomTrialNetworkException:
-        """
         entities = self.raw_descriptor["trial_network"]
         ordered_entities = {}
 
@@ -125,8 +123,10 @@ class TrialNetworkModel(Document):
         for entity in entities:
             dfs(entity)
         
-        self.sorted_descriptor = {"trial_network": ordered_entities}
-        self.deployed_descriptor = {"trial_network": ordered_entities}
+        sorted_descriptor = {"trial_network": ordered_entities}
+        deployed_descriptor = {"trial_network": ordered_entities}
+        self.sorted_descriptor = sorted_descriptor
+        self.deployed_descriptor = deployed_descriptor
 
     def set_report(self, file_path: str) -> None:
         """
@@ -135,15 +135,6 @@ class TrialNetworkModel(Document):
         :param file_path: path to the markdown report file, ``str``
         """
         self.report = load_file(file_path=file_path, mode="rt", encoding="utf-8")
-    
-    def set_directory_path(self, directory_path: str) -> None:
-        """
-        Set the trial network directory where all information will save
-
-        :param directory_path: path to the trial network directory, ``str``
-        """
-        os.makedirs(directory_path)
-        self.directory_path = directory_path
     
     def set_jenkins_deploy_pipeline(self, jenkins_deploy_pipeline: str) -> None:
         """
@@ -229,6 +220,18 @@ class TrialNetworkModel(Document):
             self.deployed_descriptor = self.sorted_descriptor
         else:
             self.deployed_descriptor = {"trial_network": deployed_descriptor}
+
+    def get_components_types(self) -> set:
+        """
+        Function to get the components types that are in the descriptor
+
+        :return: set with components that compose trial network descriptor, ``set``
+        """
+        component_types = set()
+        tn_descriptor = self.sorted_descriptor["trial_network"]
+        for _, component in tn_descriptor.items():
+            component_types.add(component["type"])
+        return component_types
 
     def _logical_expression(
         self, 
@@ -406,18 +409,6 @@ class TrialNetworkModel(Document):
                                 sixg_library_choices = input_sixg_library_value["choices"]
                                 if not input_descriptor_component[input_sixg_library_key] in sixg_library_choices:
                                     raise CustomTrialNetworkException(f"Component '{component_type}'. Value of the '{input_sixg_library_key}' field has to be one of then: '{sixg_library_choices}'", 422)
-
-    def get_components_types(self) -> set:
-        """
-        Function to get the components types that are in the descriptor
-
-        :return: set with components that compose trial network descriptor, ``set``
-        """
-        component_types = set()
-        tn_descriptor = self.sorted_descriptor["trial_network"]
-        for _, component in tn_descriptor.items():
-            component_types.add(component["type"])
-        return component_types
 
     def to_dict(self) -> dict:
         return {
