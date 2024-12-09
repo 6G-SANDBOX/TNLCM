@@ -1,8 +1,10 @@
 import json
-import yaml
 import tomlkit
 
-def load_yaml(file_path: str, mode: str, encoding: str) -> dict:
+from ruamel.yaml import YAML
+from ruamel.yaml.scalarstring import DoubleQuotedScalarString
+
+def load_yaml(file_path: str, mode: str = "rt", encoding: str = "utf-8") -> dict:
     """
     Load data from a YAML file
 
@@ -11,8 +13,11 @@ def load_yaml(file_path: str, mode: str, encoding: str) -> dict:
     :param encoding: the file encoding (e.g. utf-8), ``str``
     :return: the data loaded from the YAML file, ``dict``
     """
+    yaml = YAML()
+    yaml.preserve_quotes = True
+    yaml.default_flow_style = False
     with open(file_path, mode=mode, encoding=encoding) as yaml_file:
-        return yaml.safe_load(yaml_file)
+        return yaml.load(yaml_file)
 
 def loads_toml(file_path: str, mode: str, encoding: str) -> dict:
     """
@@ -50,13 +55,28 @@ def save_json(data, file_path: str) -> None:
 
 def save_yaml(data, file_path: str) -> None:
     """
-    Save the data to a YAML file
+    Save the data to a YAML file, preserving quotes using ruamel.yaml
     
     :param data: the data to be saved (must be serializable to YAML)
     :param file_path: The file path where the data will be saved, ``str``
     """
-    with open(file_path, "w") as yaml_file:
-        yaml.safe_dump(data, yaml_file, default_flow_style=False)
+    yaml = YAML()
+    yaml.preserve_quotes = True
+
+    def convert_to_double_quoted(data):
+        if isinstance(data, dict):
+            return {k: convert_to_double_quoted(v) for k, v in data.items()}
+        elif isinstance(data, list):
+            return [convert_to_double_quoted(v) for v in data]
+        elif isinstance(data, str):
+            return DoubleQuotedScalarString(data)
+        else:
+            return data
+
+    data = convert_to_double_quoted(data)
+
+    with open(file_path, mode="wt", encoding="utf-8") as yaml_file:
+        yaml.dump(data, yaml_file)
 
 def save_file(data: str, file_path: str, mode: str, encoding: str) -> None:
     """

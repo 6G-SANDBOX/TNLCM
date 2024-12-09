@@ -87,11 +87,11 @@ class SixGLibraryHandler:
             component_path = os.path.join(self.github_6g_library_local_directory, component)
             if not os.path.isdir(component_path):
                 raise CustomSixGLibraryException(f"Folder of the component '{component}' is not created in commit '{self.github_6g_library_commit_id}' of 6G-Library", 404)
-            public_file = os.path.join(self.github_6g_library_local_directory, component, ".tnlcm", "public.yaml")
-            if not os.path.exists(public_file):
-                raise CustomSixGLibraryException(f"File '{public_file}' not found", 404)
+            public_file_path = os.path.join(self.github_6g_library_local_directory, component, ".tnlcm", "public.yaml")
+            if not os.path.exists(public_file_path):
+                raise CustomSixGLibraryException(f"File {public_file_path} not found", 404)
             
-            public_data = load_yaml(file_path=public_file, mode="rt", encoding="utf-8")
+            public_data = load_yaml(file_path=public_file_path)
             
             part_data = {}
             for part in parts:
