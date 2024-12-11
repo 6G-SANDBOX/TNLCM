@@ -1,6 +1,6 @@
 # Contribute to Trial Network Descriptor Templates
 
-## Add a descriptor file
+## Add trial network descriptor
 
 To add a descriptor file for a trial network, follow these steps:
 
@@ -75,7 +75,7 @@ To add a descriptor file for a trial network, follow these steps:
 
 7. Once the pull request has been reviewed, the changes will be merged into the `develop` branch.
 
-## Update a descriptor file
+## Update trial network descriptor
 
 To update a descriptor file for a trial network, follow these steps:
 
