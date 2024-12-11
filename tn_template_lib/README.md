@@ -199,9 +199,9 @@
 * berlin
 * oulu
 
-## [upf_p4](./upf_p4.yaml)
+## [upf_p4_sw](./upf_p4_sw.yaml)
 
-![upf_p4](./images/upf_p4.png)
+![upf_p4_sw](./images/upf_p4_sw.png)
 
 ### Components
 
@@ -214,6 +214,27 @@
 ### Platforms
 
 * uma
+* athens
+* berlin
+* oulu
+
+## [int_p4_sw](./int_p4_sw.yaml)
+
+![int_p4_sw](./images/int_p4_sw.png)
+
+### Components
+
+* tn_init
+* vnet
+* int_p4_sw
+* vm_kvm
+
+### Platforms
+
+* uma
+* athens
+* berlin
+* oulu
 
 ## [loadcore_open5gs_oneKE](loadcore_open5gs_oneKE.yaml)
 
