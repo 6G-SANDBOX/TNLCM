@@ -1,4 +1,4 @@
-# Contribute to TN Template Library
+# Contribute to Trial Network Descriptor Templates
 
 ## Add a descriptor file
 
