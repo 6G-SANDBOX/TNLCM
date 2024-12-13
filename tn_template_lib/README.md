@@ -290,3 +290,24 @@
 * uma
 * athens
 * oulu
+
+
+## [opensand](./opensand.yaml)
+
+![opensand](./images/opensand.png)
+
+### Components
+
+* tn_init
+* vnet
+* opensand_st
+* opensand_gw
+* opensand_sat
+* vm_kvm
+
+### Platforms
+
+* berlin
+* uma
+* athens
+* oulu
