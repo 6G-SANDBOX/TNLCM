@@ -35,9 +35,10 @@ TNLCM (Trial Network Lifecycle Manager) is a tool designed to manage the lifecyc
 ## :round_pushpin: Roadmap
 
 - Enhance validate trial network descriptor.
-- Integration with Slurm.
-- Update state machine to update trial network.
 - Update logs.
+- Update state machine to update trial network.
+- Add token for interaction between jenkins and tnlcm at callback endpoint.
+- Integration with Slurm.
 
 ## :rocket: Getting Started Locally
 
