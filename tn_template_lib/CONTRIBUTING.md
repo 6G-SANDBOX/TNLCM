@@ -22,14 +22,14 @@
 
 To add a descriptor file for a trial network, follow these steps:
 
-1. Create a branch from `develop`. 
+1. Create a branch from `main`. 
 
     1.1. The branch name should follow the format `feature/tn_template_lib/<component_name>`.
 
     1.2. The `<component_name>` should be meaningful.
 
     ```bash
-    git switch -c feature/tn_template_lib/<component_name> develop
+    git switch -c feature/tn_template_lib/<component_name> main
     ```
 
 2. Create the trial network descriptor file in the [`tn_template_lib`](../tn_template_lib/) directory.
@@ -95,7 +95,7 @@ To add a descriptor file for a trial network, follow these steps:
     git push origin feature/tn_template_lib/<component_name>
     ```
 
-8. Create a pull request on GitHub, go to your TNLCM fork and click "Pull request" to start one. The pull request should be from your branch to the `develop` branch of the original repository.
+8. Create a pull request on GitHub, go to your TNLCM fork and click "Pull request" to start one. The pull request should be from your branch to the `main` branch of the original repository.
 
     8.1. Include **@CarlosAndreo** as a reviewer.
     
@@ -106,20 +106,20 @@ To add a descriptor file for a trial network, follow these steps:
     * The updated `TrialNetworks.drawio` file with the new image.
     * The updated `README.md` file.
 
-9. Once the pull request has been reviewed, the changes will be merged into the `develop` branch of the original repository.
+9. Once the pull request has been reviewed, the changes will be merged into the `main` branch of the original repository.
 
 ### Update trial network descriptor
 
 To update a descriptor file for a trial network, follow these steps:
 
-1. Create a branch from `develop`. 
+1. Create a branch from `main`. 
 
     1.1. The branch name should follow the format `hotfix/tn_template_lib/<component_name>`.
 
     1.2. The `<component_name>` should be the name of the component.
 
     ```bash
-    git switch -c hotfix/tn_template_lib/<component_name> develop
+    git switch -c hotfix/tn_template_lib/<component_name> main
     ```
 
 2. Update the trial network descriptor file in the [`tn_template_lib`](../tn_template_lib/) directory.
@@ -161,7 +161,7 @@ To update a descriptor file for a trial network, follow these steps:
     git push origin feature/tn_template_lib/<component_name>
     ```
 
-8. Create a pull request on GitHub, go to your TNLCM fork and click "Pull request" to start one. The pull request should be from your branch to the `develop` branch of the original repository.
+8. Create a pull request on GitHub, go to your TNLCM fork and click "Pull request" to start one. The pull request should be from your branch to the `main` branch of the original repository.
 
     8.1. Include **@CarlosAndreo** as a reviewer.
     
@@ -172,7 +172,7 @@ To update a descriptor file for a trial network, follow these steps:
     * The updated `TrialNetworks.drawio` file with the new image.
     * The updated `README.md` file.
 
-9. Once the pull request has been reviewed, the changes will be merged into the `develop` branch of the original repository.
+9. Once the pull request has been reviewed, the changes will be merged into the `main` branch of the original repository.
 
 ### :star2: Best practices
 
