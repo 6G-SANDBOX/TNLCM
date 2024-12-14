@@ -23,18 +23,21 @@ TNLCM (Trial Network Lifecycle Manager) is a tool designed to manage the lifecyc
 <details>
 <summary>Table of Contents</summary>
 
-- [:hammer\_and\_wrench: Stack](#hammer_and_wrench-stack)
+- [:round\_pushpin: Roadmap](#round_pushpin-roadmap)
 - [:rocket: Getting Started Locally](#rocket-getting-started-locally)
   - [:inbox\_tray: Download the installation script](#inbox_tray-download-the-installation-script)
   - [:desktop\_computer: Execute installation script](#desktop_computer-execute-installation-script)
   - [:snake: Start server](#snake-start-server)
+- [:hammer\_and\_wrench: Stack](#hammer_and_wrench-stack)
 - [📚 Documentation](#-documentation)
 </details>
 
-## :hammer_and_wrench: Stack
-- [![Python][python-badge]][python-url] - Programming language.
-- [![Flask][flask-badge]][flask-url] - Python framework for web applications to expose the API.
-- [![MongoDB][mongodb-badge]][mongodb-url] - NoSQL database designed to store Trial Networks.
+## :round_pushpin: Roadmap
+
+- Enhance validate trial network descriptor.
+- Integration with Slurm.
+- Update state machine to update trial network.
+- Update logs.
 
 ## :rocket: Getting Started Locally
 
@@ -50,10 +53,10 @@ TNLCM (Trial Network Lifecycle Manager) is a tool designed to manage the lifecyc
 > [!TIP]
 > Additionally TNLCM depends on:
 >
-> | Repository       | Branch                                                        | Release                                                                   |
-> | ---------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------- |
-> | 6G-Library       | -                                                             | [v0.3.0](https://github.com/6G-SANDBOX/6G-Library/releases/tag/v0.3.0)    |
-> | 6G-Sandbox-Sites | [platform](https://github.com/6G-SANDBOX/6G-Sandbox-Sites)    | -                                                                         |
+> | Repository       | Release | Branch                                                                  |
+> | ---------------- | ------- | ----------------------------------------------------------------------- |
+> | 6G-Library       | -       | [v0.3.1](https://github.com/6G-SANDBOX/6G-Library/tree/release/v0.3.1)  |
+> | 6G-Sandbox-Sites | -       | [platform](https://github.com/6G-SANDBOX/6G-Sandbox-Sites)              |
 
 ### :inbox_tray: Download the installation script
 
@@ -80,6 +83,11 @@ gunicorn -c conf/gunicorn_conf.py
 ```
 
 A Swagger UI will be available at the url http://tnlcm-backend-ip:5000 where the API with the endpoints exposed.
+
+## :hammer_and_wrench: Stack
+- [![Python][python-badge]][python-url] - Programming language.
+- [![Flask][flask-badge]][flask-url] - Python framework for web applications to expose the API.
+- [![MongoDB][mongodb-badge]][mongodb-url] - NoSQL database designed to store Trial Networks.
 
 ## 📚 Documentation
 
