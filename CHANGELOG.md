@@ -1,5 +1,19 @@
 # Changelog
 
+## [unreleased] - 2024-XX-XX
+
+### Added
+
+### Changed
+
+- Migrate from pyyaml library to ruamel.yaml library to handle YAML files.
+
+### Fixed
+
+### Removed
+
+- Temporary implementation.
+
 ## [v0.4.4] - 2024-12-04
 
 ### Added
@@ -229,6 +243,7 @@
 
 - Frontend implementation.
 
+[unreleased]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.4...HEAD
 [v0.4.4]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.3...v0.4.4
 [v0.4.3]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.2...v0.4.3
 [v0.4.2]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.1...v0.4.2
