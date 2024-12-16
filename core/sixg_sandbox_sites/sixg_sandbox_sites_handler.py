@@ -24,6 +24,8 @@ class SixGSandboxSitesHandler():
         :param directory_path: directory path into which the 6G-Sandbox-Sites is to be cloned, ``str``
         """
         self.github_6g_sandbox_sites_https_url = https_url
+        if https_url is None:
+            self.github_6g_sandbox_sites_https_url = SixGSandboxSitesSettings.GITHUB_6G_SANDBOX_SITES_HTTPS_URL
         self.github_6g_sandbox_sites_repository_name = SixGSandboxSitesSettings.GITHUB_6G_SANDBOX_SITES_REPOSITORY_NAME
         self.github_6g_sandbox_sites_local_directory = os.path.join(directory_path, self.github_6g_sandbox_sites_repository_name)
         self.github_6g_sandbox_sites_reference_type = reference_type

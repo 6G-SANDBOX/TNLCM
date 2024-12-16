@@ -72,16 +72,14 @@ class CreateTrialNetwork(Resource):
             tn_id = self.parser_post.parse_args()["tn_id"]
             descriptor_file = self.parser_post.parse_args()["descriptor"]
             deployment_site = self.parser_post.parse_args()["deployment_site"]
+            github_6g_library_https_url = None
             if FlaskConf.FLASK_ENV == "development":
                 github_6g_library_https_url = self.parser_post.parse_args()["github_6g_library_https_url"]
-            else:
-                github_6g_library_https_url = SixGLibrarySettings.GITHUB_6G_LIBRARY_HTTPS_URL
             github_6g_library_reference_type = self.parser_post.parse_args()["github_6g_library_reference_type"]
             github_6g_library_reference_value = self.parser_post.parse_args()["github_6g_library_reference_value"]
+            github_6g_sandbox_sites_https_url = None
             if FlaskConf.FLASK_ENV == "development":
                 github_6g_sandbox_sites_https_url = self.parser_post.parse_args()["github_6g_sandbox_sites_https_url"]
-            else:
-                github_6g_sandbox_sites_https_url = SixGSandboxSitesSettings.GITHUB_6G_SANDBOX_SITES_HTTPS_URL
             github_6g_sandbox_sites_reference_type = self.parser_post.parse_args()["github_6g_sandbox_sites_reference_type"]
             github_6g_sandbox_sites_reference_value = self.parser_post.parse_args()["github_6g_sandbox_sites_reference_value"]
 
