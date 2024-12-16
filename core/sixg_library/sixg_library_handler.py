@@ -75,6 +75,29 @@ class SixGLibraryHandler:
         """
         return self.repository_handler.git_tags()
     
+    def get_components(self) -> set:
+        """
+        Function to get the available components in the 6G-Library
+        
+        :return components: the available components, ``set``
+        """
+        components = set()
+        if not os.path.isdir(self.github_6g_library_local_directory):
+            raise CustomSixGLibraryException(f"Folder of the components is not created in commit {self.github_6g_library_commit_id} of 6G-Library", 404)
+        for component in os.listdir(self.github_6g_library_local_directory):
+            components.add(component)
+        return components
+    
+    def is_component_library(self, component_type: str) -> None:
+        """
+        Function to check if component in the descriptor are in the library
+        
+        :param component_type: the component type to validate, ``str``
+        :raise CustomSixGLibraryException:
+        """
+        if component_type not in self.get_components():
+            raise CustomSixGLibraryException(f"Component {component_type} not found in 6G-Library", 404)
+    
     def get_tn_components_parts(self, parts: list[str], tn_components_types: set) -> dict:
         """
         Function to traverse component types and return their parts (metadata, inputs and outputs)
@@ -88,7 +111,7 @@ class SixGLibraryHandler:
         for component in tn_components_types:
             component_path = os.path.join(self.github_6g_library_local_directory, component)
             if not os.path.isdir(component_path):
-                raise CustomSixGLibraryException(f"Folder of the component '{component}' is not created in commit '{self.github_6g_library_commit_id}' of 6G-Library", 404)
+                raise CustomSixGLibraryException(f"Folder of the component {component} is not created in commit {self.github_6g_library_commit_id} of 6G-Library", 404)
             public_file_path = os.path.join(self.github_6g_library_local_directory, component, ".tnlcm", "public.yaml")
             if not os.path.exists(public_file_path):
                 raise CustomSixGLibraryException(f"File {public_file_path} not found", 404)

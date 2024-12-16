@@ -114,14 +114,8 @@ class CreateTrialNetwork(Resource):
             log_handler.info(f"[{trial_network.tn_id}] - Git switch {sixg_library_handler.github_6g_library_repository_name} repository into {trial_network.directory_path} with HEAD pointing to commit {sixg_library_handler.github_6g_library_commit_id}")
             trial_network.set_github_6g_library_https_url(sixg_library_handler.github_6g_library_https_url)
             trial_network.set_github_6g_library_commit_id(sixg_library_handler.github_6g_library_commit_id)
-            # FIX: validate trial network descriptor. Cannot give types if the descriptor is not validated
-            tn_components_types = trial_network.get_components_types()
-            log_handler.info(f"[{trial_network.tn_id}] - Validate if the components that make up the descriptor are available in site {trial_network.deployment_site}")
-            sixg_sandbox_sites_handler.validate_components_site(tn_id=trial_network.tn_id, deployment_site=trial_network.deployment_site, tn_components_types=tn_components_types)
-            log_handler.info(f"[{trial_network.tn_id}] - Descriptor components are available in site {trial_network.deployment_site}")
-            tn_component_inputs = sixg_library_handler.get_tn_components_parts(parts=["input"], tn_components_types=tn_components_types)["input"]
             log_handler.info(f"[{trial_network.tn_id}] - Validate trial network descriptor")
-            trial_network.validate_descriptor(tn_components_types, tn_component_inputs)
+            trial_network.validate_descriptor(sixg_library_handler, sixg_sandbox_sites_handler)
             log_handler.info(f"[{trial_network.tn_id}] - Trial network descriptor valid")
             trial_network.set_state("validated")
             trial_network.save()

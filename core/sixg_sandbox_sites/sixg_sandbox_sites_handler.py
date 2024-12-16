@@ -118,18 +118,16 @@ class SixGSandboxSitesHandler():
         site_available_components = data["site_available_components"]
         return site_available_components
     
-    def validate_components_site(self, tn_id: str, deployment_site: str, tn_components_types: set) -> None:
+    def is_component_site(self, deployment_site: str, entity_name: str) -> None:
         """
         Function to check if components in the descriptor are in the site
 
-        :param tn_id: trial network identifier, ``str``
         :param deployment_site: trial network deployment site, ``str``
-        :param tn_components_types: set with the components that make up the descriptor, ``set``
+        :param entity_name: name of entity, ``str``
         :raise CustomSixGSandboxSitesException:
         """
-        site_available_components = self.get_site_available_components(deployment_site)
-        list_site_available_components = list(site_available_components.keys())
-        for component in tn_components_types:
-            if component not in list_site_available_components:
-                raise CustomSixGSandboxSitesException(f"Component '{component}' entered in descriptor file not found in '{deployment_site}' site", 404)
-            log_handler.info(f"[{tn_id}] - Component type '{component}' is on '{deployment_site}' site")
+        site_available_components = self.get_site_available_components(deployment_site=deployment_site)
+        if not site_available_components:
+            raise CustomSixGSandboxSitesException(f"Site {deployment_site} does not have any components available", 404)
+        if entity_name not in site_available_components:
+            raise CustomSixGSandboxSitesException(f"Component {entity_name} is not available in site {deployment_site}", 404)
