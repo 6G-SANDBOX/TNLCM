@@ -88,7 +88,7 @@ class SixGLibraryHandler:
             components.add(component)
         return components
     
-    def is_component_library(self, component_type: str) -> None:
+    def is_component(self, component_type: str) -> None:
         """
         Function to check if component in the descriptor are in the library
         
@@ -98,33 +98,40 @@ class SixGLibraryHandler:
         if component_type not in self.get_components():
             raise CustomSixGLibraryException(f"Component {component_type} not found in 6G-Library", 404)
     
-    def get_tn_components_parts(self, parts: list[str], tn_components_types: set) -> dict:
+    def get_component_input(self, component_type: str) -> dict:
         """
-        Function to traverse component types and return their parts (metadata, inputs and outputs)
+        Function to get the input part of the component types
         
-        :param part: list with the indicated part of the component types, ``list[str]``
-        :param tn_components_types: set with the components that make up the descriptor, ``set``
-        :return components_data: the specified part of the component types, ``dict``
+        :param component_type: the component type to get the input part, ``str``
+        :return component_input: the input part of the component types, ``dict``
         :raise CustomSixGLibraryException:
         """
-        components_data = {}
-        for component in tn_components_types:
-            component_path = os.path.join(self.github_6g_library_local_directory, component)
-            if not os.path.isdir(component_path):
-                raise CustomSixGLibraryException(f"Folder of the component {component} is not created in commit {self.github_6g_library_commit_id} of 6G-Library", 404)
-            public_file_path = os.path.join(self.github_6g_library_local_directory, component, ".tnlcm", "public.yaml")
-            if not os.path.exists(public_file_path):
-                raise CustomSixGLibraryException(f"File {public_file_path} not found", 404)
-            
-            public_data = load_yaml(file_path=public_file_path)
-            
-            part_data = {}
-            for part in parts:
-                if public_data and part in public_data:
-                    part_data[component] = public_data[part]
-                    if part not in components_data:
-                        components_data[part] = {}
-                    if part_data:
-                        components_data[part].update(part_data)
-
-        return components_data
+        component_input = {}
+        public_file_path = os.path.join(self.github_6g_library_local_directory, component_type, ".tnlcm", "public.yaml")
+        if not os.path.exists(public_file_path):
+            raise CustomSixGLibraryException(f"File {public_file_path} not found", 404)
+        
+        public_data = load_yaml(file_path=public_file_path)
+        if public_data and "input" in public_data:
+            component_input = public_data["input"]
+        
+        return component_input
+    
+    def get_component_metadata(self, component_type: str) -> dict:
+        """
+        Function to get the metadata part of the component types
+        
+        :param component_type: the component type to get the metadata part, ``str``
+        :return component_metadata: the metadata part of the component types, ``dict``
+        :raise CustomSixGLibraryException:
+        """
+        component_metadata = {}
+        public_file_path = os.path.join(self.github_6g_library_local_directory, component_type, ".tnlcm", "public.yaml")
+        if not os.path.exists(public_file_path):
+            raise CustomSixGLibraryException(f"File {public_file_path} not found", 404)
+        
+        public_data = load_yaml(file_path=public_file_path)
+        if public_data and "metadata" in public_data:
+            component_metadata = public_data["metadata"]
+        
+        return component_metadata

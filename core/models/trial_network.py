@@ -232,6 +232,44 @@ class TrialNetworkModel(Document):
             component_types.add(component["type"])
         return component_types
     
+    def _required_when(self, input_required_when: bool, component_input: dict) -> bool:
+        """
+        Function to check if the input is required
+        
+        :param input_required_when: boolean to check if the input is required, ``bool``
+        :param component_input: input provided in the descriptor, ``dict``
+        :return: boolean to check if the input is required, ``bool``
+        """
+        if isinstance(input_required_when, bool):
+            return input_required_when
+        if isinstance(input_required_when, str):
+            return eval(input_required_when, component_input)
+    
+    def _check_input(self, component_input: dict, component_input_library: dict) -> None:
+        """
+        Function to check if the input provided in the descriptor is correct
+        
+        :param component_input: input provided in the descriptor, ``dict``
+        :param component_input_library: input part in 6G-Library, ``dict``
+        :raise CustomTrialNetworkException:
+        """
+        type_mapping = {
+            "str": str,
+            "int": int,
+            "float": float,
+            "bool": bool,
+            "list": list,
+            "dict": dict,
+        }
+        for key, value in component_input_library.items():
+            input_type_str = value["type"]
+            input_type = type_mapping.get(input_type_str)
+            input_required_when = value["required_when"]
+            if self._required_when(input_required_when, component_input) and key not in component_input:
+                raise CustomTrialNetworkException(f"Input {key} is required", 422)
+            if key in component_input and not isinstance(component_input[key], input_type):
+                raise CustomTrialNetworkException(f"Input {key} is not of type {input_type}", 422)
+    
     def validate_descriptor(self, sixg_library_handler, sixg_sandbox_sites_handler) -> None:
         """
         Function to validate the descriptor
@@ -246,6 +284,8 @@ class TrialNetworkModel(Document):
             raise CustomTrialNetworkException("Descriptor does not contain trial_network", 422)
         if self.raw_descriptor["trial_network"] is None:
             raise CustomTrialNetworkException("Descriptor does not contain any entity", 422)
+        if "tn_init" not in self.raw_descriptor["trial_network"] and ("tn_vxlan" not in self.raw_descriptor["trial_network"] and "tn_bastion" not in self.raw_descriptor["trial_network"]):
+            raise CustomTrialNetworkException("Descriptor does not contain the required entities tn_init or tn_vxlan and tn_bastion", 422)
         for entity_name, entity_data in self.raw_descriptor["trial_network"].items():
             if not isinstance(entity_name, str):
                 raise CustomTrialNetworkException("Entity name has to be a string", 422)
@@ -282,11 +322,10 @@ class TrialNetworkModel(Document):
                     raise CustomTrialNetworkException(f"Entity {entity_name} is empty", 422)
                 if entity_name != f"{component_type}-{name}":
                     raise CustomTrialNetworkException(f"Entity {entity_name} does not match with the name provided {component_type}-{name}", 422)
-            sixg_library_handler.is_component_library(component_type)
-            sixg_sandbox_sites_handler.is_component_site(self.deployment_site, component_type)
-        if "tn_init" not in self.raw_descriptor["trial_network"] and ("tn_vxlan" not in self.raw_descriptor["trial_network"] and "tn_bastion" not in self.raw_descriptor["trial_network"]):
-            raise CustomTrialNetworkException("Descriptor does not contain the required entities tn_init or tn_vxlan and tn_bastion", 422)
-        # TODO: input validation
+            sixg_library_handler.is_component(component_type)
+            sixg_sandbox_sites_handler.is_component(self.deployment_site, component_type)
+            component_input_library = sixg_library_handler.get_component_input(component_type)
+            self._check_input(component_input, component_input_library)
         
     def to_dict(self) -> dict:
         return {

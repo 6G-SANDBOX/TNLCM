@@ -118,7 +118,7 @@ class SixGSandboxSitesHandler():
         site_available_components = data["site_available_components"]
         return site_available_components
     
-    def is_component_site(self, deployment_site: str, entity_name: str) -> None:
+    def is_component(self, deployment_site: str, entity_name: str) -> None:
         """
         Function to check if components in the descriptor are in the site
 
