@@ -1,12 +1,13 @@
 # Changelog
 
-## [unreleased] - 2024-XX-XX
+## [unreleased] - XXXX-XX-XX
 
 ### Added
 
 ### Changed
 
 - Migrate from pyyaml library to ruamel.yaml library to handle YAML files.
+- Trial network descriptor validator.
 
 ### Fixed
 
