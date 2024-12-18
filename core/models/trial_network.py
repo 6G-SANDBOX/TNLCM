@@ -14,6 +14,14 @@ from core.exceptions.exceptions_handler import CustomTrialNetworkException
 STATE_MACHINE = {"validated", "suspended", "activated", "failed", "destroyed"}
 COMPONENTS_EXCLUDE_CUSTOM_NAME = {"tn_init", "tn_vxlan", "tn_bastion", "tsn"}
 REQUIRED_FIELDS_DESCRIPTOR = {"type", "dependencies", "input"}
+TYPE_MAPPING = {
+    "str": str,
+    "int": int,
+    "float": float,
+    "bool": bool,
+    "list": list,
+    "dict": dict,
+}
 
 class TrialNetworkModel(Document):
 
@@ -253,17 +261,11 @@ class TrialNetworkModel(Document):
         :param component_input_library: input part in 6G-Library, ``dict``
         :raise CustomTrialNetworkException:
         """
-        type_mapping = {
-            "str": str,
-            "int": int,
-            "float": float,
-            "bool": bool,
-            "list": list,
-            "dict": dict,
-        }
+        
         for key, value in component_input_library.items():
-            input_type_str = value["type"]
-            input_type = type_mapping.get(input_type_str)
+            input_type = value["type"]
+            if input_type in TYPE_MAPPING:
+                input_type = TYPE_MAPPING[input_type]
             input_required_when = value["required_when"]
             if self._required_when(input_required_when, component_input) and key not in component_input:
                 raise CustomTrialNetworkException(f"Input {key} is required", 422)
@@ -326,6 +328,7 @@ class TrialNetworkModel(Document):
             sixg_sandbox_sites_handler.is_component(self.deployment_site, component_type)
             component_input_library = sixg_library_handler.get_component_input(component_type)
             self._check_input(component_input, component_input_library)
+            # FIX: choices
         
     def to_dict(self) -> dict:
         return {
