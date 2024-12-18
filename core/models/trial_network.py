@@ -302,23 +302,28 @@ class TrialNetworkModel(Document):
         :param component_input_library: input part in 6G-Library, ``dict``
         :raise CustomTrialNetworkException:
         """
-        for key, value in component_input_library.items():
-            input_type = value["type"]
-            input_required_when = value["required_when"]
-            if self._required_when(input_required_when, component_input) and key not in component_input:
-                raise CustomTrialNetworkException(f"Input {key} is required", 422)
-            if key in component_input:
-                if input_type.startswith("list[") and input_type.endswith("]"):
-                    self._isinstance_list(input_type, component_input[key])
-                elif self._boolean_expression(input_type):
-                    self._isinstance_entity_name(input_type, component_input[key])
-                elif self._isinstance_component(input_type, sixg_library_handler):
-                    self._isinstance_entity_name(input_type, component_input[key])
-                elif input_type in TYPE_MAPPING and not isinstance(component_input[key], TYPE_MAPPING[input_type]):
-                    raise CustomTrialNetworkException(f"Input {key} is not of type", 422)
-                if "choices" in value and component_input[key] not in value["choices"]:
-                    choices = value["choices"]
-                    raise CustomTrialNetworkException(f"Input {key} has to be one of the following choices {choices}", 422)
+        print(component_input)
+        print(component_input_library)
+        if (component_input_library is None or len(component_input_library) == 0) and len(component_input) > 0:
+            raise CustomTrialNetworkException("Input is not allowed", 422)
+        if component_input_library is not None:
+            for key, value in component_input_library.items():
+                input_type = value["type"]
+                input_required_when = value["required_when"]
+                if self._required_when(input_required_when, component_input) and key not in component_input:
+                    raise CustomTrialNetworkException(f"Input {key} is required", 422)
+                if key in component_input:
+                    if input_type.startswith("list[") and input_type.endswith("]"):
+                        self._isinstance_list(input_type, component_input[key])
+                    elif self._boolean_expression(input_type):
+                        self._isinstance_entity_name(input_type, component_input[key])
+                    elif self._isinstance_component(input_type, sixg_library_handler):
+                        self._isinstance_entity_name(input_type, component_input[key])
+                    elif input_type in TYPE_MAPPING and not isinstance(component_input[key], TYPE_MAPPING[input_type]):
+                        raise CustomTrialNetworkException(f"Input {key} is not of type", 422)
+                    if "choices" in value and component_input[key] not in value["choices"]:
+                        choices = value["choices"]
+                        raise CustomTrialNetworkException(f"Input {key} has to be one of the following choices {choices}", 422)
     
     def validate_descriptor(self, sixg_library_handler, sixg_sandbox_sites_handler) -> None:
         """
