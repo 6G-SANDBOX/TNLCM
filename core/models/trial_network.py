@@ -302,8 +302,6 @@ class TrialNetworkModel(Document):
         :param component_input_library: input part in 6G-Library, ``dict``
         :raise CustomTrialNetworkException:
         """
-        print(component_input)
-        print(component_input_library)
         if (component_input_library is None or len(component_input_library) == 0) and len(component_input) > 0:
             raise CustomTrialNetworkException("Input is not allowed", 422)
         if component_input_library is not None:
