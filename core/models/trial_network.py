@@ -1,4 +1,5 @@
 import os
+import re
 
 from datetime import datetime, timezone
 from string import ascii_lowercase, digits
@@ -102,7 +103,7 @@ class TrialNetworkModel(Document):
             raise CustomTrialNetworkException(f"Trial network state {state} not found", 404)
         self.state = state
 
-    def set_descriptor(self, file: FileStorage) -> None:
+    def set_raw_descriptor(self, file: FileStorage) -> None:
         """
         Set the trial network raw descriptor from a file
         
@@ -114,6 +115,12 @@ class TrialNetworkModel(Document):
             raise CustomTrialNetworkException("Invalid descriptor format. Only yml or yaml files will be further processed", 422)
         self.raw_descriptor = yaml_to_dict(file.stream)
 
+    def set_sorted_descriptor(self) -> None:
+        """
+        Recursive method that return the raw descriptor and a new descriptor sorted according to dependencies
+
+        :raise CustomTrialNetworkException:
+        """
         entities = self.raw_descriptor["trial_network"]
         ordered_entities = {}
 
@@ -130,10 +137,8 @@ class TrialNetworkModel(Document):
         for entity in entities:
             dfs(entity)
         
-        sorted_descriptor = {"trial_network": ordered_entities}
-        deployed_descriptor = {"trial_network": ordered_entities}
-        self.sorted_descriptor = sorted_descriptor
-        self.deployed_descriptor = deployed_descriptor
+        self.sorted_descriptor = {"trial_network": ordered_entities}
+        self.deployed_descriptor = {"trial_network": ordered_entities}
 
     def set_report(self, file_path: str) -> None:
         """
@@ -227,18 +232,6 @@ class TrialNetworkModel(Document):
             self.deployed_descriptor = self.sorted_descriptor
         else:
             self.deployed_descriptor = {"trial_network": deployed_descriptor}
-
-    def get_components_types(self) -> set:
-        """
-        Function to get the components types that are in the descriptor
-
-        :return: set with components that compose trial network descriptor, ``set``
-        """
-        component_types = set()
-        tn_descriptor = self.sorted_descriptor["trial_network"]
-        for _, component in tn_descriptor.items():
-            component_types.add(component["type"])
-        return component_types
     
     def _required_when(self, input_required_when: bool, component_input: dict) -> bool:
         """
@@ -253,24 +246,79 @@ class TrialNetworkModel(Document):
         if isinstance(input_required_when, str):
             return eval(input_required_when, component_input)
     
-    def _check_input(self, component_input: dict, component_input_library: dict) -> None:
+    def _isinstance_entity_name(self, input_type: str, input_value: str) -> None:
+        """
+        Function to check if the input is an entity name
+        
+        :param input_type: type of the input, ``str``
+        :param input_value: value of the input, ``str``
+        """
+        if input_value == "tn_vxlan":
+            if "tn_init" not in self.raw_descriptor["trial_network"]:
+                raise CustomTrialNetworkException("Entity tn_vxlan is not allowed without entity tn_init", 422)
+        else:
+            if input_value not in self.raw_descriptor["trial_network"]:
+                raise CustomTrialNetworkException(f"Entity {input_value} not found in the descriptor", 422)
+            type_component = self.raw_descriptor["trial_network"][input_value]["type"]
+            if type_component not in input_type:
+                raise CustomTrialNetworkException(f"Entity {input_value} is not of type {input_type}", 422)
+        
+    def _isinstance_list(self, input_type: str, input_value: list) -> None:
+        """
+        Function to check if the input is a list
+        
+        :param input_type: type of the input, ``str``
+        :param input_value: value of the input, ``list``
+        """
+        input_type = input_type[5:-1]
+        for value in input_value:
+            self._isinstance_entity_name(input_type, value)
+    
+    def _boolean_expression(self, input_type: str) -> bool:
+        """
+        Function to check if the input is a boolean expression
+        
+        :param input_type: type of the input, ``str``
+        :return: boolean to check if the input is a boolean expression, ``bool``
+        """
+        return bool(re.match(r"^(\w+\s*(and|or)\s*\w+(\s*(and|or)\s*\w+)*)$", input_type))
+    
+    def _isinstance_component(self, input_type: str, sixg_library_handler) -> bool:
+        """
+        Function to check if the input is a component
+        
+        :param input_type: type of the input, ``str``
+        :param sixg_library_handler: 6G-Library handler, ``SixGLibraryHandler``
+        :return: boolean to check if the input is a component, ``bool``
+        """
+        return input_type in sixg_library_handler.get_components()
+    
+    def _check_input(self, sixg_library_handler, component_input: dict, component_input_library: dict) -> None:
         """
         Function to check if the input provided in the descriptor is correct
         
+        :param sixg_library_handler: 6G-Library handler, ``SixGLibraryHandler``
         :param component_input: input provided in the descriptor, ``dict``
         :param component_input_library: input part in 6G-Library, ``dict``
         :raise CustomTrialNetworkException:
         """
-        
         for key, value in component_input_library.items():
             input_type = value["type"]
-            if input_type in TYPE_MAPPING:
-                input_type = TYPE_MAPPING[input_type]
             input_required_when = value["required_when"]
             if self._required_when(input_required_when, component_input) and key not in component_input:
                 raise CustomTrialNetworkException(f"Input {key} is required", 422)
-            if key in component_input and not isinstance(component_input[key], input_type):
-                raise CustomTrialNetworkException(f"Input {key} is not of type {input_type}", 422)
+            if key in component_input:
+                if input_type.startswith("list[") and input_type.endswith("]"):
+                    self._isinstance_list(input_type, component_input[key])
+                elif self._boolean_expression(input_type):
+                    self._isinstance_entity_name(input_type, component_input[key])
+                elif self._isinstance_component(input_type, sixg_library_handler):
+                    self._isinstance_entity_name(input_type, component_input[key])
+                elif input_type in TYPE_MAPPING and not isinstance(component_input[key], TYPE_MAPPING[input_type]):
+                    raise CustomTrialNetworkException(f"Input {key} is not of type", 422)
+                if "choices" in value and component_input[key] not in value["choices"]:
+                    choices = value["choices"]
+                    raise CustomTrialNetworkException(f"Input {key} has to be one of the following choices {choices}", 422)
     
     def validate_descriptor(self, sixg_library_handler, sixg_sandbox_sites_handler) -> None:
         """
@@ -327,8 +375,7 @@ class TrialNetworkModel(Document):
             sixg_library_handler.is_component(component_type)
             sixg_sandbox_sites_handler.is_component(self.deployment_site, component_type)
             component_input_library = sixg_library_handler.get_component_input(component_type)
-            self._check_input(component_input, component_input_library)
-            # FIX: choices
+            self._check_input(sixg_library_handler, component_input, component_input_library)
         
     def to_dict(self) -> dict:
         return {
