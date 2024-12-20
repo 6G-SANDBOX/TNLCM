@@ -59,7 +59,7 @@ class NewUserVerification(Resource):
     @user_no_two_factor_namespace.expect(parser_post)
     def post(self) -> tuple[dict, int]:
         """
-        Verify a new user account via email with the verification token
+        Register a new user
         """
         try:
             email = self.parser_post.parse_args()["email"]
@@ -132,7 +132,7 @@ class ChangePassword(Resource):
     @user_no_two_factor_namespace.expect(parser_post)
     def post(self) -> tuple[dict, int]:
         """
-        Change an user password with a reset token
+        Change current user password
         """
         try:
             receiver_email = self.parser_post.parse_args()["email"]
@@ -160,7 +160,7 @@ class UserTokenRefresh(Resource):
     @jwt_required(refresh=True)
     def post(self) -> tuple[dict, int]:
         """
-        Refresh tokens for user
+        Refresh tokens for current user
         """
         try:
             current_user = get_current_user_from_jwt(get_jwt_identity())
