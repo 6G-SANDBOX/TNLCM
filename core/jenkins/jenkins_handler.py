@@ -231,9 +231,9 @@ class JenkinsHandler:
         if self.jenkins_client.get_job_info(name=jenkins_destroy_pipeline)["lastSuccessfulBuild"]["number"] != last_build_number:
             raise CustomJenkinsException(f"Pipeline for destroy {self.trial_network.tn_id} trial network has failed", 500)
 
-    def delete_pipeline(self, pipeline_name: str) -> None:
+    def remove_pipeline(self, pipeline_name: str) -> None:
         """
-        Delete pipeline in Jenkins
+        Remove pipeline in Jenkins
 
         :param pipeline_name: name of pipeline, ``str`` 
         """

@@ -194,3 +194,26 @@ class JenkinsPipelines(Resource):
             return {"pipelines": jenkins_handler.get_all_pipelines()}, 200
         except CustomException as e:
             return {"message": str(e)}, e.error_code
+
+@debug_namespace.route("/jenkins/pipeline")
+class RemoveJenkinsPipeline(Resource):
+
+    parser_delete = reqparse.RequestParser()
+    parser_delete.add_argument("pipeline_name", type=str, required=True)
+
+    @debug_namespace.doc(security="Bearer Auth")
+    @debug_namespace.errorhandler(PyJWTError)
+    @debug_namespace.errorhandler(JWTExtendedException)
+    @jwt_required()
+    @debug_namespace.expect(parser_delete)
+    def delete(self) -> tuple[dict, int]:
+        """
+        Remove a pipeline stored in Jenkins
+        """
+        try:
+            pipeline_name = self.parser_delete.parse_args()["pipeline_name"]
+            jenkins_handler = JenkinsHandler()
+            jenkins_handler.remove_pipeline(pipeline_name)
+            return {"message": f"Pipeline {pipeline_name} successfully removed"}, 200
+        except CustomException as e:
+            return {"message": str(e)}, e.error_code
