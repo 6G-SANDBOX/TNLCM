@@ -141,7 +141,7 @@ class TrialNetwork(Resource):
     @jwt_required()
     def get(self, tn_id: str) -> tuple[dict, int]:
         """
-        Get trial network
+        Retrieve trial network
         """
         try:
             current_user = get_current_user_from_jwt(get_jwt_identity())
@@ -331,8 +331,8 @@ class PurgeTrialNetwork(Resource):
             
             if trial_network.state == "destroyed":
                 jenkins_handler = JenkinsHandler(trial_network=trial_network)
-                jenkins_handler.delete_pipeline(trial_network.jenkins_deploy_pipeline)
-                jenkins_handler.delete_pipeline(trial_network.jenkins_destroy_pipeline)
+                jenkins_handler.remove_pipeline(trial_network.jenkins_deploy_pipeline)
+                jenkins_handler.remove_pipeline(trial_network.jenkins_destroy_pipeline)
             rmtree(trial_network.directory_path)
             log_handler.info(f"[{trial_network.tn_id}] - Deleted trial network directory {trial_network.directory_path}")
             log_handler.info(f"[{trial_network.tn_id}] - Trial network purge")
@@ -353,7 +353,7 @@ class ReportTrialNetwork(Resource):
     @jwt_required()
     def get(self, tn_id: str) -> tuple[dict, int]:
         """
-        Report generated after trial network deployment
+        Retrieve report generated after trial network deployment
         """
         try:
             current_user = get_current_user_from_jwt(get_jwt_identity())
