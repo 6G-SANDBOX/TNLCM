@@ -62,7 +62,7 @@ class ResourceManagerModel(Document):
             if sixg_sandbox_sites_component_quantity > 0:
                 tnlcm_quantity, _ = self._tnlcm_component_resources(component_type)
                 if sixg_sandbox_sites_component_quantity == tnlcm_quantity:
-                    raise CustomResourceManagerException(f"Component '{component_type}' is not available on the '{trial_network.deployment_site}' platform", 400)
+                    raise CustomResourceManagerException(f"Component {component_type} is not available on the {trial_network.deployment_site} platform", 400)
                 tnlcm_component_resources = ResourceManagerModel.objects(component=component_type).first()
                 if not tnlcm_component_resources:
                     tnlcm_component_resources = ResourceManagerModel(component=component_type, tn_id=trial_network.tn_id, quantity=1, ttl=sixg_sandbox_sites_component_ttl)

@@ -93,7 +93,7 @@ class SixGSandboxSitesHandler():
         :raise CustomSixGSandboxSitesException:
         """
         if deployment_site not in self.get_sites():
-            raise CustomSixGSandboxSitesException(f"Site should be one: {', '.join(self.get_sites())}", 404)
+            raise CustomSixGSandboxSitesException(f"Site should be one: {self.get_sites()}", 404)
 
         core_file = os.path.join(self.github_6g_sandbox_sites_local_directory, deployment_site, "core.yaml")
         encrypted_data = load_file(file_path=core_file, mode="rb", encoding=None)

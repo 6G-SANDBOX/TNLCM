@@ -59,7 +59,7 @@ class JenkinsHandler:
         if jenkins_deploy_pipeline:
             pipelines = self.get_all_pipelines()
             if jenkins_deploy_pipeline not in pipelines:
-                raise CustomJenkinsException(f"The jenkins_deploy_pipeline should be one: {', '.join(pipelines)}", 404)
+                raise CustomJenkinsException(f"The jenkins_deploy_pipeline should be one: {pipelines}", 404)
             if self.jenkins_client.get_job_info(jenkins_deploy_pipeline)["inQueue"]:
                 raise CustomJenkinsException(f"The pipeline {jenkins_deploy_pipeline} is currently in use. Try again later", 500)
             log_handler.info(f"[{self.trial_network.tn_id}] - Using existing pipeline {jenkins_deploy_pipeline} to deploy the trial network")
@@ -135,7 +135,7 @@ class JenkinsHandler:
             response = post(jenkins_build_job_url, auth=(self.jenkins_username, self.jenkins_token), files=file)
             log_handler.info(f"[{self.trial_network.tn_id}] - Deployment request code of the {entity_name} entity {response.status_code}")
             if response.status_code != 201:
-                raise CustomJenkinsException(f"Error in the response received by Jenkins when trying to deploy the '{entity_name}' entity", response.status_code)
+                raise CustomJenkinsException(f"Error in the response received by Jenkins when trying to deploy the {entity_name} entity", response.status_code)
             next_build_number = self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["nextBuildNumber"]
             while not self.jenkins_client.get_job_info(name=self.trial_network.jenkins_deploy_pipeline)["lastCompletedBuild"]:
                 log_handler.info(f"[{self.trial_network.tn_id}] - Deploying {entity_name} in {self.trial_network.deployment_site} site")
@@ -168,7 +168,7 @@ class JenkinsHandler:
         if jenkins_destroy_pipeline:
             pipelines = self.get_all_pipelines()
             if jenkins_destroy_pipeline not in pipelines:
-                raise CustomJenkinsException(f"The jenkins_destroy_pipeline should be one: {', '.join(pipelines)}", 404)
+                raise CustomJenkinsException(f"The jenkins_destroy_pipeline should be one: {pipelines}", 404)
             if self.jenkins_client.get_job_info(jenkins_destroy_pipeline)["inQueue"]:
                 raise CustomJenkinsException(f"The pipeline {jenkins_destroy_pipeline} is currently in use. Try again later", 500)
             log_handler.info(f"[{self.trial_network.tn_id}] - Using existing pipeline {jenkins_destroy_pipeline} to destroy the trial network")

@@ -102,7 +102,7 @@ class UserLogin(Resource):
             auth = request.authorization
 
             if not auth or not auth.username or not auth.password:
-                return {"message": f"Could not verify user '{auth.username}'"}, 401
+                return {"message": f"Could not verify user {auth.username}"}, 401
 
             user = UserModel.objects(username=auth.username).first()
             if not user:
@@ -116,7 +116,7 @@ class UserLogin(Resource):
                     "refresh_token": refresh_token
                 }, 201
             
-            return {"message": f"Could not verify user '{auth.username}'"}, 401
+            return {"message": f"Could not verify user {auth.username}"}, 401
         except CustomException as e:
             return {"message": str(e)}, e.error_code
         except Exception as e:

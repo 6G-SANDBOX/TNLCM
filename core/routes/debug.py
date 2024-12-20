@@ -130,7 +130,7 @@ class AddDebugEntityName(Resource):
             trial_network.sorted_descriptor = sorted_descriptor
             trial_network.deployed_descriptor = deployed_descriptor
             trial_network.save()
-            return {"message": f"Successfully added debug into '{entity_name}' entity name of the Trial Network '{tn_id}'"}, 201
+            return {"message": f"Successfully added debug into {entity_name} entity name of the Trial Network {tn_id}"}, 201
         except CustomException as e:
             return {"message": str(e)}, e.error_code
         except Exception as e:
@@ -171,7 +171,7 @@ class DeleteDebugEntityName(Resource):
             trial_network.sorted_descriptor = sorted_descriptor
             trial_network.deployed_descriptor = deployed_descriptor
             trial_network.save()
-            return {"message": f"Successfully deleted debug into '{entity_name}' entity name of the Trial Network '{tn_id}'"}, 201
+            return {"message": f"Successfully deleted debug into {entity_name} entity name of the Trial Network {tn_id}"}, 201
         except CustomException as e:
             return {"message": str(e)}, e.error_code
         except Exception as e:
