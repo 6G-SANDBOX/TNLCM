@@ -1,5 +1,7 @@
 import os
 import re
+import ast
+import operator
 
 from datetime import datetime, timezone
 from string import ascii_lowercase, digits
@@ -22,6 +24,16 @@ TYPE_MAPPING = {
     "bool": bool,
     "list": list,
     "dict": dict,
+}
+OPERATORS = {
+    ast.And: operator.and_,
+    ast.Or: operator.or_,
+    ast.Eq: operator.eq,
+    ast.NotEq: operator.ne,
+    ast.Lt: operator.lt,
+    ast.LtE: operator.le,
+    ast.Gt: operator.gt,
+    ast.GtE: operator.ge
 }
 
 class TrialNetworkModel(Document):
@@ -233,6 +245,36 @@ class TrialNetworkModel(Document):
         else:
             self.deployed_descriptor = {"trial_network": deployed_descriptor}
     
+    def _evaluate_expression(self, expression: str, context: dict) -> bool:
+        """
+        Safely evaluate a boolean expression in the context of a dictionary.
+
+        :param expression: The boolean expression to evaluate, ``str``
+        :param context: The dictionary providing values for the variables in the expression, ``dict``
+        :return: The result of the evaluation, ``bool``
+        """
+        def _eval(node):
+            if isinstance(node, ast.BoolOp):
+                op = OPERATORS[type(node.op)]
+                return op(_eval(node.values[0]), _eval(node.values[1]))
+            elif isinstance(node, ast.BinOp):
+                op = OPERATORS[type(node.op)]
+                return op(_eval(node.left), _eval(node.right))
+            elif isinstance(node, ast.Compare):
+                left = _eval(node.left)
+                right = _eval(node.comparators[0])
+                op = OPERATORS[type(node.ops[0])]
+                return op(left, right)
+            elif isinstance(node, ast.Name):
+                if node.id in context:
+                    return context[node.id]
+                raise ValueError(f"Undefined variable: {node.id}")
+            elif isinstance(node, ast.Constant):
+                return node.value
+            raise TypeError(f"Unsupported AST node: {type(node)}")
+        tree = ast.parse(expression, mode="eval")
+        return _eval(tree.body)
+
     def _required_when(self, input_required_when: bool, component_input: dict) -> bool:
         """
         Function to check if the input is required
@@ -244,7 +286,7 @@ class TrialNetworkModel(Document):
         if isinstance(input_required_when, bool):
             return input_required_when
         if isinstance(input_required_when, str):
-            return eval(input_required_when, component_input)
+            return self._evaluate_expression(input_required_when, component_input)
     
     def _isinstance_entity_name(self, input_type: str, input_value: str) -> None:
         """
