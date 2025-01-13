@@ -9,4 +9,4 @@ def init_mail(app: Flask) -> None:
 
     :param app: Flask application instance to initialize the mail extension with, ``Flask``
     """
-    mail.init_app(app)
+    mail.init_app(app=app)

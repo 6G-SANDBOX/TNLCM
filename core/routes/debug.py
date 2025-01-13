@@ -6,8 +6,8 @@ from jwt.exceptions import PyJWTError
 from core.auth.auth import get_current_user_from_jwt
 from core.logs.log_handler import log_handler
 from core.models import TrialNetworkModel
-from core.sixg_library.sixg_library_handler import SixGLibraryHandler
-from core.sixg_sandbox_sites.sixg_sandbox_sites_handler import SixGSandboxSitesHandler
+from core.library.library_handler import LibraryHandler
+from core.sites.sites_handler import SitesHandler
 from core.jenkins.jenkins_handler import JenkinsHandler
 from core.exceptions.exceptions_handler import CustomException
 
@@ -24,8 +24,8 @@ debug_namespace = Namespace(
     }
 )
 
-@debug_namespace.route("/trial-network/6G-Library/commit")
-class UpdateCommitSixGLibrary(Resource):
+@debug_namespace.route("/trial-network/library/commit")
+class UpdateCommitLibrary(Resource):
 
     parser_post = reqparse.RequestParser()
     parser_post.add_argument("tn_id", type=str, required=True)
@@ -38,7 +38,7 @@ class UpdateCommitSixGLibrary(Resource):
     @debug_namespace.expect(parser_post)
     def post(self) -> tuple[dict, int]:
         """
-        Update the 6G-Library commit associated with the trial network 
+        Update the Library commit associated with the trial network 
         """
         try:
             tn_id = self.parser_post.parse_args()["tn_id"]
@@ -49,9 +49,9 @@ class UpdateCommitSixGLibrary(Resource):
             if current_user.role == "admin":
                 trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
             
-            sixg_library_handler = SixGLibraryHandler(https_url=trial_network.github_6g_library_https_url, reference_type="commit", reference_value=trial_network.github_6g_library_commit_id, directory_path=trial_network.directory_path)
-            sixg_library_handler.git_switch()
-            trial_network.set_github_6g_library_commit_id(commit_id)
+            library_handler = LibraryHandler(https_url=trial_network.library_https_url, reference_type="commit", reference_value=trial_network.library_commit_id, directory_path=trial_network.directory_path)
+            library_handler.git_switch()
+            trial_network.set_library_commit_id(commit_id)
             trial_network.save()
             return {"message": "Commit successfully modified"}, 201
         except CustomException as e:
@@ -60,8 +60,8 @@ class UpdateCommitSixGLibrary(Resource):
             log_handler.error(f"[{trial_network.tn_id}] - {e}")
             return abort(500, str(e))
 
-@debug_namespace.route("/trial-network/6G-Sandbox-Sites/commit")
-class UpdateCommitSixGSandboxSites(Resource):
+@debug_namespace.route("/trial-network/sites/commit")
+class UpdateCommitSites(Resource):
 
     parser_post = reqparse.RequestParser()
     parser_post.add_argument("tn_id", type=str, required=True)
@@ -74,7 +74,7 @@ class UpdateCommitSixGSandboxSites(Resource):
     @debug_namespace.expect(parser_post)
     def post(self) -> tuple[dict, int]:
         """
-        Update the 6G-Sandbox-Sites commit associated with the trial network 
+        Update the Sites commit associated with the trial network 
         """
         try:
             tn_id = self.parser_post.parse_args()["tn_id"]
@@ -85,9 +85,9 @@ class UpdateCommitSixGSandboxSites(Resource):
             if current_user.role == "admin":
                 trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
             
-            sixg_sandbox_sites_handler = SixGSandboxSitesHandler(https_url=trial_network.github_6g_sandbox_sites_https_url, reference_type="commit", reference_value=trial_network.github_6g_library_commit_id, directory_path=trial_network.directory_path)
-            sixg_sandbox_sites_handler.git_switch()
-            trial_network.set_github_6g_sandbox_sites_commit_id(commit_id)
+            sites_handler = SitesHandler(https_url=trial_network.sites_https_url, reference_type="commit", reference_value=trial_network.library_commit_id, directory_path=trial_network.directory_path)
+            sites_handler.git_switch()
+            trial_network.set_sites_commit_id(commit_id)
             trial_network.save()
             return {"message": "Commit successfully modified"}, 201
         except CustomException as e:

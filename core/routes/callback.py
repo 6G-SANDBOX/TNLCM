@@ -29,8 +29,8 @@ class Callback(Resource):
                 return {"message": f"Pipeline for entity {callback_handler.entity_name} failed"}, 500
 
             if not callback_handler.matches_expected_output():
-                return {"message": "Output keys received by Jenkins does not match output keys from the 6G-Library"}, 500
-            log_handler.info(f"[{trial_network.tn_id}] - Output keys received by Jenkins match with output keys from the 6G-Library")
+                return {"message": "Output keys received by Jenkins does not match output keys from the Library"}, 500
+            log_handler.info(f"[{trial_network.tn_id}] - Output keys received by Jenkins match with output keys from the Library")
             
             trial_network.set_output(callback_handler.entity_name, callback_handler.decoded_data)
             trial_network.save()

@@ -52,10 +52,10 @@ class TrialNetworkModel(Document):
     deployment_site = StringField()
     input = DictField(default={})
     output = DictField(default={})
-    github_6g_library_https_url = StringField()
-    github_6g_library_commit_id = StringField()
-    github_6g_sandbox_sites_https_url = StringField()
-    github_6g_sandbox_sites_commit_id = StringField()
+    library_https_url = StringField()
+    library_commit_id = StringField()
+    sites_https_url = StringField()
+    sites_commit_id = StringField()
 
     meta = {
         "db_alias": "tnlcm-database-alias",
@@ -202,37 +202,37 @@ class TrialNetworkModel(Document):
         """
         self.output[entity_name] = entity_data_output
     
-    def set_github_6g_library_https_url(self, github_6g_library_https_url: str) -> None:
+    def set_library_https_url(self, library_https_url: str) -> None:
         """
-        Set HTTPS URL from 6G-Library to be used for deploy trial network
+        Set HTTPS URL from Library to be used for deploy trial network
         
-        :param github_6g_library_https_url: HTTPS URL from 6G-Library, ``str``
+        :param library_https_url: HTTPS URL from Library, ``str``
         """
-        self.github_6g_library_https_url = github_6g_library_https_url
+        self.library_https_url = library_https_url
     
-    def set_github_6g_library_commit_id(self, github_6g_library_commit_id: str) -> None:
+    def set_library_commit_id(self, library_commit_id: str) -> None:
         """
-        Set commit id from 6G-Library to be used for deploy trial network
+        Set commit id from Library to be used for deploy trial network
         
-        :param github_6g_library_commit_id: commit ID from 6G-Library, ``str``
+        :param library_commit_id: commit ID from Library, ``str``
         """
-        self.github_6g_library_commit_id = github_6g_library_commit_id
+        self.library_commit_id = library_commit_id
     
-    def set_github_6g_sandbox_sites_https_url(self, github_6g_sandbox_sites_https_url: str) -> None:
+    def set_sites_https_url(self, sites_https_url: str) -> None:
         """
-        Set HTTPS URL from 6G-Sandbox-Sites to be used for deploy trial network
+        Set HTTPS URL from Sites to be used for deploy trial network
         
-        :param github_6g_sandbox_sites_https_url: HTTPS URL from 6G-Sandbox-Sites, ``str``
+        :param sites_https_url: HTTPS URL from Sites, ``str``
         """
-        self.github_6g_sandbox_sites_https_url = github_6g_sandbox_sites_https_url
+        self.sites_https_url = sites_https_url
 
-    def set_github_6g_sandbox_sites_commit_id(self, github_6g_sandbox_sites_commit_id: str) -> None:
+    def set_sites_commit_id(self, sites_commit_id: str) -> None:
         """
-        Set commit id from 6G-Sandbox-Sites to be used for deploy trial network
+        Set commit id from Sites to be used for deploy trial network
         
-        :param github_6g_sandbox_sites_commit_id: commit ID from 6G-Sandbox-Sites, ``str``
+        :param sites_commit_id: commit ID from Sites, ``str``
         """
-        self.github_6g_sandbox_sites_commit_id = github_6g_sandbox_sites_commit_id
+        self.sites_commit_id = sites_commit_id
 
     def set_deployed_descriptor(self, deployed_descriptor: dict = None) -> None:
         """
@@ -325,23 +325,23 @@ class TrialNetworkModel(Document):
         """
         return bool(re.match(r"^(\w+\s*(and|or)\s*\w+(\s*(and|or)\s*\w+)*)$", input_type))
     
-    def _isinstance_component(self, input_type: str, sixg_library_handler) -> bool:
+    def _isinstance_component(self, input_type: str, library_handler) -> bool:
         """
         Function to check if the input is a component
         
         :param input_type: type of the input, ``str``
-        :param sixg_library_handler: 6G-Library handler, ``SixGLibraryHandler``
+        :param library_handler: Library handler, ``LibraryHandler``
         :return: boolean to check if the input is a component, ``bool``
         """
-        return input_type in sixg_library_handler.get_components()
+        return input_type in library_handler.get_components()
     
-    def _check_input(self, sixg_library_handler, component_input: dict, component_input_library: dict) -> None:
+    def _check_input(self, library_handler, component_input: dict, component_input_library: dict) -> None:
         """
         Function to check if the input provided in the descriptor is correct
         
-        :param sixg_library_handler: 6G-Library handler, ``SixGLibraryHandler``
+        :param library_handler: Library handler, ``LibraryHandler``
         :param component_input: input provided in the descriptor, ``dict``
-        :param component_input_library: input part in 6G-Library, ``dict``
+        :param component_input_library: input part in Library, ``dict``
         :raise CustomTrialNetworkException:
         """
         if (component_input_library is None or len(component_input_library) == 0) and len(component_input) > 0:
@@ -357,7 +357,7 @@ class TrialNetworkModel(Document):
                         self._isinstance_list(input_type, component_input[key])
                     elif self._boolean_expression(input_type):
                         self._isinstance_entity_name(input_type, component_input[key])
-                    elif self._isinstance_component(input_type, sixg_library_handler):
+                    elif self._isinstance_component(input_type, library_handler):
                         self._isinstance_entity_name(input_type, component_input[key])
                     elif input_type in TYPE_MAPPING and not isinstance(component_input[key], TYPE_MAPPING[input_type]):
                         raise CustomTrialNetworkException(f"Input {key} is not of type", 422)
@@ -365,12 +365,12 @@ class TrialNetworkModel(Document):
                         choices = value["choices"]
                         raise CustomTrialNetworkException(f"Input {key} has to be one of the following choices {choices}", 422)
     
-    def validate_descriptor(self, sixg_library_handler, sixg_sandbox_sites_handler) -> None:
+    def validate_descriptor(self, library_handler, sites_handler) -> None:
         """
         Function to validate the descriptor
         
-        :param sixg_library_handler: 6G-Library handler, ``SixGLibraryHandler``
-        :param sixg_sandbox_sites_handler: 6G-Sandbox-Sites handler, ``SixGSandboxSitesHandler``
+        :param library_handler: Library handler, ``LibraryHandler``
+        :param sites_handler: Sites handler, ``SitesHandler``
         :raise CustomTrialNetworkException:
         """
         if len(self.raw_descriptor) == 0:
@@ -417,22 +417,23 @@ class TrialNetworkModel(Document):
                     raise CustomTrialNetworkException(f"Entity {entity_name} is empty", 422)
                 if entity_name != f"{component_type}-{name}":
                     raise CustomTrialNetworkException(f"Entity {entity_name} does not match with the name provided {component_type}-{name}", 422)
-            sixg_library_handler.is_component(component_type)
-            sixg_sandbox_sites_handler.is_component(self.deployment_site, component_type)
-            component_input_library = sixg_library_handler.get_component_input(component_type)
-            self._check_input(sixg_library_handler, component_input, component_input_library)
+            library_handler.is_component(component_type)
+            sites_handler.is_component(self.deployment_site, component_type)
+            component_input_library = library_handler.get_component_input(component_type)
+            self._check_input(library_handler, component_input, component_input_library)
         
     def to_dict(self) -> dict:
         return {
             "user_created": self.user_created,
             "tn_id": self.tn_id,
             "state": self.state,
+            "date_created_utc": self.date_created_utc.isoformat(),
             "deployment_site": self.deployment_site,
             "directory_path": self.directory_path,
-            "github_6g_library_https_url": self.github_6g_library_https_url,
-            "github_6g_library_commit_id": self.github_6g_library_commit_id,
-            "github_6g_sandbox_sites_https_url": self.github_6g_sandbox_sites_https_url,
-            "github_6g_sandbox_sites_commit_id": self.github_6g_sandbox_sites_commit_id
+            "library_https_url": self.library_https_url,
+            "library_commit_id": self.library_commit_id,
+            "sites_https_url": self.sites_https_url,
+            "sites_commit_id": self.sites_commit_id
         }
     
     def to_dict_full(self) -> dict:
@@ -451,10 +452,10 @@ class TrialNetworkModel(Document):
             "deployment_site": self.deployment_site,
             "input": self.input,
             "output": self.output,
-            "github_6g_library_https_url": self.github_6g_library_https_url,
-            "github_6g_library_commit_id": self.github_6g_library_commit_id,
-            "github_6g_sandbox_sites_https_url": self.github_6g_sandbox_sites_https_url,
-            "github_6g_sandbox_sites_commit_id": self.github_6g_sandbox_sites_commit_id
+            "library_https_url": self.library_https_url,
+            "library_commit_id": self.library_commit_id,
+            "sites_https_url": self.sites_https_url,
+            "sites_commit_id": self.sites_commit_id
         }
 
     def __repr__(self) -> str:

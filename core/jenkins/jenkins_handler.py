@@ -5,10 +5,11 @@ from time import sleep
 from jenkins import Jenkins
 from requests.exceptions import RequestException
 
-from conf import JenkinsSettings, TnlcmSettings
+from conf.jenkins import JenkinsSettings
+from conf.tnlcm import TnlcmSettings
 from core.logs.log_handler import log_handler
 from core.models import TrialNetworkModel
-from core.sixg_library.sixg_library_handler import SixGLibraryHandler
+from core.library.library_handler import LibraryHandler
 from core.utils.file_handler import load_file, save_yaml
 from core.exceptions.exceptions_handler import CustomJenkinsException
 
@@ -17,17 +18,17 @@ class JenkinsHandler:
     def __init__(
         self, 
         trial_network: TrialNetworkModel = None, 
-        sixg_library_handler: SixGLibraryHandler = None, 
+        library_handler: LibraryHandler = None, 
     ) -> None:
         """
         Constructor
 
         :param trial_network: model of the trial network to be deployed, ``TrialNetworkModel``
-        :param sixg_library_handler: handler to 6G-Library, ``SixGLibraryHandler``
+        :param library_handler: Library handler, ``LibraryHandler``
         :raises JenkinsConnectionError:
         """
         self.trial_network = trial_network
-        self.sixg_library_handler = sixg_library_handler
+        self.library_handler = library_handler
         self.jenkins_url = JenkinsSettings.JENKINS_URL
         self.jenkins_username = JenkinsSettings.JENKINS_USERNAME
         self.jenkins_password = JenkinsSettings.JENKINS_PASSWORD
@@ -96,10 +97,10 @@ class JenkinsHandler:
             "DEPLOYMENT_SITE": self.trial_network.deployment_site,
             "TNLCM_CALLBACK": self.tnlcm_callback,
             # OPTIONAL
-            "LIBRARY_URL": self.trial_network.github_6g_library_https_url,
-            "LIBRARY_BRANCH": self.trial_network.github_6g_library_commit_id,
-            "SITES_URL": self.trial_network.github_6g_sandbox_sites_https_url,
-            "SITES_BRANCH": self.trial_network.github_6g_sandbox_sites_commit_id,
+            "LIBRARY_URL": self.trial_network.library_https_url,
+            "LIBRARY_BRANCH": self.trial_network.library_commit_id,
+            "SITES_URL": self.trial_network.sites_https_url,
+            "SITES_BRANCH": self.trial_network.sites_commit_id,
             "DEBUG": debug
         }
         if custom_name:
@@ -128,7 +129,7 @@ class JenkinsHandler:
             self.trial_network.set_input(entity_name, entity_name_input)
             save_yaml(data=entity_name_input, file_path=entity_name_input_file_path)
             log_handler.info(f"[{self.trial_network.tn_id}] - Created input file for entity {entity_name} to send to Jenkins pipeline")
-            entity_name_input_file_content = load_file(entity_name_input_file_path, mode="rb", encoding=None)
+            entity_name_input_file_content = load_file(file_path=entity_name_input_file_path, mode="rb", encoding=None)
             file = {"FILE": (entity_name_input_file_path, entity_name_input_file_content)}
             log_handler.info(f"[{self.trial_network.tn_id}] - Add Jenkins parameters to the pipeline of the {entity_name} entity")
             jenkins_build_job_url = self.jenkins_client.build_job_url(name=self.trial_network.jenkins_deploy_pipeline, parameters=self._jenkins_deployment_parameters(component_type, custom_name, debug))
@@ -196,7 +197,7 @@ class JenkinsHandler:
         entities_with_destroy_script = []
         for entity_name, entity_data in sorted_descriptor.items():
             component_type = entity_data["type"]
-            component_metadata = self.sixg_library_handler.get_component_metadata(component_type)
+            component_metadata = self.library_handler.get_component_metadata(component_type)
             if "destroy_script" in component_metadata and component_metadata["destroy_script"]:
                 entities_with_destroy_script.append(entity_name)
         return {
@@ -205,10 +206,10 @@ class JenkinsHandler:
             "DEPLOYMENT_SITE": self.trial_network.deployment_site,
             "TNLCM_CALLBACK": self.tnlcm_callback,
             # OPTIONAL
-            "LIBRARY_URL": self.trial_network.github_6g_library_https_url,
-            "LIBRARY_BRANCH": self.trial_network.github_6g_library_commit_id,
-            "SITES_URL": self.trial_network.github_6g_sandbox_sites_https_url,
-            "SITES_BRANCH": self.trial_network.github_6g_sandbox_sites_commit_id,
+            "LIBRARY_URL": self.trial_network.library_https_url,
+            "LIBRARY_BRANCH": self.trial_network.library_commit_id,
+            "SITES_URL": self.trial_network.sites_https_url,
+            "SITES_BRANCH": self.trial_network.sites_commit_id,
             # "SCRIPTED_DESTROY_COMPONENTS": entities_with_destroy_script
             # "DEBUG": true
         }

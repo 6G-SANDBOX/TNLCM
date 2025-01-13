@@ -1,7 +1,7 @@
-import os
-
+from conf.mail import MailSettings
+from conf.mongodb import MongoDBSettings
 from core.logs.log_handler import log_handler
-from conf import MailSettings, MongoDBSettings
+from core.utils.os_handler import get_dotenv_var
 from core.exceptions.exceptions_handler import InvalidEnvVariableError
 
 class FlaskConf(object):
@@ -11,11 +11,11 @@ class FlaskConf(object):
     
     DEBUG = False
     TESTING = False
-    SECRET_KEY = os.getenv("SECRET_KEY") or "clave"
+    SECRET_KEY = get_dotenv_var(key="SECRET_KEY") or "clave"
     ERROR_404_HELP = False
 
     ME_CONFIG_MONGODB_URL = MongoDBSettings.ME_CONFIG_MONGODB_URL
-    FLASK_ENV=os.getenv("FLASK_ENV")
+    FLASK_ENV = get_dotenv_var(key="FLASK_ENV")
     if FLASK_ENV != "production" and FLASK_ENV != "development":
         raise InvalidEnvVariableError("FLASK_ENV", ["production", "development"])
     if not MailSettings.TWO_FACTOR_AUTH:

@@ -16,7 +16,7 @@ log_handler.debug(f"Loading the {dotenv_path} file of TNLCM")
 from .mail import MailSettings
 from .mongodb import MongoDBSettings
 from .jenkins import JenkinsSettings
-from .sixg_library import SixGLibrarySettings
-from .sixg_sandbox_sites import SixGSandboxSitesSettings
+from .library import LibrarySettings
+from .sites import SitesSettings
 from .tnlcm import TnlcmSettings
 from .flask_conf import FlaskConf

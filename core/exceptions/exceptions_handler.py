@@ -42,23 +42,23 @@ class CustomCallbackException(CustomException):
     """Base class for callback related exceptions"""
     pass
 
-###################################
-###### 6G-Library exception #######
-###################################
-class CustomSixGLibraryException(CustomException):
-    """Base class for 6G-Library related exceptions"""
+##################################
+####### Library exception ########
+##################################
+class CustomLibraryException(CustomException):
+    """Base class for Library related exceptions"""
     pass
 
-###################################
-### 6G-Sandbox-Sites exception ####
-###################################
-class CustomSixGSandboxSitesException(CustomException):
-    """Base class for 6G-Sandbox-Sites related exceptions"""
+##################################
+######## Sites exception #########
+##################################
+class CustomSitesException(CustomException):
+    """Base class for Sites related exceptions"""
     pass
 
-###################################
-######## GitHub exception #########
-###################################
+##################################
+######### Git exception ##########
+##################################
 class CustomGitException(CustomException):
     """Base class for GitHub related exceptions"""
     pass
