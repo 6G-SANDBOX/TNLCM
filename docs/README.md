@@ -29,7 +29,7 @@ TNLCM (Trial Network Lifecycle Manager) is a tool designed to manage the lifecyc
   - [:desktop\_computer: Execute installation script](#desktop_computer-execute-installation-script)
   - [:snake: Start server](#snake-start-server)
 - [:hammer\_and\_wrench: Stack](#hammer_and_wrench-stack)
-- [📚 Documentation](#-documentation)
+- [:books: Documentation](#books-documentation)
 </details>
 
 ## :round_pushpin: Roadmap
@@ -61,20 +61,20 @@ TNLCM (Trial Network Lifecycle Manager) is a tool designed to manage the lifecyc
 
 ### :inbox_tray: Download the installation script
 
-Download the installation script which is [`deploy_vm.sh`](../scripts/deploy_vm.sh) and is located in the `scripts` directory.
+Download the installation script which is [`installer.sh`](../scripts/installer.sh) and is located in the `scripts` directory.
 
 ### :desktop_computer: Execute installation script
 
 Give execution permissions to the script:
 
 ```bash
-chmod +x deploy_vm.sh
+chmod +x installer.sh
 ```
 
 Run the script and follow the instructions:
 
 ```bash
-./deploy_vm.sh
+./installer.sh
 ```
 
 ### :snake: Start server
@@ -90,7 +90,7 @@ A Swagger UI will be available at the url http://tnlcm-backend-ip:5000 where the
 - [![Flask][flask-badge]][flask-url] - Python framework for web applications to expose the API.
 - [![MongoDB][mongodb-badge]][mongodb-url] - NoSQL database designed to store Trial Networks.
 
-## 📚 Documentation
+## :books: Documentation
 
 Find the complete documentation and usage guides in our [wiki](https://github.com/6G-SANDBOX/TNLCM/wiki).
 
@@ -105,8 +105,8 @@ Find the complete documentation and usage guides in our [wiki](https://github.co
 <!-- Urls, Shields and Badges -->
 [tnlcm-badge]: https://img.shields.io/badge/TNLCM-v0.4.4-blue
 [tnlcm-url]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.4.4
-[python-badge]: https://img.shields.io/badge/Python-3.13.0-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB
-[python-url]: https://www.python.org/downloads/release/python-3130/
+[python-badge]: https://img.shields.io/badge/Python-3.13.1-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB
+[python-url]: https://www.python.org/downloads/release/python-3131/
 [flask-badge]: https://img.shields.io/badge/Flask-3.1.0-brightgreen?style=for-the-badge&logo=flask&logoColor=white&labelColor=000000
 [flask-url]: https://flask.palletsprojects.com/en/stable/
 [mongodb-badge]: https://img.shields.io/badge/MongoDB-8.0-green?style=for-the-badge&logo=mongodb&logoColor=white&labelColor=47A248
