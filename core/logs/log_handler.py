@@ -31,9 +31,6 @@ class CustomFormatter(logging.Formatter):
 
 class ConsoleHandler:
     def __init__(self):
-        self.log_file = None
-        self.logger = None
-
         log_format = "[%(asctime)s] - [%(process)d] - [%(levelname)s] - %(message)s"
         log_level_name = get_dotenv_var(key="TNLCM_LOG_LEVEL").upper()
         _, log_level = LOG_LEVELS_AND_FORMATS[log_level_name]
@@ -71,7 +68,6 @@ class ConsoleHandler:
     def close(self):
         logging.shutdown()
         self.logger = None
-        self.log_file = None
 
 class TnLogHandler:
     def __init__(self, tn_id: str):
@@ -82,7 +78,7 @@ class TnLogHandler:
         self.logger = logging.getLogger(tn_id)
         self.logger.setLevel(logging.INFO)
         
-        log_format = "[%(asctime)s] - [%(process)d] - [%(levelname)s] %(message)s"
+        log_format = "[%(asctime)s] - [%(process)d] - [%(levelname)s] - %(message)s"
         file_formatter = logging.Formatter(log_format)
         file_handler = logging.FileHandler(log_file_path)
         file_handler.setFormatter(file_formatter)
