@@ -9,14 +9,14 @@ dotenv_path = os.path.join(os.getcwd(), ".env")
 # dotenv_path = os.path.join(os.getcwd(), ".env.dev")
 load_dotenv(dotenv_path=dotenv_path)
 
-from core.logs.log_handler import log_handler
+from core.logs.log_handler import tnlcm_log_handler
 
-log_handler.debug(f"Loading the {dotenv_path} file of TNLCM")
+tnlcm_log_handler.debug(f"Loading the {dotenv_path} file of TNLCM")
 
 from .mail import MailSettings
 from .mongodb import MongoDBSettings
 from .jenkins import JenkinsSettings
-from .sixg_library import SixGLibrarySettings
-from .sixg_sandbox_sites import SixGSandboxSitesSettings
+from .library import LibrarySettings
+from .sites import SitesSettings
 from .tnlcm import TnlcmSettings
 from .flask_conf import FlaskConf

@@ -1,8 +1,5 @@
-import os
-
-from email_validator import validate_email, EmailNotValidError
-
-from core.logs.log_handler import log_handler
+from core.logs.log_handler import tnlcm_log_handler
+from core.utils.os_handler import get_dotenv_var
 from core.exceptions.exceptions_handler import UndefinedEnvVariableError, InvalidEnvVariableError
 
 def str_to_bool(s: str) -> bool:
@@ -19,39 +16,26 @@ class MailSettings:
     Mail Settings
     """
 
-    TWO_FACTOR_AUTH=os.getenv("TWO_FACTOR_AUTH")
+    TWO_FACTOR_AUTH = get_dotenv_var(key="TWO_FACTOR_AUTH")
     if TWO_FACTOR_AUTH != "True" and TWO_FACTOR_AUTH != "False":
         raise InvalidEnvVariableError("TWO_FACTOR_AUTH", ["True", "False"])
     TWO_FACTOR_AUTH=str_to_bool(TWO_FACTOR_AUTH)
     if not TWO_FACTOR_AUTH:
-        log_handler.info("Two Factor Authentication is disabled")
+        tnlcm_log_handler.info("Two Factor Authentication is disabled")
     else:
-        MAIL_SERVER = os.getenv("MAIL_SERVER")
-        MAIL_PORT = os.getenv("MAIL_PORT")
-        MAIL_USE_TLS = os.getenv("MAIL_USE_TLS")
-        MAIL_USE_SSL = os.getenv("MAIL_USE_SSL")
-        MAIL_USERNAME = os.getenv("MAIL_USERNAME")
-        MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
+        MAIL_SERVER = get_dotenv_var(key="MAIL_SERVER")
+        MAIL_PORT = get_dotenv_var(key="MAIL_PORT")
+        MAIL_USE_TLS = get_dotenv_var(key="MAIL_USE_TLS")
+        MAIL_USE_SSL = get_dotenv_var(key="MAIL_USE_SSL")
+        MAIL_USERNAME = get_dotenv_var(key="MAIL_USERNAME")
+        MAIL_PASSWORD = get_dotenv_var(key="MAIL_PASSWORD")
         missing_variables = []
-        if not MAIL_SERVER:
-            missing_variables.append("MAIL_SERVER")
-        if not MAIL_PORT:
-            missing_variables.append("MAIL_PORT")
-        if not MAIL_USE_TLS:
-            missing_variables.append("MAIL_USE_TLS")
-        if not MAIL_USE_SSL:
-            missing_variables.append("MAIL_USE_SSL")
         if not MAIL_USERNAME:
             missing_variables.append("MAIL_USERNAME")
         if not MAIL_PASSWORD:
             missing_variables.append("MAIL_PASSWORD")
         if missing_variables:
             raise UndefinedEnvVariableError(missing_variables)
-        try:
-            valid = validate_email(MAIL_USERNAME, check_deliverability=False)
-            email = valid.email
-        except EmailNotValidError:
-            raise UndefinedEnvVariableError("Invalid 'MAIL_USERNAME' entered in .env file", 500)
 
         MAIL_PORT = int(MAIL_PORT)
         MAIL_USE_TLS = str_to_bool(MAIL_USE_TLS)
@@ -66,4 +50,4 @@ class MailSettings:
             "MAIL_PASSWORD": MAIL_PASSWORD
         }
 
-        log_handler.info(f"Load Mail configuration: {config_dict}")
+        tnlcm_log_handler.info(f"Load Mail configuration: {config_dict}")

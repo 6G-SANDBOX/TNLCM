@@ -1,4 +1,4 @@
-from core.logs.log_handler import log_handler
+from core.logs.log_handler import tnlcm_log_handler
 
 class CustomException(Exception):
     """Base class for custom exceptions"""
@@ -11,7 +11,7 @@ class CustomException(Exception):
         """
         super().__init__(message)
         self.error_code = error_code
-        log_handler.error(f"Error {self.error_code}: {message}")
+        tnlcm_log_handler.error(f"Error {self.error_code}: {message}")
 
 ###################################
 ###### Environment exception ######
@@ -19,13 +19,13 @@ class CustomException(Exception):
 class UndefinedEnvVariableError(CustomException):
     """Error thrown when the variables are undefined in the .env file"""
     def __init__(self, missing_variables):
-        message = f"Set the value of the variables {', '.join(missing_variables)} in the .env file"
+        message = f"Set the value of the variables {missing_variables} in the .env file"
         super().__init__(message, 500)
 
 class InvalidEnvVariableError(CustomException):
     """Error thrown when the variables are invalid in the .env file"""
     def __init__(self, variable, possible_values):
-        message = f"Possible values for the variable {variable} are {', '.join(possible_values)}"
+        message = f"Possible values for the variable {variable} are {possible_values}"
         super().__init__(message, 500)
 
 ###################################
@@ -42,23 +42,23 @@ class CustomCallbackException(CustomException):
     """Base class for callback related exceptions"""
     pass
 
-###################################
-###### 6G-Library exception #######
-###################################
-class CustomSixGLibraryException(CustomException):
-    """Base class for 6G-Library related exceptions"""
+##################################
+####### Library exception ########
+##################################
+class CustomLibraryException(CustomException):
+    """Base class for Library related exceptions"""
     pass
 
-###################################
-### 6G-Sandbox-Sites exception ####
-###################################
-class CustomSixGSandboxSitesException(CustomException):
-    """Base class for 6G-Sandbox-Sites related exceptions"""
+##################################
+######## Sites exception #########
+##################################
+class CustomSitesException(CustomException):
+    """Base class for Sites related exceptions"""
     pass
 
-###################################
-######## GitHub exception #########
-###################################
+##################################
+######### Git exception ##########
+##################################
 class CustomGitException(CustomException):
     """Base class for GitHub related exceptions"""
     pass

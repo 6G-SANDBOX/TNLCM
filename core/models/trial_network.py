@@ -1,5 +1,7 @@
 import os
 import re
+import ast
+import operator
 
 from datetime import datetime, timezone
 from string import ascii_lowercase, digits
@@ -13,8 +15,26 @@ from core.utils.parser_handler import yaml_to_dict
 from core.exceptions.exceptions_handler import CustomTrialNetworkException
 
 STATE_MACHINE = {"validated", "suspended", "activated", "failed", "destroyed"}
-COMPONENTS_EXCLUDE_CUSTOM_NAME = {"tn_vxlan", "tn_bastion", "tn_init", "tsn"}
-REQUIRED_FIELDS_DESCRIPTOR = {"type", "input"}
+COMPONENTS_EXCLUDE_CUSTOM_NAME = {"tn_init", "tn_vxlan", "tn_bastion", "tsn"}
+REQUIRED_FIELDS_DESCRIPTOR = {"type", "dependencies", "input"}
+TYPE_MAPPING = {
+    "str": str,
+    "int": int,
+    "float": float,
+    "bool": bool,
+    "list": list,
+    "dict": dict,
+}
+OPERATORS = {
+    ast.And: operator.and_,
+    ast.Or: operator.or_,
+    ast.Eq: operator.eq,
+    ast.NotEq: operator.ne,
+    ast.Lt: operator.lt,
+    ast.LtE: operator.le,
+    ast.Gt: operator.gt,
+    ast.GtE: operator.ge
+}
 
 class TrialNetworkModel(Document):
 
@@ -22,9 +42,9 @@ class TrialNetworkModel(Document):
     tn_id = StringField(max_length=15, unique=True)
     state = StringField(max_length=50)
     date_created_utc = DateTimeField(default=datetime.now(timezone.utc))
-    raw_descriptor = DictField()
-    sorted_descriptor = DictField()
-    deployed_descriptor = DictField()
+    raw_descriptor = DictField(default={})
+    sorted_descriptor = DictField(default={})
+    deployed_descriptor = DictField(default={})
     report = StringField()
     directory_path = StringField()
     jenkins_deploy_pipeline = StringField()
@@ -32,10 +52,10 @@ class TrialNetworkModel(Document):
     deployment_site = StringField()
     input = DictField(default={})
     output = DictField(default={})
-    github_6g_library_https_url = StringField()
-    github_6g_library_commit_id = StringField()
-    github_6g_sandbox_sites_https_url = StringField()
-    github_6g_sandbox_sites_commit_id = StringField()
+    library_https_url = StringField()
+    library_commit_id = StringField()
+    sites_https_url = StringField()
+    sites_commit_id = StringField()
 
     meta = {
         "db_alias": "tnlcm-database-alias",
@@ -95,7 +115,7 @@ class TrialNetworkModel(Document):
             raise CustomTrialNetworkException(f"Trial network state {state} not found", 404)
         self.state = state
 
-    def set_descriptor(self, file: FileStorage) -> None:
+    def set_raw_descriptor(self, file: FileStorage) -> None:
         """
         Set the trial network raw descriptor from a file
         
@@ -107,6 +127,12 @@ class TrialNetworkModel(Document):
             raise CustomTrialNetworkException("Invalid descriptor format. Only yml or yaml files will be further processed", 422)
         self.raw_descriptor = yaml_to_dict(file.stream)
 
+    def set_sorted_descriptor(self) -> None:
+        """
+        Recursive method that return the raw descriptor and a new descriptor sorted according to dependencies
+
+        :raise CustomTrialNetworkException:
+        """
         entities = self.raw_descriptor["trial_network"]
         ordered_entities = {}
 
@@ -123,10 +149,8 @@ class TrialNetworkModel(Document):
         for entity in entities:
             dfs(entity)
         
-        sorted_descriptor = {"trial_network": ordered_entities}
-        deployed_descriptor = {"trial_network": ordered_entities}
-        self.sorted_descriptor = sorted_descriptor
-        self.deployed_descriptor = deployed_descriptor
+        self.sorted_descriptor = {"trial_network": ordered_entities}
+        self.deployed_descriptor = {"trial_network": ordered_entities}
 
     def set_report(self, file_path: str) -> None:
         """
@@ -178,37 +202,37 @@ class TrialNetworkModel(Document):
         """
         self.output[entity_name] = entity_data_output
     
-    def set_github_6g_library_https_url(self, github_6g_library_https_url: str) -> None:
+    def set_library_https_url(self, library_https_url: str) -> None:
         """
-        Set HTTPS URL from 6G-Library to be used for deploy trial network
+        Set HTTPS URL from Library to be used for deploy trial network
         
-        :param github_6g_library_https_url: HTTPS URL from 6G-Library, ``str``
+        :param library_https_url: HTTPS URL from Library, ``str``
         """
-        self.github_6g_library_https_url = github_6g_library_https_url
+        self.library_https_url = library_https_url
     
-    def set_github_6g_library_commit_id(self, github_6g_library_commit_id: str) -> None:
+    def set_library_commit_id(self, library_commit_id: str) -> None:
         """
-        Set commit id from 6G-Library to be used for deploy trial network
+        Set commit id from Library to be used for deploy trial network
         
-        :param github_6g_library_commit_id: commit ID from 6G-Library, ``str``
+        :param library_commit_id: commit ID from Library, ``str``
         """
-        self.github_6g_library_commit_id = github_6g_library_commit_id
+        self.library_commit_id = library_commit_id
     
-    def set_github_6g_sandbox_sites_https_url(self, github_6g_sandbox_sites_https_url: str) -> None:
+    def set_sites_https_url(self, sites_https_url: str) -> None:
         """
-        Set HTTPS URL from 6G-Sandbox-Sites to be used for deploy trial network
+        Set HTTPS URL from Sites to be used for deploy trial network
         
-        :param github_6g_sandbox_sites_https_url: HTTPS URL from 6G-Sandbox-Sites, ``str``
+        :param sites_https_url: HTTPS URL from Sites, ``str``
         """
-        self.github_6g_sandbox_sites_https_url = github_6g_sandbox_sites_https_url
+        self.sites_https_url = sites_https_url
 
-    def set_github_6g_sandbox_sites_commit_id(self, github_6g_sandbox_sites_commit_id: str) -> None:
+    def set_sites_commit_id(self, sites_commit_id: str) -> None:
         """
-        Set commit id from 6G-Sandbox-Sites to be used for deploy trial network
+        Set commit id from Sites to be used for deploy trial network
         
-        :param github_6g_sandbox_sites_commit_id: commit ID from 6G-Sandbox-Sites, ``str``
+        :param sites_commit_id: commit ID from Sites, ``str``
         """
-        self.github_6g_sandbox_sites_commit_id = github_6g_sandbox_sites_commit_id
+        self.sites_commit_id = sites_commit_id
 
     def set_deployed_descriptor(self, deployed_descriptor: dict = None) -> None:
         """
@@ -220,207 +244,196 @@ class TrialNetworkModel(Document):
             self.deployed_descriptor = self.sorted_descriptor
         else:
             self.deployed_descriptor = {"trial_network": deployed_descriptor}
-
-    def get_components_types(self) -> set:
-        """
-        Function to get the components types that are in the descriptor
-
-        :return: set with components that compose trial network descriptor, ``set``
-        """
-        component_types = set()
-        tn_descriptor = self.sorted_descriptor["trial_network"]
-        for _, component in tn_descriptor.items():
-            component_types.add(component["type"])
-        return component_types
-
-    def _logical_expression(
-        self, 
-        tn_components_types: set, 
-        bool_expresion: bool, 
-        tn_descriptor: dict, 
-        component_name: str
-    ) -> bool:
-        """
-        In case the type is a logical expression. For example: tn_vxlan or vnet
-        
-        :param tn_components_types: set with the components that make up the descriptor, ``set``
-        :param bool_expresion: bool expresion to evaluate, ``bool``
-        :param tn_descriptor: trial network sorted descriptor, ``dict``
-        :param component_name: component name that is in input part of descriptor, ``str``
-        :return: result of evaluating whether the component type matches the logical expression, ``bool``
-        :raises CustomTrialNetworkException:
-        """
-        def is_valid_part(part: str) -> bool:
-            """
-            Check if the part of the logical expression is valid
-            
-            :param part: part of the logical expression, ``str``
-            :return: True if the part is valid. Otherwise False, ``bool``
-            """
-            part = part.strip()
-            cn = component_name
-            if (component_name == "tn_vxlan" or component_name == "tn_bastion") and component_name not in tn_descriptor:
-                cn = "tn_init"
-                part = "tn_init"
-            if part not in tn_components_types:
-                return False
-            if cn not in tn_descriptor:
-                return False
-            if "type" not in tn_descriptor[cn]:
-                return False
-            if not tn_descriptor[cn]["type"]:
-                return False
-            
-            return tn_descriptor[cn]["type"] == part
-        
-        parts = bool_expresion.split(" or ")
-        is_valid = False
-        for part in parts:
-            if is_valid_part(part):
-                is_valid = True
-                break
-
-        if not is_valid:
-            raise CustomTrialNetworkException(f"The boolean expression '{bool_expresion}' does not match any valid component type", 422)
-
-        return is_valid
     
-    def _validate_list_of_networks(
-        self, 
-        tn_components_types: set, 
-        bool_expresion: bool, 
-        tn_descriptor: dict, 
-        component_list: list[str]
-    ) -> None:
+    def _evaluate_expression(self, expression: str, context: dict) -> bool:
         """
-        Validates a list of networks with logical expression. For example: list[tn_vxlan or vnet]
+        Safely evaluate a boolean expression in the context of a dictionary.
+
+        :param expression: The boolean expression to evaluate, ``str``
+        :param context: The dictionary providing values for the variables in the expression, ``dict``
+        :return: The result of the evaluation, ``bool``
+        """
+        def _eval(node):
+            if isinstance(node, ast.BoolOp):
+                op = OPERATORS[type(node.op)]
+                return op(_eval(node.values[0]), _eval(node.values[1]))
+            elif isinstance(node, ast.BinOp):
+                op = OPERATORS[type(node.op)]
+                return op(_eval(node.left), _eval(node.right))
+            elif isinstance(node, ast.Compare):
+                left = _eval(node.left)
+                right = _eval(node.comparators[0])
+                op = OPERATORS[type(node.ops[0])]
+                return op(left, right)
+            elif isinstance(node, ast.Name):
+                if node.id in context:
+                    return context[node.id]
+                raise ValueError(f"Undefined variable: {node.id}")
+            elif isinstance(node, ast.Constant):
+                return node.value
+            raise TypeError(f"Unsupported AST node: {type(node)}")
+        tree = ast.parse(expression, mode="eval")
+        return _eval(tree.body)
+
+    def _required_when(self, input_required_when: bool, component_input: dict) -> bool:
+        """
+        Function to check if the input is required
         
-        :param tn_components_types: set with the components that make up the descriptor, ``set``
-        :param bool_expresion: boolean expression to evaluate, ``bool``
-        :param tn_descriptor: trial network sorted descriptor, ``dict``
-        :param component_list: list of components that are in the input part of the descriptor, ``list[str]``
-        :raises CustomTrialNetworkException:
+        :param input_required_when: boolean to check if the input is required, ``bool``
+        :param component_input: input provided in the descriptor, ``dict``
+        :return: boolean to check if the input is required, ``bool``
         """
-        for component_name in component_list:
-            if not isinstance(component_name, str):
-                raise CustomTrialNetworkException(f"Component name '{component_name}' in the list must be a string", 422)
-            if not self._logical_expression(tn_components_types, bool_expresion, tn_descriptor, component_name):
-                raise CustomTrialNetworkException(f"Component '{component_name}' in the list does not match the type '{bool_expresion}'", 422)
-
-    def validate_descriptor(self, tn_components_types: set, tn_component_inputs: dict) -> None:
+        if isinstance(input_required_when, bool):
+            return input_required_when
+        if isinstance(input_required_when, str):
+            return self._evaluate_expression(input_required_when, component_input)
+    
+    def _isinstance_entity_name(self, input_type: str, input_value: str) -> None:
         """
-        If the descriptor follows the correct scheme
-        It starts with trial_network and there is only that key
-        Entity names are not empty
-        Check that each entity has a type, dependencies, input and name part if required
-        Check that the value of each part is a correct object (str, list and dict)
-        Check whether custom name is required or not depending on the component type
-        Check that custom name has valid characters: [a-zA-Z0-9_]
-        Check that the entity name follows the format: type-name
-        Check if the component contains the inputs correctly
-        Check that the fields that are mandatory are present
-        The type of the fields is verified
-        If it is a choice, it is checked that it is within the possible values
-        If it is str, int, list
-        If it is a component
-        It is checked the fields that are required_when
-
-        :param tn_components_types: set with the components that make up the descriptor, ``set``
-        :param tn_component_inputs: correct component inputs from the 6G-Library, ``dict``
-        :raises CustomTrialNetworkException:
+        Function to check if the input is an entity name
+        
+        :param input_type: type of the input, ``str``
+        :param input_value: value of the input, ``str``
         """
-        if len(self.raw_descriptor.keys()) > 1 or "trial_network" not in self.raw_descriptor:
-            raise CustomTrialNetworkException("Trial network descriptor must start with 'trial_network' key", 422)
-        tn_descriptor = self.raw_descriptor["trial_network"]
-        if "tn_init" in tn_components_types:
-            tn_components_types.add("tn_vxlan")
-            tn_components_types.add("tn_bastion")
-        if "tn_vxlan" in tn_components_types and "tn_bastion" in tn_components_types:
-            tn_components_types.add("tn_init")
-        for entity_name, entity_data in tn_descriptor.items():
-            if len(entity_name) <= 0:
-                raise CustomTrialNetworkException(f"There is an empty entity name in the trial network", 422)
-            if not isinstance(entity_data, dict) or len(entity_data) == 0 or not set(REQUIRED_FIELDS_DESCRIPTOR).issubset(entity_data.keys()):
-                raise CustomTrialNetworkException(f"Following fields are required in each entity of the descriptor: {', '.join(REQUIRED_FIELDS_DESCRIPTOR)}", 422)
-            for rfd in REQUIRED_FIELDS_DESCRIPTOR:
-                if rfd == "type" and not isinstance(entity_data[rfd], str):
-                    raise CustomTrialNetworkException(f"Value of the '{rfd}' key must be a string in the '{entity_name}' entity of the descriptor", 422)
-                elif rfd == "dependencies" and not isinstance(entity_data[rfd], list):
-                    raise CustomTrialNetworkException(f"Value of the '{rfd}' key must be a list in the '{entity_name}' entity of the descriptor", 422)
-                elif rfd == "input" and not isinstance(entity_data[rfd], dict):
-                    raise CustomTrialNetworkException(f"Value of the '{rfd}' key must be a dictionary in the '{entity_name}' entity of the descriptor", 422)
+        if input_value == "tn_vxlan":
+            if "tn_init" not in self.raw_descriptor["trial_network"]:
+                raise CustomTrialNetworkException("Entity tn_vxlan is not allowed without entity tn_init", 422)
+        else:
+            if input_value not in self.raw_descriptor["trial_network"]:
+                raise CustomTrialNetworkException(f"Entity {input_value} not found in the descriptor", 422)
+            type_component = self.raw_descriptor["trial_network"][input_value]["type"]
+            if type_component not in input_type:
+                raise CustomTrialNetworkException(f"Entity {input_value} is not of type {input_type}", 422)
+        
+    def _isinstance_list(self, input_type: str, input_value: list) -> None:
+        """
+        Function to check if the input is a list
+        
+        :param input_type: type of the input, ``str``
+        :param input_value: value of the input, ``list``
+        """
+        input_type = input_type[5:-1]
+        for value in input_value:
+            self._isinstance_entity_name(input_type, value)
+    
+    def _boolean_expression(self, input_type: str) -> bool:
+        """
+        Function to check if the input is a boolean expression
+        
+        :param input_type: type of the input, ``str``
+        :return: boolean to check if the input is a boolean expression, ``bool``
+        """
+        return bool(re.match(r"^(\w+\s*(and|or)\s*\w+(\s*(and|or)\s*\w+)*)$", input_type))
+    
+    def _isinstance_component(self, input_type: str, library_handler) -> bool:
+        """
+        Function to check if the input is a component
+        
+        :param input_type: type of the input, ``str``
+        :param library_handler: Library handler, ``LibraryHandler``
+        :return: boolean to check if the input is a component, ``bool``
+        """
+        return input_type in library_handler.get_components()
+    
+    def _check_input(self, library_handler, component_input: dict, component_input_library: dict) -> None:
+        """
+        Function to check if the input provided in the descriptor is correct
+        
+        :param library_handler: Library handler, ``LibraryHandler``
+        :param component_input: input provided in the descriptor, ``dict``
+        :param component_input_library: input part in Library, ``dict``
+        :raise CustomTrialNetworkException:
+        """
+        if (component_input_library is None or len(component_input_library) == 0) and len(component_input) > 0:
+            raise CustomTrialNetworkException("Input is not allowed", 422)
+        if component_input_library is not None:
+            for key, value in component_input_library.items():
+                input_type = value["type"]
+                input_required_when = value["required_when"]
+                if self._required_when(input_required_when, component_input) and key not in component_input:
+                    raise CustomTrialNetworkException(f"Input {key} is required", 422)
+                if key in component_input:
+                    if input_type.startswith("list[") and input_type.endswith("]"):
+                        self._isinstance_list(input_type, component_input[key])
+                    elif self._boolean_expression(input_type):
+                        self._isinstance_entity_name(input_type, component_input[key])
+                    elif self._isinstance_component(input_type, library_handler):
+                        self._isinstance_entity_name(input_type, component_input[key])
+                    elif input_type in TYPE_MAPPING and not isinstance(component_input[key], TYPE_MAPPING[input_type]):
+                        raise CustomTrialNetworkException(f"Input {key} is not of type", 422)
+                    if "choices" in value and component_input[key] not in value["choices"]:
+                        choices = value["choices"]
+                        raise CustomTrialNetworkException(f"Input {key} has to be one of the following choices {choices}", 422)
+    
+    def validate_descriptor(self, library_handler, sites_handler) -> None:
+        """
+        Function to validate the descriptor
+        
+        :param library_handler: Library handler, ``LibraryHandler``
+        :param sites_handler: Sites handler, ``SitesHandler``
+        :raise CustomTrialNetworkException:
+        """
+        if len(self.raw_descriptor) == 0:
+            raise CustomTrialNetworkException("Descriptor is empty", 422)
+        if "trial_network" not in self.raw_descriptor:
+            raise CustomTrialNetworkException("Descriptor does not contain trial_network", 422)
+        if self.raw_descriptor["trial_network"] is None:
+            raise CustomTrialNetworkException("Descriptor does not contain any entity", 422)
+        if "tn_init" not in self.raw_descriptor["trial_network"] and ("tn_vxlan" not in self.raw_descriptor["trial_network"] and "tn_bastion" not in self.raw_descriptor["trial_network"]):
+            raise CustomTrialNetworkException("Descriptor does not contain the required entities tn_init or tn_vxlan and tn_bastion", 422)
+        for entity_name, entity_data in self.raw_descriptor["trial_network"].items():
+            if not isinstance(entity_name, str):
+                raise CustomTrialNetworkException("Entity name has to be a string", 422)
+            if entity_name == "":
+                raise CustomTrialNetworkException("Entity name is empty", 422)
+            if not isinstance(entity_data, dict):
+                raise CustomTrialNetworkException(f"Data of entity {entity_name} has to be a dictionary", 422)
+            if entity_data == {}:
+                raise CustomTrialNetworkException(f"Entity {entity_name} has empty data", 422)
+            for key in REQUIRED_FIELDS_DESCRIPTOR:
+                if key not in entity_data:
+                    raise CustomTrialNetworkException(f"Entity {entity_name} does not contain the field {key}", 422)
             component_type = entity_data["type"]
-            custom_name = None
-            if component_type not in COMPONENTS_EXCLUDE_CUSTOM_NAME:
+            component_dependencies = entity_data["dependencies"]
+            component_input = entity_data["input"]
+            if not isinstance(component_type, str):
+                raise CustomTrialNetworkException(f"Entity {entity_name} does not contain a type", 422)
+            if component_type == "":
+                raise CustomTrialNetworkException(f"Entity {entity_name} does not contain a valid type", 422)
+            if not isinstance(component_dependencies, list):
+                raise CustomTrialNetworkException(f"Entity {entity_name} does not contain dependencies", 422)
+            if not isinstance(component_input, dict):
+                raise CustomTrialNetworkException(f"Entity {entity_name} does not contain input", 422)
+            if component_type in COMPONENTS_EXCLUDE_CUSTOM_NAME:
+                if "name" in entity_data:
+                    raise CustomTrialNetworkException(f"Entity {entity_name} does not require a name", 422)
+            else:
                 if "name" not in entity_data:
-                    raise CustomTrialNetworkException(f"Key 'name' is required in definition of '{entity_name}' in descriptor", 422)
-                custom_name = entity_data["name"]
-            if not custom_name and entity_name not in COMPONENTS_EXCLUDE_CUSTOM_NAME:
-                raise CustomTrialNetworkException(f"Entity name has to be equal to the name of one of the following types {', '.join(COMPONENTS_EXCLUDE_CUSTOM_NAME)}", 422)
-            if custom_name:
-                if not isinstance(custom_name, str):
-                    raise CustomTrialNetworkException("Entity name field has to be a string", 422)
-                pattern = re.compile(r"^[a-zA-Z0-9_]+$")
-                if not pattern.match(custom_name):
-                    raise CustomTrialNetworkException(f"Entity name field has to be a string between a-z, A-Z, 0-9 or _", 422)
-                if entity_name != f"{component_type}-{custom_name}":
-                    raise CustomTrialNetworkException(f"Entity name has to be in the following format: type-name", 422)
-            input_sixg_library_component = tn_component_inputs[component_type]
-            input_descriptor_component = entity_data["input"]
-            if input_sixg_library_component:
-                if len(input_sixg_library_component) == 0 and len(input_descriptor_component) > 0:
-                    raise CustomTrialNetworkException(f"Invalid input part of '{component_type}' component", 422)
-                if len(input_sixg_library_component) > 0:
-                    for input_sixg_library_key, input_sixg_library_value in input_sixg_library_component.items():
-                        sixg_library_required_when = input_sixg_library_value["required_when"]
-                        if not isinstance(sixg_library_required_when, bool) and not isinstance(sixg_library_required_when, str):
-                            raise CustomTrialNetworkException(f"Component '{component_type}'. The 'required_when' condition for the '{input_sixg_library_key}' input field must be either a bool or a str representing a logical condition.", 422)
-                        if input_sixg_library_key in input_descriptor_component:
-                            sixg_library_type = input_sixg_library_value["type"]
-                            type_mapping = {
-                                "str": str,
-                                "int": int,
-                                "bool": bool,
-                                "list": list,
-                                "dict": dict,
-                            }
-                            component_name = input_descriptor_component[input_sixg_library_key]
-                            if sixg_library_type.startswith("list[") and sixg_library_type.endswith("]"):
-                                bool_expresion = sixg_library_type[5:-1]
-                                self._validate_list_of_networks(tn_components_types, bool_expresion, tn_descriptor, component_name)
-                            else:
-                                if sixg_library_type not in type_mapping and sixg_library_type not in tn_components_types and not self._logical_expression(tn_components_types, sixg_library_type, tn_descriptor, component_name):
-                                    raise CustomTrialNetworkException(f"Component '{component_type}'. Unknown type '{sixg_library_type}' for the '{input_sixg_library_key}' field", 422)
-                                if sixg_library_type in type_mapping:
-                                    if not isinstance(input_descriptor_component[input_sixg_library_key], type_mapping[sixg_library_type]):
-                                        raise CustomTrialNetworkException(f"Component '{component_type}'. Type of the '{input_sixg_library_key}' field must be '{sixg_library_type}'", 422)
-                                elif sixg_library_type in tn_components_types:
-                                    if not isinstance(component_name, str):
-                                        raise CustomTrialNetworkException(f"Component '{component_type}'. The '{input_sixg_library_key}' field must be a string referring to a component name", 422)
-                                    if component_name not in tn_descriptor:
-                                        raise CustomTrialNetworkException(f"Component '{component_type}'. The component name '{component_name}' referenced in '{input_sixg_library_key}' does not exist in the descriptor", 422)
-                                    if "type" not in tn_descriptor[component_name]:
-                                        raise CustomTrialNetworkException(f"Component '{component_type}'. The referenced component '{component_name}' must have a 'type' field", 422)
-                                    if not tn_descriptor[component_name]["type"]:
-                                        raise CustomTrialNetworkException(f"Component '{component_type}'. The 'type' field of the referenced component '{component_name}' cannot be empty", 422)
-                                    if tn_descriptor[component_name]["type"] != sixg_library_type:
-                                        raise CustomTrialNetworkException(f"Component '{component_type}'. The component name '{component_name}' referenced in '{input_sixg_library_key}' must be of type '{sixg_library_type}'", 422)
-                            if "choices" in input_sixg_library_value:
-                                sixg_library_choices = input_sixg_library_value["choices"]
-                                if not input_descriptor_component[input_sixg_library_key] in sixg_library_choices:
-                                    raise CustomTrialNetworkException(f"Component '{component_type}'. Value of the '{input_sixg_library_key}' field has to be one of then: '{sixg_library_choices}'", 422)
-
+                    raise CustomTrialNetworkException(f"Entity {entity_name} does not contain a name", 422)
+                name = entity_data["name"]
+                if not isinstance(name, str):
+                    raise CustomTrialNetworkException(f"Entity {entity_name} does not contain a valid name", 422)
+                if name == "":
+                    raise CustomTrialNetworkException(f"Entity {entity_name} is empty", 422)
+                if entity_name != f"{component_type}-{name}":
+                    raise CustomTrialNetworkException(f"Entity {entity_name} does not match with the name provided {component_type}-{name}", 422)
+            library_handler.is_component(component_type)
+            sites_handler.is_component(self.deployment_site, component_type)
+            component_input_library = library_handler.get_component_input(component_type)
+            self._check_input(library_handler, component_input, component_input_library)
+        
     def to_dict(self) -> dict:
         return {
             "user_created": self.user_created,
             "tn_id": self.tn_id,
             "state": self.state,
+            "date_created_utc": self.date_created_utc.isoformat(),
             "deployment_site": self.deployment_site,
             "directory_path": self.directory_path,
-            "github_6g_library_https_url": self.github_6g_library_https_url,
-            "github_6g_library_commit_id": self.github_6g_library_commit_id,
-            "github_6g_sandbox_sites_https_url": self.github_6g_sandbox_sites_https_url,
-            "github_6g_sandbox_sites_commit_id": self.github_6g_sandbox_sites_commit_id
+            "library_https_url": self.library_https_url,
+            "library_commit_id": self.library_commit_id,
+            "sites_https_url": self.sites_https_url,
+            "sites_commit_id": self.sites_commit_id
         }
     
     def to_dict_full(self) -> dict:
@@ -439,10 +452,10 @@ class TrialNetworkModel(Document):
             "deployment_site": self.deployment_site,
             "input": self.input,
             "output": self.output,
-            "github_6g_library_https_url": self.github_6g_library_https_url,
-            "github_6g_library_commit_id": self.github_6g_library_commit_id,
-            "github_6g_sandbox_sites_https_url": self.github_6g_sandbox_sites_https_url,
-            "github_6g_sandbox_sites_commit_id": self.github_6g_sandbox_sites_commit_id
+            "library_https_url": self.library_https_url,
+            "library_commit_id": self.library_commit_id,
+            "sites_https_url": self.sites_https_url,
+            "sites_commit_id": self.sites_commit_id
         }
 
     def __repr__(self) -> str:

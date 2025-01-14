@@ -1,5 +1,4 @@
 import os
-import re
 
 from git import Repo
 
@@ -38,20 +37,6 @@ class RepositoryHandler:
         self.repo = None
         self.github_commit_id = None
 
-    @staticmethod
-    def is_github_repo(url: str) -> bool:
-        """
-        Check if the repository url is a git repository
-
-        :param url: url to be checked, ``str``
-        :return: True if the URL is a valid GitHub repository. Otherwise False, ``bool``
-        """
-        github_url_patterns = [
-            r"^https://github.com/.+/.+\.git$",
-            r"^git@github.com:.+/.+\.git$"
-        ]
-        return any(re.match(pattern, url) for pattern in github_url_patterns)
-
     def git_clone(self) -> None:
         """
         Git clone
@@ -68,7 +53,7 @@ class RepositoryHandler:
         :raise CustomGitException:
         """
         if not self.repo:
-            raise CustomGitException(f"Clone repository '{self.github_repository_name}' first", 404)
+            raise CustomGitException(f"Clone repository {self.github_repository_name} first", 404)
         self.repo.git.checkout(self.github_reference_value, "--")
 
     def git_switch(self) -> None:
@@ -78,7 +63,7 @@ class RepositoryHandler:
         :raise CustomGitException:
         """
         if not self.repo:
-            raise CustomGitException(f"Clone repository '{self.github_repository_name}' first", 404)
+            raise CustomGitException(f"Clone repository {self.github_repository_name} first", 404)
         self.github_commit_id = self.repo.head.commit.hexsha
         self.repo.git.switch("--detach", self.github_commit_id)
 
@@ -90,7 +75,7 @@ class RepositoryHandler:
         :raise CustomGitException:
         """
         if not self.repo:
-            raise CustomGitException(f"Clone repository '{self.github_repository_name}' first", 404)
+            raise CustomGitException(f"Clone repository {self.github_repository_name} first", 404)
         return [ref.remote_head for ref in self.repo.remotes.origin.refs if ref.remote_head != "HEAD"]
 
     def git_tags(self) -> list[str]:
@@ -101,5 +86,5 @@ class RepositoryHandler:
         :raise CustomGitException:
         """
         if not self.repo:
-            raise CustomGitException(f"Clone repository '{self.github_repository_name}' first", 404)
+            raise CustomGitException(f"Clone repository {self.github_repository_name} first", 404)
         return [tag.name for tag in self.repo.tags]

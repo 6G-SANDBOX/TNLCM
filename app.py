@@ -4,22 +4,23 @@ from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 
 from conf import TnlcmSettings, FlaskConf, MailSettings
-from core.logs.log_handler import log_handler
+from core.logs.log_handler import tnlcm_log_handler
 from core.mail.mail import init_mail
 from core.database.database import init_db
 from core.routes import callback_namespace, debug_namespace, trial_network_namespace, user_no_two_factor_namespace, user_namespace, verification_token_namespace
 from core.utils.file_handler import loads_toml
+from core.utils.os_handler import join_path
 
 app = Flask(__name__)
-CORS(app)
-JWTManager(app)
+CORS(app=app)
+JWTManager(app=app)
 
-app.config.from_object(FlaskConf)
+app.config.from_object(obj=FlaskConf)
 
-init_db(app)
+init_db(app=app)
 if MailSettings.TWO_FACTOR_AUTH:
-    init_mail(app)
-__version__ = loads_toml("pyproject.toml", "rt", "utf-8")["tool"]["poetry"]["version"]
+    init_mail(app=app)
+__version__ = loads_toml(file_path=join_path("pyproject.toml"))["tool"]["poetry"]["version"]
 
 api = Api(
     app=app,
@@ -38,4 +39,4 @@ if not MailSettings.TWO_FACTOR_AUTH:
     api.add_namespace(user_no_two_factor_namespace, path="/tnlcm/user")
 else:
     api.add_namespace(verification_token_namespace, path="/tnlcm/verification-token")
-log_handler.info(f"Start Trial Network Lifecycle Manager (TNLCM) {__version__} on http://0.0.0.0:{TnlcmSettings.TNLCM_PORT}")
+tnlcm_log_handler.info(f"Start Trial Network Lifecycle Manager (TNLCM) {__version__} on http://0.0.0.0:{TnlcmSettings.TNLCM_PORT}")

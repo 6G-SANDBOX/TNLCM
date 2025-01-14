@@ -1,18 +1,20 @@
 # Changelog
 
-## [unreleased] - 2024-XX-XX
+## [unreleased] - XXXX-XX-XX
 
 ### Added
 
 ### Changed
 
 - Migrate from pyyaml library to ruamel.yaml library to handle YAML files.
+- Trial network descriptor validator.
+- Rename script `deploy_vm.sh` to `installer.sh`.
 
 ### Fixed
 
 ### Removed
 
-- Temporary implementation.
+- Directory: temporary.
 
 ## [v0.4.4] - 2024-12-04
 

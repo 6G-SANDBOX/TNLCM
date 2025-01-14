@@ -59,7 +59,7 @@ class NewUserVerification(Resource):
     @user_no_two_factor_namespace.expect(parser_post)
     def post(self) -> tuple[dict, int]:
         """
-        Verify a new user account via email with the verification token
+        Register a new user
         """
         try:
             email = self.parser_post.parse_args()["email"]
@@ -102,7 +102,7 @@ class UserLogin(Resource):
             auth = request.authorization
 
             if not auth or not auth.username or not auth.password:
-                return {"message": f"Could not verify user '{auth.username}'"}, 401
+                return {"message": f"Could not verify user {auth.username}"}, 401
 
             user = UserModel.objects(username=auth.username).first()
             if not user:
@@ -116,7 +116,7 @@ class UserLogin(Resource):
                     "refresh_token": refresh_token
                 }, 201
             
-            return {"message": f"Could not verify user '{auth.username}'"}, 401
+            return {"message": f"Could not verify user {auth.username}"}, 401
         except CustomException as e:
             return {"message": str(e)}, e.error_code
         except Exception as e:
@@ -132,7 +132,7 @@ class ChangePassword(Resource):
     @user_no_two_factor_namespace.expect(parser_post)
     def post(self) -> tuple[dict, int]:
         """
-        Change an user password with a reset token
+        Change current user password
         """
         try:
             receiver_email = self.parser_post.parse_args()["email"]
@@ -160,7 +160,7 @@ class UserTokenRefresh(Resource):
     @jwt_required(refresh=True)
     def post(self) -> tuple[dict, int]:
         """
-        Refresh tokens for user
+        Refresh tokens for current user
         """
         try:
             current_user = get_current_user_from_jwt(get_jwt_identity())

@@ -16,10 +16,10 @@ def load_yaml(file_path: str, mode: str = "rt", encoding: str = "utf-8") -> dict
     yaml = YAML()
     yaml.preserve_quotes = True
     yaml.default_flow_style = False
-    with open(file_path, mode=mode, encoding=encoding) as yaml_file:
+    with open(file=file_path, mode=mode, encoding=encoding) as yaml_file:
         return yaml.load(yaml_file)
 
-def loads_toml(file_path: str, mode: str, encoding: str) -> dict:
+def loads_toml(file_path: str, mode: str = "rt", encoding: str = "utf-8") -> dict:
     """
     Load data from a TOML file
 
@@ -28,10 +28,10 @@ def loads_toml(file_path: str, mode: str, encoding: str) -> dict:
     :param encoding: the file encoding (e.g. utf-8), ``str``
     :return: the data loaded from the TOML file, ``dict``
     """
-    with open(file_path, mode=mode, encoding=encoding) as toml_file:
+    with open(file=file_path, mode=mode, encoding=encoding) as toml_file:
         return tomlkit.loads(toml_file.read())
 
-def load_file(file_path: str, mode: str, encoding: str) -> str:
+def load_file(file_path: str, mode: str = "rt", encoding: str = "utf-8") -> str:
     """
     Load the content from a file
     
@@ -43,17 +43,19 @@ def load_file(file_path: str, mode: str, encoding: str) -> str:
     with open(file_path, mode=mode, encoding=encoding) as file:
         return file.read()
 
-def save_json(data, file_path: str) -> None:
+def save_json(data, file_path: str, mode: str = "wt", encoding: str = "utf-8") -> None:
     """
     Save the data to a JSON file
     
     :param data: the data to be saved (must be JSON serializable)
     :param file_path: the file path where the data will be saved, ``str``
+    :param mode: the mode in which the file is opened (e.g. wt, wb), ``str``
+    :param encoding: the file encoding (e.g. utf-8), ``str``
     """
-    with open(file_path, "w") as json_file:
+    with open(file=file_path, mode=mode, encoding=encoding) as json_file:
         json.dump(data, json_file, indent=4)
 
-def save_yaml(data, file_path: str) -> None:
+def save_yaml(data, file_path: str, mode: str = "wt", encoding: str = "utf-8") -> None:
     """
     Save the data to a YAML file, preserving quotes using ruamel.yaml
     
@@ -75,10 +77,10 @@ def save_yaml(data, file_path: str) -> None:
 
     data = convert_to_double_quoted(data)
 
-    with open(file_path, mode="wt", encoding="utf-8") as yaml_file:
-        yaml.dump(data, yaml_file)
+    with open(file=file_path, mode=mode, encoding=encoding) as yaml_file:
+        yaml.dump(data=data, stream=yaml_file)
 
-def save_file(data: str, file_path: str, mode: str, encoding: str) -> None:
+def save_file(data: str, file_path: str, mode: str = "wt", encoding: str = "utf-8") -> None:
     """
     Save the given data in a file
     
@@ -87,5 +89,5 @@ def save_file(data: str, file_path: str, mode: str, encoding: str) -> None:
     :param mode: the mode in which the file is opened (e.g. rt, rb), ``str``
     :param encoding: the file encoding (e.g. utf-8), ``str``
     """
-    with open(file_path, mode=mode, encoding=encoding) as file:
+    with open(file=file_path, mode=mode, encoding=encoding) as file:
         file.write(data)

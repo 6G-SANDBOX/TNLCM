@@ -1,7 +1,7 @@
 import os
 
 from conf.tnlcm import TnlcmSettings
-from conf.sixg_library import SixGLibrarySettings
+from conf.library import LibrarySettings
 from core.utils.file_handler import load_yaml, save_json, save_file
 from core.utils.parser_handler import decode_base64
 from core.exceptions.exceptions_handler import CustomCallbackException
@@ -50,12 +50,12 @@ class CallbackHandler:
     
     def matches_expected_output(self) -> bool:
         """
-        Function to verify that the output keys received by Jenkins are the same as the output keys defined in 6G-Library
+        Function to verify that the output keys received by Jenkins are the same as the output keys defined in Library
 
-        :return: True if output received by Jenkins is the same as the output defined in 6G-Library. Otherwise False, ``bool``
+        :return: True if output received by Jenkins is the same as the output defined in Library. Otherwise False, ``bool``
         :raises CustomCallbackException:
         """
-        public_file_path = os.path.join(TnlcmSettings.TRIAL_NETWORKS_DIRECTORY, self.tn_id, SixGLibrarySettings.GITHUB_6G_LIBRARY_REPOSITORY_NAME, self.component_type, ".tnlcm", "public.yaml")
+        public_file_path = os.path.join(TnlcmSettings.TRIAL_NETWORKS_DIRECTORY, self.tn_id, LibrarySettings.LIBRARY_REPOSITORY_NAME, self.component_type, ".tnlcm", "public.yaml")
         if not os.path.exists(public_file_path):
             raise CustomCallbackException(f"File {public_file_path} not found", 404)
         public_data = load_yaml(file_path=public_file_path)

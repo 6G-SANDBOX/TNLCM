@@ -1,6 +1,5 @@
-import os
-
-from core.logs.log_handler import log_handler
+from core.logs.log_handler import tnlcm_log_handler
+from core.utils.os_handler import get_dotenv_var
 from core.exceptions.exceptions_handler import UndefinedEnvVariableError
 
 class JenkinsSettings:
@@ -8,19 +7,17 @@ class JenkinsSettings:
     Jenkins Settings
     """
 
-    JENKINS_HOST = os.getenv("JENKINS_HOST")
-    JENKINS_PORT = os.getenv("JENKINS_PORT")
-    JENKINS_URL = os.getenv("JENKINS_URL")
-    JENKINS_USERNAME = os.getenv("JENKINS_USERNAME")
-    JENKINS_PASSWORD = os.getenv("JENKINS_PASSWORD")
-    JENKINS_TOKEN = os.getenv("JENKINS_TOKEN")
-    JENKINS_DEPLOY_PIPELINE = os.getenv("JENKINS_DEPLOY_PIPELINE")
-    JENKINS_DESTROY_PIPELINE = os.getenv("JENKINS_DESTROY_PIPELINE")
+    JENKINS_HOST = get_dotenv_var(key="JENKINS_HOST")
+    JENKINS_PORT = get_dotenv_var(key="JENKINS_PORT")
+    JENKINS_URL = get_dotenv_var(key="JENKINS_URL")
+    JENKINS_USERNAME = get_dotenv_var(key="JENKINS_USERNAME")
+    JENKINS_PASSWORD = get_dotenv_var(key="JENKINS_PASSWORD")
+    JENKINS_TOKEN = get_dotenv_var(key="JENKINS_TOKEN")
+    JENKINS_DEPLOY_PIPELINE = get_dotenv_var(key="JENKINS_DEPLOY_PIPELINE")
+    JENKINS_DESTROY_PIPELINE = get_dotenv_var(key="JENKINS_DESTROY_PIPELINE")
     missing_variables = []
     if not JENKINS_HOST:
         missing_variables.append("JENKINS_HOST")
-    if not JENKINS_PORT:
-        missing_variables.append("JENKINS_PORT")
     if not JENKINS_URL:
         missing_variables.append("JENKINS_URL")
     if not JENKINS_USERNAME:
@@ -29,10 +26,6 @@ class JenkinsSettings:
         missing_variables.append("JENKINS_PASSWORD")
     if not JENKINS_TOKEN:
         missing_variables.append("JENKINS_TOKEN")
-    if not JENKINS_DEPLOY_PIPELINE:
-        missing_variables.append("JENKINS_DEPLOY_PIPELINE")
-    if not JENKINS_DESTROY_PIPELINE:
-        missing_variables.append("JENKINS_DESTROY_PIPELINE")
     if missing_variables:
         raise UndefinedEnvVariableError(missing_variables)
     
@@ -47,4 +40,4 @@ class JenkinsSettings:
         "JENKINS_DESTROY_PIPELINE": JENKINS_DESTROY_PIPELINE,
     }
 
-    log_handler.info(f"Load Jenkins configuration: {config_dict}")
+    tnlcm_log_handler.info(f"Load Jenkins configuration: {config_dict}")
