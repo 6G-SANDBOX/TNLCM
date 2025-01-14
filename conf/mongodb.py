@@ -1,4 +1,4 @@
-from core.logs.log_handler import log_handler
+from core.logs.log_handler import tnlcm_log_handler
 from core.utils.os_handler import get_dotenv_var
 
 class MongoDBSettings:
@@ -34,4 +34,4 @@ class MongoDBSettings:
         "ME_CONFIG_BASICAUTH_PASSWORD": ME_CONFIG_BASICAUTH_PASSWORD
     }
 
-    log_handler.info(f"Load MongoDB configuration: {config_dict}")
+    tnlcm_log_handler.info(f"Load MongoDB configuration: {config_dict}")

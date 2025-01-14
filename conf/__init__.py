@@ -9,9 +9,9 @@ dotenv_path = os.path.join(os.getcwd(), ".env")
 # dotenv_path = os.path.join(os.getcwd(), ".env.dev")
 load_dotenv(dotenv_path=dotenv_path)
 
-from core.logs.log_handler import log_handler
+from core.logs.log_handler import tnlcm_log_handler
 
-log_handler.debug(f"Loading the {dotenv_path} file of TNLCM")
+tnlcm_log_handler.debug(f"Loading the {dotenv_path} file of TNLCM")
 
 from .mail import MailSettings
 from .mongodb import MongoDBSettings

@@ -1,4 +1,4 @@
-from core.logs.log_handler import log_handler
+from core.logs.log_handler import tnlcm_log_handler
 from core.utils.os_handler import get_dotenv_var
 from core.exceptions.exceptions_handler import UndefinedEnvVariableError
 
@@ -40,4 +40,4 @@ class JenkinsSettings:
         "JENKINS_DESTROY_PIPELINE": JENKINS_DESTROY_PIPELINE,
     }
 
-    log_handler.info(f"Load Jenkins configuration: {config_dict}")
+    tnlcm_log_handler.info(f"Load Jenkins configuration: {config_dict}")

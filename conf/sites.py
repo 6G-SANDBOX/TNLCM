@@ -1,4 +1,4 @@
-from core.logs.log_handler import log_handler
+from core.logs.log_handler import tnlcm_log_handler
 from core.utils.os_handler import get_dotenv_var
 from core.exceptions.exceptions_handler import UndefinedEnvVariableError
 
@@ -24,4 +24,4 @@ class SitesSettings:
         "SITES_TOKEN": SITES_TOKEN,
     }
     
-    log_handler.info(f"Load Sites configuration: {config_dict}")
+    tnlcm_log_handler.info(f"Load Sites configuration: {config_dict}")

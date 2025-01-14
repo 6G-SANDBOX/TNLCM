@@ -1,6 +1,6 @@
 from conf.mail import MailSettings
 from conf.mongodb import MongoDBSettings
-from core.logs.log_handler import log_handler
+from core.logs.log_handler import tnlcm_log_handler
 from core.utils.os_handler import get_dotenv_var
 from core.exceptions.exceptions_handler import InvalidEnvVariableError
 
@@ -48,4 +48,4 @@ class FlaskConf(object):
             "MAIL_PASSWORD": MAIL_PASSWORD,
         }
 
-    log_handler.info(f"Load Flask configuration: {config_dict}")
+    tnlcm_log_handler.info(f"Load Flask configuration: {config_dict}")

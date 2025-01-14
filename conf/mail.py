@@ -1,4 +1,4 @@
-from core.logs.log_handler import log_handler
+from core.logs.log_handler import tnlcm_log_handler
 from core.utils.os_handler import get_dotenv_var
 from core.exceptions.exceptions_handler import UndefinedEnvVariableError, InvalidEnvVariableError
 
@@ -21,7 +21,7 @@ class MailSettings:
         raise InvalidEnvVariableError("TWO_FACTOR_AUTH", ["True", "False"])
     TWO_FACTOR_AUTH=str_to_bool(TWO_FACTOR_AUTH)
     if not TWO_FACTOR_AUTH:
-        log_handler.info("Two Factor Authentication is disabled")
+        tnlcm_log_handler.info("Two Factor Authentication is disabled")
     else:
         MAIL_SERVER = get_dotenv_var(key="MAIL_SERVER")
         MAIL_PORT = get_dotenv_var(key="MAIL_PORT")
@@ -50,4 +50,4 @@ class MailSettings:
             "MAIL_PASSWORD": MAIL_PASSWORD
         }
 
-        log_handler.info(f"Load Mail configuration: {config_dict}")
+        tnlcm_log_handler.info(f"Load Mail configuration: {config_dict}")

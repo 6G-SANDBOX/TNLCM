@@ -4,7 +4,7 @@ from flask_jwt_extended.exceptions import JWTExtendedException
 from jwt.exceptions import PyJWTError
 
 from core.auth.auth import get_current_user_from_jwt
-from core.logs.log_handler import log_handler
+from core.logs.log_handler import TnLogHandler
 from core.models import TrialNetworkModel
 from core.library.library_handler import LibraryHandler
 from core.sites.sites_handler import SitesHandler
@@ -57,7 +57,7 @@ class UpdateCommitLibrary(Resource):
         except CustomException as e:
             return {"message": str(e)}, e.error_code
         except Exception as e:
-            log_handler.error(f"[{trial_network.tn_id}] - {e}")
+            TnLogHandler.get_logger(tn_id=trial_network.tn_id).error(f"[{trial_network.tn_id}] - {e}")
             return abort(500, str(e))
 
 @debug_namespace.route("/trial-network/sites/commit")
@@ -93,7 +93,7 @@ class UpdateCommitSites(Resource):
         except CustomException as e:
             return {"message": str(e)}, e.error_code
         except Exception as e:
-            log_handler.error(f"[{trial_network.tn_id}] - {e}")
+            TnLogHandler.get_logger(tn_id=trial_network.tn_id).error(f"[{trial_network.tn_id}] - {e}")
             return abort(500, str(e))
 
 @debug_namespace.route("/trial-network/add-debug-entity-name")
@@ -134,7 +134,7 @@ class AddDebugEntityName(Resource):
         except CustomException as e:
             return {"message": str(e)}, e.error_code
         except Exception as e:
-            log_handler.error(f"[{trial_network.tn_id}] - {e}")
+            TnLogHandler.get_logger(tn_id=trial_network.tn_id).error(f"[{trial_network.tn_id}] - {e}")
             return abort(500, str(e))
 
 @debug_namespace.route("/trial-network/delete-debug-entity-name")
@@ -175,7 +175,7 @@ class DeleteDebugEntityName(Resource):
         except CustomException as e:
             return {"message": str(e)}, e.error_code
         except Exception as e:
-            log_handler.error(f"[{trial_network.tn_id}] - {e}")
+            TnLogHandler.get_logger(tn_id=trial_network.tn_id).error(f"[{trial_network.tn_id}] - {e}")
             return abort(500, str(e))
 
 @debug_namespace.route("/jenkins/pipelines/")

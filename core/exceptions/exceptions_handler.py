@@ -1,4 +1,4 @@
-from core.logs.log_handler import log_handler
+from core.logs.log_handler import tnlcm_log_handler
 
 class CustomException(Exception):
     """Base class for custom exceptions"""
@@ -11,7 +11,7 @@ class CustomException(Exception):
         """
         super().__init__(message)
         self.error_code = error_code
-        log_handler.error(f"Error {self.error_code}: {message}")
+        tnlcm_log_handler.error(f"Error {self.error_code}: {message}")
 
 ###################################
 ###### Environment exception ######

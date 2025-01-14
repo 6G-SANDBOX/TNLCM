@@ -1,5 +1,5 @@
-from conf .tnlcm import TnlcmSettings
-from core.logs.log_handler import log_handler
+from conf.tnlcm import TnlcmSettings
+from core.logs.log_handler import tnlcm_log_handler
 from core.utils.os_handler import get_dotenv_var
 
 # Number of worker processes to handle requests
@@ -28,4 +28,4 @@ config_dict = {
     "BACKLOG": backlog,
 }
 
-log_handler.info(f"Load gunicorn configuration: {config_dict}")
+tnlcm_log_handler.info(f"Load gunicorn configuration: {config_dict}")

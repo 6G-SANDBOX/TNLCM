@@ -1,4 +1,4 @@
-from core.logs.log_handler import log_handler
+from core.logs.log_handler import tnlcm_log_handler
 from core.utils.os_handler import get_dotenv_var, join_path, exists_path, make_directory
 from core.exceptions.exceptions_handler import UndefinedEnvVariableError
 
@@ -41,4 +41,4 @@ class TnlcmSettings:
         "TRIAL_NETWORKS_DIRECTORY": TRIAL_NETWORKS_DIRECTORY
     }
     
-    log_handler.info(f"Load TNLCM configuration: {config_dict}")
+    tnlcm_log_handler.info(f"Load TNLCM configuration: {config_dict}")
