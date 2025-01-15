@@ -7,7 +7,7 @@ from conf import TnlcmSettings, FlaskConf, MailSettings
 from core.logs.log_handler import tnlcm_log_handler
 from core.mail.mail import init_mail
 from core.database.database import init_db
-from core.routes import callback_namespace, debug_namespace, trial_network_namespace, user_no_two_factor_namespace, user_namespace, verification_token_namespace
+from core.routes import callback_namespace, debug_namespace, library_namespace, trial_network_namespace, user_no_two_factor_namespace, user_namespace, verification_token_namespace
 from core.utils.file_handler import loads_toml
 from core.utils.os_handler import join_path
 
@@ -33,6 +33,7 @@ api = Api(
 api.add_namespace(callback_namespace, path="/tnlcm/callback")
 if FlaskConf.FLASK_ENV == "development":
     api.add_namespace(debug_namespace, path="/tnlcm/debug")
+api.add_namespace(library_namespace, path="/tnlcm/library")
 api.add_namespace(trial_network_namespace, path="/tnlcm/trial-network")
 api.add_namespace(user_namespace, path="/tnlcm/user")
 if not MailSettings.TWO_FACTOR_AUTH:

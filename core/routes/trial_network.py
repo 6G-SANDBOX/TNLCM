@@ -410,32 +410,3 @@ class TrialNetwors(Resource):
             return {"message": str(e)}, e.error_code
         except Exception as e:
             return abort(500, str(e))
-
-@trial_network_namespace.route("s/<string:tn_id>/components/<string:component>")
-class Component(Resource):
-    
-    @trial_network_namespace.doc(security="Bearer Auth")
-    @trial_network_namespace.errorhandler(PyJWTError)
-    @trial_network_namespace.errorhandler(JWTExtendedException)
-    @jwt_required()
-    def get(self, tn_id: str, component: str):
-        """
-        Retrieve information about the component
-        """
-        try:
-            current_user = get_current_user_from_jwt(get_jwt_identity())
-            trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
-            if current_user.role == "admin":
-                trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
-            
-            if not trial_network:
-                return {"message": f"No trial network with identifier {tn_id} created by the user {current_user.username}"}, 404
-            
-            library_handler = LibraryHandler(https_url=trial_network.library_https_url, reference_type="commit", reference_value=trial_network.library_commit_id, directory_path=trial_network.directory_path)
-            library_handler.is_component(component_type=component)
-            component_input = library_handler.get_component_input(component_type=component)
-            return {"component_input": component_input}, 200
-        except CustomException as e:
-            return {"message": str(e)}, e.error_code
-        except Exception as e:
-            return abort(500, str(e))
