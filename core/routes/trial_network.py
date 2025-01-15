@@ -9,7 +9,11 @@ from threading import Lock
 from flask_jwt_extended.exceptions import JWTExtendedException
 from jwt.exceptions import PyJWTError
 
-from conf import TnlcmSettings, LibrarySettings, SitesSettings, FlaskConf
+from conf.tnlcm import TnlcmSettings
+from conf.library import LibrarySettings
+from conf.sites import SitesSettings
+from conf.flask_conf import FlaskConf
+from core.utils.file_handler import load_file
 from core.auth.auth import get_current_user_from_jwt
 from core.jenkins.jenkins_handler import JenkinsHandler
 from core.logs.log_handler import TnLogHandler
@@ -387,6 +391,38 @@ class DownloadReportTrialNetwork(Resource):
         except CustomException as e:
             return {"message": str(e)}, e.error_code
         except Exception as e:
+            return abort(500, str(e))
+
+@trial_network_namespace.route("s/<string:tn_id>/log")
+class TrialNetworkLog(Resource):
+
+    @trial_network_namespace.doc(security="Bearer Auth")
+    @trial_network_namespace.errorhandler(PyJWTError)
+    @trial_network_namespace.errorhandler(JWTExtendedException)
+    @jwt_required()
+    def get(self, tn_id):
+        """
+        Retrieve trial network log
+        """
+        try:
+            current_user = get_current_user_from_jwt(get_jwt_identity())
+            trial_network = TrialNetworkModel.objects(user_created=current_user.username, tn_id=tn_id).first()
+            if current_user.role == "admin":
+                trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
+            
+            if not trial_network:
+                return {"message": f"No trial network with identifier {tn_id} created by the user {current_user.username}"}, 404
+
+            log_path = os.path.join(trial_network.directory_path, f"{tn_id}.log")
+
+            if not os.path.exists(log_path):
+                return {"message": f"Trial network log file with identifier {tn_id} not found"}, 404
+            
+            log_content = load_file(file_path=log_path)
+            return {"log": log_content}, 200
+        except CustomException as e:
+            return {"message": str(e)}, e.error_code
+        except Exception as e:          
             return abort(500, str(e))
 
 @trial_network_namespace.route("s")
