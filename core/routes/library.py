@@ -20,7 +20,7 @@ library_namespace = Namespace(
     }
 )
 
-@library_namespace.route("/library/components/<string:component>")
+@library_namespace.route("/components/<string:component>")
 class Component(Resource):
     
     @library_namespace.errorhandler(PyJWTError)
