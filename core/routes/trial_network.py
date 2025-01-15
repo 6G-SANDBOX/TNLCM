@@ -69,6 +69,7 @@ class CreateTrialNetwork(Resource):
         The tn_id can be specified if desired. **If the value is specified, it should begin with character. If nothing is specified, it will return a random tn_id**
         """
         tn_log_handler = None
+        trial_network = TrialNetworkModel()
         try:
             tn_id = self.parser_post.parse_args()["tn_id"]
             descriptor_file = self.parser_post.parse_args()["descriptor"]
@@ -85,7 +86,6 @@ class CreateTrialNetwork(Resource):
             sites_reference_value = self.parser_post.parse_args()["sites_reference_value"]
 
             current_user = get_current_user_from_jwt(get_jwt_identity())
-            trial_network = TrialNetworkModel()
             trial_network.set_user_created(user_created=current_user.username)
             with tn_id_lock:
                 trial_network.set_tn_id(size=3, tn_id=tn_id)
