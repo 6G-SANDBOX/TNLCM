@@ -1,5 +1,3 @@
-import os
-
 from requests import post
 from time import sleep
 from jenkins import Jenkins
@@ -11,6 +9,7 @@ from core.logs.log_handler import TnLogHandler
 from core.models import TrialNetworkModel
 from core.library.library_handler import LibraryHandler
 from core.utils.file_handler import load_file, save_yaml
+from core.utils.os_handler import join_path, exists_path
 from core.exceptions.exceptions_handler import CustomJenkinsException
 
 class JenkinsHandler:
@@ -124,7 +123,7 @@ class JenkinsHandler:
             if "debug" in entity_data:
                 debug = entity_data["debug"]
             TnLogHandler.get_logger(tn_id=self.trial_network.tn_id).info(f"[{self.trial_network.tn_id}] - Start deployment of the {entity_name} entity")
-            entity_name_input_file_path = os.path.join(self.trial_network.directory_path, "input", f"{self.trial_network.tn_id}-{entity_name}.yaml")
+            entity_name_input_file_path = join_path(self.trial_network.directory_path, "input", f"{self.trial_network.tn_id}-{entity_name}.yaml")
             entity_name_input = entity_data["input"]
             self.trial_network.set_input(entity_name, entity_name_input)
             save_yaml(data=entity_name_input, file_path=entity_name_input_file_path)
@@ -155,7 +154,7 @@ class JenkinsHandler:
             self.trial_network.set_deployed_descriptor(deployed_descriptor)
             self.trial_network.save()
             TnLogHandler.get_logger(tn_id=self.trial_network.tn_id).info(f"[{self.trial_network.tn_id}] - End of deployment of entity {entity_name}")
-        if not os.path.join(f"{self.trial_network.directory_path}", f"{self.trial_network.tn_id}.md"):
+        if not exists_path(path=join_path(f"{self.trial_network.directory_path}", f"{self.trial_network.tn_id}.md")):
             raise CustomJenkinsException(f"File with the report of the trial network {self.trial_network.tn_id} not found", 404)
 
     def generate_jenkins_destroy_pipeline(self, jenkins_destroy_pipeline: str) -> str:

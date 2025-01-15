@@ -1,8 +1,7 @@
-import os
-
 from conf.tnlcm import TnlcmSettings
 from conf.library import LibrarySettings
 from core.utils.file_handler import load_yaml, save_json, save_file
+from core.utils.os_handler import join_path, exists_path
 from core.utils.parser_handler import decode_base64
 from core.exceptions.exceptions_handler import CustomCallbackException
 
@@ -55,8 +54,8 @@ class CallbackHandler:
         :return: True if output received by Jenkins is the same as the output defined in Library. Otherwise False, ``bool``
         :raises CustomCallbackException:
         """
-        public_file_path = os.path.join(TnlcmSettings.TRIAL_NETWORKS_DIRECTORY, self.tn_id, LibrarySettings.LIBRARY_REPOSITORY_NAME, self.component_type, ".tnlcm", "public.yaml")
-        if not os.path.exists(public_file_path):
+        public_file_path = join_path(TnlcmSettings.TRIAL_NETWORKS_DIRECTORY, self.tn_id, LibrarySettings.LIBRARY_REPOSITORY_NAME, self.component_type, ".tnlcm", "public.yaml")
+        if not exists_path(path=public_file_path):
             raise CustomCallbackException(f"File {public_file_path} not found", 404)
         public_data = load_yaml(file_path=public_file_path)
         if "output" not in public_data:
@@ -72,6 +71,6 @@ class CallbackHandler:
         """
         Save data in files
         """
-        directory_path = os.path.join(TnlcmSettings.TRIAL_NETWORKS_DIRECTORY, self.tn_id)
-        save_json(data=self.decoded_data, file_path=os.path.join(directory_path, "output", f"{self.entity_name}.json"))
-        save_file(data=self.markdown, file_path=os.path.join(directory_path, f"{self.tn_id}.md"), mode="a", encoding="utf-8")
+        directory_path = join_path(TnlcmSettings.TRIAL_NETWORKS_DIRECTORY, self.tn_id)
+        save_json(data=self.decoded_data, file_path=join_path(directory_path, "output", f"{self.entity_name}.json"))
+        save_file(data=self.markdown, file_path=join_path(directory_path, f"{self.tn_id}.md"), mode="a", encoding="utf-8")

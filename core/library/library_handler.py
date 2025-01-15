@@ -1,8 +1,7 @@
-import os
-
 from conf.library import LibrarySettings
 from core.repository.repository_handler import RepositoryHandler
 from core.utils.file_handler import load_yaml
+from core.utils.os_handler import join_path, exists_path, is_directory, list_directory
 from core.exceptions.exceptions_handler import CustomLibraryException
 
 class LibraryHandler:
@@ -25,7 +24,7 @@ class LibraryHandler:
         if https_url is None:
             self.library_https_url = LibrarySettings.LIBRARY_HTTPS_URL
         self.library_repository_name = LibrarySettings.LIBRARY_REPOSITORY_NAME
-        self.library_local_directory = os.path.join(directory_path, self.library_repository_name)
+        self.library_local_directory = join_path(directory_path, self.library_repository_name)
         self.library_reference_type = reference_type
         self.library_reference_value = reference_value
         if reference_type == "branch" and reference_value:
@@ -83,9 +82,9 @@ class LibraryHandler:
         :raise CustomLibraryException:
         """
         components = set()
-        if not os.path.isdir(self.library_local_directory):
+        if not is_directory(path=self.library_local_directory):
             raise CustomLibraryException(f"Folder of the components is not created in commit {self.library_commit_id} of Library", 404)
-        for component in os.listdir(self.library_local_directory):
+        for component in list_directory(path=self.library_local_directory):
             components.add(component)
         return components
     
@@ -108,8 +107,8 @@ class LibraryHandler:
         :raise CustomLibraryException:
         """
         component_input = {}
-        public_file_path = os.path.join(self.library_local_directory, component_type, ".tnlcm", "public.yaml")
-        if not os.path.exists(public_file_path):
+        public_file_path = join_path(self.library_local_directory, component_type, ".tnlcm", "public.yaml")
+        if not exists_path(path=public_file_path):
             raise CustomLibraryException(f"File {public_file_path} not found", 404)
         
         public_data = load_yaml(file_path=public_file_path)
@@ -127,8 +126,8 @@ class LibraryHandler:
         :raise CustomLibraryException:
         """
         component_metadata = {}
-        public_file_path = os.path.join(self.library_local_directory, component_type, ".tnlcm", "public.yaml")
-        if not os.path.exists(public_file_path):
+        public_file_path = join_path(self.library_local_directory, component_type, ".tnlcm", "public.yaml")
+        if not exists_path(path=public_file_path):
             raise CustomLibraryException(f"File {public_file_path} not found", 404)
         
         public_data = load_yaml(file_path=public_file_path)

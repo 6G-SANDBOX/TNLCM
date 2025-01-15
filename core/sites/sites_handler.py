@@ -1,8 +1,7 @@
-import os
-
 from conf.sites import SitesSettings
 from core.repository.repository_handler import RepositoryHandler
 from core.utils.file_handler import load_yaml, load_file, save_yaml
+from core.utils.os_handler import join_path, is_directory, list_directory, exists_path
 from core.utils.parser_handler import yaml_to_dict, ansible_decrypt
 from core.exceptions.exceptions_handler import CustomSitesException
 
@@ -26,7 +25,7 @@ class SitesHandler():
         if https_url is None:
             self.sites_https_url = SitesSettings.SITES_HTTPS_URL
         self.sites_repository_name = SitesSettings.SITES_REPOSITORY_NAME
-        self.sites_local_directory = os.path.join(directory_path, self.sites_repository_name)
+        self.sites_local_directory = join_path(directory_path, self.sites_repository_name)
         self.sites_reference_type = reference_type
         self.sites_reference_value = reference_value
         if reference_type == "branch" and reference_value:
@@ -82,7 +81,7 @@ class SitesHandler():
 
         :return: list with deployment sites available for deploy trial networks
         """
-        return [site for site in os.listdir(self.sites_local_directory) if not site.startswith(".") and os.path.isdir(os.path.join(self.sites_local_directory, site))]
+        return [site for site in list_directory(path=self.sites_local_directory) if not site.startswith(".") and is_directory(join_path(self.sites_local_directory, site))]
 
     def validate_site(self, deployment_site: str) -> None:
         """
@@ -94,11 +93,11 @@ class SitesHandler():
         if deployment_site not in self.get_sites():
             raise CustomSitesException(f"Site should be one: {self.get_sites()}", 404)
 
-        core_file = os.path.join(self.sites_local_directory, deployment_site, "core.yaml")
+        core_file = join_path(self.sites_local_directory, deployment_site, "core.yaml")
         encrypted_data = load_file(file_path=core_file, mode="rb", encoding=None)
         decrypted_data = ansible_decrypt(encrypted_data=encrypted_data, token=SitesSettings.SITES_TOKEN)
         decrypted_yaml = yaml_to_dict(data=decrypted_data)
-        save_yaml(data=decrypted_yaml, file_path=os.path.join(self.sites_local_directory, deployment_site, "core_decrypt.yaml"))
+        save_yaml(data=decrypted_yaml, file_path=join_path(self.sites_local_directory, deployment_site, "core_decrypt.yaml"))
 
     def get_site_available_components(self, deployment_site: str) -> dict:
         """
@@ -108,8 +107,8 @@ class SitesHandler():
         :return: dictionary with all information of all components available on a site, ``dict``
         :raise CustomSitesException:
         """
-        decrypted_core_path = os.path.join(self.sites_local_directory, deployment_site, "core_decrypt.yaml")
-        if not os.path.exists(decrypted_core_path):
+        decrypted_core_path = join_path(self.sites_local_directory, deployment_site, "core_decrypt.yaml")
+        if not exists_path(path=decrypted_core_path):
             raise CustomSitesException(f"File {decrypted_core_path} not found", 404)
         data = load_yaml(file_path=decrypted_core_path)
         if not data or "site_available_components" not in data:

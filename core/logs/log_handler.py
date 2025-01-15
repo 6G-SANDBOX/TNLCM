@@ -1,8 +1,7 @@
-import os
 import logging
 import sys
 
-from core.utils.os_handler import get_dotenv_var
+from core.utils.os_handler import get_dotenv_var, join_path
 
 LOG_LEVELS_AND_FORMATS = {
     "DEBUG": ("\x1b[38;21m", logging.DEBUG),
@@ -73,7 +72,7 @@ class TnLogHandler:
     def __init__(self, tn_id: str):
         from conf.tnlcm import TnlcmSettings
         log_file_name = f"{tn_id}.log"
-        log_file_path = os.path.join(TnlcmSettings.TRIAL_NETWORKS_DIRECTORY, tn_id, log_file_name)
+        log_file_path = join_path(TnlcmSettings.TRIAL_NETWORKS_DIRECTORY, tn_id, log_file_name)
 
         self.logger = logging.getLogger(tn_id)
         self.logger.setLevel(logging.INFO)

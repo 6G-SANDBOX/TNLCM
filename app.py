@@ -9,7 +9,7 @@ from core.mail.mail import init_mail
 from core.database.database import init_db
 from core.routes import callback_namespace, debug_namespace, library_namespace, trial_network_namespace, user_no_two_factor_namespace, user_namespace, verification_token_namespace
 from core.utils.file_handler import loads_toml
-from core.utils.os_handler import join_path
+from core.utils.os_handler import current_directory, join_path
 
 app = Flask(__name__)
 CORS(app=app)
@@ -20,7 +20,7 @@ app.config.from_object(obj=FlaskConf)
 init_db(app=app)
 if MailSettings.TWO_FACTOR_AUTH:
     init_mail(app=app)
-__version__ = loads_toml(file_path=join_path("pyproject.toml"))["tool"]["poetry"]["version"]
+__version__ = loads_toml(file_path=join_path(current_directory(), "pyproject.toml"))["tool"]["poetry"]["version"]
 
 api = Api(
     app=app,

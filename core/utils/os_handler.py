@@ -24,7 +24,7 @@ def join_path(*args) -> str:
     :param args: path to join, ``str``
     :return: joined path, ``str``
     """
-    return os.path.join(current_directory(), *args)
+    return os.path.join(*args)
 
 def exists_path(path: str) -> bool:
     """
@@ -34,6 +34,24 @@ def exists_path(path: str) -> bool:
     :return: path exists, ``bool``
     """
     return os.path.exists(path)
+
+def is_directory(path: str) -> bool:
+    """
+    Check if path is directory
+    
+    :param path: path to check, ``str``
+    :return: path is directory, ``bool``
+    """
+    return os.path.isdir(path)
+
+def list_directory(path: str) -> list[str]:
+    """
+    List directory
+    
+    :param path: directory path, ``str``
+    :return: list of files in directory, ``list[str]``
+    """
+    return os.listdir(path)
 
 def make_directory(path: str) -> None:
     """

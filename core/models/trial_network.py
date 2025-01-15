@@ -1,4 +1,3 @@
-import os
 import re
 import ast
 import operator
@@ -11,6 +10,7 @@ from werkzeug.datastructures import FileStorage
 from mongoengine import Document, StringField, DictField, DateTimeField
 
 from core.utils.file_handler import load_file
+from core.utils.os_handler import join_path, make_directory
 from core.utils.parser_handler import yaml_to_dict
 from core.exceptions.exceptions_handler import CustomTrialNetworkException
 
@@ -99,9 +99,9 @@ class TrialNetworkModel(Document):
 
         :param directory_path: path to the trial network directory, ``str``
         """
-        os.makedirs(directory_path)
-        os.makedirs(os.path.join(directory_path, "input"))
-        os.makedirs(os.path.join(directory_path, "output"))
+        make_directory(path=directory_path)
+        make_directory(path=join_path(directory_path, "input"))
+        make_directory(path=join_path(directory_path, "output"))
         self.directory_path = directory_path
 
     def set_state(self, state: str) -> None:

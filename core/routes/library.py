@@ -1,10 +1,9 @@
-import os
-
 from flask_restx import Namespace, Resource, abort
 from flask_jwt_extended.exceptions import JWTExtendedException
 from jwt.exceptions import PyJWTError
 
 from core.library.library_handler import LibraryHandler
+from core.utils.os_handler import current_directory, join_path, exists_path
 from core.exceptions.exceptions_handler import CustomException
 
 library_namespace = Namespace(
@@ -30,9 +29,9 @@ class Component(Resource):
         Retrieve information about the component using main branch
         """
         try:
-            library_path = os.path.join("core", "library")
+            library_path = join_path(current_directory(), "core", "library")
             library_handler = LibraryHandler(directory_path=library_path)
-            if not os.path.exists(library_handler.library_local_directory):
+            if not exists_path(path=library_handler.library_local_directory):
                 library_handler.git_clone()
             library_handler.is_component(component_type=component)
             component_input = library_handler.get_component_input(component_type=component)

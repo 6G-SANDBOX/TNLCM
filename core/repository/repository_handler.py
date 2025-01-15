@@ -1,7 +1,6 @@
-import os
-
 from git import Repo
 
+from core.utils.os_handler import join_path, exists_path
 from core.exceptions.exceptions_handler import CustomGitException
 
 class RepositoryHandler:
@@ -41,7 +40,7 @@ class RepositoryHandler:
         """
         Git clone
         """
-        if not os.path.exists(self.github_local_directory) or not os.path.exists(os.path.join(self.github_local_directory, ".git")):
+        if not exists_path(path=self.github_local_directory) or not exists_path(path=join_path(self.github_local_directory, ".git")):
             self.repo = Repo.clone_from(self.github_https_url, self.github_local_directory)
         else:
             self.repo = Repo(self.github_local_directory)

@@ -1,5 +1,5 @@
 from core.logs.log_handler import tnlcm_log_handler
-from core.utils.os_handler import get_dotenv_var, join_path, exists_path, make_directory
+from core.utils.os_handler import get_dotenv_var, current_directory, join_path, exists_path, make_directory
 from core.exceptions.exceptions_handler import UndefinedEnvVariableError
 
 class TnlcmSettings:
@@ -27,7 +27,7 @@ class TnlcmSettings:
     DESCRIPTION = ("[[6G-SANDBOX] TNLCM](https://github.com/6G-SANDBOX/TNLCM)")
     DOC = False
 
-    TRIAL_NETWORKS_DIRECTORY: str = join_path("core", "trial_networks")
+    TRIAL_NETWORKS_DIRECTORY: str = join_path(current_directory(), "core", "trial_networks")
     if not exists_path(path=TRIAL_NETWORKS_DIRECTORY):
         make_directory(path=TRIAL_NETWORKS_DIRECTORY)
 
