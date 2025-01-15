@@ -4,6 +4,8 @@
 
 ### Added
 
+- Namespace for handler library requests.
+
 ### Changed
 
 - Migrate from pyyaml library to ruamel.yaml library to handle YAML files.
@@ -15,6 +17,7 @@
 ### Removed
 
 - Directory: temporary.
+- Check when a component of the output received by Jenkins is deployed with the one specified in the library.
 
 ## [v0.4.4] - 2024-12-04
 
