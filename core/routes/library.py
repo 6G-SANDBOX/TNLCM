@@ -30,9 +30,9 @@ class Component(Resource):
         Retrieve information about the component using main branch
         """
         try:
-            library_path = os.path.join("core", "library", "library")
+            library_path = os.path.join("core", "library")
             library_handler = LibraryHandler(directory_path=library_path)
-            if not os.path.exists(library_path):
+            if not os.path.exists(library_handler.library_local_directory):
                 library_handler.git_clone()
             library_handler.is_component(component_type=component)
             component_input = library_handler.get_component_input(component_type=component)
