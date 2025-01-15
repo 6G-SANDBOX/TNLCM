@@ -124,11 +124,11 @@ class CreateTrialNetwork(Resource):
             tn_log_handler.info(f"[{trial_network.tn_id}] - Trial network update to status {trial_network.state}")
             return trial_network.to_dict(), 201
         except CustomException as e:
-            if trial_network.directory_path:
+            if trial_network and trial_network.directory_path:
                 rmtree(trial_network.directory_path)
             return {"message": str(e)}, e.error_code
         except Exception as e:
-            if trial_network.directory_path:
+            if trial_network and trial_network.directory_path:
                 rmtree(trial_network.directory_path)
             if tn_log_handler:
                 tn_log_handler.error(f"[{trial_network.tn_id}] - {e}")
