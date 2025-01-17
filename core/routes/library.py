@@ -26,7 +26,7 @@ class Component(Resource):
     @library_namespace.errorhandler(JWTExtendedException)
     def get(self, component: str):
         """
-        Retrieve information about the component using main branch
+        Retrieve library component information
         """
         try:
             library_path = join_path(current_directory(), "core", "library")
