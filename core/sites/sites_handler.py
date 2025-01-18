@@ -17,6 +17,7 @@ class SitesHandler():
         """
         Constructor
         
+        :param https_url: URL of the repository, ``str``
         :param reference_type: type of reference (branch, tag, commit) to switch, ``str``
         :param reference_value: value of the reference (branch name, tag name, commit ID) to switch, ``str``
         :param directory_path: directory path into which the Sites is to be cloned, ``str``
@@ -92,7 +93,6 @@ class SitesHandler():
         """
         if deployment_site not in self.get_sites():
             raise CustomSitesException(f"Site should be one: {self.get_sites()}", 404)
-
         core_file = join_path(self.sites_local_directory, deployment_site, "core.yaml")
         encrypted_data = load_file(file_path=core_file, mode="rb", encoding=None)
         decrypted_data = ansible_decrypt(encrypted_data=encrypted_data, token=SitesSettings.SITES_TOKEN)
