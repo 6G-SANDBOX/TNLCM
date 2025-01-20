@@ -393,7 +393,7 @@ class DownloadReportTrialNetwork(Resource):
         except Exception as e:
             return abort(500, str(e))
 
-@trial_network_namespace.route("s/<string:tn_id>/log")
+@trial_network_namespace.route("s/<string:tn_id>.log")
 class TrialNetworkLog(Resource):
 
     @trial_network_namespace.doc(security="Bearer Auth")
