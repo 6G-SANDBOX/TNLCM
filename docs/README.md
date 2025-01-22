@@ -74,7 +74,7 @@ chmod +x installer.sh
 Run the script and follow the instructions:
 
 ```bash
-./installer.sh
+source installer.sh
 ```
 
 ### :snake: Start server

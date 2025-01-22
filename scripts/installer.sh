@@ -12,8 +12,6 @@ echo "============================================="
 UBUNTU_VERSION=$(lsb_release -rs)
 PYTHON_VERSION="3.13"
 PYTHON_BIN="python${PYTHON_VERSION}"
-POETRY_FOLDER="/opt/poetry"
-POETRY_BIN="/opt/poetry/bin/poetry"
 TNLCM_FOLDER="/opt/TNLCM"
 TNLCM_ENV_FILE=${TNLCM_FOLDER}/.env
 MONGODB_VERSION="8.0"
@@ -72,14 +70,9 @@ fi
 echo "Installing Python venv module..."
 apt install -y ${PYTHON_BIN}-venv
 
-echo "--------------- Installing Poetry ---------------"
-if [[ -f ${POETRY_BIN} ]]; then
-    echo "Poetry is already installed."
-else
-    echo "Installing Poetry..."
-    curl -sSL https://install.python-poetry.org | POETRY_HOME=${POETRY_FOLDER} python3 -
-    ${POETRY_BIN} config virtualenvs.in-project true
-fi
+echo "--------------- Installing uv ---------------"
+curl -LsSf https://astral.sh/uv/install.sh | sh
+source ${HOME}/.local/bin/env
 
 echo "--------------- Cloning TNLCM Repository ---------------"
 if [[ -d ${TNLCM_FOLDER} ]]; then
@@ -88,9 +81,6 @@ else
     echo "Cloning TNLCM repository..."
     git clone https://github.com/6G-SANDBOX/TNLCM ${TNLCM_FOLDER}
 fi
-
-echo "Installing TNLCM dependencies using Poetry..."
-${POETRY_BIN} install --no-root --directory ${TNLCM_FOLDER}
 
 echo "Copying .env.template to .env..."
 cp ${TNLCM_FOLDER}/.env.template ${TNLCM_FOLDER}/.env
@@ -193,10 +183,9 @@ EOF
 systemctl enable --now mongo-express.service
 echo "Mongo-Express service started."
 
-cd ${TNLCM_FOLDER}
-
-echo "Activating Poetry shell..."
-${POETRY_BIN} shell
+echo "Installing TNLCM dependencies using uv..."
+uv --directory ${TNLCM_FOLDER} venv
+uv --directory ${TNLCM_FOLDER} pip install -r ${TNLCM_FOLDER}/pyproject.toml
 
 echo "All components installed successfully."
 echo "========== TNLCM, MongoDB, and Mongo-Express Installation Complete =========="
