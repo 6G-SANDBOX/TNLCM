@@ -184,8 +184,7 @@ systemctl enable --now mongo-express.service
 echo "Mongo-Express service started."
 
 echo "Installing TNLCM dependencies using uv..."
-uv --directory ${TNLCM_FOLDER} venv
-uv --directory ${TNLCM_FOLDER} pip install -r ${TNLCM_FOLDER}/pyproject.toml
+uv --directory ${TNLCM_FOLDER} sync
 
 echo "All components installed successfully."
 echo "========== TNLCM, MongoDB, and Mongo-Express Installation Complete =========="
