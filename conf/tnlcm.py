@@ -1,5 +1,6 @@
 from core.logs.log_handler import tnlcm_log_handler
 from core.utils.os_handler import get_dotenv_var, current_directory, join_path, exists_path, make_directory
+from core.utils.file_handler import loads_toml
 from core.exceptions.exceptions_handler import UndefinedEnvVariableError
 
 class TnlcmSettings:
@@ -26,6 +27,7 @@ class TnlcmSettings:
     TITLE = "Trial Network Lifecycle Manager - TNLCM"
     DESCRIPTION = ("[[6G-SANDBOX] TNLCM](https://github.com/6G-SANDBOX/TNLCM)")
     DOC = False
+    VERSION = loads_toml(file_path=join_path(current_directory(), "pyproject.toml"))["tool"]["poetry"]["version"]
 
     TRIAL_NETWORKS_DIRECTORY: str = join_path(current_directory(), "core", "trial_networks")
     if not exists_path(path=TRIAL_NETWORKS_DIRECTORY):
