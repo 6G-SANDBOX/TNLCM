@@ -16,7 +16,7 @@ TNLCM_FOLDER="/opt/TNLCM"
 TNLCM_ENV_FILE=${TNLCM_FOLDER}/.env
 MONGODB_VERSION="8.0"
 YARN_GLOBAL_LIBRARIES="/opt/yarn_global"
-MONGO_EXPRESS_VERSION="v1.0.2"
+MONGO_EXPRESS_VERSION="v1.0.3"
 MONGO_EXPRESS_FOLDER=/opt/mongo-express-${MONGO_EXPRESS_VERSION}
 
 echo "========== Starting Pre-Checks for Script Execution =========="
