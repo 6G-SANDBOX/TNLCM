@@ -27,7 +27,7 @@ class TnlcmSettings:
     TITLE = "Trial Network Lifecycle Manager - TNLCM"
     DESCRIPTION = ("[[6G-SANDBOX] TNLCM](https://github.com/6G-SANDBOX/TNLCM)")
     DOC = False
-    VERSION = loads_toml(file_path=join_path(current_directory(), "pyproject.toml"))["tool"]["poetry"]["version"]
+    VERSION = loads_toml(file_path=join_path(current_directory(), "pyproject.toml"))["project"]["version"]
 
     TRIAL_NETWORKS_DIRECTORY: str = join_path(current_directory(), "core", "trial_networks")
     if not exists_path(path=TRIAL_NETWORKS_DIRECTORY):
