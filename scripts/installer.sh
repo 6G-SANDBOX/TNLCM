@@ -185,6 +185,7 @@ echo "Mongo-Express service started."
 
 echo "Installing TNLCM dependencies using uv..."
 uv --directory ${TNLCM_FOLDER} sync
+source ${TNLCM_FOLDER}/.venv/bin/activate
 
 echo "All components installed successfully."
 echo "========== TNLCM, MongoDB, and Mongo-Express Installation Complete =========="
