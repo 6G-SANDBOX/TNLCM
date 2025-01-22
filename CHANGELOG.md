@@ -14,10 +14,13 @@
 
 ### Fixed
 
+- Two logs are recorded, one for each trial network and one for the generic TNLCM.
+
 ### Removed
 
 - Directory: temporary.
 - Check when a component of the output received by Jenkins is deployed with the one specified in the library.
+- Docker installation.
 
 ## [v0.4.4] - 2024-12-04
 
