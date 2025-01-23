@@ -1,9 +1,9 @@
-from flask_restx import Namespace, Resource, abort
-from flask_jwt_extended.exceptions import JWTExtendedException
+from flask_restx import abort, Namespace, Resource
 from jwt.exceptions import PyJWTError
+from flask_jwt_extended.exceptions import JWTExtendedException
 
 from core.library.library_handler import LibraryHandler
-from core.utils.os_handler import current_directory, join_path, exists_path
+from core.utils.os_handler import current_directory, exists_path, join_path
 from core.exceptions.exceptions_handler import CustomException
 
 library_namespace = Namespace(

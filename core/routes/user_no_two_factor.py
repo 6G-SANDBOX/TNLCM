@@ -1,12 +1,12 @@
 from datetime import timedelta
 from flask import request
-from flask_restx import Resource, Namespace, reqparse, abort
-from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, create_refresh_token
-from flask_jwt_extended.exceptions import JWTExtendedException
+from flask_restx import abort, Namespace, reqparse, Resource
 from jwt.exceptions import PyJWTError
+from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity, jwt_required
+from flask_jwt_extended.exceptions import JWTExtendedException
 
 from core.auth.auth import get_current_user_from_jwt
-from core.models import UserModel
+from core.models.user import UserModel
 from core.exceptions.exceptions_handler import CustomException
 
 EXP_MINUTES_ACCESS_TOKEN = 1440

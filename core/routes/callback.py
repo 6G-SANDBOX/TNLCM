@@ -1,9 +1,9 @@
 from flask import request
-from flask_restx import Namespace, Resource, abort
+from flask_restx import abort, Namespace, Resource
 
 from core.callback.callback_handler import CallbackHandler
-from core.models import TrialNetworkModel
 from core.logs.log_handler import TnLogHandler
+from core.models.trial_network import TrialNetworkModel
 from core.exceptions.exceptions_handler import CustomException
 
 callback_namespace = Namespace(

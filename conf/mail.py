@@ -1,6 +1,6 @@
 from core.logs.log_handler import tnlcm_log_handler
 from core.utils.os_handler import get_dotenv_var
-from core.exceptions.exceptions_handler import UndefinedEnvVariableError, InvalidEnvVariableError
+from core.exceptions.exceptions_handler import InvalidEnvVariableError, UndefinedEnvVariableError
 
 def str_to_bool(s: str) -> bool:
     """

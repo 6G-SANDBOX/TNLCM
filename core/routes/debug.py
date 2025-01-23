@@ -1,14 +1,14 @@
-from flask_restx import Namespace, reqparse, Resource, abort
-from flask_jwt_extended import jwt_required, get_jwt_identity
-from flask_jwt_extended.exceptions import JWTExtendedException
+from flask_restx import abort, Namespace, reqparse, Resource
 from jwt.exceptions import PyJWTError
+from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask_jwt_extended.exceptions import JWTExtendedException
 
 from core.auth.auth import get_current_user_from_jwt
-from core.logs.log_handler import TnLogHandler
-from core.models import TrialNetworkModel
-from core.library.library_handler import LibraryHandler
-from core.sites.sites_handler import SitesHandler
 from core.jenkins.jenkins_handler import JenkinsHandler
+from core.library.library_handler import LibraryHandler
+from core.logs.log_handler import TnLogHandler
+from core.models.trial_network import TrialNetworkModel
+from core.sites.sites_handler import SitesHandler
 from core.exceptions.exceptions_handler import CustomException
 
 debug_namespace = Namespace(

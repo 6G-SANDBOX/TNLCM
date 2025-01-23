@@ -1,4 +1,4 @@
-from core.models import UserModel
+from core.models.user import UserModel
 
 def get_current_user_from_jwt(jwt_identity: str) -> UserModel:
     """

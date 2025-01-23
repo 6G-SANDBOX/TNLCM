@@ -1,10 +1,11 @@
-from random import randint
-from flask_restx import Resource, Namespace, reqparse, abort
+from flask_restx import abort, Namespace, reqparse, Resource
 from flask_mail import Message
+from random import randint
 
 from conf.mail import MailSettings
 from core.mail.mail import mail
-from core.models import UserModel, VerificationTokenModel
+from core.models.user import UserModel
+from core.models.verification_token import VerificationTokenModel
 from core.exceptions.exceptions_handler import CustomException
 
 verification_token_namespace = Namespace(

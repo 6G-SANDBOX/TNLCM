@@ -1,14 +1,5 @@
 import os
 
-def get_dotenv_var(key: str) -> str:
-    """
-    Get dotenv variable
-    
-    :param key: dotenv variable key, ``str``
-    :return: dotenv variable value, ``str``
-    """
-    return os.getenv(key)
-
 def current_directory() -> str:
     """
     Current directory
@@ -16,15 +7,6 @@ def current_directory() -> str:
     :return: current directory, ``str``
     """
     return os.getcwd()
-
-def join_path(*args) -> str:
-    """
-    Join path
-    
-    :param args: path to join, ``str``
-    :return: joined path, ``str``
-    """
-    return os.path.join(*args)
 
 def exists_path(path: str) -> bool:
     """
@@ -35,6 +17,15 @@ def exists_path(path: str) -> bool:
     """
     return os.path.exists(path)
 
+def get_dotenv_var(key: str) -> str:
+    """
+    Get dotenv variable
+    
+    :param key: dotenv variable key, ``str``
+    :return: dotenv variable value, ``str``
+    """
+    return os.getenv(key)
+
 def is_directory(path: str) -> bool:
     """
     Check if path is directory
@@ -43,6 +34,15 @@ def is_directory(path: str) -> bool:
     :return: path is directory, ``bool``
     """
     return os.path.isdir(path)
+
+def join_path(*args) -> str:
+    """
+    Join path
+    
+    :param args: path to join, ``str``
+    :return: joined path, ``str``
+    """
+    return os.path.join(*args)
 
 def list_directory(path: str) -> list[str]:
     """

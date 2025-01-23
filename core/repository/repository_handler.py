@@ -1,6 +1,6 @@
 from git import Repo
 
-from core.utils.os_handler import join_path, exists_path
+from core.utils.os_handler import exists_path, join_path
 from core.exceptions.exceptions_handler import CustomGitException
 
 class RepositoryHandler:

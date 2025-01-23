@@ -1,4 +1,4 @@
-from mongoengine import Document, StringField, IntField
+from mongoengine import Document, IntField, StringField
 
 from core.exceptions.exceptions_handler import CustomResourceManagerException
 

@@ -1,18 +1,7 @@
 from ansible.parsing.vault import VaultLib, VaultSecret
 from ansible.constants import DEFAULT_VAULT_ID_MATCH
+from base64 import b64decode, b64encode
 from ruamel.yaml import YAML
-from base64 import b64encode, b64decode
-
-def ansible_encrypt(data: str, token: str) -> None:
-    """
-    Encrypt a file using Ansible Vault
-
-    :param encrypted_data: the data to be encrypted, ``str``
-    :param token: the token used for encrypt data, ``str``
-    """
-    secret = token.encode("utf-8")
-    vault = VaultLib([(DEFAULT_VAULT_ID_MATCH, VaultSecret(secret))])
-    return vault.encrypt(data)
 
 def ansible_decrypt(encrypted_data: str, token: str) -> None:
     """
@@ -25,17 +14,16 @@ def ansible_decrypt(encrypted_data: str, token: str) -> None:
     vault = VaultLib([(DEFAULT_VAULT_ID_MATCH, VaultSecret(secret))])
     return vault.decrypt(encrypted_data)
 
-def yaml_to_dict(data: str) -> dict:
+def ansible_encrypt(data: str, token: str) -> None:
     """
-    Load data from a YAML string
+    Encrypt a file using Ansible Vault
 
-    :param data: the YAML string to be loaded, ``str``
-    :return: the data loaded from the YAML string, ``dict``
+    :param encrypted_data: the data to be encrypted, ``str``
+    :param token: the token used for encrypt data, ``str``
     """
-    yaml = YAML()
-    yaml.preserve_quotes = True
-    yaml.default_flow_style = False
-    return yaml.load(data)
+    secret = token.encode("utf-8")
+    vault = VaultLib([(DEFAULT_VAULT_ID_MATCH, VaultSecret(secret))])
+    return vault.encrypt(data)
 
 def decode_base64(encoded_data: str) -> str:
     """
@@ -54,3 +42,15 @@ def encode_base64(data: str) -> str:
     :return: the base64 encoded data, ``str``
     """
     return b64encode(data.encode("utf-8")).decode("utf-8")
+
+def yaml_to_dict(data: str) -> dict:
+    """
+    Load data from a YAML string
+
+    :param data: the YAML string to be loaded, ``str``
+    :return: the data loaded from the YAML string, ``dict``
+    """
+    yaml = YAML()
+    yaml.preserve_quotes = True
+    yaml.default_flow_style = False
+    return yaml.load(data)

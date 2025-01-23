@@ -1,15 +1,15 @@
-from requests import post
-from time import sleep
 from jenkins import Jenkins
+from requests import post
 from requests.exceptions import RequestException
+from time import sleep
 
 from conf.jenkins import JenkinsSettings
 from conf.tnlcm import TnlcmSettings
 from core.logs.log_handler import TnLogHandler
-from core.models import TrialNetworkModel
+from core.models.trial_network import TrialNetworkModel
 from core.library.library_handler import LibraryHandler
 from core.utils.file_handler import load_file, save_yaml
-from core.utils.os_handler import join_path, exists_path
+from core.utils.os_handler import exists_path, join_path
 from core.exceptions.exceptions_handler import CustomJenkinsException
 
 class JenkinsHandler:

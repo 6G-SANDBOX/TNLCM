@@ -1,13 +1,13 @@
-import re
 import ast
 import operator
+import re
 
 from datetime import datetime, timezone
-from string import ascii_lowercase, digits
+from mongoengine import DateTimeField, DictField, Document, StringField
 from random import choice
+from string import ascii_lowercase, digits
 from werkzeug.utils import secure_filename
 from werkzeug.datastructures import FileStorage
-from mongoengine import Document, StringField, DictField, DateTimeField
 
 from core.utils.file_handler import load_file
 from core.utils.os_handler import join_path, make_directory

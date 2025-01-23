@@ -4,6 +4,30 @@ import tomlkit
 from ruamel.yaml import YAML
 from ruamel.yaml.scalarstring import DoubleQuotedScalarString
 
+def load_file(file_path: str, mode: str = "rt", encoding: str = "utf-8") -> str:
+    """
+    Load the content from a file
+    
+    :param file_path: the path to the file to be loaded (e.g. txt, markdown), ``str``
+    :param mode: the mode in which the file is opened (e.g. rt, rb), ``str``
+    :param encoding: the file encoding (e.g. utf-8), ``str``
+    :return: the data loaded from the file, ``str``
+    """
+    with open(file_path, mode=mode, encoding=encoding) as file:
+        return file.read()
+
+def load_toml(file_path: str, mode: str = "rt", encoding: str = "utf-8") -> dict:
+    """
+    Load data from a TOML file
+
+    :param file_path: the path to the TOML file to be loaded, ``str``
+    :param mode: the mode in which the file is opened (e.g. rt, rb), ``str``
+    :param encoding: the file encoding (e.g. utf-8), ``str``
+    :return: the data loaded from the TOML file, ``dict``
+    """
+    with open(file=file_path, mode=mode, encoding=encoding) as toml_file:
+        return tomlkit.loads(toml_file.read())
+
 def load_yaml(file_path: str, mode: str = "rt", encoding: str = "utf-8") -> dict:
     """
     Load data from a YAML file
@@ -19,29 +43,17 @@ def load_yaml(file_path: str, mode: str = "rt", encoding: str = "utf-8") -> dict
     with open(file=file_path, mode=mode, encoding=encoding) as yaml_file:
         return yaml.load(yaml_file)
 
-def loads_toml(file_path: str, mode: str = "rt", encoding: str = "utf-8") -> dict:
+def save_file(data: str, file_path: str, mode: str = "wt", encoding: str = "utf-8") -> None:
     """
-    Load data from a TOML file
-
-    :param file_path: the path to the TOML file to be loaded, ``str``
-    :param mode: the mode in which the file is opened (e.g. rt, rb), ``str``
-    :param encoding: the file encoding (e.g. utf-8), ``str``
-    :return: the data loaded from the TOML file, ``dict``
-    """
-    with open(file=file_path, mode=mode, encoding=encoding) as toml_file:
-        return tomlkit.loads(toml_file.read())
-
-def load_file(file_path: str, mode: str = "rt", encoding: str = "utf-8") -> str:
-    """
-    Load the content from a file
+    Save the given data in a file
     
-    :param file_path: the path to the file to be loaded (e.g. txt, markdown), ``str``
+    :param data: the text to be saved (e.g. txt, markdown), ``str``
+    :param file_path: the file path where the data will be saved, ``str``
     :param mode: the mode in which the file is opened (e.g. rt, rb), ``str``
     :param encoding: the file encoding (e.g. utf-8), ``str``
-    :return: the data loaded from the file, ``str``
     """
-    with open(file_path, mode=mode, encoding=encoding) as file:
-        return file.read()
+    with open(file=file_path, mode=mode, encoding=encoding) as file:
+        file.write(data)
 
 def save_json(data, file_path: str, mode: str = "wt", encoding: str = "utf-8") -> None:
     """
@@ -79,15 +91,3 @@ def save_yaml(data, file_path: str, mode: str = "wt", encoding: str = "utf-8") -
 
     with open(file=file_path, mode=mode, encoding=encoding) as yaml_file:
         yaml.dump(data=data, stream=yaml_file)
-
-def save_file(data: str, file_path: str, mode: str = "wt", encoding: str = "utf-8") -> None:
-    """
-    Save the given data in a file
-    
-    :param data: the text to be saved (e.g. txt, markdown), ``str``
-    :param file_path: the file path where the data will be saved, ``str``
-    :param mode: the mode in which the file is opened (e.g. rt, rb), ``str``
-    :param encoding: the file encoding (e.g. utf-8), ``str``
-    """
-    with open(file=file_path, mode=mode, encoding=encoding) as file:
-        file.write(data)
