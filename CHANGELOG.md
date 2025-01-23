@@ -9,9 +9,9 @@
 ### Changed
 
 - Migrate from pyyaml library to ruamel.yaml library to handle YAML files.
-- Trial network descriptor validator.
+- Migrate package manager from poetry to uv.
 - Rename script `deploy_vm.sh` to `installer.sh`.
-- Migrate package manage poetry to uv.
+- Trial network descriptor validator.
 
 ### Fixed
 
