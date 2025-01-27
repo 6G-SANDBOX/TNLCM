@@ -12,6 +12,8 @@ echo "============================================="
 UBUNTU_VERSION=$(lsb_release -rs)
 PYTHON_VERSION="3.13"
 PYTHON_BIN="python${PYTHON_VERSION}"
+UV_PATH="/opt/uv"
+UV_BIN="${UV_PATH}/uv"
 TNLCM_FOLDER="/opt/TNLCM"
 TNLCM_ENV_FILE=${TNLCM_FOLDER}/.env
 MONGODB_VERSION="8.0"
@@ -71,8 +73,7 @@ echo "Installing Python venv module..."
 apt install -y ${PYTHON_BIN}-venv
 
 echo "--------------- Installing uv ---------------"
-curl -LsSf https://astral.sh/uv/install.sh | sh
-source ${HOME}/.local/bin/env
+curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR=${UV_PATH} sh
 
 echo "--------------- Cloning TNLCM Repository ---------------"
 if [[ -d ${TNLCM_FOLDER} ]]; then
@@ -212,9 +213,9 @@ EOF
 systemctl restart nginx
 
 echo "Installing TNLCM dependencies using uv..."
-uv --directory ${TNLCM_FOLDER} sync
-source ${TNLCM_FOLDER}/.venv/bin/activate
+${UV_BIN} --directory ${TNLCM_FOLDER} sync
 cd ${TNLCM_FOLDER}
+${UV_BIN} run gunicorn -c conf/gunicorn_conf.py
 
 echo "All components installed successfully."
 echo "========== TNLCM, MongoDB, and Mongo-Express Installation Complete =========="

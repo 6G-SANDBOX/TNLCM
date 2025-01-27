@@ -27,7 +27,6 @@ TNLCM (Trial Network Lifecycle Manager) is a tool designed to manage the lifecyc
 - [:rocket: Getting Started Locally](#rocket-getting-started-locally)
   - [:inbox\_tray: Download the installation script](#inbox_tray-download-the-installation-script)
   - [:desktop\_computer: Execute installation script](#desktop_computer-execute-installation-script)
-  - [:snake: Start server](#snake-start-server)
 - [:hammer\_and\_wrench: Stack](#hammer_and_wrench-stack)
 - [:books: Documentation](#books-documentation)
 </details>
@@ -74,13 +73,7 @@ chmod +x installer.sh
 Run the script and follow the instructions:
 
 ```bash
-source installer.sh
-```
-
-### :snake: Start server
-
-```bash
-gunicorn -c conf/gunicorn_conf.py
+./installer.sh
 ```
 
 A Swagger UI will be available at the url http://tnlcm-backend-ip:5000 where the API with the endpoints exposed.
