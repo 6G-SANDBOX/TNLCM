@@ -92,7 +92,7 @@ A Swagger UI will be available at the url http://tnlcm-backend-ip:5000 where the
 
 ## :books: Documentation
 
-Find the complete documentation and usage guides in our [wiki](https://github.com/6G-SANDBOX/TNLCM/wiki).
+Find the complete documentation and usage guides in our [docs](https://6g-sandbox.github.io/docs/docs/category/tnlcm).
 
 ## Contributors <!-- omit in toc -->
 
