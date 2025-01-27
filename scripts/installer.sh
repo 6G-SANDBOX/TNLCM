@@ -214,6 +214,7 @@ systemctl restart nginx
 echo "Installing TNLCM dependencies using uv..."
 uv --directory ${TNLCM_FOLDER} sync
 source ${TNLCM_FOLDER}/.venv/bin/activate
+cd ${TNLCM_FOLDER}
 
 echo "All components installed successfully."
 echo "========== TNLCM, MongoDB, and Mongo-Express Installation Complete =========="
