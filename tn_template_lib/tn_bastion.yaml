@@ -8,7 +8,6 @@ trial_network:
     input: {}
   tn_bastion:
     type: "tn_bastion"
-    dependencies: ["tn_vxlan"]
-    input:
-      one_bastion_vpn_clients: 3
-      one_bastion_vpn_allowedips: "0.0.0.0/0"
+    dependencies:
+      - "tn_vxlan"
+    input: {}
