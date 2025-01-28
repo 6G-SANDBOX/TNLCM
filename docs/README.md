@@ -21,16 +21,9 @@
 
 TNLCM (Trial Network Lifecycle Manager) is a tool designed to manage the lifecycle of trial networks in research and development environments, including integration with advanced technologies such as 6G. It provides features for creating, deploying, monitoring, and deleting experimental networks, ensuring efficient resource management. Additionally, it includes an API, a clear MongoDB database schema and support for defining networks through customizable descriptors.
 
-<details>
-<summary>Table of Contents</summary>
+## :books: Documentation
 
-- [:round\_pushpin: Roadmap](#round_pushpin-roadmap)
-- [:rocket: Getting Started Locally](#rocket-getting-started-locally)
-  - [:inbox\_tray: Download the installation script](#inbox_tray-download-the-installation-script)
-  - [:desktop\_computer: Execute installation script](#desktop_computer-execute-installation-script)
-- [:hammer\_and\_wrench: Stack](#hammer_and_wrench-stack)
-- [:books: Documentation](#books-documentation)
-</details>
+Find the complete documentation and usage guides in our [docs](https://6g-sandbox.github.io/docs/category/tnlcm).
 
 ## :round_pushpin: Roadmap
 
@@ -40,53 +33,10 @@ TNLCM (Trial Network Lifecycle Manager) is a tool designed to manage the lifecyc
 - Add token for interaction between jenkins and tnlcm at callback endpoint.
 - Integration with Slurm.
 
-## :rocket: Getting Started Locally
-
-> [!IMPORTANT]
-> TNLCM requires the **prior** installation of:
-> 
-> | Repository       | Release                                                                                |
-> | ---------------- | -------------------------------------------------------------------------------------- |
-> | OpenNebula       | [v6.10](https://github.com/OpenNebula/one/releases/tag/release-6.10.0)                 |
-> | MinIO            | [2024-07-04](https://github.com/minio/minio/releases/tag/RELEASE.2024-07-04T14-25-45Z) |
-> | Jenkins          | [v2.462.3](https://github.com/jenkinsci/jenkins/releases/tag/jenkins-2.462.3)          |
-
-> [!TIP]
-> Additionally TNLCM depends on:
->
-> | Repository       | Release                                                                | Branch                                                     |
-> | ---------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------- |
-> | 6G-Library       | [v0.3.1](https://github.com/6G-SANDBOX/6G-Library/tree/release/v0.3.1) | -                                                          |
-> | 6G-Sandbox-Sites | -                                                                      | [platform](https://github.com/6G-SANDBOX/6G-Sandbox-Sites) |
-
-### :inbox_tray: Download the installation script
-
-Download the installation script which is [`installer.sh`](../scripts/installer.sh) and is located in the `scripts` directory.
-
-### :desktop_computer: Execute installation script
-
-Give execution permissions to the script:
-
-```bash
-chmod +x installer.sh
-```
-
-Run the script and follow the instructions:
-
-```bash
-./installer.sh
-```
-
-A Swagger UI will be available at the url http://tnlcm-backend-ip:5000 where the API with the endpoints exposed.
-
 ## :hammer_and_wrench: Stack
 - [![Python][python-badge]][python-url] - Programming language.
 - [![Flask][flask-badge]][flask-url] - Python framework for web applications to expose the API.
 - [![MongoDB][mongodb-badge]][mongodb-url] - NoSQL database designed to store Trial Networks.
-
-## :books: Documentation
-
-Find the complete documentation and usage guides in our [docs](https://6g-sandbox.github.io/docs/docs/category/tnlcm).
 
 ## Contributors <!-- omit in toc -->
 
