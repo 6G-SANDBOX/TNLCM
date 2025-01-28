@@ -2,20 +2,21 @@
 
 <div align="center">
 
-  # TRIAL NETWORK LIFECYCLE MANAGER <!-- omit in toc -->
+# TRIAL NETWORK LIFECYCLE MANAGER <!-- omit in toc -->
 
-  [![Contributors][contributors-shield]][contributors-url]
-  [![Forks][forks-shield]][forks-url]
-  [![Stargazers][stars-shield]][stars-url]
-  [![Issues][issues-shield]][issues-url]
-  <!-- [![MIT License][license-shield]][license-url] -->
-  <!-- [![LinkedIn][linkedin-shield]][linkedin-url] -->
+[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+<!-- [![MIT License][license-shield]][license-url] -->
+<!-- [![LinkedIn][linkedin-shield]][linkedin-url] -->
 
-  <a href="https://github.com/6G-SANDBOX/TNLCM"><img src="./images/logo.png" width="100" title="TNLCM"></a>
+<a href="https://github.com/6G-SANDBOX/TNLCM"><img src="./images/logo.png" width="100" title="TNLCM"></a>
 
-  [![TNLCM][tnlcm-badge]][tnlcm-url]
+[![TNLCM][tnlcm-badge]][tnlcm-url]
 
-  [Report error](https://github.com/6G-SANDBOX/TNLCM/issues/new?assignees=&labels=&projects=&template=bug_report.md) · [Feature request](https://github.com/6G-SANDBOX/TNLCM/issues/new?assignees=&labels=&projects=&template=feature_request.md) · [Wiki](https://github.com/6G-SANDBOX/TNLCM/wiki)
+[Report error](https://github.com/6G-SANDBOX/TNLCM/issues/new?assignees=&labels=&projects=&template=bug_report.md) · [Feature request](https://github.com/6G-SANDBOX/TNLCM/issues/new?assignees=&labels=&projects=&template=feature_request.md)
+
 </div>
 
 TNLCM (Trial Network Lifecycle Manager) is a tool designed to manage the lifecycle of trial networks in research and development environments, including integration with advanced technologies such as 6G. It provides features for creating, deploying, monitoring, and deleting experimental networks, ensuring efficient resource management. Additionally, it includes an API, a clear MongoDB database schema and support for defining networks through customizable descriptors.
