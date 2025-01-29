@@ -9,8 +9,7 @@ trial_network:
   elcm-exp:
     type: "elcm"
     name: "exp"
-    dependencies:
-      - "tn_init"
+    dependencies: ["tn_init"]
     input:
       one_elcm_influxdb_user: "admin"
       one_elcm_influxdb_password: "admin"
