@@ -26,14 +26,14 @@ TYPE_MAPPING = {
     "dict": dict,
 }
 OPERATORS = {
-    ast.And: operator.and_,
-    ast.Or: operator.or_,
-    ast.Eq: operator.eq,
-    ast.NotEq: operator.ne,
-    ast.Lt: operator.lt,
-    ast.LtE: operator.le,
-    ast.Gt: operator.gt,
-    ast.GtE: operator.ge
+    ast.And: lambda x, y: x and y,
+    ast.Or: lambda x, y: x or y,
+    ast.Eq: lambda x, y: x == y,
+    ast.NotEq: lambda x, y: x != y,
+    ast.Lt: lambda x, y: x < y,
+    ast.LtE: lambda x, y: x <= y,
+    ast.Gt: lambda x, y: x > y,
+    ast.GtE: lambda x, y: x >= y,
 }
 
 class TrialNetworkModel(Document):
@@ -245,14 +245,17 @@ class TrialNetworkModel(Document):
         else:
             self.deployed_descriptor = {"trial_network": deployed_descriptor}
     
-    def _evaluate_expression(self, expression: str, context: dict) -> bool:
+    def _evaluate_expression(self, component_input_library, expression: str, context: dict) -> bool:
         """
-        Safely evaluate a boolean expression in the context of a dictionary.
+        Safely evaluate a boolean expression in the context of a dictionary, ensuring that 
+        fields required in the component library are not missing.
 
+        :param component_input_library: input part in Library, ``dict``
         :param expression: The boolean expression to evaluate, ``str``
         :param context: The dictionary providing values for the variables in the expression, ``dict``
         :return: The result of the evaluation, ``bool``
         """
+
         def _eval(node):
             if isinstance(node, ast.BoolOp):
                 op = OPERATORS[type(node.op)]
@@ -266,19 +269,30 @@ class TrialNetworkModel(Document):
                 op = OPERATORS[type(node.ops[0])]
                 return op(left, right)
             elif isinstance(node, ast.Name):
-                if node.id in context:
-                    return context[node.id]
-                raise ValueError(f"Undefined variable: {node.id}")
+                field_name = node.id
+                
+                # Verificar si el campo es requerido en la librería de componentes
+                if field_name in component_input_library:
+                    field_info = component_input_library[field_name]
+                    if field_info.get("required", False):  # Si el campo es requerido
+                        raise ValueError(f"Field '{field_name}' is required but missing in context.")
+                
+                # Si el campo está en context, devolvemos su valor, si no, asumimos None
+                return context.get(field_name, None)
+            
             elif isinstance(node, ast.Constant):
                 return node.value
+            
             raise TypeError(f"Unsupported AST node: {type(node)}")
+
         tree = ast.parse(expression, mode="eval")
         return _eval(tree.body)
 
-    def _required_when(self, input_required_when: bool, component_input: dict) -> bool:
+    def _required_when(self, component_input_library, input_required_when: bool | str, component_input: dict) -> bool:
         """
         Function to check if the input is required
         
+        :param component_input_library: input part in Library, ``dict``
         :param input_required_when: boolean to check if the input is required, ``bool``
         :param component_input: input provided in the descriptor, ``dict``
         :return: boolean to check if the input is required, ``bool``
@@ -286,7 +300,7 @@ class TrialNetworkModel(Document):
         if isinstance(input_required_when, bool):
             return input_required_when
         if isinstance(input_required_when, str):
-            return self._evaluate_expression(input_required_when, component_input)
+            return self._evaluate_expression(component_input_library, input_required_when, component_input)
     
     def _isinstance_entity_name(self, input_type: str, input_value: str) -> None:
         """
@@ -350,7 +364,7 @@ class TrialNetworkModel(Document):
             for key, value in component_input_library.items():
                 input_type = value["type"]
                 input_required_when = value["required_when"]
-                if self._required_when(input_required_when, component_input) and key not in component_input:
+                if self._required_when(component_input_library, input_required_when, component_input) and key not in component_input:
                     raise CustomTrialNetworkException(f"Input {key} is required", 422)
                 if key in component_input:
                     if input_type.startswith("list[") and input_type.endswith("]"):
@@ -363,6 +377,7 @@ class TrialNetworkModel(Document):
                         raise CustomTrialNetworkException(f"Input {key} is not of type", 422)
                     if "choices" in value and component_input[key] not in value["choices"]:
                         choices = value["choices"]
+                        print(choices)
                         raise CustomTrialNetworkException(f"Input {key} has to be one of the following choices {choices}", 422)
     
     def validate_descriptor(self, library_handler, sites_handler) -> None:

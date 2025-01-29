@@ -114,7 +114,7 @@ class CreateTrialNetwork(Resource):
             trial_network.set_library_https_url(library_handler.library_https_url)
             trial_network.set_library_commit_id(library_handler.library_commit_id)
             tn_log_handler.info(f"[{trial_network.tn_id}] - Validate trial network descriptor")
-            # trial_network.validate_descriptor(library_handler, sites_handler)
+            trial_network.validate_descriptor(library_handler, sites_handler)
             tn_log_handler.info(f"[{trial_network.tn_id}] - Trial network descriptor valid")
             trial_network.set_sorted_descriptor()
             trial_network.set_state("validated")
