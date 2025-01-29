@@ -17,9 +17,9 @@ trial_network:
       one_vnet_address_size: 100
       one_vnet_gw: "10.10.10.1"
       one_vnet_dns: "1.1.1.1"
-  oneKE-k8s:
+  oneKE-cluster:
     type: "oneKE"
-    name: "k8s"
+    name: "cluster"
     dependencies:
       - "tn_init"
       - "vnet-private_oneKE"
