@@ -1,8 +1,0 @@
-# Result: pass
-# Platform: UMA, ATHENS, BERLIN, OULU
-trial_network:
-
-  tn_vxlan:
-    type: "tn_vxlan"
-    dependencies: []
-    input: {}
