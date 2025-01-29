@@ -1,6 +1,5 @@
 # Result: pass
 # Platform: UMA, ATHENS, BERLIN, OULU
-# TODO:
 trial_network:
 
   tn_init:
@@ -10,7 +9,7 @@ trial_network:
   vnet-n2:
     type: "vnet"
     name: "n2"
-    dependencies:
+    dependencies: 
       - "tn_init"
     input:
       one_vnet_first_ip: "10.10.10.1"
@@ -37,7 +36,8 @@ trial_network:
       - "vnet-n2"
       # - "vnet-n3"
     input:
-      one_open5gs_vm_networks: "tn_vxlan"
+      one_open5gs_vm_networks: 
+        - "tn_vxlan"
       one_open5gs_vm_internal_vnet:
         - "vnet-n2"  # network used for n2 and n3 (when list length=1)
         #- "vnet-n3" # optional network used for n3
