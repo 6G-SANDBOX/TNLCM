@@ -1,5 +1,8 @@
 # TRIAL NETWORKS
 
+> [!IMPORTANT]
+> **MORE DESCRIPTORS IN THE 6G-LIBRARY COMPONENTS DIRECTORIES. THE NAME OF THE DESCRIPTOR FILE IS `sample_tnlcm_descriptor.yaml.yaml`**
+
 ## [ueransim_split](./ueransim_split.yaml)
 
 ![ueransim_split](./images/ueransim_split.png)
