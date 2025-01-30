@@ -1,5 +1,4 @@
 import ast
-import operator
 import re
 
 from datetime import datetime, timezone
@@ -90,7 +89,7 @@ class TrialNetworkModel(Document):
             if bool(TrialNetworkModel.objects(tn_id=tn_id)):
                 raise CustomTrialNetworkException(f"Trial network with tn_id {tn_id} already exists", 409)
             if not tn_id[0].isalpha():
-                raise CustomTrialNetworkException(f"The tn_id has to start with a character (a-z)", 400)
+                raise CustomTrialNetworkException("The tn_id has to start with a character (a-z)", 400)
             self.tn_id = tn_id
 
     def set_directory_path(self, directory_path: str) -> None:
