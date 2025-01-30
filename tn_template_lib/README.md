@@ -1,7 +1,7 @@
 # TRIAL NETWORKS
 
 > [!IMPORTANT]
-> **MORE DESCRIPTORS IN THE 6G-LIBRARY COMPONENTS DIRECTORIES. THE NAME OF THE DESCRIPTOR FILE IS `sample_tnlcm_descriptor.yaml.yaml`**
+> **MORE DESCRIPTORS IN THE 6G-LIBRARY COMPONENTS DIRECTORIES. THE NAME OF THE DESCRIPTOR FILE IS `sample_tnlcm_descriptor.yaml.yaml`**. [**EXAMPLE**](https://github.com/6G-SANDBOX/6G-Library/blob/main/elcm/sample_tnlcm_descriptor.yaml)
 
 ## [ueransim_split](./ueransim_split.yaml)
 
@@ -58,9 +58,9 @@
 
 * uma
 
-## [loadcore_open5gs_oneKE](loadcore_open5gs_oneKE.yaml)
+## [loadcore_open5gs_k8s](loadcore_open5gs_k8s.yaml)
 
-![loadcore_open5gs_oneKE](./images/loadcore_open5gs_oneKE.png)
+![loadcore_open5gs_k8s](./images/loadcore_open5gs_k8s.png)
 
 ### Components
 

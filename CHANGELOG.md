@@ -22,6 +22,7 @@
 - Directory: temporary.
 - Check when a component of the output received by Jenkins is deployed with the one specified in the library.
 - Docker installation.
+- Some basic descriptors and added to 6G-Library.
 
 ## [v0.4.4] - 2024-12-04
 
