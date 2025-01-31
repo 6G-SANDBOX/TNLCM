@@ -95,7 +95,7 @@ class UserTokenRefresh(Resource):
             if not current_user:
                 return {"message": "User not found"}, 404
             
-            new_access_token = create_access_token(identity=current_user, expires_delta=timedelta(minutes=EXP_MINUTES_ACCESS_TOKEN))
+            new_access_token = create_access_token(identity=current_user.username, expires_delta=timedelta(minutes=EXP_MINUTES_ACCESS_TOKEN))
             return {"access_token": new_access_token}, 200
         except CustomException as e:
             return {"message": str(e)}, e.error_code
