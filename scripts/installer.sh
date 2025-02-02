@@ -32,15 +32,15 @@ else
 fi
 
 echo "Detecting Ubuntu version..."
-echo "Detected Ubuntu version: $UBUNTU_VERSION"
-if [[ "$UBUNTU_VERSION" != "22.04" && "$UBUNTU_VERSION" != "24.04" ]]; then
-    echo "Unsupported Ubuntu version: $UBUNTU_VERSION. This script only supports Ubuntu 22.04 LTS and 24.04 LTS."
+echo "Detected Ubuntu version: ${UBUNTU_VERSION}"
+if [[ "${UBUNTU_VERSION}" != "22.04" && "${UBUNTU_VERSION}" != "24.04" ]]; then
+    echo "Unsupported Ubuntu version: ${UBUNTU_VERSION}. This script only supports Ubuntu 22.04 LTS and 24.04 LTS."
     exit 1
 else
-    echo "Ubuntu version $UBUNTU_VERSION is supported."
+    echo "Ubuntu version ${UBUNTU_VERSION} is supported."
 fi
 
-echo "Running as root. Ubuntu version detected: $UBUNTU_VERSION."
+echo "Running as root. Ubuntu version detected: ${UBUNTU_VERSION}."
 
 echo "========== Pre-Checks Completed Successfully =========="
 
@@ -184,33 +184,33 @@ EOF
 systemctl enable --now mongo-express.service
 echo "Mongo-Express service started."
 
-echo "--------------- Installing nginx ---------------"
-apt-get install -y nginx
-sudo mkdir -p /etc/nginx/ssl
-sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/tnlcm.key -out /etc/nginx/ssl/tnlcm.crt -subj "/CN=${HOST_IP}"
-cat > /etc/nginx/sites-enabled/tnlcm << EOF
-server {
-    listen 80;
-    server_name ${HOST_IP};
-    return 301 https://\$host\$request_uri;
-}
-server {
-    listen 443 ssl;
-    server_name ${HOST_IP};
-    ssl_certificate /etc/nginx/ssl/tnlcm.crt;
-    ssl_certificate_key /etc/nginx/ssl/tnlcm.key;
-    location / {
-        proxy_pass http://127.0.0.1:5000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade \$http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host \$host;
-        proxy_cache_bypass \$http_upgrade;
-    }
-}
-EOF
+# echo "--------------- Installing nginx ---------------"
+# apt-get install -y nginx
+# sudo mkdir -p /etc/nginx/ssl
+# sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/tnlcm.key -out /etc/nginx/ssl/tnlcm.crt -subj "/CN=${HOST_IP}"
+# cat > /etc/nginx/sites-enabled/tnlcm << EOF
+# server {
+#     listen 80;
+#     server_name ${HOST_IP};
+#     return 301 https://\$host\$request_uri;
+# }
+# server {
+#     listen 443 ssl;
+#     server_name ${HOST_IP};
+#     ssl_certificate /etc/nginx/ssl/tnlcm.crt;
+#     ssl_certificate_key /etc/nginx/ssl/tnlcm.key;
+#     location / {
+#         proxy_pass http://127.0.0.1:5000;
+#         proxy_http_version 1.1;
+#         proxy_set_header Upgrade \$http_upgrade;
+#         proxy_set_header Connection 'upgrade';
+#         proxy_set_header Host \$host;
+#         proxy_cache_bypass \$http_upgrade;
+#     }
+# }
+# EOF
 
-systemctl restart nginx
+# systemctl restart nginx
 
 echo "Installing TNLCM dependencies using uv..."
 ${UV_BIN} --directory ${TNLCM_FOLDER} sync
