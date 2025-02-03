@@ -29,8 +29,7 @@ Find the complete documentation and usage guides in our [docs](https://6g-sandbo
 
 ## :round_pushpin: Roadmap
 
-- :white_check_mark: enhance validate trial network descriptor.
-- :white_check_mark: update logs.
+- Enhance validate trial network descriptor using pydantic.
 - Modify state machine to update trial network.
 - Add token for interaction between jenkins and tnlcm at callback endpoint.
 - Integration with Slurm.
