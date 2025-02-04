@@ -18,7 +18,7 @@ BACKEND_PATH="/opt/TNLCM_BACKEND"
 TNLCM_ENV_FILE=${BACKEND_PATH}/.env
 MONGODB_VERSION="8.0"
 YARN_GLOBAL_LIBRARIES="/opt/yarn_global"
-MONGO_EXPRESS_VERSION="v1.0.3"
+MONGO_EXPRESS_VERSION="v1.1.0-rc-3"
 MONGO_EXPRESS_FOLDER=/opt/mongo-express-${MONGO_EXPRESS_VERSION}
 
 echo "========== Starting Pre-Checks for Script Execution =========="
@@ -159,7 +159,7 @@ echo "Node.js installed successfully."
 
 echo "--------------- Installing Mongo-Express ---------------"
 echo "Cloning and building Mongo-Express..."
-git clone --depth 1 --branch release/${MONGO_EXPRESS_VERSION} -c advice.detachedHead=false https://github.com/mongo-express/mongo-express.git ${MONGO_EXPRESS_FOLDER}
+git clone --depth 1 --branch ${MONGO_EXPRESS_VERSION} -c advice.detachedHead=false https://github.com/mongo-express/mongo-express.git ${MONGO_EXPRESS_FOLDER}
 cd ${MONGO_EXPRESS_FOLDER}
 yarn install
 yarn build
