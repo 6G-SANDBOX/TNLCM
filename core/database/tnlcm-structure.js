@@ -1,5 +1,5 @@
 const crypto = require("crypto");
-require("/opt/yarn_global/node_modules/dotenv").config({ 
+require("/root/.bun/install/global/node_modules/dotenv").config({ 
     path: require("path").resolve(__dirname, "../../.env")
 });
 
