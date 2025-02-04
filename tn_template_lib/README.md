@@ -1,7 +1,9 @@
 # TRIAL NETWORKS
 
 > [!IMPORTANT]
-> **MORE DESCRIPTORS IN THE 6G-LIBRARY COMPONENTS DIRECTORIES. THE NAME OF THE DESCRIPTOR FILE IS `sample_tnlcm_descriptor.yaml.yaml`**. [**EXAMPLE**](https://github.com/6G-SANDBOX/6G-Library/blob/main/elcm/sample_tnlcm_descriptor.yaml)
+> **MORE DESCRIPTORS IN THE 6G-LIBRARY COMPONENTS DIRECTORIES. THE NAME OF THE DESCRIPTOR FILE IS `sample_tnlcm_descriptor.yaml`**.
+> 
+> [**EXAMPLE**](https://github.com/6G-SANDBOX/6G-Library/blob/main/elcm/sample_tnlcm_descriptor.yaml)
 
 ## [ueransim_split](./ueransim_split.yaml)
 
@@ -12,7 +14,7 @@
 * tn_init
 * vnet
 * oneKE
-* open5gs
+* open5gs_k8s
 * ueransim (gnb and ue separated)
 
 ### Platforms
@@ -31,7 +33,7 @@
 * tn_init
 * vnet
 * oneKE
-* open5gs
+* open5gs_k8s
 * ueransim (all in one)
 
 ### Platforms
@@ -50,7 +52,7 @@
 * tn_init
 * vnet
 * oneKE
-* open5gs
+* open5gs_k8s
 * nokia_radio
 * stf_ue
 
@@ -67,7 +69,7 @@
 * tn_init
 * vnet
 * oneKE
-* open5gs
+* open5gs_k8s
 * loadcore_agent
 
 ### Platforms
