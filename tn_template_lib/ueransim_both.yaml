@@ -50,7 +50,7 @@ trial_network:
       one_open5gs_k8s_s_nssai_sd: "000009"
       one_open5gs_k8s_amf_ip: "10.10.10.200"
       one_open5gs_k8s_upf_ip: "10.10.10.201"
-      one_open5gs_k8s_k8s_ue_count: 1
+      one_open5gs_k8s_ue_count: 1
   ueransim-both:
     type: "ueransim"
     name: "both"
