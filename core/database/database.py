@@ -1,5 +1,5 @@
 from flask import Flask
-from mongoengine import connect, disconnect
+from mongoengine import connect
 
 def init_db(app: Flask) -> None:
     """
@@ -7,7 +7,6 @@ def init_db(app: Flask) -> None:
 
     :param app: Flask application instance containing the configuration for the MongoDB connection, ``Flask``
     """
-    # disconnect(alias="tnlcm-database-alias")
     connect(
         alias="tnlcm-database-alias",
         host=app.config["ME_CONFIG_MONGODB_URL"]

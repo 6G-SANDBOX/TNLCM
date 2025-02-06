@@ -1,10 +1,11 @@
 # Changelog
 
-## [unreleased] - XXXX-XX-XX
+## [v0.4.5] - 2025-02-06
 
 ### Added
 
 - Namespace for handler library requests.
+- Script to update TNLCM version. It will start working from version 0.4.5 onwards.
 
 ### Changed
 
@@ -12,6 +13,7 @@
 - Migrate package manager from poetry to uv.
 - Rename script `deploy_vm.sh` to `installer.sh`.
 - Trial network descriptor validator.
+- Change 6G-Sandbox-Sites option to use branch only.
 
 ### Fixed
 
@@ -22,6 +24,7 @@
 - Directory: temporary.
 - Check when a component of the output received by Jenkins is deployed with the one specified in the library.
 - Docker installation.
+- Some basic descriptors and added to 6G-Library.
 
 ## [v0.4.4] - 2024-12-04
 
@@ -252,7 +255,7 @@
 
 - Frontend implementation.
 
-[unreleased]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.4...HEAD
+[v0.4.5]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.4...v0.4.5
 [v0.4.4]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.3...v0.4.4
 [v0.4.3]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.2...v0.4.3
 [v0.4.2]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.1...v0.4.2

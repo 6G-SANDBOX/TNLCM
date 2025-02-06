@@ -19,6 +19,8 @@
 
 </div>
 
+## :brain: What is TNLCM?
+
 TNLCM (Trial Network Lifecycle Manager) is a tool designed to manage the lifecycle of trial networks in research and development environments, including integration with advanced technologies such as 6G. It provides features for creating, deploying, monitoring, and deleting experimental networks, ensuring efficient resource management. Additionally, it includes an API, a clear MongoDB database schema and support for defining networks through customizable descriptors.
 
 ## :books: Documentation
@@ -27,8 +29,7 @@ Find the complete documentation and usage guides in our [docs](https://6g-sandbo
 
 ## :round_pushpin: Roadmap
 
-- :white_check_mark: enhance validate trial network descriptor.
-- :white_check_mark: update logs.
+- Enhance validate trial network descriptor using pydantic.
 - Modify state machine to update trial network.
 - Add token for interaction between jenkins and tnlcm at callback endpoint.
 - Integration with Slurm.
@@ -47,8 +48,8 @@ Find the complete documentation and usage guides in our [docs](https://6g-sandbo
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 <!-- Urls, Shields and Badges -->
-[tnlcm-badge]: https://img.shields.io/badge/TNLCM-v0.4.4-blue
-[tnlcm-url]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.4.4
+[tnlcm-badge]: https://img.shields.io/badge/TNLCM-v0.4.5-blue
+[tnlcm-url]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.4.5
 [python-badge]: https://img.shields.io/badge/Python-3.13.1-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB
 [python-url]: https://www.python.org/downloads/release/python-3131/
 [flask-badge]: https://img.shields.io/badge/Flask-3.1.0-brightgreen?style=for-the-badge&logo=flask&logoColor=white&labelColor=000000

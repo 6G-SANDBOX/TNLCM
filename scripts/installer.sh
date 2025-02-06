@@ -14,11 +14,11 @@ PYTHON_VERSION="3.13"
 PYTHON_BIN="python${PYTHON_VERSION}"
 UV_PATH="/opt/uv"
 UV_BIN="${UV_PATH}/uv"
-TNLCM_FOLDER="/opt/TNLCM"
-TNLCM_ENV_FILE=${TNLCM_FOLDER}/.env
+BACKEND_PATH="/opt/TNLCM_BACKEND"
+TNLCM_ENV_FILE=${BACKEND_PATH}/.env
 MONGODB_VERSION="8.0"
 YARN_GLOBAL_LIBRARIES="/opt/yarn_global"
-MONGO_EXPRESS_VERSION="v1.0.3"
+MONGO_EXPRESS_VERSION="v1.1.0-rc-3"
 MONGO_EXPRESS_FOLDER=/opt/mongo-express-${MONGO_EXPRESS_VERSION}
 
 echo "========== Starting Pre-Checks for Script Execution =========="
@@ -32,15 +32,15 @@ else
 fi
 
 echo "Detecting Ubuntu version..."
-echo "Detected Ubuntu version: $UBUNTU_VERSION"
-if [[ "$UBUNTU_VERSION" != "22.04" && "$UBUNTU_VERSION" != "24.04" ]]; then
-    echo "Unsupported Ubuntu version: $UBUNTU_VERSION. This script only supports Ubuntu 22.04 LTS and 24.04 LTS."
+echo "Detected Ubuntu version: ${UBUNTU_VERSION}"
+if [[ "${UBUNTU_VERSION}" != "22.04" && "${UBUNTU_VERSION}" != "24.04" ]]; then
+    echo "Unsupported Ubuntu version: ${UBUNTU_VERSION}. This script only supports Ubuntu 22.04 LTS and 24.04 LTS."
     exit 1
 else
-    echo "Ubuntu version $UBUNTU_VERSION is supported."
+    echo "Ubuntu version ${UBUNTU_VERSION} is supported."
 fi
 
-echo "Running as root. Ubuntu version detected: $UBUNTU_VERSION."
+echo "Running as root. Ubuntu version detected: ${UBUNTU_VERSION}."
 
 echo "========== Pre-Checks Completed Successfully =========="
 
@@ -76,15 +76,15 @@ echo "--------------- Installing uv ---------------"
 curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR=${UV_PATH} sh
 
 echo "--------------- Cloning TNLCM Repository ---------------"
-if [[ -d ${TNLCM_FOLDER} ]]; then
+if [[ -d ${BACKEND_PATH} ]]; then
     echo "TNLCM repository already cloned."
 else
     echo "Cloning TNLCM repository..."
-    git clone https://github.com/6G-SANDBOX/TNLCM ${TNLCM_FOLDER}
+    git clone https://github.com/6G-SANDBOX/TNLCM ${BACKEND_PATH}
 fi
 
 echo "Copying .env.template to .env..."
-cp ${TNLCM_FOLDER}/.env.template ${TNLCM_FOLDER}/.env
+cp ${BACKEND_PATH}/.env.template ${BACKEND_PATH}/.env
 
 echo "Prompting user for configuration details..."
 read -p "Enter the TNLCM admin username: " TNLCM_ADMIN_USER
@@ -147,7 +147,7 @@ yarn global add dotenv
 echo "dotenv library installed globally."
 
 echo "--------------- Loading TNLCM Database ---------------"
-mongosh --file ${TNLCM_FOLDER}/core/database/tnlcm-structure.js
+mongosh --file ${BACKEND_PATH}/core/database/tnlcm-structure.js
 echo "Database loaded successfully."
 
 echo "--------------- Installing Node.js ---------------"
@@ -159,7 +159,7 @@ echo "Node.js installed successfully."
 
 echo "--------------- Installing Mongo-Express ---------------"
 echo "Cloning and building Mongo-Express..."
-git clone --depth 1 --branch release/${MONGO_EXPRESS_VERSION} -c advice.detachedHead=false https://github.com/mongo-express/mongo-express.git ${MONGO_EXPRESS_FOLDER}
+git clone --depth 1 --branch ${MONGO_EXPRESS_VERSION} -c advice.detachedHead=false https://github.com/mongo-express/mongo-express.git ${MONGO_EXPRESS_FOLDER}
 cd ${MONGO_EXPRESS_FOLDER}
 yarn install
 yarn build
@@ -184,37 +184,37 @@ EOF
 systemctl enable --now mongo-express.service
 echo "Mongo-Express service started."
 
-echo "--------------- Installing nginx ---------------"
-apt-get install -y nginx
-sudo mkdir -p /etc/nginx/ssl
-sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/tnlcm.key -out /etc/nginx/ssl/tnlcm.crt -subj "/CN=${HOST_IP}"
-cat > /etc/nginx/sites-enabled/tnlcm << EOF
-server {
-    listen 80;
-    server_name ${HOST_IP};
-    return 301 https://\$host\$request_uri;
-}
-server {
-    listen 443 ssl;
-    server_name ${HOST_IP};
-    ssl_certificate /etc/nginx/ssl/tnlcm.crt;
-    ssl_certificate_key /etc/nginx/ssl/tnlcm.key;
-    location / {
-        proxy_pass http://127.0.0.1:5000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade \$http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host \$host;
-        proxy_cache_bypass \$http_upgrade;
-    }
-}
-EOF
+# echo "--------------- Installing nginx ---------------"
+# apt-get install -y nginx
+# sudo mkdir -p /etc/nginx/ssl
+# sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/tnlcm.key -out /etc/nginx/ssl/tnlcm.crt -subj "/CN=${HOST_IP}"
+# cat > /etc/nginx/sites-enabled/tnlcm << EOF
+# server {
+#     listen 80;
+#     server_name ${HOST_IP};
+#     return 301 https://\$host\$request_uri;
+# }
+# server {
+#     listen 443 ssl;
+#     server_name ${HOST_IP};
+#     ssl_certificate /etc/nginx/ssl/tnlcm.crt;
+#     ssl_certificate_key /etc/nginx/ssl/tnlcm.key;
+#     location / {
+#         proxy_pass http://127.0.0.1:5000;
+#         proxy_http_version 1.1;
+#         proxy_set_header Upgrade \$http_upgrade;
+#         proxy_set_header Connection 'upgrade';
+#         proxy_set_header Host \$host;
+#         proxy_cache_bypass \$http_upgrade;
+#     }
+# }
+# EOF
 
-systemctl restart nginx
+# systemctl restart nginx
 
 echo "Installing TNLCM dependencies using uv..."
-${UV_BIN} --directory ${TNLCM_FOLDER} sync
-cd ${TNLCM_FOLDER}
+${UV_BIN} --directory ${BACKEND_PATH} sync
+cd ${BACKEND_PATH}
 ${UV_BIN} run gunicorn -c conf/gunicorn_conf.py
 
 echo "All components installed successfully."

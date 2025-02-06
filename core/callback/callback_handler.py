@@ -5,7 +5,7 @@ from core.utils.os_handler import exists_path, join_path
 from core.utils.parser_handler import decode_base64
 from core.exceptions.exceptions_handler import CustomCallbackException
 
-KEY_JENKINS = {"tn_id", "custom_name", "component_type", "success", "output", "markdown"}
+KEY_JENKINS = {"tn_id", "custom_name", "component_type", "success", "markdown"} # "output"
 
 class CallbackHandler:
 
@@ -21,7 +21,7 @@ class CallbackHandler:
         self.custom_name = self.decoded_data["custom_name"]
         self.component_type = self.decoded_data["component_type"]
         self.success = self.decoded_data["success"]
-        self.output = self.decoded_data["output"]
+        # self.output = self.decoded_data["output"]
         self.markdown = self.decoded_data["markdown"]
         self.entity_name = f"{self.component_type}-{self.custom_name}" if self.custom_name != "None" else self.component_type
     
@@ -36,12 +36,12 @@ class CallbackHandler:
         for key_data, value_data in self.encoded_data.items():
             if key_data not in KEY_JENKINS:
                 raise CustomCallbackException("Invalid key received by Jenkins", 500)
-            if key_data == "output":
-                decoded_output = {}
-                for key_output, value_output in value_data.items():
-                    decoded_output[key_output] = decode_base64(encoded_data=value_output)
-                decoded_data[key_data] = decoded_output
-            elif key_data == "success":
+            # if key_data == "output":
+            #     decoded_output = {}
+            #     for key_output, value_output in value_data.items():
+            #         decoded_output[key_output] = decode_base64(encoded_data=value_output)
+            #     decoded_data[key_data] = decoded_output
+            if key_data == "success":
                 decoded_data[key_data] = value_data
             else:
                 decoded_data[key_data] = decode_base64(encoded_data=value_data)
