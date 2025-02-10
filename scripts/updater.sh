@@ -10,11 +10,13 @@ UV_BIN="${UV_PATH}/uv"
 MONGO_DATABASE="tnlcm-database"
 TRIAL_NETWORK_COLLECTION="trial_network"
 MONGO_EXPRESS_PATH="/opt/mongo-express"
+MIN_TNLCM_VERSION="0.4.4"
+START_TNLCM_VERSION="v0.4.5"
 
 git -C ${BACKEND_PATH} pull
 git -C ${BACKEND_PATH} fetch --tags
 
-TNLCM_VERSIONS=($(git -C ${BACKEND_PATH} tag | sort -V | awk '$0 >= "v0.4.4"'))
+TNLCM_VERSIONS=($(git -C ${BACKEND_PATH} tag | sort -V | awk -v start="${START_TNLCM_VERSION}" '$0 >= start'))
 PS3="Select the version you want to upgrade to: "
 select TARGET_VERSION in "${TNLCM_VERSIONS[@]}"; do
     if [[ -n "${TARGET_VERSION}" ]]; then
@@ -28,15 +30,20 @@ TARGET_VERSION=${TARGET_VERSION#v}
 
 CURRENT_VERSION=$(grep -oP 'version = "\K[^"]+' ${BACKEND_PATH}/pyproject.toml)
 
-if [[ "$(printf "%s\n%s" "${CURRENT_VERSION}" "${TARGET_VERSION}" | sort -V | head -n 1)" == "${TARGET_VERSION}" ]]; then
-    echo "You are already on version ${CURRENT_VERSION} or higher"
-    exit 0
+if [[ "$(printf "%s\n%s" "${CURRENT_VERSION}" "${MIN_TNLCM_VERSION}" | sort -V | head -n 1)" == "${CURRENT_VERSION}" ]]; then
+    echo "You are on version ${CURRENT_VERSION}. You can't upgrade to version ${TARGET_VERSION}. Please redownload the latest version from the repository"
+    exit 1
 fi
 
-echo "Starting upgrade from ${CURRENT_VERSION} to ${TARGET_VERSION}..."
+if [[ "$(printf "%s\n%s" "${CURRENT_VERSION}" "${TARGET_VERSION}" | sort -V | head -n 1)" == "${TARGET_VERSION}" ]]; then
+    echo "You are already on version ${CURRENT_VERSION} or higher"
+    exit 1
+fi
 
 if [[ "${CURRENT_VERSION}" == "0.4.4" && "${TARGET_VERSION}" == "0.4.5" ]]; then
 
+    echo "Starting upgrade from ${CURRENT_VERSION} to ${TARGET_VERSION}..."
+    
     MONGO_EXPRESS_VERSION="v1.1.0-rc-3"
     POETRY_PATH="/opt/poetry"
 
