@@ -19,9 +19,9 @@
 
 </div>
 
-## :brain: What is TNLCM?
+## :brain: About
 
-TNLCM (Trial Network Lifecycle Manager) is a tool designed to manage the lifecycle of trial networks in research and development environments, including integration with advanced technologies such as 6G. It provides features for creating, deploying, monitoring, and deleting experimental networks, ensuring efficient resource management. Additionally, it includes an API, a clear MongoDB database schema and support for defining networks through customizable descriptors.
+Trial Network Lifecycle Manager (TNLCM) is a tool designed to manage the lifecycle of trial networks in research and development environments, including integration with advanced technologies such as 6G. It provides features for creating, deploying, monitoring, and deleting experimental networks, ensuring efficient resource management. Additionally, it includes an API, a clear MongoDB database schema and support for defining networks through customizable descriptors.
 
 ## :books: Documentation
 
@@ -29,6 +29,7 @@ Find the complete documentation and usage guides in our [docs](https://6g-sandbo
 
 ## :round_pushpin: Roadmap
 
+- Message error handling.
 - Enhance validate trial network descriptor using pydantic.
 - Modify state machine to update trial network.
 - Add token for interaction between jenkins and tnlcm at callback endpoint.
