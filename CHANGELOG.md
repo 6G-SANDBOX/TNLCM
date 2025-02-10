@@ -1,5 +1,18 @@
 # Changelog
 
+## [Unreleased] - XXXX-XX-XX
+
+### Added
+
+### Changed
+
+- Rename script `installer.sh` to `install.sh`.
+- Rename script `updater.sh` to `upgrade.sh`.
+
+### Fixed
+
+### Removed
+
 ## [v0.4.5] - 2025-02-06
 
 ### Added
@@ -255,6 +268,7 @@
 
 - Frontend implementation.
 
+[Unreleased]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.5...HEAD
 [v0.4.5]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.4...v0.4.5
 [v0.4.4]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.3...v0.4.4
 [v0.4.3]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.2...v0.4.3
