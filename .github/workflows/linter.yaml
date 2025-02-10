@@ -4,9 +4,21 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - 'docs/**'
+      - 'scripts/**'
+      - 'tn_template_lib/**'
+      - 'README'
+      - 'LICENSE'
   pull_request:
     branches:
       - main
+    paths-ignore:
+      - 'docs/**'
+      - 'scripts/**'
+      - 'tn_template_lib/**'
+      - 'README'
+      - 'LICENSE'
   workflow_dispatch:
 
 jobs:
