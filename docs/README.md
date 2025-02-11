@@ -51,8 +51,8 @@ Find the complete documentation and usage guides in our [docs](https://6g-sandbo
 <!-- Urls, Shields and Badges -->
 [tnlcm-badge]: https://img.shields.io/badge/TNLCM-v0.4.5-blue
 [tnlcm-url]: https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.4.5
-[python-badge]: https://img.shields.io/badge/Python-3.13.1-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB
-[python-url]: https://www.python.org/downloads/release/python-3131/
+[python-badge]: https://img.shields.io/badge/Python-3.13.2-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB
+[python-url]: https://www.python.org/downloads/release/python-3132/
 [flask-badge]: https://img.shields.io/badge/Flask-3.1.0-brightgreen?style=for-the-badge&logo=flask&logoColor=white&labelColor=000000
 [flask-url]: https://flask.palletsprojects.com/en/stable/
 [mongodb-badge]: https://img.shields.io/badge/MongoDB-8.0-green?style=for-the-badge&logo=mongodb&logoColor=white&labelColor=47A248
