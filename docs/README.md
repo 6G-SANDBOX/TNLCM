@@ -15,25 +15,13 @@
 
 [![TNLCM][tnlcm-badge]][tnlcm-url]
 
-[Report error](https://github.com/6G-SANDBOX/TNLCM/issues/new?assignees=&labels=&projects=&template=bug_report.md) · [Feature request](https://github.com/6G-SANDBOX/TNLCM/issues/new?assignees=&labels=&projects=&template=feature_request.md)
+[Documentation](https://6g-sandbox.github.io/docs/category/tnlcm) • [Roadmap](https://github.com/6G-SANDBOX/TNLCM/issues/81) • [Report Error](https://github.com/6G-SANDBOX/TNLCM/issues/new?assignees=&labels=&projects=&template=bug_report.md) • [Feature Request](https://github.com/6G-SANDBOX/TNLCM/issues/new?assignees=&labels=&projects=&template=feature_request.md) 
 
 </div>
 
 ## :brain: About
 
 Trial Network Lifecycle Manager (TNLCM) is a tool designed to manage the lifecycle of trial networks in research and development environments, including integration with advanced technologies such as 6G. It provides features for creating, deploying, monitoring, and deleting experimental networks, ensuring efficient resource management. Additionally, it includes an API, a clear MongoDB database schema and support for defining networks through customizable descriptors.
-
-## :books: Documentation
-
-Find the complete documentation and usage guides in our [docs](https://6g-sandbox.github.io/docs/category/tnlcm).
-
-## :round_pushpin: Roadmap
-
-- Message error handling.
-- Enhance validate trial network descriptor using pydantic.
-- Modify state machine to update trial network.
-- Add token for interaction between jenkins and tnlcm at callback endpoint.
-- Integration with Slurm.
 
 ## :hammer_and_wrench: Stack
 - [![Python][python-badge]][python-url] - Programming language.
