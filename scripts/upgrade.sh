@@ -2,6 +2,13 @@
 
 export DEBIAN_FRONTEND=noninteractive
 
+echo "============================================="
+echo "       🚀 TNLCM UPGRADE SCRIPT 🚀           "
+echo "============================================="
+
+echo "============================================="
+echo "              GLOBAL VARIABLES               "
+echo "============================================="
 BACKEND_PATH="/opt/TNLCM_BACKEND"
 BACKEND_DOTENV_FILE="${BACKEND_PATH}/.env"
 BACKEND_VENV_PATH="${BACKEND_PATH}/.venv"
@@ -27,7 +34,6 @@ select TARGET_VERSION in "${TNLCM_VERSIONS[@]}"; do
 done
 
 TARGET_VERSION=${TARGET_VERSION#v}
-
 CURRENT_VERSION=$(grep -oP 'version = "\K[^"]+' ${BACKEND_PATH}/pyproject.toml)
 
 if [[ "$(printf "%s\n%s" "${CURRENT_VERSION}" "${MIN_TNLCM_VERSION}" | sort -V | head -n 1)" == "${CURRENT_VERSION}" ]]; then
