@@ -20,6 +20,8 @@ MONGO_EXPRESS_PATH="/opt/mongo-express"
 MIN_TNLCM_VERSION="0.4.4"
 START_TNLCM_VERSION="v0.4.5"
 
+apt-get update
+
 git -C ${BACKEND_PATH} pull
 git -C ${BACKEND_PATH} fetch --tags
 
