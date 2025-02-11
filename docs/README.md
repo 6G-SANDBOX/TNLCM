@@ -11,7 +11,7 @@
 <!-- [![MIT License][license-shield]][license-url] -->
 <!-- [![LinkedIn][linkedin-shield]][linkedin-url] -->
 
-<a href="https://github.com/6G-SANDBOX/TNLCM"><img src="./images/logo.png" width="100" title="TNLCM"></a>
+<a href="https://github.com/6G-SANDBOX/TNLCM"><img src="images/logo.png" width="100" title="TNLCM"></a>
 
 [![TNLCM][tnlcm-badge]][tnlcm-url]
 
