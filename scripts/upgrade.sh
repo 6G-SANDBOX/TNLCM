@@ -43,7 +43,7 @@ if [[ "$(printf "%s\n%s" "${CURRENT_VERSION}" "${MIN_TNLCM_VERSION}" | sort -V |
     exit 1
 fi
 
-if [[ "$(printf "%s\n%s" "${CURRENT_VERSION}" "${TARGET_VERSION}" | sort -V | head -n 1)" == "${TARGET_VERSION}" ]]; then
+if [[ "${CURRENT_VERSION}" == "${TARGET_VERSION}" ]]; then
     echo "You are already on version ${CURRENT_VERSION}"
     exit 1
 fi
