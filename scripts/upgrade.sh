@@ -57,7 +57,7 @@ if [[ "${CURRENT_VERSION}" == "0.4.4" && "${TARGET_VERSION}" == "0.4.5" ]]; then
 
     rm -r ${BACKEND_VENV_PATH}
 
-    git checkout v${TARGET_VERSION}
+    git -C ${BACKEND_PATH} checkout v${TARGET_VERSION}
 
     curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR=${UV_PATH} sh
     ${UV_BIN} --directory ${BACKEND_PATH} sync
