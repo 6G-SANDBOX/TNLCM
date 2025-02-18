@@ -126,3 +126,4 @@ EOF
     rm -r ${POETRY_PATH}
 
     echo "Upgrade to version ${TARGET_VERSION} completed"
+fi
