@@ -126,4 +126,7 @@ EOF
     rm -r ${POETRY_PATH}
 
     echo "Upgrade to version ${TARGET_VERSION} completed"
+else
+    echo "Upgrade from ${CURRENT_VERSION} to ${TARGET_VERSION} is not supported"
+    exit 1
 fi
