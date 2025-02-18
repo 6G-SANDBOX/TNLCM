@@ -38,7 +38,7 @@ done
 TARGET_VERSION=${TARGET_VERSION#v}
 CURRENT_VERSION=$(grep -oP 'version = "\K[^"]+' ${BACKEND_PATH}/pyproject.toml)
 
-if [[ "$(printf "%s\n%s" "${CURRENT_VERSION}" "${MIN_TNLCM_VERSION}" | sort -V | head -n 1)" == "${CURRENT_VERSION}" ]]; then
+if [[ "$(printf "%s\n%s" "${CURRENT_VERSION}" "${MIN_TNLCM_VERSION}" | sort -V | head -n 1)" == "${CURRENT_VERSION}" && "${CURRENT_VERSION}" != "${MIN_TNLCM_VERSION}" ]]; then
     echo "You are on version ${CURRENT_VERSION}. You can't upgrade to version ${TARGET_VERSION}. Please redownload the latest version from the repository"
     exit 1
 fi
