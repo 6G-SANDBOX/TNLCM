@@ -1,0 +1,187 @@
+{
+  "v": 6,
+  "name": "TNLCM_API",
+  "folders": [],
+  "requests": [
+    {
+      "v": "11",
+      "name": "Register",
+      "endpoint": "http://10.180.0.69:5000/tnlcm/user/register",
+      "method": "POST",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "body": {
+        "body": "{\n  \"email\": \"admin@admin.com\",\n  \"username\": \"admin\",\n  \"password\": \"admin\",\n  \"org\": \"TEST\"\n}",
+        "contentType": "application/json"
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "11",
+      "name": "Login",
+      "method": "POST",
+      "endpoint": "http://10.180.0.69:5000/tnlcm/user/login",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "basic",
+        "username": "admin",
+        "password": "admin",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "11",
+      "name": "Create TN",
+      "endpoint": "http://10.180.0.69:5000/tnlcm/trial-network",
+      "method": "POST",
+      "params": [
+        {
+          "key": "tn_id",
+          "value": "test",
+          "active": true,
+          "description": ""
+        },
+        {
+          "key": "library_reference_type",
+          "value": "tag",
+          "active": true,
+          "description": ""
+        },
+        {
+          "key": "library_reference_value",
+          "value": "v0.4.0",
+          "active": true,
+          "description": ""
+        },
+        {
+          "key": "deployment_site",
+          "value": "uma-test",
+          "active": true,
+          "description": ""
+        }
+      ],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "bearer",
+        "authActive": true,
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0MDE1NzU3NywianRpIjoiNGVmZThlZjUtZmM5Ny00ZTIxLWE5MzktZGM2ZTQxNzc0MTQxIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6ImFkbWluIiwibmJmIjoxNzQwMTU3NTc3LCJjc3JmIjoiYjkzNTlmMTItNjJlMC00MDdkLWFkNGMtODdjOGU4MzFkNDJlIiwiZXhwIjoxNzQwMjQzOTc3fQ.DWMCldS0Bqy9Hl3eUwryGe6xmsbkffxzOsnD83WYh1k"
+      },
+      "body": {
+        "body": [
+          {
+            "active": true,
+            "isFile": true,
+            "key": "descriptor",
+            "value": [
+              {}
+            ]
+          }
+        ],
+        "contentType": "multipart/form-data"
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "11",
+      "name": "Deploy TN",
+      "endpoint": "http://10.180.0.69:5000/tnlcm/trial-network/test",
+      "method": "PUT",
+      "params": [
+        {
+          "key": "jenkins_deploy_pipeline",
+          "value": "TN_DEPLOY_TEST",
+          "active": true,
+          "description": "Optional param"
+        }
+      ],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "bearer",
+        "authActive": true,
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0MDE1NzU3NywianRpIjoiNGVmZThlZjUtZmM5Ny00ZTIxLWE5MzktZGM2ZTQxNzc0MTQxIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6ImFkbWluIiwibmJmIjoxNzQwMTU3NTc3LCJjc3JmIjoiYjkzNTlmMTItNjJlMC00MDdkLWFkNGMtODdjOGU4MzFkNDJlIiwiZXhwIjoxNzQwMjQzOTc3fQ.DWMCldS0Bqy9Hl3eUwryGe6xmsbkffxzOsnD83WYh1k"
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "11",
+      "name": "Destroy TN",
+      "endpoint": "http://10.180.0.69:5000/tnlcm/trial-network/test",
+      "method": "DELETE",
+      "params": [
+        {
+          "key": "jenkins_destroy_pipeline",
+          "value": "TN_DESTROY_TEST",
+          "active": true,
+          "description": "Optional param"
+        }
+      ],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "bearer",
+        "authActive": true,
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0MDE1NzU3NywianRpIjoiNGVmZThlZjUtZmM5Ny00ZTIxLWE5MzktZGM2ZTQxNzc0MTQxIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6ImFkbWluIiwibmJmIjoxNzQwMTU3NTc3LCJjc3JmIjoiYjkzNTlmMTItNjJlMC00MDdkLWFkNGMtODdjOGU4MzFkNDJlIiwiZXhwIjoxNzQwMjQzOTc3fQ.DWMCldS0Bqy9Hl3eUwryGe6xmsbkffxzOsnD83WYh1k"
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    },
+    {
+      "v": "11",
+      "name": "Purge TN",
+      "endpoint": "http://10.180.0.69:5000/tnlcm/trial-network/purge/test",
+      "method": "DELETE",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "bearer",
+        "authActive": true,
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0MDE1NzU3NywianRpIjoiNGVmZThlZjUtZmM5Ny00ZTIxLWE5MzktZGM2ZTQxNzc0MTQxIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6ImFkbWluIiwibmJmIjoxNzQwMTU3NTc3LCJjc3JmIjoiYjkzNTlmMTItNjJlMC00MDdkLWFkNGMtODdjOGU4MzFkNDJlIiwiZXhwIjoxNzQwMjQzOTc3fQ.DWMCldS0Bqy9Hl3eUwryGe6xmsbkffxzOsnD83WYh1k"
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {}
+    }
+  ],
+  "auth": {
+    "authType": "none",
+    "authActive": true
+  },
+  "headers": [],
+  "_ref_id": "coll_m7ezk4je_a28ba94c-ae86-45df-88c0-9e2203bde25c"
+}
