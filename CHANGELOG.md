@@ -4,6 +4,8 @@
 
 ### Added
 
+- Hoppscotch directory, which contains a JSON file with collections of requests for the TNLCM API.
+
 ### Changed
 
 - Rename script `installer.sh` to `install.sh`.
