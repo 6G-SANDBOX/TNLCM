@@ -93,7 +93,8 @@ class LibraryHandler:
         for component in list_directory(path=self.library_local_directory):
             if is_directory(path=join_path(self.library_local_directory, component)) and not component.startswith("."):
                 components.append(component)
-        return components
+        # sort the list
+        return sorted(components)
     
     def is_component(self, component_type: str) -> None:
         """
