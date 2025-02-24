@@ -44,7 +44,7 @@ class RepositoryHandler:
             self.repo = Repo.clone_from(self.github_https_url, self.github_local_directory)
         else:
             self.repo = Repo(self.github_local_directory)
-    
+
     def git_checkout(self) -> None:
         """
         Git checkout
@@ -87,3 +87,13 @@ class RepositoryHandler:
         if not self.repo:
             raise CustomGitException(f"Clone repository {self.github_repository_name} first", 404)
         return [tag.name for tag in self.repo.tags]
+
+    def git_pull(self) -> None:
+        """
+        Git pull
+
+        :raise CustomGitException:
+        """
+        if not self.repo:
+            raise CustomGitException(f"Clone repository {self.github_repository_name} first", 404)
+        self.repo.remotes.origin.pull()

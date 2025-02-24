@@ -13,6 +13,8 @@
 
 ### Fixed
 
+- Bug when clone 6G-Library.
+
 ### Removed
 
 ## [v0.4.5] - 2025-02-06

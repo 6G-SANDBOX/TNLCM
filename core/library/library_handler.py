@@ -73,19 +73,26 @@ class LibraryHandler:
         :return: list with Library tags, ``list[str]``
         """
         return self.repository_handler.git_tags()
+
+    def git_pull(self) -> None:
+        """
+        Git pull
+        """
+        self.repository_handler.git_pull()
     
-    def get_components(self) -> set:
+    def get_components(self) -> list[str]:
         """
         Function to get the available components in the Library
         
         :return components: the available components, ``set``
         :raise CustomLibraryException:
         """
-        components = set()
+        components = []
         if not is_directory(path=self.library_local_directory):
             raise CustomLibraryException(f"Folder of the components is not created in commit {self.library_commit_id} of Library", 404)
         for component in list_directory(path=self.library_local_directory):
-            components.add(component)
+            if is_directory(path=join_path(self.library_local_directory, component)) and not component.startswith("."):
+                components.append(component)
         return components
     
     def is_component(self, component_type: str) -> None:
