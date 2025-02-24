@@ -84,7 +84,7 @@ class LibraryHandler:
         """
         Function to get the available components in the Library
         
-        :return components: the available components, ``set``
+        :return components: the available components, ``list[str]``
         :raise CustomLibraryException:
         """
         components = []
