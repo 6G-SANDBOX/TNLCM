@@ -361,7 +361,11 @@ class TrialNetworkModel(Document):
             raise CustomTrialNetworkException("Input is not allowed", 422)
         if component_input_library is not None:
             for key, value in component_input_library.items():
+                if "type" not in value:
+                    raise CustomTrialNetworkException(f"Input {key} does not contain type in 6G-Library definition", 422)
                 input_type = value["type"]
+                if "required_when" not in value:
+                    raise CustomTrialNetworkException(f"Input {key} does not contain required_when in 6G-Library definition", 422)
                 input_required_when = value["required_when"]
                 if self._required_when(component_input_library, input_required_when, component_input) and key not in component_input:
                     raise CustomTrialNetworkException(f"Input {key} is required", 422)
