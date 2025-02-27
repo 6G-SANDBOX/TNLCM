@@ -380,7 +380,6 @@ class TrialNetworkModel(Document):
                         raise CustomTrialNetworkException(f"Input {key} is not of type", 422)
                     if "choices" in value and component_input[key] not in value["choices"]:
                         choices = value["choices"]
-                        print(choices)
                         raise CustomTrialNetworkException(f"Input {key} has to be one of the following choices {choices}", 422)
     
     def validate_descriptor(self, library_handler, sites_handler) -> None:
