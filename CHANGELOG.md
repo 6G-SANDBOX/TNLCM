@@ -5,6 +5,7 @@
 ### Added
 
 - Hoppscotch directory, which contains a JSON file with collections of requests for the TNLCM API.
+- Namespace for handler 6G-Sandbox-Sites repository requests.
 
 ### Changed
 
