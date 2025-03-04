@@ -4,7 +4,7 @@ from jwt.exceptions import PyJWTError
 from flask_jwt_extended.exceptions import JWTExtendedException
 
 from core.sites.sites_handler import SitesHandler
-from core.utils.os_handler import current_directory, join_path
+from core.utils.os_handler import current_directory, exists_path, join_path
 from core.exceptions.exceptions_handler import CustomException
 
 sites_namespace = Namespace(
@@ -34,6 +34,9 @@ class Sites(Resource):
         try:
             sites_path = join_path(current_directory(), "core", "sites")
             sites_handler = SitesHandler(directory_path=sites_path)
+            sites_handler.git_clone()
+            if exists_path(path=sites_handler.sites_local_directory):
+                sites_handler.git_pull()
             return {"sites": sites_handler.git_branches()}, 200
         except CustomException as e:
             return {"message": str(e)}, e.error_code

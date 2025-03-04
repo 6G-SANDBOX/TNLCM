@@ -32,25 +32,6 @@ class SitesHandler():
         self.repository_handler = RepositoryHandler(github_https_url=self.sites_https_url, github_repository_name=self.sites_repository_name, github_local_directory=self.sites_local_directory, github_reference_type=self.sites_reference_type, github_reference_value=self.sites_reference_value)
         self.sites_commit_id = None
     
-    def git_clone(self) -> None:
-        """
-        Git clone
-        """
-        self.repository_handler.git_clone()
-    
-    def git_checkout(self) -> None:
-        """
-        Git checkout
-        """
-        self.repository_handler.git_checkout()
-
-    def git_switch(self) -> None:
-        """
-        Git switch
-        """
-        self.repository_handler.git_switch()
-        self.sites_commit_id = self.repository_handler.github_commit_id
-
     def git_branches(self) -> list[str]:
         """
         Git branches
@@ -58,6 +39,31 @@ class SitesHandler():
         :return: list with Sites branches, ``list[str]``
         """
         return self.repository_handler.git_branches()
+    
+    def git_checkout(self) -> None:
+        """
+        Git checkout
+        """
+        self.repository_handler.git_checkout()
+
+    def git_clone(self) -> None:
+        """
+        Git clone
+        """
+        self.repository_handler.git_clone()
+    
+    def git_pull(self) -> None:
+        """
+        Git pull
+        """
+        self.repository_handler.git_pull()
+
+    def git_switch(self) -> None:
+        """
+        Git switch
+        """
+        self.repository_handler.git_switch()
+        self.sites_commit_id = self.repository_handler.github_commit_id
 
     def git_tags(self) -> list[str]:
         """
@@ -115,3 +121,4 @@ class SitesHandler():
             raise CustomSitesException(f"Site {deployment_site} does not have any components available", 404)
         if entity_name not in site_available_components:
             raise CustomSitesException(f"Component {entity_name} is not available in site {deployment_site}", 404)
+    
