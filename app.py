@@ -8,7 +8,13 @@ from conf.mail import MailSettings
 from conf.tnlcm import TnlcmSettings
 from core.database.database import init_db
 from core.mail.mail import init_mail
-from core.routes import callback_namespace, debug_namespace, library_namespace, trial_network_namespace, user_no_two_factor_namespace, user_namespace, verification_token_namespace
+from core.routes import (
+    callback_namespace, debug_namespace, 
+    library_namespace, sites_namespace, 
+    trial_network_namespace, user_no_two_factor_namespace, 
+    user_namespace, verification_token_namespace
+)
+
 
 app = Flask(__name__)
 CORS(app=app)
@@ -32,6 +38,7 @@ api.add_namespace(callback_namespace, path="/tnlcm/callback")
 if FlaskConf.FLASK_ENV == "development":
     api.add_namespace(debug_namespace, path="/tnlcm/debug")
 api.add_namespace(library_namespace, path="/tnlcm/library")
+api.add_namespace(sites_namespace, path="/tnlcm/sites")
 api.add_namespace(trial_network_namespace, path="/tnlcm/trial-network")
 api.add_namespace(user_namespace, path="/tnlcm/user")
 if not MailSettings.TWO_FACTOR_AUTH:
