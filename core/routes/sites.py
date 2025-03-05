@@ -2,8 +2,8 @@ from flask_restx import abort, Namespace, Resource
 from jwt.exceptions import PyJWTError
 from flask_jwt_extended.exceptions import JWTExtendedException
 
-from core.sites.sites_handler import SitesHandler
-from core.utils.os_handler import current_directory, exists_path, join_path, list_directory
+from core.sites.sites_handler import SitesHandler, SITES_PATH
+from core.utils.os_handler import exists_path, list_directory
 from core.exceptions.exceptions_handler import CustomException
 
 sites_namespace = Namespace(
@@ -11,18 +11,17 @@ sites_namespace = Namespace(
     description="Namespace for sites management"
 )
 
-@sites_namespace.route("/branches/")
-class SitesBranches(Resource):
+@sites_namespace.route("/branches")
+class Branches(Resource):
 
     @sites_namespace.errorhandler(PyJWTError)
     @sites_namespace.errorhandler(JWTExtendedException)
     def get(self):
         """
-        Retrieve branches from the Sites repository
+        Retrieve branches from the sites repository
         """
         try:
-            sites_path = join_path(current_directory(), "core", "sites")
-            sites_handler = SitesHandler(directory_path=sites_path)
+            sites_handler = SitesHandler(directory_path=SITES_PATH)
             sites_handler.git_clone()
             if exists_path(path=sites_handler.sites_local_directory):
                 sites_handler.git_pull()
@@ -32,22 +31,22 @@ class SitesBranches(Resource):
         except Exception as e:
             return abort(500, str(e))
 
-@sites_namespace.route("/<string:branch_name>/deployment-sites/")
-class SitesBranchDirectories(Resource):
+@sites_namespace.route("/<string:sites_branch>")
+class BranchDirectories(Resource):
 
     @sites_namespace.errorhandler(PyJWTError)
     @sites_namespace.errorhandler(JWTExtendedException)
-    def get(self, branch_name: str):
+    def get(self, sites_branch: str):
         """
-        Retrieve directories from the Sites repository
+        Retrieve directories from the branch of the sites repository
         """
         try:
-            sites_path = join_path(current_directory(), "core", "sites")
-            sites_handler = SitesHandler(reference_type="branch", reference_value=branch_name, directory_path=sites_path)
+            sites_handler = SitesHandler(reference_type="branch", reference_value=sites_branch, directory_path=SITES_PATH)
             sites_handler.git_clone()
+            if exists_path(path=sites_handler.sites_local_directory):
+                sites_handler.git_pull()
             sites_handler.git_checkout()
             directories = list_directory(path=sites_handler.sites_local_directory)
-            # remove directories with .
             directories = [directory for directory in directories if not directory.startswith(".")]
             return {"deployment_sites": directories}, 200
         except CustomException as e:
