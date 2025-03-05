@@ -1,5 +1,3 @@
-import os
-
 from conf.library import LibrarySettings
 from core.repository.repository_handler import RepositoryHandler
 from core.utils.file_handler import load_yaml
