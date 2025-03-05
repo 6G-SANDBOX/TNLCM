@@ -1,4 +1,3 @@
-from flask_jwt_extended import jwt_required
 from flask_restx import abort, Namespace, Resource
 from jwt.exceptions import PyJWTError
 from flask_jwt_extended.exceptions import JWTExtendedException
@@ -26,7 +25,6 @@ class Sites(Resource):
     @sites_namespace.doc(security="Bearer Auth")
     @sites_namespace.errorhandler(PyJWTError)
     @sites_namespace.errorhandler(JWTExtendedException)
-    @jwt_required()
     def get(self):
         """
         Retrieve sites
