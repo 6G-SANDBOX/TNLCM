@@ -1,8 +1,12 @@
+import os
+
 from conf.library import LibrarySettings
 from core.repository.repository_handler import RepositoryHandler
 from core.utils.file_handler import load_yaml
-from core.utils.os_handler import exists_path, is_directory, join_path, list_directory
+from core.utils.os_handler import exists_path, get_absolute_path, is_directory, join_path, list_directory
 from core.exceptions.exceptions_handler import CustomLibraryException
+
+LIBRARY_PATH = get_absolute_path(__file__)
 
 class LibraryHandler:
 

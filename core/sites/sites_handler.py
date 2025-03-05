@@ -1,9 +1,11 @@
 from conf.sites import SitesSettings
 from core.repository.repository_handler import RepositoryHandler
 from core.utils.file_handler import load_file, load_yaml, save_yaml
-from core.utils.os_handler import exists_path, join_path
+from core.utils.os_handler import exists_path, get_absolute_path, join_path
 from core.utils.parser_handler import ansible_decrypt, yaml_to_dict
 from core.exceptions.exceptions_handler import CustomSitesException
+
+SITES_PATH = get_absolute_path(__file__)
 
 class SitesHandler():
 
@@ -98,7 +100,7 @@ class SitesHandler():
             raise CustomSitesException(f"Branch {self.sites_reference_value} does not have the directory {deployment_site}", 404)
         core_file = join_path(self.sites_local_directory, deployment_site, "core.yaml")
         if not exists_path(path=core_file):
-            raise CustomSitesException(f"File {core_file} not found in branch {self.sites_reference_value}", 404)
+            raise CustomSitesException(f"File {core_file} not found in {self.sites_reference_type} reference type and {self.sites_reference_value} reference value", 404)
         encrypted_data = load_file(file_path=core_file, mode="rb", encoding=None)
         decrypted_data = ansible_decrypt(encrypted_data=encrypted_data, token=SitesSettings.SITES_TOKEN)
         decrypted_yaml = yaml_to_dict(data=decrypted_data)
