@@ -60,3 +60,12 @@ def make_directory(path: str) -> None:
     :param path: directory path, ``str``
     """
     os.makedirs(path)
+
+def get_absolute_path(__file__) -> str:
+    """
+    Absolute path
+    
+    :param path: path to convert to absolute, ``str``
+    :return: absolute path, ``str``
+    """
+    return os.path.dirname(os.path.abspath(__file__))

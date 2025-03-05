@@ -13,7 +13,7 @@ from core.utils.os_handler import join_path, make_directory
 from core.utils.parser_handler import yaml_to_dict
 from core.exceptions.exceptions_handler import CustomTrialNetworkException
 
-STATE_MACHINE = {"validated", "suspended", "activated", "failed", "destroyed"}
+STATE_MACHINE = {"activated", "created", "destroyed", "failed", "suspended", "validated"}
 COMPONENTS_EXCLUDE_CUSTOM_NAME = {"tn_init", "tn_vxlan", "tn_bastion", "tsn"}
 REQUIRED_FIELDS_DESCRIPTOR = {"type", "dependencies", "input"}
 TYPE_MAPPING = {
@@ -439,7 +439,7 @@ class TrialNetworkModel(Document):
             component_input_library = library_handler.get_component_input(component_type)
             self._check_input(library_handler, component_input, component_input_library)
         
-    def to_dict(self) -> dict:
+    def to_dict_created_validated(self) -> dict:
         return {
             "user_created": self.user_created,
             "tn_id": self.tn_id,
@@ -473,6 +473,16 @@ class TrialNetworkModel(Document):
             "library_commit_id": self.library_commit_id,
             "sites_https_url": self.sites_https_url,
             "sites_commit_id": self.sites_commit_id
+        }
+    
+    def to_dict_created(self) -> dict:
+        return {
+            "user_created": self.user_created,
+            "tn_id": self.tn_id,
+            "state": self.state,
+            "date_created_utc": self.date_created_utc.isoformat(),
+            "raw_descriptor": self.raw_descriptor,
+            "directory_path": self.directory_path
         }
 
     def __repr__(self) -> str:
