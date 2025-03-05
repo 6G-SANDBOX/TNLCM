@@ -29,6 +29,12 @@ class SitesHandler():
         self.sites_local_directory = join_path(directory_path, self.sites_repository_name)
         self.sites_reference_type = reference_type
         self.sites_reference_value = reference_value
+        if reference_type == "branch" and reference_value:
+            self.sites_reference_value = reference_value
+        elif reference_type == "commit" and reference_value:
+            self.sites_reference_value = reference_value
+        else:
+            self.sites_reference_value = f"refs/tags/{reference_value}"
         self.repository_handler = RepositoryHandler(github_https_url=self.sites_https_url, github_repository_name=self.sites_repository_name, github_local_directory=self.sites_local_directory, github_reference_type=self.sites_reference_type, github_reference_value=self.sites_reference_value)
         self.sites_commit_id = None
     
@@ -72,24 +78,31 @@ class SitesHandler():
         :return: list with Sites tags, ``list[str]``
         """
         return self.repository_handler.git_tags()
-
-    def validate_site(self, sites_branch: str) -> None:
+    
+    def validate_sites_branch(self) -> None:
         """
-        Check if branch is valid for deploy trial network
-        
-        :param sites_branch: trial network deployment site, ``str``
-        :raise CustomSitesException:
+        Check if branch is valid
         """
         filtered_branches = [branch for branch in self.git_branches() if branch != "main"]
-        if sites_branch not in filtered_branches:
-            raise CustomSitesException(f"Site should be one: {filtered_branches}", 404)
-        core_file = join_path(self.sites_local_directory, sites_branch, "core.yaml")
+        if self.sites_reference_value not in filtered_branches:
+            raise CustomSitesException(f"Branch should be one: {filtered_branches}", 404)
+
+    def validate_deployment_site(self, deployment_site: str) -> None:
+        """
+        Check if branch has the directory deployment site
+        
+        :param deployment_site: trial network deployment site, ``str``
+        :raise CustomSitesException:
+        """
+        if not exists_path(path=join_path(self.sites_local_directory, deployment_site)):
+            raise CustomSitesException(f"Branch {self.sites_reference_value} does not have the directory {deployment_site}", 404)
+        core_file = join_path(self.sites_local_directory, deployment_site, "core.yaml")
         if not exists_path(path=core_file):
-            raise CustomSitesException(f"File {core_file} not found", 404)
+            raise CustomSitesException(f"File {core_file} not found in branch {self.sites_reference_value}", 404)
         encrypted_data = load_file(file_path=core_file, mode="rb", encoding=None)
         decrypted_data = ansible_decrypt(encrypted_data=encrypted_data, token=SitesSettings.SITES_TOKEN)
         decrypted_yaml = yaml_to_dict(data=decrypted_data)
-        save_yaml(data=decrypted_yaml, file_path=join_path(self.sites_local_directory, sites_branch, "core_decrypt.yaml"))
+        save_yaml(data=decrypted_yaml, file_path=join_path(self.sites_local_directory, deployment_site, "core_decrypt.yaml"))
 
     def get_site_available_components(self, deployment_site: str) -> dict:
         """
