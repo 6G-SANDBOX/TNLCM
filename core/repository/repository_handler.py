@@ -87,6 +87,17 @@ class RepositoryHandler:
         if not self.repo:
             raise CustomGitException(f"Clone repository {self.github_repository_name} first", 404)
         return [tag.name for tag in self.repo.tags]
+    
+    def git_commits(self) -> list[str]:
+        """
+        Git commits
+
+        :return: list with all commits, ``list[str]``
+        :raise CustomGitException:
+        """
+        if not self.repo:
+            raise CustomGitException(f"Clone repository {self.github_repository_name} first", 404)
+        return [commit.hexsha for commit in self.repo.iter_commits()]
 
     def git_pull(self) -> None:
         """
