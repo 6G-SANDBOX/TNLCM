@@ -13,7 +13,7 @@ from conf.sites import SitesSettings
 from conf.tnlcm import TnlcmSettings
 from core.auth.auth import get_current_user_from_jwt
 from core.jenkins.jenkins_handler import JenkinsHandler
-from core.library.library_handler import LibraryHandler
+from core.library.library_handler import LibraryHandler, LIBRARY_REFERENCES_TYPES
 from core.logs.log_handler import TnLogHandler
 from core.models.trial_network import TrialNetworkModel
 from core.models.resource_manager import ResourceManagerModel
@@ -46,7 +46,7 @@ class CreateValidateTrialNetwork(Resource):
     parser_post.add_argument("descriptor", location="files", type=FileStorage, required=True)
     if FlaskConf.FLASK_ENV == "development":
         parser_post.add_argument("library_https_url", type=str, required=True, default=LibrarySettings.LIBRARY_HTTPS_URL)
-    parser_post.add_argument("library_reference_type", type=str, required=True, choices=("branch", "commit", "tag"))
+    parser_post.add_argument("library_reference_type", type=str, required=True, choices=LIBRARY_REFERENCES_TYPES)
     parser_post.add_argument("library_reference_value", type=str, required=True)
     if FlaskConf.FLASK_ENV == "development":
         parser_post.add_argument("sites_https_url", type=str, required=True, default=SitesSettings.SITES_HTTPS_URL)
