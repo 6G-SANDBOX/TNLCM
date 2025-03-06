@@ -4,7 +4,7 @@ from core.utils.file_handler import load_yaml
 from core.utils.os_handler import exists_path, get_absolute_path, is_directory, join_path, list_directory
 from core.exceptions.exceptions_handler import CustomLibraryException
 
-LIBRARY_PATH = get_absolute_path(__file__)
+LIBRARY_PATH = join_path(get_absolute_path(__file__), LibrarySettings.LIBRARY_REPOSITORY_NAME)
 LIBRARY_REFERENCES_TYPES = ["branch", "commit", "tag"]
 
 class LibraryHandler:
@@ -27,7 +27,10 @@ class LibraryHandler:
         if https_url is None:
             self.library_https_url = LibrarySettings.LIBRARY_HTTPS_URL
         self.library_repository_name = LibrarySettings.LIBRARY_REPOSITORY_NAME
-        self.library_local_directory = join_path(directory_path, self.library_repository_name)
+        if directory_path is None:
+            self.library_local_directory = LIBRARY_PATH
+        else:
+            self.library_local_directory = join_path(directory_path, self.library_repository_name)
         self.library_reference_type = reference_type
         self.library_reference_value = reference_value
         if reference_type == "branch" and reference_value:
@@ -91,6 +94,24 @@ class LibraryHandler:
         """
         return self.repository_handler.git_commits()
     
+    def git_fetch_prune(self) -> None:
+        """
+        Git fetch prune
+        """
+        self.repository_handler.git_fetch_prune()
+    
+    def git_clean(self) -> None:
+        """
+        Git clean
+        """
+        self.repository_handler.git_clean()
+    
+    def git_reset(self) -> None:
+        """
+        Git reset
+        """
+        self.repository_handler.git_reset()
+    
     def get_components(self) -> list[str]:
         """
         Function to get the available components in the Library
@@ -102,7 +123,7 @@ class LibraryHandler:
         if not is_directory(path=self.library_local_directory):
             raise CustomLibraryException(f"Folder of the components is not created in commit {self.library_commit_id} of Library", 404)
         for component in list_directory(path=self.library_local_directory):
-            if is_directory(path=join_path(self.library_local_directory, component)) and not component.startswith("."):
+            if is_directory(path=join_path(self.library_local_directory, component)) and not component.startswith(".") and component != "assets":
                 components.append(component)
         return sorted(components)
     
@@ -128,11 +149,9 @@ class LibraryHandler:
         public_file_path = join_path(self.library_local_directory, component_type, ".tnlcm", "public.yaml")
         if not exists_path(path=public_file_path):
             raise CustomLibraryException(f"File {public_file_path} not found", 404)
-        
         public_data = load_yaml(file_path=public_file_path)
         if public_data and "input" in public_data:
             component_input = public_data["input"]
-        
         return component_input
     
     def get_component_metadata(self, component_type: str) -> dict:
@@ -147,9 +166,7 @@ class LibraryHandler:
         public_file_path = join_path(self.library_local_directory, component_type, ".tnlcm", "public.yaml")
         if not exists_path(path=public_file_path):
             raise CustomLibraryException(f"File {public_file_path} not found", 404)
-        
         public_data = load_yaml(file_path=public_file_path)
         if public_data and "metadata" in public_data:
             component_metadata = public_data["metadata"]
-        
         return component_metadata

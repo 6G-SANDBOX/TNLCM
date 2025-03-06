@@ -2,8 +2,7 @@ from flask_restx import abort, Namespace, Resource
 from jwt.exceptions import PyJWTError
 from flask_jwt_extended.exceptions import JWTExtendedException
 
-from core.library.library_handler import LibraryHandler, LIBRARY_PATH, LIBRARY_REFERENCES_TYPES
-from core.utils.os_handler import exists_path
+from core.library.library_handler import LibraryHandler, LIBRARY_REFERENCES_TYPES
 from core.exceptions.exceptions_handler import CustomException
 
 library_namespace = Namespace(
@@ -22,11 +21,11 @@ class Component(Resource):
         Retrieve library component information
         """
         try:
-            library_handler = LibraryHandler(reference_type=library_reference_type, reference_value=library_reference_value, directory_path=LIBRARY_PATH)
+            library_handler = LibraryHandler(reference_type=library_reference_type, reference_value=library_reference_value)
             library_handler.git_clone()
-            if exists_path(path=library_handler.library_local_directory):
-                library_handler.git_pull()
-                library_handler.git_checkout()
+            library_handler.git_fetch_prune()
+            library_handler.git_checkout()
+            library_handler.git_pull()
             library_handler.is_component(component_type=component_name)
             component_input = library_handler.get_component_input(component_type=component_name)
             return {"component_input": component_input}, 200
@@ -46,11 +45,11 @@ class Components(Resource):
         Retrieve library components
         """
         try:
-            library_handler = LibraryHandler(reference_type=library_reference_type, reference_value=library_reference_value, directory_path=LIBRARY_PATH)
+            library_handler = LibraryHandler(reference_type=library_reference_type, reference_value=library_reference_value)
             library_handler.git_clone()
-            if exists_path(path=library_handler.library_local_directory):
-                library_handler.git_pull()
+            library_handler.git_fetch_prune()
             library_handler.git_checkout()
+            library_handler.git_pull()
             components = library_handler.get_components()
             return {"components": components}, 200
         except CustomException as e:
@@ -59,7 +58,7 @@ class Components(Resource):
             return abort(500, str(e))
 
 @library_namespace.route("/library_references_types")
-class LibraryReferencesTypes(Resource):
+class ReferencesTypes(Resource):
 
     @library_namespace.errorhandler(PyJWTError)
     @library_namespace.errorhandler(JWTExtendedException)
@@ -76,7 +75,7 @@ class LibraryReferencesTypes(Resource):
 
 @library_namespace.param(name="library_reference_type", description="Type of library reference", enum=LIBRARY_REFERENCES_TYPES, required=True)
 @library_namespace.route("/<string:library_reference_type>")
-class LibraryReferenceType(Resource):
+class ReferenceType(Resource):
 
     @library_namespace.errorhandler(PyJWTError)
     @library_namespace.errorhandler(JWTExtendedException)
@@ -85,12 +84,13 @@ class LibraryReferenceType(Resource):
         Retrieve library reference value
         """
         try:
-            library_handler = LibraryHandler(directory_path=LIBRARY_PATH)
-            library_handler.git_clone()
-            if exists_path(path=library_handler.library_local_directory):
-                library_handler.git_pull()
             if library_reference_type not in LIBRARY_REFERENCES_TYPES:
                 return {"message": f"Library reference type {library_reference_type} is not valid"}, 400
+            library_handler = LibraryHandler()
+            library_handler.git_clone()
+            library_handler.git_fetch_prune()
+            library_handler.git_checkout()
+            library_handler.git_pull()
             if library_reference_type == "branch":
                 library_reference_value = library_handler.git_branches()
             elif library_reference_type == "tag":

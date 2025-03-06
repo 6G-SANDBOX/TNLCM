@@ -9,6 +9,7 @@ class SitesSettings:
 
     SITES_HTTPS_URL = get_dotenv_var(key="SITES_HTTPS_URL")
     SITES_REPOSITORY_NAME = get_dotenv_var(key="SITES_REPOSITORY_NAME")
+    SITES_BRANCH = get_dotenv_var(key="SITES_BRANCH")
     SITES_TOKEN = get_dotenv_var(key="SITES_TOKEN")
     missing_variables = []
     if not SITES_TOKEN:

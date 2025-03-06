@@ -5,7 +5,7 @@ from core.utils.os_handler import exists_path, get_absolute_path, join_path
 from core.utils.parser_handler import ansible_decrypt, yaml_to_dict
 from core.exceptions.exceptions_handler import CustomSitesException
 
-SITES_PATH = get_absolute_path(__file__)
+SITES_PATH = join_path(get_absolute_path(__file__), SitesSettings.SITES_REPOSITORY_NAME)
 SITES_REFERENCES_TYPES = ["branch", "commit", "tag"]
 
 class SitesHandler():
@@ -29,15 +29,21 @@ class SitesHandler():
         if https_url is None:
             self.sites_https_url = SitesSettings.SITES_HTTPS_URL
         self.sites_repository_name = SitesSettings.SITES_REPOSITORY_NAME
-        self.sites_local_directory = join_path(directory_path, self.sites_repository_name)
+        if directory_path is None:
+            self.sites_local_directory = SITES_PATH
+        else:
+            self.sites_local_directory = join_path(directory_path, self.sites_repository_name)
         self.sites_reference_type = reference_type
         self.sites_reference_value = reference_value
         if reference_type == "branch" and reference_value:
             self.sites_reference_value = reference_value
         elif reference_type == "commit" and reference_value:
             self.sites_reference_value = reference_value
-        else:
+        elif reference_type == "tag" and reference_value:
             self.sites_reference_value = f"refs/tags/{reference_value}"
+        else:
+            self.sites_reference_type = "branch"
+            self.sites_reference_value = SitesSettings.SITES_BRANCH
         self.repository_handler = RepositoryHandler(github_https_url=self.sites_https_url, github_repository_name=self.sites_repository_name, github_local_directory=self.sites_local_directory, github_reference_type=self.sites_reference_type, github_reference_value=self.sites_reference_value)
         self.sites_commit_id = None
     
@@ -81,6 +87,24 @@ class SitesHandler():
         :return: list with Sites tags, ``list[str]``
         """
         return self.repository_handler.git_tags()
+    
+    def git_fetch_prune(self) -> None:
+        """
+        Git fetch prune
+        """
+        self.repository_handler.git_fetch_prune()
+
+    def git_clean(self) -> None:
+        """
+        Git clean
+        """
+        self.repository_handler.git_clean()
+    
+    def git_reset(self) -> None:
+        """
+        Git reset
+        """
+        self.repository_handler.git_reset()
     
     def validate_sites_branch(self) -> None:
         """

@@ -1,7 +1,11 @@
 from git import Repo
 
+from threading import Lock
+
 from core.utils.os_handler import exists_path, join_path
 from core.exceptions.exceptions_handler import CustomGitException
+
+git_index_lock = Lock()
 
 class RepositoryHandler:
 
@@ -51,9 +55,10 @@ class RepositoryHandler:
 
         :raise CustomGitException:
         """
-        if not self.repo:
-            raise CustomGitException(f"Clone repository {self.github_repository_name} first", 404)
-        self.repo.git.checkout(self.github_reference_value, "--")
+        with git_index_lock:
+            if not self.repo:
+                raise CustomGitException(f"Clone repository {self.github_repository_name} first", 404)
+            self.repo.git.checkout(self.github_reference_value, "--")
 
     def git_switch(self) -> None:
         """
@@ -107,4 +112,36 @@ class RepositoryHandler:
         """
         if not self.repo:
             raise CustomGitException(f"Clone repository {self.github_repository_name} first", 404)
-        self.repo.remotes.origin.pull()
+        self.repo.git.clean("-fd")
+        if self.github_reference_type == "branch":
+            self.repo.remotes.origin.pull()
+
+    def git_fetch_prune(self) -> None:
+        """
+        Git fetch prune
+
+        :raise CustomGitException:
+        """
+        if not self.repo:
+            raise CustomGitException(f"Clone repository {self.github_repository_name} first", 404)
+        self.repo.remotes.origin.fetch(prune=True)
+
+    def git_clean(self) -> None:
+        """
+        Git clean
+
+        :raise CustomGitException:
+        """
+        if not self.repo:
+            raise CustomGitException(f"Clone repository {self.github_repository_name} first", 404)
+        self.repo.git.clean("-fd")
+
+    def git_reset(self) -> None:
+        """
+        Git reset
+
+        :raise CustomGitException:
+        """
+        if not self.repo:
+            raise CustomGitException(f"Clone repository {self.github_repository_name} first", 404)
+        self.repo.head.reset(index=True, working_tree=True)
