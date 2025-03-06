@@ -5,6 +5,7 @@ from core.utils.os_handler import exists_path, get_absolute_path, is_directory, 
 from core.exceptions.exceptions_handler import CustomLibraryException
 
 LIBRARY_PATH = get_absolute_path(__file__)
+LIBRARY_REFERENCES_TYPES = ["branch", "commit", "tag"]
 
 class LibraryHandler:
 
@@ -81,6 +82,14 @@ class LibraryHandler:
         :return: list with Library tags, ``list[str]``
         """
         return self.repository_handler.git_tags()
+
+    def git_commits(self) -> list[str]:
+        """
+        Git commits
+
+        :return: list with Library commits, ``list[str]``
+        """
+        return self.repository_handler.git_commits()
     
     def get_components(self) -> list[str]:
         """

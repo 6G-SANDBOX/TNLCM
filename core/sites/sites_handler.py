@@ -6,6 +6,7 @@ from core.utils.parser_handler import ansible_decrypt, yaml_to_dict
 from core.exceptions.exceptions_handler import CustomSitesException
 
 SITES_PATH = get_absolute_path(__file__)
+SITES_REFERENCES_TYPES = ["branch", "commit", "tag"]
 
 class SitesHandler():
 
