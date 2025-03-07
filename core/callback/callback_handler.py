@@ -23,7 +23,7 @@ class CallbackHandler:
         self.success = self.decoded_data["success"]
         # self.output = self.decoded_data["output"]
         self.markdown = self.decoded_data["markdown"]
-        self.links = self.decoded_data.get("links", {})
+        self.links = self.decoded_data.get("links", [])
         self.entity_name = f"{self.component_type}-{self.custom_name}" if self.custom_name != "None" else self.component_type
     
     def decode_data(self) -> dict:
