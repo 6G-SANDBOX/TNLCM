@@ -84,18 +84,18 @@ echo "Copying .env.template to .env..."
 cp ${BACKEND_PATH}/.env.template ${BACKEND_PATH}/.env
 
 echo "Prompting user for configuration details..."
-read -p "Enter the TNLCM admin username: " TNLCM_ADMIN_USER
-read -sp "Enter the TNLCM admin password: " TNLCM_ADMIN_PASSWORD
+read -rp "Enter the TNLCM admin username: " TNLCM_ADMIN_USER
+read -rsp "Enter the TNLCM admin password: " TNLCM_ADMIN_PASSWORD
 echo
 HOST_IP=$(hostname -I | awk '{print $1}')
-read -e -i ${HOST_IP} -p "Enter the TNLCM host IP (format example: 10.10.10.10): " TNLCM_HOST
-read -p "Enter the Jenkins host IP (format example: 10.10.10.11): " JENKINS_HOST
-read -p "Enter the Jenkins username: " JENKINS_USERNAME
-read -sp "Enter the Jenkins password: " JENKINS_PASSWORD
+read -r -e -i "${HOST_IP}" -p "Enter the TNLCM host IP (format example: 10.10.10.10): " TNLCM_HOST
+read -rp "Enter the Jenkins host IP (format example: 10.10.10.11): " JENKINS_HOST
+read -rp "Enter the Jenkins username: " JENKINS_USERNAME
+read -rsp "Enter the Jenkins password: " JENKINS_PASSWORD
 echo
-read -sp "Enter the Jenkins token: " JENKINS_TOKEN
+read -rsp "Enter the Jenkins token: " JENKINS_TOKEN
 echo
-read -sp "Enter the sites token (not use \" or ' or \`): " SITES_TOKEN
+read -rsp "Enter the sites token (not use \" or ' or \`): " SITES_TOKEN
 echo
 # echo "Now configure two-factor authentication for TNLCM."
 # read -p "Enter if you want to enable two-factor authentication (true/false): " TWO_FACTOR_AUTH
@@ -157,7 +157,7 @@ echo "Node.js installed successfully"
 echo "--------------- Installing Mongo-Express ---------------"
 echo "Cloning and building Mongo-Express..."
 git clone --depth 1 --branch ${MONGO_EXPRESS_VERSION} -c advice.detachedHead=false https://github.com/mongo-express/mongo-express.git ${MONGO_EXPRESS_FOLDER}
-cd ${MONGO_EXPRESS_FOLDER}
+cd ${MONGO_EXPRESS_FOLDER} || exit
 yarn install
 yarn build
 cd
@@ -211,7 +211,7 @@ echo "Mongo-Express service started"
 
 echo "Installing TNLCM dependencies using uv..."
 ${UV_BIN} --directory ${BACKEND_PATH} sync
-cd ${BACKEND_PATH}
+cd ${BACKEND_PATH} || exit
 ${UV_BIN} run gunicorn -c conf/gunicorn_conf.py
 
 echo "All components installed successfully"

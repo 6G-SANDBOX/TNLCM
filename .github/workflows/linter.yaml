@@ -5,13 +5,12 @@ on:
     branches:
       - main
     paths:
-      - '**/*.py'
+      - "**/*.py"
   pull_request:
     branches:
       - main
     paths:
-      - '**/*.py'
-  workflow_dispatch:
+      - "**/*.py"
 
 jobs:
   lint:
@@ -19,6 +18,7 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+      
     - name: Analysing the code with ruff
       uses: astral-sh/ruff-action@v3
       with:

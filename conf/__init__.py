@@ -1,7 +1,6 @@
 from dotenv import load_dotenv
 
-from core.utils.os_handler import current_directory, join_path
+from core.utils.os import DOTENV_DEV_PATH, DOTENV_PATH  # noqa: F401
 
-dotenv_path = join_path(current_directory(), ".env")
-# dotenv_path = join_path(current_directory(), ".env.dev")
-load_dotenv(dotenv_path=dotenv_path)
+load_dotenv(dotenv_path=DOTENV_PATH)
+# load_dotenv(dotenv_path=DOTENV_DEV_PATH)

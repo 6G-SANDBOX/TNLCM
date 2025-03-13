@@ -1,43 +1,143 @@
-from flask import request
-from flask_restx import abort, Namespace, Resource
+from flask_jwt_extended.exceptions import JWTExtendedException
+from flask_restx import Namespace, Resource, abort, reqparse
+from jwt.exceptions import PyJWTError
 
-from core.callback.callback_handler import CallbackHandler
-from core.logs.log_handler import TnLogHandler
-from core.models.trial_network import TrialNetworkModel
 from core.exceptions.exceptions_handler import CustomException
+from core.logs.log_handler import TrialNetworkLogger
+from core.models.trial_network import TrialNetworkModel
+from core.utils.file import save_file, save_json_file
+from core.utils.os import TRIAL_NETWORKS_DIRECTORY_PATH, join_path
+from core.utils.parser import decode_base64
 
 callback_namespace = Namespace(
     name="callback",
-    description="Namespace for handler the data returned by Jenkins after deploying the components"
+    description="Namespace for handler the data returned by Jenkins after deploy a component",
 )
+
 
 @callback_namespace.route("")
 class Callback(Resource):
-    
-    def post(self) -> tuple[dict, int]:
+    parser_post = reqparse.RequestParser()
+    parser_post.add_argument(
+        "tn_id",
+        type=str,
+        required=True,
+        location="json",
+        help="Trial network identifier. It is optional. If not specified, a random will be generated. If specified, it should begin with character and max length 15",
+    )
+    parser_post.add_argument(
+        "component_type",
+        type=str,
+        required=True,
+        location="json",
+        help="Component type. It should be a string",
+    )
+    parser_post.add_argument(
+        "custom_name",
+        type=str,
+        required=True,
+        location="json",
+        help="Custom name of the component. It should be a string",
+    )
+    # parser_post.add_argument(
+    #     "endpoints",
+    #     type="str",
+    #     required=False,
+    #     location="json",
+    #     help="Endpoints of the component. It should be a dictionary",
+    # )
+    parser_post.add_argument(
+        "markdown",
+        type=str,
+        required=True,
+        location="json",
+        help="Markdown of the component. It should be a string",
+    )
+    # parser_post.add_argument(
+    #     "output",
+    #     type=str,
+    #     required=False,
+    #     location="json",
+    #     help="Output of the component. It should be a string",
+    # )
+    parser_post.add_argument(
+        "success",
+        type=str,
+        required=True,
+        location="json",
+        help="Success of the component. It should be a string",
+    )
+
+    @callback_namespace.errorhandler(PyJWTError)
+    @callback_namespace.errorhandler(JWTExtendedException)
+    @callback_namespace.expect(parser_post)
+    def post(self):
         """
-        Save Jenkins results from deploying components
+        Save Jenkins results when deploy a component
         """
+        trial_network = None
         try:
-            encoded_data = request.get_json()
-            callback_handler = CallbackHandler(encoded_data=encoded_data)
-            trial_network = TrialNetworkModel.objects(tn_id=callback_handler.tn_id).first()
+            tn_id = decode_base64(self.parser_post.parse_args()["tn_id"])
+            component_type = decode_base64(
+                self.parser_post.parse_args()["component_type"]
+            )
+            custom_name = decode_base64(self.parser_post.parse_args()["custom_name"])
+            # endpoints = decode_base64(self.parser_post.parse_args()["endpoints"])
+            markdown = decode_base64(self.parser_post.parse_args()["markdown"])
+            # output = self.parser_post.parse_args()["output"]
+            success = self.parser_post.parse_args()["success"]
+            entity_name = (
+                f"{component_type}-{custom_name}"
+                if custom_name != "None"
+                else component_type
+            )
+            decoded_data = {
+                "tn_id": tn_id,
+                "component_type": component_type,
+                "custom_name": custom_name,
+                # "endpoints": endpoints,
+                "markdown": markdown,
+                # "output": output,
+                "success": success,
+            }
+
+            trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
             if not trial_network:
-                return {"message": f"No trial network with the name {callback_handler.tn_id} in database"}, 404
-            
-            if callback_handler.success != "true":
-                return {"message": f"Pipeline for entity {callback_handler.entity_name} failed"}, 500
-            
-            # if not callback_handler.matches_expected_output():
-            #     return {"message": "Output keys received by Jenkins does not match output keys from the Library"}, 500
-            # TnLogHandler.get_logger(tn_id=trial_network.tn_id).info(f"[{trial_network.tn_id}] - Output keys received by Jenkins match with output keys from the Library")
-            
-            trial_network.set_output(callback_handler.entity_name, callback_handler.decoded_data)
+                return {
+                    "message": f"No trial network with the name {tn_id} in database"
+                }, 404
+            if success != "true":
+                return {
+                    "message": f"Pipeline for entity {entity_name} failed because success value received by Jenkins is {success}"
+                }, 500
+            trial_network.set_output(entity_name, decoded_data)
             trial_network.save()
-            callback_handler.save_data_file()
-            TnLogHandler.get_logger(tn_id=trial_network.tn_id).info(f"[{trial_network.tn_id}] - Save entity deployment results received by Jenkins")
-            return {"message": f"Results of {callback_handler.entity_name} entity received by jenkins saved"}, 200
+            directory_path = join_path(TRIAL_NETWORKS_DIRECTORY_PATH, tn_id)
+            save_json_file(
+                data=decoded_data,
+                file_path=join_path(directory_path, "output", f"{entity_name}.json"),
+            )
+            save_file(
+                data=markdown,
+                file_path=join_path(directory_path, f"{tn_id}.md"),
+                mode="a",
+            )
+            # trial_network_logger = TrialNetworkLogger.get_logger(
+            #     tn_id=trial_network.tn_id
+            # )
+            # trial_network_logger.info(
+            #     msg=f"Results of the entity {entity_name} received by Jenkins saved successfully"
+            # )
+            return {
+                "message": f"Results of the entity {entity_name} received by Jenkins saved successfully"
+            }, 200
         except CustomException as e:
-            return {"message": str(e)}, e.error_code
+            if trial_network:
+                trial_network.set_state("failed")
+                trial_network.save()
+            return {"message": str(e)}, e.status_code
         except Exception as e:
-            return abort(500, str(e))
+            if trial_network:
+                trial_network.set_state("failed")
+                trial_network.save()
+            return abort(code=500, message=str(e))

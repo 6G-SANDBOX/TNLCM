@@ -1,51 +1,46 @@
-from conf.mail import MailSettings
-from conf.mongodb import MongoDBSettings
-from core.logs.log_handler import tnlcm_log_handler
-from core.utils.os_handler import get_dotenv_var
-from core.exceptions.exceptions_handler import InvalidEnvVariableError
+from core.exceptions.exceptions_handler import InvalidEnvVarError
+from core.logs.log_handler import console_logger
+from core.utils.os import get_dotenv_var
+
+FLASK_ENV_OPTIONS = ["production", "development"]
+LOG_LEVEL_OPTIONS = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+
 
 class FlaskConf(object):
     """
     Flask Settings
     """
-    
+
     DEBUG = False
-    TESTING = False
-    SECRET_KEY = get_dotenv_var(key="SECRET_KEY") or "clave"
     ERROR_404_HELP = False
+    TESTING = False
 
-    ME_CONFIG_MONGODB_URL = MongoDBSettings.ME_CONFIG_MONGODB_URL
     FLASK_ENV = get_dotenv_var(key="FLASK_ENV")
-    if FLASK_ENV != "production" and FLASK_ENV != "development":
-        raise InvalidEnvVariableError("FLASK_ENV", ["production", "development"])
-    if not MailSettings.TWO_FACTOR_AUTH:
-        config_dict = {
-            "DEBUG": DEBUG,
-            "TESTING": TESTING,
-            "SECRET_KEY": SECRET_KEY,
-            "ERROR_404_HELP": ERROR_404_HELP,
-            "ME_CONFIG_MONGODB_URL": ME_CONFIG_MONGODB_URL
-        }
-    else:
-        MAIL_SERVER = MailSettings.MAIL_SERVER
-        MAIL_PORT = MailSettings.MAIL_PORT
-        MAIL_USE_TLS = MailSettings.MAIL_USE_TLS
-        MAIL_USE_SSL = MailSettings.MAIL_USE_SSL
-        MAIL_USERNAME = MailSettings.MAIL_USERNAME
-        MAIL_PASSWORD = MailSettings.MAIL_PASSWORD
+    SECRET_KEY = get_dotenv_var(key="SECRET_KEY") or "key123"
+    TNLCM_CONSOLE_LOG_LEVEL = get_dotenv_var(key="TNLCM_CONSOLE_LOG_LEVEL")
+    TRIAL_NETWORK_LOG_LEVEL = get_dotenv_var(key="TRIAL_NETWORK_LOG_LEVEL")
 
-        config_dict = {
-            "DEBUG": DEBUG,
-            "TESTING": TESTING,
-            "SECRET_KEY": SECRET_KEY,
-            "ERROR_404_HELP": ERROR_404_HELP,
-            "ME_CONFIG_MONGODB_URL": ME_CONFIG_MONGODB_URL,
-            "MAIL_SERVER": MAIL_SERVER,
-            "MAIL_PORT": MAIL_PORT,
-            "MAIL_USE_TLS": MAIL_USE_TLS,
-            "MAIL_USE_SSL": MAIL_USE_SSL,
-            "MAIL_USERNAME": MAIL_USERNAME,
-            "MAIL_PASSWORD": MAIL_PASSWORD,
-        }
+    if FLASK_ENV not in FLASK_ENV_OPTIONS:
+        raise InvalidEnvVarError(
+            variable="FLASK_ENV", possible_values=FLASK_ENV_OPTIONS
+        )
+    if TNLCM_CONSOLE_LOG_LEVEL not in LOG_LEVEL_OPTIONS:
+        raise InvalidEnvVarError(
+            variable="TNLCM_CONSOLE_LOG_LEVEL", possible_values=LOG_LEVEL_OPTIONS
+        )
+    if TRIAL_NETWORK_LOG_LEVEL not in LOG_LEVEL_OPTIONS:
+        raise InvalidEnvVarError(
+            variable="TRIAL_NETWORK_LOG_LEVEL", possible_values=LOG_LEVEL_OPTIONS
+        )
 
-    tnlcm_log_handler.info(f"Load Flask configuration: {config_dict}")
+    config_dict = {
+        "ERROR_404_HELP": ERROR_404_HELP,
+        "DEBUG": DEBUG,
+        "FLASK_ENV": FLASK_ENV,
+        "SECRET_KEY": SECRET_KEY,
+        "TESTING": TESTING,
+        "TNLCM_CONSOLE_LOG_LEVEL": TNLCM_CONSOLE_LOG_LEVEL,
+        "TRIAL_NETWORK_LOG_LEVEL": TRIAL_NETWORK_LOG_LEVEL,
+    }
+
+    console_logger.info(f"Load Flask configuration: {config_dict}")

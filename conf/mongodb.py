@@ -1,37 +1,44 @@
-from core.logs.log_handler import tnlcm_log_handler
-from core.utils.os_handler import get_dotenv_var
+from core.logs.log_handler import console_logger
+from core.utils.os import get_dotenv_var
+
 
 class MongoDBSettings:
     """
     MongoDB Settings
     """
 
+    MONGO_DATABASE = get_dotenv_var(key="MONGO_DATABASE")
     MONGO_HOST = get_dotenv_var(key="MONGO_HOST")
     MONGO_PORT = get_dotenv_var(key="MONGO_PORT")
-    MONGO_DATABASE = get_dotenv_var(key="MONGO_DATABASE")
-    ME_CONFIG_MONGODB_ADMINUSERNAME = get_dotenv_var(key="ME_CONFIG_MONGODB_ADMINUSERNAME")
-    ME_CONFIG_MONGODB_ADMINPASSWORD = get_dotenv_var(key="ME_CONFIG_MONGODB_ADMINPASSWORD")
-    ME_CONFIG_MONGODB_ENABLE_ADMIN = get_dotenv_var(key="ME_CONFIG_MONGODB_ENABLE_ADMIN")
-    ME_CONFIG_MONGODB_URL = get_dotenv_var(key="ME_CONFIG_MONGODB_URL")
     ME_CONFIG_BASICAUTH = get_dotenv_var(key="ME_CONFIG_BASICAUTH")
+    ME_CONFIG_BASICAUTH_PASSWORD = get_dotenv_var(key="ME_CONFIG_BASICAUTH_PASSWORD")
+    ME_CONFIG_BASICAUTH_USERNAME = get_dotenv_var(key="ME_CONFIG_BASICAUTH_USERNAME")
+    ME_CONFIG_MONGODB_ADMINUSERNAME = get_dotenv_var(
+        key="ME_CONFIG_MONGODB_ADMINUSERNAME"
+    )
+    ME_CONFIG_MONGODB_ADMINPASSWORD = get_dotenv_var(
+        key="ME_CONFIG_MONGODB_ADMINPASSWORD"
+    )
+    ME_CONFIG_MONGODB_ENABLE_ADMIN = get_dotenv_var(
+        key="ME_CONFIG_MONGODB_ENABLE_ADMIN"
+    )
+    ME_CONFIG_MONGODB_URL = get_dotenv_var(key="ME_CONFIG_MONGODB_URL")
     ME_CONFIG_SITE_SESSIONSECRET = get_dotenv_var(key="ME_CONFIG_SITE_SESSIONSECRET")
     VCAP_APP_HOST = get_dotenv_var(key="VCAP_APP_HOST")
-    ME_CONFIG_BASICAUTH_USERNAME = get_dotenv_var(key="ME_CONFIG_BASICAUTH_USERNAME")
-    ME_CONFIG_BASICAUTH_PASSWORD = get_dotenv_var(key="ME_CONFIG_BASICAUTH_PASSWORD")
-    
+
     config_dict = {
+        "MONGO_DATABASE": MONGO_DATABASE,
         "MONGO_HOST": MONGO_HOST,
         "MONGO_PORT": MONGO_PORT,
-        "MONGO_DATABASE": MONGO_DATABASE,
+        "ME_CONFIG_BASICAUTH": ME_CONFIG_BASICAUTH,
+        "ME_CONFIG_BASICAUTH_PASSWORD": ME_CONFIG_BASICAUTH_PASSWORD,
+        "ME_CONFIG_BASICAUTH_USERNAME": ME_CONFIG_BASICAUTH_USERNAME,
         "ME_CONFIG_MONGODB_ADMINUSERNAME": ME_CONFIG_MONGODB_ADMINUSERNAME,
         "ME_CONFIG_MONGODB_ADMINPASSWORD": ME_CONFIG_MONGODB_ADMINPASSWORD,
         "ME_CONFIG_MONGODB_ENABLE_ADMIN": ME_CONFIG_MONGODB_ENABLE_ADMIN,
         "ME_CONFIG_MONGODB_URL": ME_CONFIG_MONGODB_URL,
-        "ME_CONFIG_BASICAUTH": ME_CONFIG_BASICAUTH,
         "ME_CONFIG_SITE_SESSIONSECRET": ME_CONFIG_SITE_SESSIONSECRET,
         "VCAP_APP_HOST": VCAP_APP_HOST,
-        "ME_CONFIG_BASICAUTH_USERNAME": ME_CONFIG_BASICAUTH_USERNAME,
-        "ME_CONFIG_BASICAUTH_PASSWORD": ME_CONFIG_BASICAUTH_PASSWORD
     }
 
-    tnlcm_log_handler.info(f"Load MongoDB configuration: {config_dict}")
+    console_logger.info(f"Load MongoDB configuration: {config_dict}")

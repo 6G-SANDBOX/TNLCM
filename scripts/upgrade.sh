@@ -22,11 +22,16 @@ START_TNLCM_VERSION="v0.4.5"
 
 apt-get update
 
-git -C ${BACKEND_PATH} pull
 git -C ${BACKEND_PATH} fetch --tags
 
-TNLCM_VERSIONS=($(git -C ${BACKEND_PATH} tag | sort -V | awk -v start="${START_TNLCM_VERSION}" '$0 >= start'))
-PS3="Select the version you want to upgrade to: "
+mapfile -t TNLCM_VERSIONS < <(git -C ${BACKEND_PATH} tag | sort -V | awk -v start="${START_TNLCM_VERSION}" '$0 >= start')
+
+if [[ ${#TNLCM_VERSIONS[@]} -eq 0 ]]; then
+    echo "No versions found. Exiting."
+    exit 1
+fi
+
+PS3="Select the version of TNLCM you want to upgrade to: "
 select TARGET_VERSION in "${TNLCM_VERSIONS[@]}"; do
     if [[ -n "${TARGET_VERSION}" ]]; then
         break
@@ -57,7 +62,7 @@ if [[ "${CURRENT_VERSION}" == "0.4.4" && "${TARGET_VERSION}" == "0.4.5" ]]; then
 
     rm -r ${BACKEND_VENV_PATH}
 
-    git -C ${BACKEND_PATH} checkout v${TARGET_VERSION}
+    git -C ${BACKEND_PATH} checkout tags/v"${TARGET_VERSION}"
 
     curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR=${UV_PATH} sh
     ${UV_BIN} --directory ${BACKEND_PATH} sync
@@ -102,7 +107,7 @@ EOF
 
     rm -r ${MONGO_EXPRESS_PATH}-*
     git clone --depth 1 --branch ${MONGO_EXPRESS_VERSION} -c advice.detachedHead=false https://github.com/mongo-express/mongo-express.git ${MONGO_EXPRESS_PATH}
-    cd ${MONGO_EXPRESS_PATH}
+    cd ${MONGO_EXPRESS_PATH} || exit
     yarn install
     yarn build
 
@@ -124,6 +129,44 @@ EOF
     systemctl restart mongo-express.service
 
     rm -r ${POETRY_PATH}
+
+    echo "Upgrade to version ${TARGET_VERSION} completed"
+
+fi
+
+CURRENT_VERSION=$(grep -oP 'version = "\K[^"]+' ${BACKEND_PATH}/pyproject.toml)
+
+if [[ "${CURRENT_VERSION}" == "0.4.5" && "${TARGET_VERSION}" == "0.4.6" ]]; then
+
+    echo "Starting upgrade from ${CURRENT_VERSION} to ${TARGET_VERSION}..."
+
+    git -C ${BACKEND_PATH} checkout tags/"v${TARGET_VERSION}"
+
+    ${UV_BIN} --directory ${BACKEND_PATH} sync
+
+    sed -i '/^TNLCM_LOG_LEVEL=/d' "${BACKEND_DOTENV_FILE}"
+    sed -i '/^TWO_FACTOR_AUTH=/d' "${BACKEND_DOTENV_FILE}"
+    sed -i '/^MAIL_SERVER=/d' "${BACKEND_DOTENV_FILE}"
+    sed -i '/^MAIL_PORT=/d' "${BACKEND_DOTENV_FILE}"
+    sed -i '/^MAIL_USE_TLS=/d' "${BACKEND_DOTENV_FILE}"
+    sed -i '/^MAIL_USE_SSL=/d' "${BACKEND_DOTENV_FILE}"
+    sed -i '/^MAIL_USERNAME=/d' "${BACKEND_DOTENV_FILE}"
+    sed -i '/^MAIL_PASSWORD=/d' "${BACKEND_DOTENV_FILE}"
+    {
+        echo 'TNLCM_CONSOLE_LOG_LEVEL="INFO"'
+        echo 'TRIAL_NETWORK_LOG_LEVEL="INFO"'
+        echo 'SITES_BRANCH="main"'
+    } >> "${BACKEND_DOTENV_FILE}"
+    
+    mongosh --eval "
+        db.getSiblingDB('${MONGO_DATABASE}').verification_token.drop();
+    "
+
+    # mongosh --eval "
+    #     db.getSiblingDB('${MONGO_DATABASE}').resource_manager.drop();
+    # "
+
+    systemctl restart tnlcm-backend.service
 
     echo "Upgrade to version ${TARGET_VERSION} completed"
 

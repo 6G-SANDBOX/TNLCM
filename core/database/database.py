@@ -1,13 +1,10 @@
-from flask import Flask
 from mongoengine import connect
 
-def init_db(app: Flask) -> None:
-    """
-    Initializes MongoDB connection using the configuration from the given Flask application
+from conf.mongodb import MongoDBSettings
 
-    :param app: Flask application instance containing the configuration for the MongoDB connection, ``Flask``
+
+def init_db() -> None:
     """
-    connect(
-        alias="tnlcm-database-alias",
-        host=app.config["ME_CONFIG_MONGODB_URL"]
-    )
+    Initializes MongoDB connection
+    """
+    connect(alias="tnlcm-database-alias", host=MongoDBSettings.ME_CONFIG_MONGODB_URL)

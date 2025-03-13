@@ -1,22 +1,30 @@
 # Changelog
 
-## [Unreleased] - XXXX-XX-XX
+## [v0.4.6] - XXXX-XX-XX
 
 ### Added
 
 - Hoppscotch directory, which contains a JSON file with collections of requests for the TNLCM API.
 - Namespace for handler 6G-Sandbox-Sites repository requests.
+- New variables `SITES_BRANCH` and `JENKINS_TNLCM_DIRECTORY` in `.env` file to set the branch of the 6G-Sandbox-Sites repository.
 
 ### Changed
 
 - Rename script `installer.sh` to `install.sh`.
 - Rename script `updater.sh` to `upgrade.sh`.
+- Upgrade script with new steps.
+- Document `.env.template` file with new variables.
 
 ### Fixed
 
-- Bug when clone 6G-Library.
+- Bug when clone 6G-Library and 6G-Sandbox-Sites.
 
 ### Removed
+
+- Mail configuration created for registration and password recovery.
+- Collection `verification_token` from Mongo database.
+- Model `VerificationToken` from `models` directory.
+- Directory `callback` from `core` directory.
 
 ## [v0.4.5] - 2025-02-06
 
