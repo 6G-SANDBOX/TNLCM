@@ -148,7 +148,8 @@ class RepositoryHandler:
                 status_code=404,
             )
         command = f"git -C {self.github_local_directory} branch --show-current"
-        run_command(command=command)
+        stdout, _, _ = run_command(command=command)
+        return stdout.strip()
 
     def git_detect_changes(self) -> bool:
         """
@@ -202,16 +203,6 @@ class RepositoryHandler:
             )
         command = f"git -C {self.github_local_directory} pull"
         run_command(command=command)
-
-    # def git_reset(self) -> None:
-    #     """
-    #     Git reset
-
-    #     :raise GitError:
-    #     """
-    #     if not self.repo:
-    #         raise GitError(f"Clone repository {self.github_repository_name} first", 404)
-    #     self.repo.head.reset(index=True, working_tree=True)
 
     def git_sync_branches(self) -> None:
         """
