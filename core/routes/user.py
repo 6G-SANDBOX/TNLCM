@@ -100,7 +100,7 @@ class Login(Resource):
             user = UserModel.objects(username=auth.username).first()
             if not user:
                 return {"message": "User not found"}, 404
-            if user.verify_password(auth.password):
+            if user.verify_password(secret=auth.password):
                 access_token = create_access_token(
                     identity=user.username,
                     expires_delta=timedelta(minutes=EXP_MINUTES_ACCESS_TOKEN),
