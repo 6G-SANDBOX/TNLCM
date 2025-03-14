@@ -5,9 +5,9 @@
 > 
 > [**EXAMPLE**](https://github.com/6G-SANDBOX/6G-Library/blob/main/elcm/sample_tnlcm_descriptor.yaml)
 
-## [ueransim_split](./ueransim_split.yaml)
+## [ueransim_split_open5gs_k8s](./ueransim_split_open5gs_k8s.yaml)
 
-![ueransim_split](./images/ueransim_split.png)
+![ueransim_split_open5gs_k8s](./images/ueransim_split_open5gs_k8s.png)
 
 ### Components
 
@@ -24,9 +24,9 @@
 * berlin
 * oulu
 
-## [ueransim_both](./ueransim_both.yaml)
+## [ueransim_both_open5gs_k8s](./ueransim_both_open5gs_k8s.yaml)
 
-![ueransim_both](./images/ueransim_both.png)
+![ueransim_both_open5gs_k8s](./images/ueransim_both_open5gs_k8s.png)
 
 ### Components
 

@@ -1,7 +1,4 @@
-# Result: pass
-# Platform: UMA
 trial_network:
-
   tn_init:
     type: "tn_init"
     dependencies: []
@@ -24,7 +21,8 @@ trial_network:
     input:
       one_oneKE_external_vnet: "tn_vxlan"
       one_oneKE_internal_vnet: "vnet-internal"
-      one_oneKE_metallb: "YES"
+      # one_oneKE_cni_plugin: "canal"  # Default value
+      # one_oneKE_metallb: true        # Default value
       one_oneKE_metallb_range: "10.10.12.200-10.10.12.240"
   open5gs_k8s-core:
     type: "open5gs_k8s"
@@ -50,10 +48,3 @@ trial_network:
     input:
       one_nokia_radio_open5gs: "open5gs_k8s-core"
       any_nokia_radio_duration: 7200
-  stf_ue-movil:
-    type: "stf_ue"
-    name: "movil"
-    dependencies:
-      - "nokia_radio-RAN"
-    input: 
-      any_stf_ue_duration: 10800
