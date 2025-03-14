@@ -61,7 +61,7 @@ class CreateValidateTrialNetwork(Resource):
     parser_post.add_argument(
         "library_reference_type",
         type=str,
-        required=False,
+        required=True,
         location="form",
         choices=LIBRARY_REFERENCES_TYPES,
         help="Type of the Library reference",
@@ -69,7 +69,7 @@ class CreateValidateTrialNetwork(Resource):
     parser_post.add_argument(
         "library_reference_value",
         type=str,
-        required=False,
+        required=True,
         location="form",
         help="Value of the Library reference type",
     )
@@ -106,7 +106,7 @@ class CreateValidateTrialNetwork(Resource):
         Create or validate trial network
 
         - If `validate=True`: **all parameters are required**.
-        - If `validate=False`: only `descriptor` is required, `tn_id` is optional.
+        - If `validate=False`: `descriptor`, `library_reference_type` and `library_reference_value` are required, `tn_id` is optional.
         """
         trial_network = None
         try:
@@ -118,15 +118,10 @@ class CreateValidateTrialNetwork(Resource):
             library_reference_value = self.parser_post.parse_args()[
                 "library_reference_value"
             ]
-            sites_branch = self.parser_post.parse_args()["sites_branch"]
-            deployment_site = self.parser_post.parse_args()["deployment_site"]
             validate = self.parser_post.parse_args()["validate"]
 
             current_user = get_current_user_from_jwt(jwt_identity=get_jwt_identity())
             if validate == "False":
-                tn_id = self.parser_post.parse_args()["tn_id"]
-                descriptor_file = self.parser_post.parse_args()["descriptor"]
-
                 if tn_id:
                     trial_network = TrialNetworkModel.objects(
                         user_created=current_user.username, tn_id=tn_id
@@ -149,6 +144,19 @@ class CreateValidateTrialNetwork(Resource):
                             )
                         )
                         trial_network.set_state(state="created")
+                        library_handler = LibraryHandler(
+                            reference_type=library_reference_type,
+                            reference_value=library_reference_value,
+                            directory_path=trial_network.directory_path,
+                        )
+                        library_handler.repository_handler.git_clone()
+                        library_handler.repository_handler.git_checkout()
+                        trial_network.set_library_https_url(
+                            library_https_url=library_handler.library_https_url
+                        )
+                        trial_network.set_library_commit_id(
+                            library_commit_id=library_handler.repository_handler.git_last_commit_id()
+                        )
                 else:
                     trial_network = TrialNetworkModel()
                     trial_network.set_user_created(user_created=current_user.username)
@@ -160,6 +168,19 @@ class CreateValidateTrialNetwork(Resource):
                         )
                     )
                     trial_network.set_state(state="created")
+                    library_handler = LibraryHandler(
+                        reference_type=library_reference_type,
+                        reference_value=library_reference_value,
+                        directory_path=trial_network.directory_path,
+                    )
+                    library_handler.repository_handler.git_clone()
+                    library_handler.repository_handler.git_checkout()
+                    trial_network.set_library_https_url(
+                        library_https_url=library_handler.library_https_url
+                    )
+                    trial_network.set_library_commit_id(
+                        library_commit_id=library_handler.repository_handler.git_last_commit_id()
+                    )
                 trial_network.set_raw_descriptor(file=descriptor_file)
                 trial_network.save()
                 TrialNetworkLogger(tn_id=tn_id).info(
@@ -167,17 +188,6 @@ class CreateValidateTrialNetwork(Resource):
                 )
                 return trial_network.to_dict_created(), 201
             else:
-                if not all(
-                    [
-                        library_reference_type,
-                        library_reference_value,
-                        sites_branch,
-                        deployment_site,
-                    ]
-                ):
-                    return {
-                        "message": "All parameters are required when validate=True"
-                    }, 400
                 if tn_id:
                     trial_network = TrialNetworkModel.objects(
                         user_created=current_user.username, tn_id=tn_id
@@ -190,6 +200,14 @@ class CreateValidateTrialNetwork(Resource):
                         if trial_network.state != "created":
                             return {
                                 "message": f"Trial network with identifier {trial_network.tn_id} is not in status created"
+                            }, 400
+                        if library_reference_type != "commit":
+                            return {
+                                "message": f"Library reference type {library_reference_type} is not valid. Database save the library commit id used when created the trial network with identifier {tn_id}. Specify library reference type to commit"
+                            }, 400
+                        if trial_network.library_commit_id != library_reference_value:
+                            return {
+                                "message": f"Library reference value {library_reference_value} is not the same as the library commit id {trial_network.library_commit_id} used when the trial network with identifier {trial_network.tn_id} was created"
                             }, 400
                     else:
                         trial_network = TrialNetworkModel()
@@ -204,6 +222,19 @@ class CreateValidateTrialNetwork(Resource):
                                 trial_network.tn_id,
                             )
                         )
+                        library_handler = LibraryHandler(
+                            reference_type=library_reference_type,
+                            reference_value=library_reference_value,
+                            directory_path=trial_network.directory_path,
+                        )
+                        library_handler.repository_handler.git_clone()
+                        library_handler.repository_handler.git_checkout()
+                        trial_network.set_library_https_url(
+                            library_https_url=library_handler.library_https_url
+                        )
+                        trial_network.set_library_commit_id(
+                            library_commit_id=library_handler.repository_handler.git_last_commit_id()
+                        )
                 else:
                     trial_network = TrialNetworkModel()
                     trial_network.set_user_created(user_created=current_user.username)
@@ -215,6 +246,25 @@ class CreateValidateTrialNetwork(Resource):
                             trial_network.tn_id,
                         )
                     )
+                    library_handler = LibraryHandler(
+                        reference_type=library_reference_type,
+                        reference_value=library_reference_value,
+                        directory_path=trial_network.directory_path,
+                    )
+                    library_handler.repository_handler.git_clone()
+                    library_handler.repository_handler.git_checkout()
+                    trial_network.set_library_https_url(
+                        library_https_url=library_handler.library_https_url
+                    )
+                    trial_network.set_library_commit_id(
+                        library_commit_id=library_handler.repository_handler.git_last_commit_id()
+                    )
+                sites_branch = self.parser_post.parse_args()["sites_branch"]
+                deployment_site = self.parser_post.parse_args()["deployment_site"]
+                if not sites_branch or not deployment_site:
+                    return {
+                        "message": "All parameters are required when validate=True"
+                    }, 400
                 trial_network.set_raw_descriptor(file=descriptor_file)
                 sites_handler = SitesHandler(
                     reference_type="branch",
@@ -239,19 +289,6 @@ class CreateValidateTrialNetwork(Resource):
                     sites_commit_id=sites_handler.repository_handler.git_last_commit_id()
                 )
                 trial_network.set_deployment_site(deployment_site=deployment_site)
-                library_handler = LibraryHandler(
-                    reference_type=library_reference_type,
-                    reference_value=library_reference_value,
-                    directory_path=trial_network.directory_path,
-                )
-                library_handler.repository_handler.git_clone()
-                library_handler.repository_handler.git_checkout()
-                trial_network.set_library_https_url(
-                    library_https_url=library_handler.library_https_url
-                )
-                trial_network.set_library_commit_id(
-                    library_commit_id=library_handler.repository_handler.git_last_commit_id()
-                )
                 trial_network.validate_descriptor(
                     library_handler=library_handler, sites_handler=sites_handler
                 )
