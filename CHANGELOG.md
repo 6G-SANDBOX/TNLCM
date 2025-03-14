@@ -1,6 +1,6 @@
 # Changelog
 
-## [v0.4.6] - XXXX-XX-XX
+## [Unreleased] - XXXX-XX-XX
 
 ### Added
 
@@ -12,8 +12,10 @@
 
 - Rename script `installer.sh` to `install.sh`.
 - Rename script `updater.sh` to `upgrade.sh`.
+- Rename endpoints using /api/v1/ prefix.
 - Upgrade script with new steps.
 - Document `.env.template` file with new variables.
+- Move `cli` directory to `utils`.
 
 ### Fixed
 
@@ -22,8 +24,8 @@
 ### Removed
 
 - Mail configuration created for registration and password recovery.
-- Collection `verification_token` from Mongo database.
-- Model `VerificationToken` from `models` directory.
+- Collections `verification_token` and `resource_manager` from Mongo database.
+- Models `VerificationToken` and `ResourceManager` from `models` directory.
 - Directory `callback` from `core` directory.
 
 ## [v0.4.5] - 2025-02-06
