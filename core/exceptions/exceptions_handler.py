@@ -29,7 +29,7 @@ class CliError(CustomException):
 
     def __init__(self, command: str, stderr: str, rc: int) -> None:
         """
-        Construvtor
+        Constructor
 
         :param command: command executed, ``str``
         :param stderr: error message, ``str``
