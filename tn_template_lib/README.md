@@ -1,3 +1,5 @@
+<a name="readme-top"></a>
+
 # TRIAL NETWORKS
 
 > [!IMPORTANT]
@@ -96,3 +98,5 @@
 * uma
 * athens
 * oulu
+
+<p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>

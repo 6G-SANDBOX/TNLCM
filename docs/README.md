@@ -1,5 +1,3 @@
-<a name="readme-top"></a>
-
 <div align="center">
 
 # TRIAL NETWORK LIFECYCLE MANAGER <!-- omit in toc -->
@@ -33,8 +31,6 @@ Trial Network Lifecycle Manager (TNLCM) is a tool developed in Python designed t
 <a href="https://github.com/6G-SANDBOX/TNLCM/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=6G-SANDBOX/TNLCM" />
 </a>
-
-<p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 <!-- Urls, Shields and Badges -->
 [tnlcm-badge]: https://img.shields.io/github/v/release/6G-SANDBOX/TNLCM?label=TNLCM&color=blue
