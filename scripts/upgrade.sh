@@ -164,10 +164,6 @@ if [[ "${CURRENT_VERSION}" == "0.4.5" && "${TARGET_VERSION}" == "0.4.6" ]]; then
         db.getSiblingDB('${MONGO_DATABASE}').verification_token.drop();
     "
 
-    # mongosh --eval "
-    #     db.getSiblingDB('${MONGO_DATABASE}').resource_manager.drop();
-    # "
-
     systemctl restart tnlcm-backend.service
 
     echo "Upgrade to version ${TARGET_VERSION} completed"
