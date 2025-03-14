@@ -24,10 +24,12 @@ apt-get update
 
 git -C ${BACKEND_PATH} fetch --tags
 
+echo "Available versions:"
+
 mapfile -t TNLCM_VERSIONS < <(git -C ${BACKEND_PATH} tag | sort -V | awk -v start="${START_TNLCM_VERSION}" '$0 >= start')
 
 if [[ ${#TNLCM_VERSIONS[@]} -eq 0 ]]; then
-    echo "No versions found. Exiting."
+    echo "No versions available"
     exit 1
 fi
 
