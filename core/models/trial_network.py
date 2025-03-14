@@ -3,7 +3,7 @@ import re
 from datetime import datetime, timezone
 from random import choice
 from string import ascii_lowercase, digits
-from typing import Dict
+from typing import Dict, List
 
 from mongoengine import DateTimeField, DictField, Document, StringField
 from werkzeug.datastructures import FileStorage
@@ -303,21 +303,15 @@ class TrialNetworkModel(Document):
                 return op(left, right)
             elif isinstance(node, ast.Name):
                 field_name = node.id
-
-                # Verificar si el campo es requerido en la librería de componentes
                 if field_name in component_input_library:
                     field_info = component_input_library[field_name]
-                    if field_info.get("required", False):  # Si el campo es requerido
+                    if field_info.get("required", False):
                         raise ValueError(
                             f"Field '{field_name}' is required but missing in context."
                         )
-
-                # Si el campo está en context, devolvemos su valor, si no, asumimos None
                 return context.get(field_name, None)
-
             elif isinstance(node, ast.Constant):
                 return node.value
-
             raise TypeError(f"Unsupported AST node: {type(node)}")
 
         tree = ast.parse(expression, mode="eval")
@@ -327,14 +321,14 @@ class TrialNetworkModel(Document):
         self,
         component_input_library,
         input_required_when: bool | str,
-        component_input: dict,
+        component_input: Dict,
     ) -> bool:
         """
         Function to check if the input is required
 
-        :param component_input_library: input part in Library, ``dict``
+        :param component_input_library: input part in Library, ``Dict``
         :param input_required_when: boolean to check if the input is required, ``bool``
-        :param component_input: input provided in the descriptor, ``dict``
+        :param component_input: input provided in the descriptor, ``Dict``
         :return: boolean to check if the input is required, ``bool``
         """
         if isinstance(input_required_when, bool):
@@ -354,25 +348,28 @@ class TrialNetworkModel(Document):
         if input_value == "tn_vxlan":
             if "tn_init" not in self.raw_descriptor["trial_network"]:
                 raise TrialNetworkError(
-                    "Entity tn_vxlan is not allowed without entity tn_init", 422
+                    message="Trial network descriptor entity tn_vxlan is not allowed without entity tn_init",
+                    status_code=422,
                 )
         else:
             if input_value not in self.raw_descriptor["trial_network"]:
                 raise TrialNetworkError(
-                    f"Entity {input_value} not found in the descriptor", 422
+                    message=f"Trial network descriptor entity {input_value} not found",
+                    status_code=422,
                 )
             type_component = self.raw_descriptor["trial_network"][input_value]["type"]
             if type_component not in input_type:
                 raise TrialNetworkError(
-                    f"Entity {input_value} is not of type {input_type}", 422
+                    message=f"Trial network descriptor entity {input_value} has to be of type {type_component}",
+                    status_code=422,
                 )
 
-    def _isinstance_list(self, input_type: str, input_value: list) -> None:
+    def _isinstance_list(self, input_type: str, input_value: List) -> None:
         """
         Function to check if the input is a list
 
         :param input_type: type of the input, ``str``
-        :param input_value: value of the input, ``list``
+        :param input_value: value of the input, ``List``
         """
         input_type = input_type[5:-1]
         for value in input_value:
@@ -400,32 +397,40 @@ class TrialNetworkModel(Document):
         return input_type in library_handler.get_components()
 
     def _check_input(
-        self, library_handler, component_input: dict, component_input_library: dict
+        self,
+        entity_name: str,
+        library_handler,
+        component_input: Dict,
+        component_input_library: Dict,
     ) -> None:
         """
         Function to check if the input provided in the descriptor is correct
 
+        :param entity_name: name of the entity, ``str``
         :param library_handler: Library handler, ``LibraryHandler``
-        :param component_input: input provided in the descriptor, ``dict``
-        :param component_input_library: input part in Library, ``dict``
+        :param component_input: input provided in the descriptor, ``Dict``
+        :param component_input_library: input part in Library, ``Dict``
         :raise TrialNetworkError:
         """
         if (
             component_input_library is None or len(component_input_library) == 0
         ) and len(component_input) > 0:
-            raise TrialNetworkError("Input is not allowed", 422)
+            raise TrialNetworkError(
+                message=f"Trial network descriptor entity name {entity_name} not require input",
+                status_code=422,
+            )
         if component_input_library is not None:
             for key, value in component_input_library.items():
                 if "type" not in value:
                     raise TrialNetworkError(
-                        f"Input {key} does not contain type in 6G-Library definition",
-                        422,
+                        message=f"Input {key} does not contain the key type in 6G-Library definition",
+                        status_code=422,
                     )
                 input_type = value["type"]
                 if "required_when" not in value:
                     raise TrialNetworkError(
-                        f"Input {key} does not contain required_when in 6G-Library definition",
-                        422,
+                        message=f"Input {key} does not contain the key required_when in 6G-Library definition",
+                        status_code=422,
                     )
                 input_required_when = value["required_when"]
                 if (
@@ -434,7 +439,10 @@ class TrialNetworkModel(Document):
                     )
                     and key not in component_input
                 ):
-                    raise TrialNetworkError(f"Input {key} is required", 422)
+                    raise TrialNetworkError(
+                        message=f"Trial network descriptor entity name {entity_name} requires input {key}",
+                        status_code=422,
+                    )
                 if key in component_input:
                     if input_type.startswith("list[") and input_type.endswith("]"):
                         self._isinstance_list(input_type, component_input[key])
@@ -445,18 +453,20 @@ class TrialNetworkModel(Document):
                     elif input_type in TYPE_MAPPING and not isinstance(
                         component_input[key], TYPE_MAPPING[input_type]
                     ):
-                        raise TrialNetworkError(f"Input {key} is not of type", 422)
+                        raise TrialNetworkError(
+                            message=f"Trial network descriptor entity name {entity_name} input {key} has to be of type {input_type}",
+                            status_code=422,
+                        )
                     if (
                         "choices" in value
                         and component_input[key] not in value["choices"]
                     ):
                         choices = value["choices"]
                         raise TrialNetworkError(
-                            f"Input {key} has to be one of the following choices {choices}",
-                            422,
+                            message=f"Trial network descriptor entity name {entity_name} input {key} has to be one of the following choices: {choices}",
+                            status_code=422,
                         )
 
-    # TODO: verbose errors
     def validate_descriptor(self, library_handler, sites_handler) -> None:
         """
         Function to validate the descriptor
@@ -466,75 +476,104 @@ class TrialNetworkModel(Document):
         :raise TrialNetworkError:
         """
         if len(self.raw_descriptor) == 0:
-            raise TrialNetworkError("Descriptor is empty", 422)
+            raise TrialNetworkError(
+                message="Trial network descriptor is empty", status_code=422
+            )
         if "trial_network" not in self.raw_descriptor:
-            raise TrialNetworkError("Descriptor does not contain trial_network", 422)
+            raise TrialNetworkError(
+                message="Trial network descriptor does not contain the trial_network key at the beginning",
+                status_code=422,
+            )
         if self.raw_descriptor["trial_network"] is None:
-            raise TrialNetworkError("Descriptor does not contain any entity", 422)
+            raise TrialNetworkError(
+                message="Trial network descriptor does not contain any entity",
+                status_code=422,
+            )
         if "tn_init" not in self.raw_descriptor["trial_network"] and (
             "tn_vxlan" not in self.raw_descriptor["trial_network"]
             and "tn_bastion" not in self.raw_descriptor["trial_network"]
         ):
             raise TrialNetworkError(
-                "Descriptor does not contain the required entities tn_init or tn_vxlan and tn_bastion",
-                422,
+                message="Trial network descriptor does not contain the mandatory entities tn_init or tn_vxlan and tn_bastion",
+                status_code=422,
             )
         for entity_name, entity_data in self.raw_descriptor["trial_network"].items():
             if not isinstance(entity_name, str):
-                raise TrialNetworkError("Entity name has to be a string", 422)
-            if entity_name == "":
-                raise TrialNetworkError(message="Entity name is empty", status_code=422)
-            if not isinstance(entity_data, dict):
                 raise TrialNetworkError(
-                    f"Data of entity {entity_name} has to be a dictionary", 422
+                    message=f"Trial network descriptor entity name {entity_name} has to be a string",
+                    status_code=422,
+                )
+            if entity_name == "":
+                raise TrialNetworkError(
+                    message=f"Trial network descriptor entity name {entity_name} is empty",
+                    status_code=422,
+                )
+            if not isinstance(entity_data, Dict):
+                raise TrialNetworkError(
+                    message=f"Trial network descriptor definition of entity {entity_name} has to be a dictionary",
+                    status_code=422,
                 )
             if entity_data == {}:
-                raise TrialNetworkError(f"Entity {entity_name} has empty data", 422)
+                raise TrialNetworkError(
+                    message=f"Trial network descriptor entity {entity_name} has empty definition and must have defined type, dependencies and input",
+                    status_code=422,
+                )
             for key in REQUIRED_FIELDS_DESCRIPTOR:
                 if key not in entity_data:
                     raise TrialNetworkError(
-                        f"Entity {entity_name} does not contain the field {key}", 422
+                        message=f"Trial network descriptor entity {entity_name} does not contain the key {key} in the definition",
+                        status_code=422,
                     )
             component_type = entity_data["type"]
             component_dependencies = entity_data["dependencies"]
             component_input = entity_data["input"]
             if not isinstance(component_type, str):
                 raise TrialNetworkError(
-                    f"Entity {entity_name} does not contain a type", 422
+                    message=f"Trial network descriptor entity {entity_name} the key type has to be a string",
+                    status_code=422,
                 )
             if component_type == "":
                 raise TrialNetworkError(
-                    f"Entity {entity_name} does not contain a valid type", 422
+                    message=f"Trial network descriptor entity {entity_name} the key type is empty",
+                    status_code=422,
                 )
-            if not isinstance(component_dependencies, list):
+            if not isinstance(component_dependencies, List):
                 raise TrialNetworkError(
-                    f"Entity {entity_name} does not contain dependencies", 422
+                    message=f"Trial network descriptor entity {entity_name} the key dependencies has to be a list",
+                    status_code=422,
                 )
-            if not isinstance(component_input, dict):
+            if not isinstance(component_input, Dict):
                 raise TrialNetworkError(
-                    f"Entity {entity_name} does not contain input", 422
+                    message=f"Trial network descriptor entity {entity_name} the key input has to be a dictionary",
+                    status_code=422,
                 )
             if component_type in COMPONENTS_EXCLUDE_CUSTOM_NAME:
                 if "name" in entity_data:
                     raise TrialNetworkError(
-                        f"Entity {entity_name} does not require a name", 422
+                        message=f"Trial network descriptor entity {entity_name} does not require the key name. Only tn_vxlan, tn_bastion, tn_init and tsn are excluded",
+                        status_code=422,
                     )
             else:
                 if "name" not in entity_data:
                     raise TrialNetworkError(
-                        f"Entity {entity_name} does not contain a name", 422
+                        message=f"Trial network entity {entity_name} does not contain the key name",
+                        status_code=422,
                     )
                 name = entity_data["name"]
                 if not isinstance(name, str):
                     raise TrialNetworkError(
-                        f"Entity {entity_name} does not contain a valid name", 422
+                        message=f"Entity {entity_name} name has to be a string",
+                        status_code=422,
                     )
                 if name == "":
-                    raise TrialNetworkError(f"Entity {entity_name} is empty", 422)
+                    raise TrialNetworkError(
+                        message=f"Trial network descriptor entity {entity_name} the key name is empty",
+                        status_code=422,
+                    )
                 if entity_name != f"{component_type}-{name}":
                     raise TrialNetworkError(
-                        f"Entity {entity_name} does not match with the name provided {component_type}-{name}",
-                        422,
+                        message=f"Trial network descriptor entity {entity_name} does not match with the union of component type and name which is {component_type}-{name}",
+                        status_code=422,
                     )
             library_handler.validate_component_available_library(
                 component_name=component_type
@@ -546,6 +585,7 @@ class TrialNetworkModel(Document):
                 component_name=component_type
             )
             self._check_input(
+                entity_name=entity_name,
                 library_handler=library_handler,
                 component_input=component_input,
                 component_input_library=component_input_library,
