@@ -6,6 +6,7 @@
 
 - Hoppscotch directory, which contains a JSON file with collections of requests for the TNLCM API.
 - Namespace for handler 6G-Sandbox-Sites repository requests.
+- New endpoints to integrate TNLCM backend with frontend.
 - New variables `SITES_BRANCH` and `JENKINS_TNLCM_DIRECTORY` in `.env` file to set the branch of the 6G-Sandbox-Sites repository.
 
 ### Changed
@@ -15,17 +16,18 @@
 - Rename endpoints using /api/v1/ prefix.
 - Upgrade script with new steps.
 - Document `.env.template` file with new variables.
-- Move `cli` directory to `utils`.
+- Move `cli` to `utils`.
 
 ### Fixed
 
 - Bug when clone 6G-Library and 6G-Sandbox-Sites.
+- Callback route integrate json body to handle the data received by Jenkins.
 
 ### Removed
 
 - Mail configuration created for registration and password recovery.
-- Collections `verification_token` and `resource_manager` from Mongo database.
-- Models `VerificationToken` and `ResourceManager` from `models` directory.
+- Collection `verification_token` from Mongo database.
+- Model `VerificationToken` from `models` directory.
 - Directory `callback` from `core` directory.
 
 ## [v0.4.5] - 2025-02-06

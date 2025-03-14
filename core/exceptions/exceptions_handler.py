@@ -87,6 +87,12 @@ class LibraryError(CustomException):
     pass
 
 
+class ResourceManagerError(CustomException):
+    """Base class for Resource Manager related errors"""
+
+    pass
+
+
 class SitesError(CustomException):
     """Base class for Sites related errors"""
 

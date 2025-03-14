@@ -23,8 +23,6 @@ debug_namespace = Namespace(
     },
 )
 
-# TODO: add option to deploy tn using diferent https url
-
 
 @debug_namespace.param(name="tn_id", type="str", description="Trial network identifier")
 @debug_namespace.param(

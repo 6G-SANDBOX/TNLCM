@@ -14,6 +14,7 @@ from core.exceptions.exceptions_handler import CustomException
 from core.jenkins.jenkins_handler import JenkinsHandler
 from core.library.library_handler import LIBRARY_REFERENCES_TYPES, LibraryHandler
 from core.logs.log_handler import TrialNetworkLogger
+from core.models.resource_manager import ResourceManagerModel
 from core.models.trial_network import TrialNetworkModel
 from core.sites.sites_handler import SitesHandler
 from core.utils.file import load_file
@@ -39,6 +40,7 @@ trial_network_namespace = Namespace(
 )
 
 tn_id_lock = Lock()
+tn_resource_manager_lock = Lock()
 
 
 @trial_network_namespace.route("")
@@ -417,6 +419,20 @@ class ActivateTrialNetwork(Resource):
                         + "_"
                         + trial_network.tn_id,
                     )
+                sites_handler = SitesHandler(
+                    https_url=trial_network.sites_https_url,
+                    reference_type="commit",
+                    reference_value=trial_network.sites_commit_id,
+                    directory_path=trial_network.directory_path,
+                )
+                site_available_components = sites_handler.get_site_available_components(
+                    deployment_site=trial_network.deployment_site
+                )
+                resource_manager = ResourceManagerModel()
+                with tn_resource_manager_lock:
+                    resource_manager.apply_resource_manager(
+                        trial_network, site_available_components
+                    )
                 trial_network.set_jenkins_deploy_pipeline(
                     jenkins_deploy_pipeline=jenkins_deploy_pipeline
                 )
@@ -453,6 +469,20 @@ class ActivateTrialNetwork(Resource):
                     "message": f"Trial network with identifier {tn_id} activated. The trial network deployment generates a report file showing the information of the components that have been deployed. The report can be found in the directory {report_path}"
                 }, 200
             elif state == "destroyed":
+                sites_handler = SitesHandler(
+                    https_url=trial_network.sites_https_url,
+                    reference_type="commit",
+                    reference_value=trial_network.sites_commit_id,
+                    directory_path=trial_network.directory_path,
+                )
+                site_available_components = sites_handler.get_site_available_components(
+                    deployment_site=trial_network.deployment_site
+                )
+                resource_manager = ResourceManagerModel()
+                with tn_resource_manager_lock:
+                    resource_manager.apply_resource_manager(
+                        trial_network, site_available_components
+                    )
                 jenkins_handler = JenkinsHandler(trial_network=trial_network)
                 trial_network.set_state(state="activating")
                 trial_network.save()
@@ -570,6 +600,9 @@ class DestroyTrialNetwork(Resource):
             )
             jenkins_handler.destroy_trial_network()
             trial_network.set_deployed_descriptor()
+            resource_manager = ResourceManagerModel()
+            with tn_resource_manager_lock:
+                resource_manager.release_resource_manager(trial_network)
             trial_network.set_state("destroyed")
             trial_network.save()
             return {
@@ -588,6 +621,121 @@ class DestroyTrialNetwork(Resource):
             TrialNetworkLogger(tn_id=tn_id).info(
                 message="Trial network pending-destruction. In this state, the trial network is waiting to be destroyed"
             )
+            return abort(code=500, message=str(e))
+
+
+@trial_network_namespace.param(
+    name="tn_id", type="str", description="Trial network identifier"
+)
+@trial_network_namespace.route("s/<string:tn_id>/library")
+class LibraryComponentsTrialNetwork(Resource):
+    @trial_network_namespace.doc(security="Bearer Auth")
+    @trial_network_namespace.errorhandler(PyJWTError)
+    @trial_network_namespace.errorhandler(JWTExtendedException)
+    @jwt_required()
+    def get(self, tn_id: str):
+        """
+        Retrieve the components associated to trial network
+        """
+        try:
+            current_user = get_current_user_from_jwt(jwt_identity=get_jwt_identity())
+            trial_network = TrialNetworkModel.objects(
+                user_created=current_user.username, tn_id=tn_id
+            ).first()
+            if current_user.role == "admin":
+                trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
+            if not trial_network:
+                return {
+                    "message": f"No trial network with identifier {tn_id} created by the user {current_user.username}"
+                }, 404
+            library_handler = LibraryHandler(
+                https_url=trial_network.library_https_url,
+                reference_type="commit",
+                reference_value=trial_network.library_commit_id,
+                directory_path=trial_network.directory_path,
+            )
+            return {"components": library_handler.get_components()}, 200
+        except CustomException as e:
+            return {"message": str(e)}, e.status_code
+        except Exception as e:
+            return abort(code=500, message=str(e))
+
+
+@trial_network_namespace.param(
+    name="tn_id", type="str", description="Trial network identifier"
+)
+@trial_network_namespace.route("s/<string:tn_id>/library/commit")
+class LibraryCommitTrialNetwork(Resource):
+    @trial_network_namespace.doc(security="Bearer Auth")
+    @trial_network_namespace.errorhandler(PyJWTError)
+    @trial_network_namespace.errorhandler(JWTExtendedException)
+    @jwt_required()
+    def get(self, tn_id: str):
+        """
+        Retrieve the current commit associated with a trial network
+        """
+        try:
+            current_user = get_current_user_from_jwt(jwt_identity=get_jwt_identity())
+            trial_network = TrialNetworkModel.objects(
+                user_created=current_user.username, tn_id=tn_id
+            ).first()
+            if current_user.role == "admin":
+                trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
+            if not trial_network:
+                return {
+                    "message": f"No trial network with identifier {tn_id} created by the user {current_user.username}"
+                }, 404
+            return {
+                "library_reference_type": "commit",
+                "library_reference_value": trial_network.library_commit_id,
+            }, 200
+        except CustomException as e:
+            return {"message": str(e)}, e.status_code
+        except Exception as e:
+            return abort(code=500, message=str(e))
+
+
+@trial_network_namespace.param(
+    name="tn_id", type="str", description="Trial network identifier"
+)
+@trial_network_namespace.param(
+    name="component_name", type="str", description="Library component name"
+)
+@trial_network_namespace.route("s/<string:tn_id>/library/<string:component_name>")
+class LibraryComponentTrialNetwork(Resource):
+    @trial_network_namespace.doc(security="Bearer Auth")
+    @trial_network_namespace.errorhandler(PyJWTError)
+    @trial_network_namespace.errorhandler(JWTExtendedException)
+    @jwt_required()
+    def get(self, tn_id: str, component_name: str):
+        """
+        Retrieve the component information associated to trial network
+        """
+        try:
+            current_user = get_current_user_from_jwt(jwt_identity=get_jwt_identity())
+            trial_network = TrialNetworkModel.objects(
+                user_created=current_user.username, tn_id=tn_id
+            ).first()
+            if current_user.role == "admin":
+                trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
+            if not trial_network:
+                return {
+                    "message": f"No trial network with identifier {tn_id} created by the user {current_user.username}"
+                }, 404
+            library_handler = LibraryHandler(
+                https_url=trial_network.library_https_url,
+                reference_type="commit",
+                reference_value=trial_network.library_commit_id,
+                directory_path=trial_network.directory_path,
+            )
+            return {
+                "component": library_handler.get_component_input(
+                    component_name=component_name
+                )
+            }, 200
+        except CustomException as e:
+            return {"message": str(e)}, e.status_code
+        except Exception as e:
             return abort(code=500, message=str(e))
 
 
