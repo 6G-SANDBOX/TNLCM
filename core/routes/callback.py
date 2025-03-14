@@ -39,13 +39,13 @@ class Callback(Resource):
         location="json",
         help="Custom name of the component. It should be a string",
     )
-    # parser_post.add_argument(
-    #     "endpoints",
-    #     type="str",
-    #     required=False,
-    #     location="json",
-    #     help="Endpoints of the component. It should be a dictionary",
-    # )
+    parser_post.add_argument(
+        "endpoints",
+        type="str",
+        required=False,
+        location="json",
+        help="Endpoints of the component. It should be a dictionary",
+    )
     parser_post.add_argument(
         "markdown",
         type=str,
@@ -77,13 +77,19 @@ class Callback(Resource):
         """
         trial_network = None
         try:
-            tn_id = decode_base64(self.parser_post.parse_args()["tn_id"])
+            tn_id = decode_base64(encoded_data=self.parser_post.parse_args()["tn_id"])
             component_type = decode_base64(
-                self.parser_post.parse_args()["component_type"]
+                encoded_data=self.parser_post.parse_args()["component_type"]
             )
-            custom_name = decode_base64(self.parser_post.parse_args()["custom_name"])
-            # endpoints = decode_base64(self.parser_post.parse_args()["endpoints"])
-            markdown = decode_base64(self.parser_post.parse_args()["markdown"])
+            custom_name = decode_base64(
+                encoded_data=self.parser_post.parse_args()["custom_name"]
+            )
+            endpoints = self.parser_post.parse_args()["endpoints"]
+            if endpoints:
+                endpoints = decode_base64(encoded_data=endpoints)
+            markdown = decode_base64(
+                encoded_data=self.parser_post.parse_args()["markdown"]
+            )
             # output = self.parser_post.parse_args()["output"]
             success = self.parser_post.parse_args()["success"]
             entity_name = (
@@ -95,7 +101,7 @@ class Callback(Resource):
                 "tn_id": tn_id,
                 "component_type": component_type,
                 "custom_name": custom_name,
-                # "endpoints": endpoints,
+                "endpoints": endpoints,
                 "markdown": markdown,
                 # "output": output,
                 "success": success,
