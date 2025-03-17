@@ -136,6 +136,14 @@ class CreateValidateTrialNetwork(Resource):
                             return {
                                 "message": f"Trial network with identifier {trial_network.tn_id} was not created by the user {current_user.username}"
                             }, 400
+                        library_handler = LibraryHandler(
+                            reference_type="branch",
+                            reference_value="main",
+                            directory_path=trial_network.directory_path,
+                        )
+                        library_handler.repository_handler.git_clone()
+                        library_handler.repository_handler.git_checkout()
+                        library_handler.repository_handler.git_pull()
                     else:
                         trial_network = TrialNetworkModel()
                         trial_network.set_user_created(
@@ -188,6 +196,14 @@ class CreateValidateTrialNetwork(Resource):
                             return {
                                 "message": f"Trial network with identifier {trial_network.tn_id} was not created by the user {current_user.username}"
                             }, 400
+                        library_handler = LibraryHandler(
+                            reference_type="branch",
+                            reference_value="main",
+                            directory_path=trial_network.directory_path,
+                        )
+                        library_handler.repository_handler.git_clone()
+                        library_handler.repository_handler.git_checkout()
+                        library_handler.repository_handler.git_pull()
                     else:
                         trial_network = TrialNetworkModel()
                         trial_network.set_user_created(
