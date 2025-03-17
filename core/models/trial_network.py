@@ -402,6 +402,7 @@ class TrialNetworkModel(Document):
     def _check_input(
         self,
         entity_name: str,
+        component_type: str,
         library_handler,
         component_input: Dict,
         component_input_library: Dict,
@@ -410,6 +411,7 @@ class TrialNetworkModel(Document):
         Function to check if the input provided in the descriptor is correct
 
         :param entity_name: name of the entity, ``str``
+        :param component_type: type of the component, ``str``
         :param library_handler: Library handler, ``LibraryHandler``
         :param component_input: input provided in the descriptor, ``Dict``
         :param component_input_library: input part in Library, ``Dict``
@@ -426,13 +428,13 @@ class TrialNetworkModel(Document):
             for key, value in component_input_library.items():
                 if "type" not in value:
                     raise TrialNetworkError(
-                        message=f"Input {key} does not contain the key type in 6G-Library definition",
+                        message=f"Input {key} of component {component_type} does not contain the key type in 6G-Library definition. Contact component owner or create a issue in the 6G-Library repository",
                         status_code=422,
                     )
                 input_type = value["type"]
                 if "required_when" not in value:
                     raise TrialNetworkError(
-                        message=f"Input {key} does not contain the key required_when in 6G-Library definition",
+                        message=f"Input {key} of component {component_type} does not contain the key required_when in 6G-Library definition. Contact component owner or create a issue in the 6G-Library repository",
                         status_code=422,
                     )
                 input_required_when = value["required_when"]
@@ -589,6 +591,7 @@ class TrialNetworkModel(Document):
             )
             self._check_input(
                 entity_name=entity_name,
+                component_type=component_type,
                 library_handler=library_handler,
                 component_input=component_input,
                 component_input_library=component_input_library,
