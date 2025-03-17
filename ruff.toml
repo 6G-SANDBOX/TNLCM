@@ -1,3 +1,4 @@
+# Ruff configuration file.
 exclude = [
     ".bzr",
     ".direnv",
@@ -30,7 +31,14 @@ exclude = [
 # Same as Black.
 line-length = 88
 indent-width = 4
-extend-select = ["I"]
+
+[lint]
+# Enable errors, failures, and organaize imports.
+select = ["E", "F", "I"]
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+# Ignore long line errors.
+ignore = ["E501"]
 
 [format]
 # Like Black, use double quotes for strings.
