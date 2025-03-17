@@ -1,7 +1,9 @@
+from flask import request
 from flask_jwt_extended.exceptions import JWTExtendedException
 from flask_restx import Namespace, Resource, abort, reqparse
 from jwt.exceptions import PyJWTError
 
+from conf.jenkins import JenkinsSettings
 from core.exceptions.exceptions_handler import CustomException
 from core.logs.log_handler import TrialNetworkLogger
 from core.models.trial_network import TrialNetworkModel
@@ -77,6 +79,11 @@ class Callback(Resource):
         """
         trial_network = None
         try:
+            host = request.headers["host"]
+            if host != JenkinsSettings.JENKINS_HOST:
+                return {
+                    "message": "Invalid host. Request not allowed. Only Jenkins host is allowed"
+                }, 403
             tn_id = decode_base64(encoded_data=self.parser_post.parse_args()["tn_id"])
             component_type = decode_base64(
                 encoded_data=self.parser_post.parse_args()["component_type"]
@@ -128,22 +135,13 @@ class Callback(Resource):
                 file_path=join_path(directory_path, f"{tn_id}.md"),
                 mode="a",
             )
-            # trial_network_logger = TrialNetworkLogger.get_logger(
-            #     tn_id=trial_network.tn_id
-            # )
-            # trial_network_logger.info(
-            #     msg=f"Results of the entity {entity_name} received by Jenkins saved successfully"
-            # )
+            TrialNetworkLogger(tn_id=trial_network.tn_id).info(
+                message=f"Results of the entity {entity_name} received by Jenkins saved successfully"
+            )
             return {
                 "message": f"Results of the entity {entity_name} received by Jenkins saved successfully"
             }, 200
         except CustomException as e:
-            if trial_network:
-                trial_network.set_state("failed")
-                trial_network.save()
             return {"message": str(e)}, e.status_code
         except Exception as e:
-            if trial_network:
-                trial_network.set_state("failed")
-                trial_network.save()
             return abort(code=500, message=str(e))
