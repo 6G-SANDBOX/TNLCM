@@ -8,12 +8,13 @@
 - Namespace for handler 6G-Sandbox-Sites repository requests.
 - New endpoints to integrate TNLCM backend with frontend.
 - New variables `SITES_BRANCH` and `JENKINS_TNLCM_DIRECTORY` in `.env` file to set the branch of the 6G-Sandbox-Sites repository.
+- In the callback route accept requests only from Jenkins.
 
 ### Changed
 
 - Rename script `installer.sh` to `install.sh`.
 - Rename script `updater.sh` to `upgrade.sh`.
-- Rename endpoints using /api/v1/ prefix.
+- Rename endpoints using `/api/v1/` prefix.
 - Upgrade script with new steps.
 - Document `.env.template` file with new variables.
 - Move `cli` to `utils`.
