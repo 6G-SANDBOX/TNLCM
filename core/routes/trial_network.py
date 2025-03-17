@@ -306,7 +306,6 @@ class TrialNetworks(Resource):
             )
             if current_user.role == "admin":
                 trial_networks = TrialNetworkModel.objects()
-            # FIX: maybe change to return name, date_created, status...
             return {
                 "trial_networks": [
                     trial_network.to_dict_full() for trial_network in trial_networks
@@ -435,6 +434,9 @@ class ActivateTrialNetwork(Resource):
                 trial_network.set_report(file_path=report_path)
                 trial_network.set_state(state="activated")
                 trial_network.save()
+                TrialNetworkLogger(tn_id=tn_id).info(
+                    message="Trial network activated. In this state, the trial network has been deployed and is ready to be used"
+                )
                 return {
                     "message": f"Trial network with identifier {tn_id} activated. The trial network deployment generates a report file showing the information of the components that have been deployed. The report can be found in the directory {report_path}"
                 }, 200
@@ -452,6 +454,9 @@ class ActivateTrialNetwork(Resource):
                 trial_network.set_report(file_path=report_path)
                 trial_network.set_state(state="activated")
                 trial_network.save()
+                TrialNetworkLogger(tn_id=tn_id).info(
+                    message="Trial network activated. In this state, the trial network has been deployed and is ready to be used"
+                )
                 return {
                     "message": f"Trial network with identifier {tn_id} activated. The trial network deployment generates a report file showing the information of the components that have been deployed. The report can be found in the directory {report_path}"
                 }, 200
@@ -483,6 +488,9 @@ class ActivateTrialNetwork(Resource):
                 trial_network.set_report(file_path=report_path)
                 trial_network.set_state(state="activated")
                 trial_network.save()
+                TrialNetworkLogger(tn_id=tn_id).info(
+                    message="Trial network activated. In this state, the trial network has been deployed and is ready to be used"
+                )
                 return {
                     "message": f"Trial network with identifier {tn_id} re-activated. The trial network deployment generates a report file showing the information of the components that have been deployed. The report can be found in the directory {report_path}"
                 }, 200
@@ -584,6 +592,9 @@ class DestroyTrialNetwork(Resource):
                 resource_manager.release_resource_manager(trial_network)
             trial_network.set_state("destroyed")
             trial_network.save()
+            TrialNetworkLogger(tn_id=tn_id).info(
+                message="Trial network destroyed. In this state, the trial network has been destroyed and ready for deploy again"
+            )
             return {
                 "message": f"Trial network with identifier {tn_id} destroyed. In this state, the trial network has been destroyed and ready for deploy again"
             }, 200
@@ -804,8 +815,12 @@ class PurgeTrialNetwork(Resource):
                 }, 400
             if state == "destroyed":
                 jenkins_handler = JenkinsHandler(trial_network=trial_network)
-                jenkins_handler.remove_pipeline(trial_network.jenkins_deploy_pipeline)
-                jenkins_handler.remove_pipeline(trial_network.jenkins_destroy_pipeline)
+                jenkins_handler.remove_pipeline(
+                    pipeline_name=trial_network.jenkins_deploy_pipeline
+                )
+                jenkins_handler.remove_pipeline(
+                    pipeline_name=trial_network.jenkins_destroy_pipeline
+                )
             remove_directory(path=trial_network.directory_path)
             trial_network.delete()
             return {

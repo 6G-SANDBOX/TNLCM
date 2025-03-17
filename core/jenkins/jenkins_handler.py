@@ -97,9 +97,15 @@ class JenkinsHandler:
         }
         if custom_name:
             parameters["CUSTOM_NAME"] = custom_name
+            TrialNetworkLogger(tn_id=self.trial_network.tn_id).info(
+                message=f"Declare parameters for the deployment of the entity name {custom_name}"
+            )
+        else:
+            TrialNetworkLogger(tn_id=self.trial_network.tn_id).info(
+                message=f"Declare parameters for the deployment of the component type {component_type}"
+            )
         return parameters
 
-    # TODO: logs
     def deploy_trial_network(self) -> None:
         """
         Trial network deploy
@@ -117,6 +123,15 @@ class JenkinsHandler:
                 message=f"The indicated pipeline {self.trial_network.jenkins_deploy_pipeline} is in use and is not available to deploy trial networks",
                 status_code=500,
             )
+        job_info = self.jenkins_client.get_job_info(
+            name=self.trial_network.jenkins_deploy_pipeline
+        )["url"]
+        job_info = job_info.replace(
+            "http://localhost:8080", JenkinsSettings.JENKINS_URL
+        )
+        TrialNetworkLogger(tn_id=self.trial_network.tn_id).info(
+            message=f"To see the logs of the deployment of the trial network in Jenkins, access the following link: {job_info}"
+        )
         for entity_name, entity_data in deployed_descriptor_copy.items():
             component_type = entity_data["type"]
             custom_name = None
@@ -144,9 +159,9 @@ class JenkinsHandler:
             stdout, stderr, rc = run_command(
                 command=f'curl -w "%{{http_code}}" -X POST "{build_job_url}" -u "{JenkinsSettings.JENKINS_USERNAME}:{JenkinsSettings.JENKINS_TOKEN}" --data-binary "@{entity_input_file_path}"'
             )
-            # TrialNetworkLogger.get_logger(tn_id=self.trial_network.tn_id).info(
-            #     message=f"Start deployment of entity {entity_name}. Access to the pipeline logs using the following link: {build_job_url}"
-            # )
+            TrialNetworkLogger(tn_id=self.trial_network.tn_id).info(
+                message=f"Start deployment of entity {entity_name}"
+            )
             _, status_code = stdout[:-3].strip(), stdout[-3:]
             if status_code != "201":
                 raise JenkinsError(
@@ -159,9 +174,9 @@ class JenkinsHandler:
             while not self.jenkins_client.get_job_info(
                 name=self.trial_network.jenkins_deploy_pipeline
             )["lastCompletedBuild"]:
-                # TrialNetworkLogger.get_logger(tn_id=self.trial_network.tn_id).info(
-                #     message=f"Deploying {entity_name} entity in {self.trial_network.deployment_site} site"
-                # )
+                TrialNetworkLogger(tn_id=self.trial_network.tn_id).info(
+                    message=f"Deploying {entity_name} entity in {self.trial_network.deployment_site} site"
+                )
                 sleep(15)
             while (
                 next_build_number
@@ -169,9 +184,9 @@ class JenkinsHandler:
                     name=self.trial_network.jenkins_deploy_pipeline
                 )["lastCompletedBuild"]["number"]
             ):
-                # TrialNetworkLogger.get_logger(tn_id=self.trial_network.tn_id).info(
-                #     message=f"Deploying {entity_name} entity in {self.trial_network.deployment_site} site"
-                # )
+                TrialNetworkLogger(tn_id=self.trial_network.tn_id).info(
+                    message=f"Deploying {entity_name} entity in {self.trial_network.deployment_site} site"
+                )
                 sleep(15)
             if (
                 self.jenkins_client.get_job_info(
@@ -180,12 +195,12 @@ class JenkinsHandler:
                 != next_build_number
             ):
                 raise JenkinsError(
-                    message=f"Pipeline {self.trial_network.jenkins_destroy_pipeline} failed when trying to deploy the {entity_name} entity in {self.trial_network.deployment_site} site. To see the logs, access the following link: {build_job_url}",
+                    message=f"Pipeline {self.trial_network.jenkins_destroy_pipeline} failed when trying to deploy the {entity_name} entity in {self.trial_network.deployment_site} site. Check the logs",
                     status_code=500,
                 )
-            # TrialNetworkLogger.get_logger(tn_id=self.trial_network.tn_id).info(
-            #     message=f"Entity {entity_name} successfully deployed"
-            # )
+            TrialNetworkLogger(tn_id=self.trial_network.tn_id).info(
+                message=f"Entity {entity_name} successfully deployed"
+            )
             sleep(3)
             entity_output = (
                 TrialNetworkModel.objects(tn_id=self.trial_network.tn_id).first().output
@@ -200,9 +215,9 @@ class JenkinsHandler:
                 deployed_descriptor=deployed_descriptor
             )
             self.trial_network.save()
-            # TrialNetworkLogger.get_logger(tn_id=self.trial_network.tn_id).info(
-            #     message=f"End of deployment of entity {entity_name}"
-            # )
+            TrialNetworkLogger(tn_id=self.trial_network.tn_id).info(
+                message=f"End of deployment of entity {entity_name}"
+            )
         if not is_file(
             path=join_path(
                 f"{self.trial_network.directory_path}", f"{self.trial_network.tn_id}.md"
@@ -245,13 +260,21 @@ class JenkinsHandler:
             # "DEBUG": true
         }
 
-    # TODO: logs
     def destroy_trial_network(self) -> None:
         """
         Trial network destroy starts
 
         :raises JenkinsError:
         """
+        job_info = self.jenkins_client.get_job_info(
+            name=self.trial_network.jenkins_destroy_pipeline
+        )["url"]
+        job_info = job_info.replace(
+            "http://localhost:8080", JenkinsSettings.JENKINS_URL
+        )
+        TrialNetworkLogger(tn_id=self.trial_network.tn_id).info(
+            message=f"To see the logs of the destruction of the trial network in Jenkins, access the following link: {job_info}"
+        )
         build_job_url = self.jenkins_client.build_job_url(
             name=self.trial_network.jenkins_destroy_pipeline,
             parameters=self.destroy_pipeline_params(),
@@ -267,9 +290,9 @@ class JenkinsHandler:
         while not self.jenkins_client.get_job_info(
             name=self.trial_network.jenkins_destroy_pipeline
         )["lastCompletedBuild"]:
-            # TrialNetworkLogger.get_logger(tn_id=self.trial_network.tn_id).info(
-            #     message=f"Destroying trial network in {self.trial_network.deployment_site} site"
-            # )
+            TrialNetworkLogger(tn_id=self.trial_network.tn_id).info(
+                message=f"Destroying trial network in {self.trial_network.deployment_site} site"
+            )
             sleep(15)
         while (
             last_build_number
@@ -277,9 +300,9 @@ class JenkinsHandler:
                 name=self.trial_network.jenkins_destroy_pipeline
             )["lastCompletedBuild"]["number"]
         ):
-            # TrialNetworkLogger.get_logger(tn_id=self.trial_network.tn_id).info(
-            #     message=f"Destroying trial network in {self.trial_network.deployment_site} site"
-            # )
+            TrialNetworkLogger(tn_id=self.trial_network.tn_id).info(
+                message=f"Destroying trial network in {self.trial_network.deployment_site} site"
+            )
             sleep(15)
         if (
             self.jenkins_client.get_job_info(
@@ -291,6 +314,9 @@ class JenkinsHandler:
                 message=f"Pipeline {self.trial_network.jenkins_destroy_pipeline} failed when trying to destroy the trial network in {self.trial_network.deployment_site} site. To see the logs, access the following link: {build_job_url}",
                 status_code=500,
             )
+        TrialNetworkLogger(tn_id=self.trial_network.tn_id).info(
+            message="Trial network successfully destroyed"
+        )
 
     def get_all_pipelines(self) -> List[str]:
         """
