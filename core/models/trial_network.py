@@ -19,14 +19,17 @@ STATE_MACHINE = {
     "activated",
     "created",
     "destroyed",
-    "pending-activation",
-    "pending-destruction",
-    "suspended",
+    "failed-activation",
+    "failed-destruction",
+    # "failed-suspension",
+    # "suspended",
     "validated",
     # Transitions
     "activating",
+    # "creating",
     "destroying",
     "suspending",
+    # "purging",
     "validating",
 }
 COMPONENTS_EXCLUDE_CUSTOM_NAME = {"tn_init", "tn_vxlan", "tn_bastion", "tsn"}
@@ -529,22 +532,22 @@ class TrialNetworkModel(Document):
             component_input = entity_data["input"]
             if not isinstance(component_type, str):
                 raise TrialNetworkError(
-                    message=f"Trial network descriptor entity {entity_name} the key type has to be a string",
+                    message=f"Trial network descriptor entity {entity_name} the key type in the definition has to be a string",
                     status_code=422,
                 )
             if component_type == "":
                 raise TrialNetworkError(
-                    message=f"Trial network descriptor entity {entity_name} the key type is empty",
+                    message=f"Trial network descriptor entity {entity_name} the key type in the definition is empty",
                     status_code=422,
                 )
             if not isinstance(component_dependencies, List):
                 raise TrialNetworkError(
-                    message=f"Trial network descriptor entity {entity_name} the key dependencies has to be a list",
+                    message=f"Trial network descriptor entity {entity_name} the key dependencies in the definition has to be a list",
                     status_code=422,
                 )
             if not isinstance(component_input, Dict):
                 raise TrialNetworkError(
-                    message=f"Trial network descriptor entity {entity_name} the key input has to be a dictionary",
+                    message=f"Trial network descriptor entity {entity_name} the key input in the definition has to be a dictionary",
                     status_code=422,
                 )
             if component_type in COMPONENTS_EXCLUDE_CUSTOM_NAME:
@@ -556,7 +559,7 @@ class TrialNetworkModel(Document):
             else:
                 if "name" not in entity_data:
                     raise TrialNetworkError(
-                        message=f"Trial network entity {entity_name} does not contain the key name",
+                        message=f"Trial network entity {entity_name} does not contain the key name in the definition",
                         status_code=422,
                     )
                 name = entity_data["name"]
@@ -567,7 +570,7 @@ class TrialNetworkModel(Document):
                     )
                 if name == "":
                     raise TrialNetworkError(
-                        message=f"Trial network descriptor entity {entity_name} the key name is empty",
+                        message=f"Trial network descriptor entity {entity_name} the key name in the definition is empty",
                         status_code=422,
                     )
                 if entity_name != f"{component_type}-{name}":
