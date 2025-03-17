@@ -54,7 +54,7 @@ class ResourceManagerModel(Document):
         Apply resource manager to check availability resource
 
         :param trial_network: model of the trial network, ``TrialNetworkModel``
-        :param site_available_components: dictionary with all information of all components available on a site, ``dict``
+        :param site_available_components: dictionary with all information of all components available on a site, ``Dict``
         :raise ResourceManagerError:
         """
         sorted_descriptor = trial_network.sorted_descriptor["trial_network"]
