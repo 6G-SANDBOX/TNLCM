@@ -7,6 +7,22 @@
 > 
 > [**EXAMPLE**](https://github.com/6G-SANDBOX/6G-Library/blob/main/elcm/sample_tnlcm_descriptor.yaml)
 
+## [elcm](elcm.yaml)
+
+![elcm](https://github.com/6G-SANDBOX/6G-Library/blob/assets/elcm/elcm.png)
+
+### Components
+
+* tn_init
+* elcm
+
+### Platforms
+
+* uma
+* athens
+* berlin
+* oulu
+
 ## [loadcore_open5gs_k8s](loadcore_open5gs_k8s.yaml)
 
 ![loadcore_open5gs_k8s](https://github.com/6G-SANDBOX/6G-Library/blob/assets/loadcore/loadcore_open5gs_k8s.png)
