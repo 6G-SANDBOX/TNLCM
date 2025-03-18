@@ -97,15 +97,6 @@ read -rsp "Enter the Jenkins token: " JENKINS_TOKEN
 echo
 read -rsp "Enter the sites token (not use \" or ' or \`): " SITES_TOKEN
 echo
-# echo "Now configure two-factor authentication for TNLCM."
-# read -p "Enter if you want to enable two-factor authentication (true/false): " TWO_FACTOR_AUTH
-# if [ "$TWO_FACTOR_AUTH" = "true" ]; then
-    # echo "Now configure email credentials necessary for TNLCM to send emails for double authentication."
-    # echo "You can create an email account or use an existing one. It is required to create an app password for the email as indicated in the first section of the following page https://mailtrap.io/blog/flask-send-email-gmail/"
-    # read -p "Enter the mail username (format example: noreplay@domain.com): " MAIL_USERNAME
-    # read -sp "Enter the mail password: " MAIL_PASSWORD
-    # echo
-# fi
 
 echo "Updating the .env file with the provided information..."
 sed -i "s/^TNLCM_ADMIN_USER=.*/TNLCM_ADMIN_USER=\"${TNLCM_ADMIN_USER}\"/" ${BACKEND_DOTENV_FILE}
@@ -116,9 +107,6 @@ sed -i "s/^JENKINS_USERNAME=.*/JENKINS_USERNAME=\"${JENKINS_USERNAME}\"/" ${BACK
 sed -i "s/^JENKINS_PASSWORD=.*/JENKINS_PASSWORD=\"${JENKINS_PASSWORD}\"/" ${BACKEND_DOTENV_FILE}
 sed -i "s/^JENKINS_TOKEN=.*/JENKINS_TOKEN=\"${JENKINS_TOKEN}\"/" ${BACKEND_DOTENV_FILE}
 sed -i "s/^SITES_TOKEN=.*/SITES_TOKEN='${SITES_TOKEN}'/" ${BACKEND_DOTENV_FILE}
-# sed -i "s/^TWO_FACTOR_AUTH=.*/TWO_FACTOR_AUTH='${TWO_FACTOR_AUTH}'/" ${BACKEND_DOTENV_FILE}
-# sed -i "s/^MAIL_USERNAME=.*/MAIL_USERNAME='${MAIL_USERNAME}'/" ${BACKEND_DOTENV_FILE}
-# sed -i "s/^MAIL_PASSWORD=.*/MAIL_PASSWORD='${MAIL_PASSWORD}'/" ${BACKEND_DOTENV_FILE}
 echo "Environment variables successfully configured!"
 
 echo "--------------- Installing MongoDB ---------------"
@@ -160,7 +148,7 @@ git clone --depth 1 --branch ${MONGO_EXPRESS_VERSION} -c advice.detachedHead=fal
 cd ${MONGO_EXPRESS_FOLDER} || exit
 yarn install
 yarn build
-cd
+cd || exit
 echo "Mongo-Express installed successfully"
 
 echo "--------------- Starting Mongo-Express Service ---------------"
@@ -180,34 +168,6 @@ EOF
 
 systemctl enable --now mongo-express.service
 echo "Mongo-Express service started"
-
-# echo "--------------- Installing nginx ---------------"
-# apt-get install -y nginx
-# sudo mkdir -p /etc/nginx/ssl
-# sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/tnlcm.key -out /etc/nginx/ssl/tnlcm.crt -subj "/CN=${HOST_IP}"
-# cat > /etc/nginx/sites-enabled/tnlcm << EOF
-# server {
-#     listen 80;
-#     server_name ${HOST_IP};
-#     return 301 https://\$host\$request_uri;
-# }
-# server {
-#     listen 443 ssl;
-#     server_name ${HOST_IP};
-#     ssl_certificate /etc/nginx/ssl/tnlcm.crt;
-#     ssl_certificate_key /etc/nginx/ssl/tnlcm.key;
-#     location / {
-#         proxy_pass http://127.0.0.1:5000;
-#         proxy_http_version 1.1;
-#         proxy_set_header Upgrade \$http_upgrade;
-#         proxy_set_header Connection 'upgrade';
-#         proxy_set_header Host \$host;
-#         proxy_cache_bypass \$http_upgrade;
-#     }
-# }
-# EOF
-
-# systemctl restart nginx
 
 echo "Installing TNLCM dependencies using uv..."
 ${UV_BIN} --directory ${BACKEND_PATH} sync
