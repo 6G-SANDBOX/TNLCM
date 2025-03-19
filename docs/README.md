@@ -24,7 +24,7 @@ Trial Network Lifecycle Manager (TNLCM) is a tool developed in Python designed t
 ## :hammer_and_wrench: Stack
 - [![Python][python-badge]][python-url] - Programming language.
 - [![Flask][flask-badge]][flask-url] - Python framework for web applications to expose the API.
-- [![MongoDB][mongodb-badge]][mongodb-url] - NoSQL database designed to store Trial Networks.
+- [![MongoDB][mongodb-badge]][mongodb-url] - NoSQL database designed to store trial networks.
 
 ## Contributors <!-- omit in toc -->
 
