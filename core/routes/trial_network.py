@@ -17,7 +17,7 @@ from core.logs.log_handler import TrialNetworkLogger
 from core.models.resource_manager import ResourceManagerModel
 from core.models.trial_network import TrialNetworkModel
 from core.sites.sites_handler import SitesHandler
-from core.utils.file import load_file
+from core.utils.file import load_file, save_file
 from core.utils.os import (
     TRIAL_NETWORKS_DIRECTORY_PATH,
     exist_directory,
@@ -867,13 +867,7 @@ class ReportTrialNetwork(Resource):
                 return {
                     "message": f"Trial network with identifier {tn_id} is not possible to retrieve the report. Only trial networks with status activated can retrieve the report. Current status: {trial_network.state}"
                 }, 400
-            report_path = join_path(trial_network.directory_path, f"{tn_id}.md")
-            if not is_file(path=report_path):
-                return {
-                    "message": f"Trial network with identifier {tn_id} report file not found"
-                }, 404
-            report_content = load_file(file_path=report_path)
-            return {"report_content": report_content}, 200
+            return {"report_content": trial_network.report}, 200
         except CustomException as e:
             return {"message": str(e.message)}, e.status_code
         except Exception as e:
@@ -908,14 +902,12 @@ class DownloadReportTrialNetwork(Resource):
                 return {
                     "message": f"Trial network with identifier {tn_id} is not possible to download the report. Only trial networks with status activated can download the report. Current status: {trial_network.state}"
                 }, 400
+            report = trial_network.report
             file_name = f"{trial_network.tn_id}.md"
-            report_path_md = join_path(trial_network.directory_path, file_name)
-            if not is_file(path=report_path_md):
-                return {
-                    "message": f"Trial network with identifier {tn_id} report file not found"
-                }, 404
+            report_path = join_path(trial_network.directory_path, file_name)
+            save_file(data=report, file_path=report_path)
             return send_file(
-                path_or_file=report_path_md,
+                path_or_file=report_path,
                 as_attachment=True,
                 download_name=file_name,
                 mimetype="application/octet-stream",
