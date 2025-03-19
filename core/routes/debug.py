@@ -60,7 +60,7 @@ class UpdateCommitLibrary(Resource):
             library_handler.repository_handler.git_checkout()
             return trial_network.to_dict_debug_commit_id(), 201
         except CustomException as e:
-            return {"message": str(e)}, e.status_code
+            return {"message": str(e.message)}, e.status_code
         except Exception as e:
             return abort(code=500, message=str(e))
 
@@ -101,7 +101,7 @@ class UpdateCommitSites(Resource):
             sites_handler.repository_handler.git_checkout()
             return trial_network.to_dict_debug_commit_id(), 201
         except CustomException as e:
-            return {"message": str(e)}, e.status_code
+            return {"message": str(e.message)}, e.status_code
         except Exception as e:
             return abort(code=500, message=str(e))
 
@@ -143,7 +143,7 @@ class AddDebugEntityName(Resource):
             trial_network.save()
             return trial_network.to_dict_debug_entity_name(), 201
         except CustomException as e:
-            return {"message": str(e)}, e.status_code
+            return {"message": str(e.message)}, e.status_code
         except Exception as e:
             return abort(code=500, message=str(e))
 
@@ -185,7 +185,7 @@ class RemoveDebugEntityName(Resource):
             trial_network.save()
             return trial_network.to_dict_debug_entity_name(), 201
         except CustomException as e:
-            return {"message": str(e)}, e.status_code
+            return {"message": str(e.message)}, e.status_code
         except Exception as e:
             return abort(code=500, message=str(e))
 
@@ -204,7 +204,9 @@ class JenkinsPipelines(Resource):
             jenkins_handler = JenkinsHandler()
             return {"pipelines": jenkins_handler.get_all_pipelines()}, 200
         except CustomException as e:
-            return {"message": str(e)}, e.status_code
+            return {"message": str(e.message)}, e.status_code
+        except Exception as e:
+            return abort(code=500, message=str(e))
 
 
 @debug_namespace.route("/jenkins/pipeline/<string:pipeline_name>")
@@ -222,6 +224,6 @@ class RemoveJenkinsPipeline(Resource):
             jenkins_handler.remove_pipeline(pipeline_name=pipeline_name)
             return {"message": f"Pipeline {pipeline_name} successfully removed"}, 200
         except CustomException as e:
-            return {"message": str(e)}, e.status_code
+            return {"message": str(e.message)}, e.status_code
         except Exception as e:
             return abort(code=500, message=str(e))

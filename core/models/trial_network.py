@@ -10,8 +10,7 @@ from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 
 from core.exceptions.exceptions_handler import TrialNetworkError
-from core.utils.file import load_file
-from core.utils.os import join_path, make_directory
+from core.utils.os import make_directory
 from core.utils.parser import yaml_to_dict
 
 STATE_MACHINE = {
@@ -59,20 +58,19 @@ class TrialNetworkModel(Document):
     tn_id = StringField(max_length=15, unique=True)
     state = StringField(max_length=50)
     date_created_utc = DateTimeField(default=datetime.now(timezone.utc))
+    directory_path = StringField()
     raw_descriptor = DictField(default={})
     sorted_descriptor = DictField(default={})
     deployed_descriptor = DictField(default={})
-    report = StringField()
-    directory_path = StringField()
-    jenkins_deploy_pipeline = StringField()
-    jenkins_destroy_pipeline = StringField()
-    deployment_site = StringField()
-    input = DictField(default={})
-    output = DictField(default={})
+    jenkins_deploy = DictField(default={})
+    jenkins_destroy = DictField(default={})
     library_https_url = StringField()
     library_commit_id = StringField()
     sites_https_url = StringField()
     sites_commit_id = StringField()
+    deployment_site = StringField()
+    log = StringField()
+    report = StringField(default="")
 
     meta = {
         "db_alias": "tnlcm-database-alias",
@@ -125,8 +123,6 @@ class TrialNetworkModel(Document):
         :param directory_path: path to the trial network directory, ``str``
         """
         make_directory(path=directory_path)
-        make_directory(path=join_path(directory_path, "input"))
-        make_directory(path=join_path(directory_path, "output"))
         self.directory_path = directory_path
 
     def set_state(self, state: str) -> None:
@@ -186,29 +182,114 @@ class TrialNetworkModel(Document):
         self.sorted_descriptor = {"trial_network": ordered_entities}
         self.deployed_descriptor = {"trial_network": ordered_entities}
 
-    def set_report(self, file_path: str) -> None:
+    def set_report(self, report: str) -> None:
         """
         Set the trial network report from a markdown file
 
-        :param path: path to the markdown report file, ``str``
+        :param report: report file containing markdown data, ``str``
         """
-        self.report = load_file(file_path=file_path, mode="rt", encoding="utf-8")
+        self.report = report
 
-    def set_jenkins_deploy_pipeline(self, jenkins_deploy_pipeline: str) -> None:
+    def get_jenkins_deploy_pipeline(self) -> str:
+        """
+        Get pipeline use to deploy trial network
+
+        :return: name of the deployment pipeline, ``str``
+        """
+        return self.jenkins_deploy["pipeline_name"]
+
+    def set_jenkins_deploy_pipeline(
+        self, jenkins_deploy_pipeline: str, jenkins_deploy_pipeline_url: str
+    ) -> None:
         """
         Set pipeline use to deploy trial network
 
         :param jenkins_deploy_pipeline: new name of the deployment pipeline, ``str``
+        :param jenkins_deploy_pipeline_url: URL of the deployment pipeline, ``str``
         """
-        self.jenkins_deploy_pipeline = jenkins_deploy_pipeline
+        self.jenkins_deploy = {
+            "pipeline_name": jenkins_deploy_pipeline,
+            "pipeline_url": jenkins_deploy_pipeline_url,
+            "builds": {},
+        }
 
-    def set_jenkins_destroy_pipeline(self, jenkins_destroy_pipeline: str) -> None:
+    def set_jenkins_deploy_build(
+        self,
+        build_name: str,
+        build_number: int,
+        build_params: Dict,
+        build_console: str,
+        build_file: Dict,
+    ) -> None:
+        """
+        Set a build for the deployment pipeline
+
+        :param build_name: name of the build, ``str``
+        :param build_number: number of the build, ``int``
+        :param build_params: parameters of the build, ``Dict``
+        :param build_console: console output of the build, ``str``
+        :param build_file: file output of the build, ``Dict``
+        """
+        self.jenkins_deploy["builds"][build_name] = {
+            "build_number": build_number,
+            "build_params": build_params,
+            "build_console": build_console,
+            "build_file": build_file,
+        }
+
+    def set_jenkins_deploy_build_callback(
+        self, build_name: str, build_callback: Dict
+    ) -> None:
+        """
+        Set a callback for the build
+
+        :param build_name: name of the build, ``str``
+        :param build_callback: callback of the build, ``Dict``
+        """
+        self.jenkins_deploy["builds"][build_name] = {
+            "build_callback": build_callback,
+        }
+
+    def get_jenkins_destroy_pipeline(self) -> str:
+        """
+        Get pipeline use to destroy trial network
+
+        :return: name of the destruction pipeline, ``str``
+        """
+        return self.jenkins_destroy["pipeline_name"]
+
+    def set_jenkins_destroy_build(
+        self,
+        build_number: str,
+        build_params: Dict,
+        build_console: str,
+    ) -> None:
+        """
+        Set a build for the destruction pipeline
+
+        :param build_number: number of the build, ``str``
+        :param build_params: parameters of the build, ``Dict``
+        :param build_console: console output of the build, ``str``
+        """
+        self.jenkins_destroy["builds"][build_number] = {
+            "build_params": build_params,
+            "build_console": build_console,
+        }
+
+    def set_jenkins_destroy_pipeline(
+        self, jenkins_destroy_pipeline: str, jenkins_destroy_pipeline_url: str
+    ) -> None:
         """
         Set pipeline use to destroy trial network
 
-        :param jenkins_destroy_pipeline: new name of the destroy pipeline, ``str``
+        :param jenkins_destroy_pipeline: new name of the destruction pipeline, ``str``
+        :param jenkins_destroy_pipeline_url: URL of the destruction pipeline, ``str``
         """
-        self.jenkins_destroy_pipeline = jenkins_destroy_pipeline
+        self.jenkins_destroy = {
+            "pipeline_name": jenkins_destroy_pipeline,
+            "pipeline_url": jenkins_destroy_pipeline_url,
+            "builds": {},
+        }
 
     def set_deployment_site(self, deployment_site: str) -> None:
         """
@@ -217,24 +298,6 @@ class TrialNetworkModel(Document):
         :param deployment_site: trial network deployment site, ``str``
         """
         self.deployment_site = deployment_site
-
-    def set_input(self, entity_name: str, entity_data_input: dict) -> None:
-        """
-        Set input parameters used for the entity name
-
-        :param entity_name: name of the entity, ``str``
-        :param entity_data_input: dictionary of input parameters for the entity, ``dict``
-        """
-        self.input[entity_name] = entity_data_input
-
-    def set_output(self, entity_name: str, entity_data_output: dict) -> None:
-        """
-        Set output received by Jenkins
-
-        :param entity_name: name of the entity, ``str``
-        :param entity_data_output: dictionary of output message received by Jenkins, ``dict``
-        """
-        self.output[entity_name] = entity_data_output
 
     def set_library_https_url(self, library_https_url: str) -> None:
         """
@@ -648,11 +711,9 @@ class TrialNetworkModel(Document):
             "deployed_descriptor": self.deployed_descriptor,
             "report": self.report,
             "directory_path": self.directory_path,
-            "jenkins_deploy_pipeline": self.jenkins_deploy_pipeline,
-            "jenkins_destroy_pipeline": self.jenkins_destroy_pipeline,
+            "jenkins_deploy": self.jenkins_deploy,
+            "jenkins_destroy": self.jenkins_destroy,
             "deployment_site": self.deployment_site,
-            "input": self.input,
-            "output": self.output,
             "library_https_url": self.library_https_url,
             "library_commit_id": self.library_commit_id,
             "sites_https_url": self.sites_https_url,

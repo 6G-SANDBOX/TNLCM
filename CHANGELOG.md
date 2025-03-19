@@ -23,6 +23,7 @@
 
 - Bug when clone 6G-Library and 6G-Sandbox-Sites.
 - Callback route integrate json body to handle the data received by Jenkins.
+- Integration between TNLCM and Jenkins adding logs to check the behavior of the pipeline.
 
 ### Removed
 

@@ -25,7 +25,7 @@ class Branches(Resource):
             sites_handler.repository_handler.git_pull()
             return {"sites": sites_handler.repository_handler.git_branches()}, 200
         except CustomException as e:
-            return {"message": str(e)}, e.status_code
+            return {"message": str(e.message)}, e.status_code
         except Exception as e:
             return abort(code=500, message=str(e))
 
@@ -55,6 +55,6 @@ class BranchDirectories(Resource):
                 )
             }, 200
         except CustomException as e:
-            return {"message": str(e)}, e.status_code
+            return {"message": str(e.message)}, e.status_code
         except Exception as e:
             return abort(code=500, message=str(e))

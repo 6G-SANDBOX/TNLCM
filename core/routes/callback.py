@@ -7,8 +7,6 @@ from conf.jenkins import JenkinsSettings
 from core.exceptions.exceptions_handler import CustomException
 from core.logs.log_handler import TrialNetworkLogger
 from core.models.trial_network import TrialNetworkModel
-from core.utils.file import save_file, save_json_file
-from core.utils.os import TRIAL_NETWORKS_DIRECTORY_PATH, join_path
 from core.utils.parser import decode_base64
 
 callback_namespace = Namespace(
@@ -79,8 +77,8 @@ class Callback(Resource):
         """
         trial_network = None
         try:
-            host = request.headers["host"]
-            if host != JenkinsSettings.JENKINS_HOST:
+            client_ip = request.remote_addr
+            if client_ip != JenkinsSettings.JENKINS_HOST:
                 return {
                     "message": "Invalid host. Request not allowed. Only Jenkins host is allowed"
                 }, 403
@@ -119,22 +117,13 @@ class Callback(Resource):
                 return {
                     "message": f"No trial network with the name {tn_id} in database"
                 }, 404
-            if success != "true":
-                return {
-                    "message": f"Pipeline for entity {entity_name} failed because success value received by Jenkins is {success}"
-                }, 500
-            trial_network.set_output(entity_name, decoded_data)
+            trial_network.set_jenkins_deploy_build_callback(
+                build_name=entity_name, build_callback=decoded_data
+            )
+            report = trial_network.report
+            report += decoded_data["markdown"]
+            trial_network.set_report(report=report)
             trial_network.save()
-            directory_path = join_path(TRIAL_NETWORKS_DIRECTORY_PATH, tn_id)
-            save_json_file(
-                data=decoded_data,
-                file_path=join_path(directory_path, "output", f"{entity_name}.json"),
-            )
-            save_file(
-                data=markdown,
-                file_path=join_path(directory_path, f"{tn_id}.md"),
-                mode="a",
-            )
             TrialNetworkLogger(tn_id=trial_network.tn_id).info(
                 message=f"Results of the entity {entity_name} received by Jenkins saved successfully"
             )

@@ -22,7 +22,7 @@ class ReferencesTypes(Resource):
         try:
             return {"library_references_types": LIBRARY_REFERENCES_TYPES}, 200
         except CustomException as e:
-            return {"message": str(e)}, e.status_code
+            return {"message": str(e.message)}, e.status_code
         except Exception as e:
             return abort(code=500, message=str(e))
 
@@ -59,7 +59,7 @@ class ReferenceType(Resource):
                 )
             return {f"{library_reference_type}": library_reference_value}, 200
         except CustomException as e:
-            return {"message": str(e)}, e.status_code
+            return {"message": str(e.message)}, e.status_code
         except Exception as e:
             return abort(code=500, message=str(e))
 
@@ -89,7 +89,7 @@ class Components(Resource):
             components = library_handler.get_components()
             return {"components": components}, 200
         except CustomException as e:
-            return {"message": str(e)}, e.status_code
+            return {"message": str(e.message)}, e.status_code
         except Exception as e:
             return abort(code=500, message=str(e))
 
@@ -129,6 +129,6 @@ class Component(Resource):
             )
             return {"component_input": component_input}, 200
         except CustomException as e:
-            return {"message": str(e)}, e.status_code
+            return {"message": str(e.message)}, e.status_code
         except Exception as e:
             return abort(code=500, message=str(e))

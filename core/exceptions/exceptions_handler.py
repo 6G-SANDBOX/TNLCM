@@ -14,6 +14,7 @@ class CustomException(Exception):
         :param status_code: error code, ``int``
         """
         super().__init__(message)
+        self.message = message
         self.status_code = status_code
         console_logger.error(f"{message}")
 

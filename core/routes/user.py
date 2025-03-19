@@ -47,7 +47,7 @@ class User(Resource):
             current_user = get_current_user_from_jwt(jwt_identity=get_jwt_identity())
             return current_user.to_dict(), 200
         except CustomException as e:
-            return {"message": str(e)}, e.status_code
+            return {"message": str(e.message)}, e.status_code
         except Exception as e:
             return abort(code=500, message=str(e))
 
@@ -80,7 +80,7 @@ class ChangePassword(Resource):
             user.save()
             return {"message": "Password changed"}, 200
         except CustomException as e:
-            return {"message": str(e)}, e.status_code
+            return {"message": str(e.message)}, e.status_code
         except Exception as e:
             return abort(code=500, message=str(e))
 
@@ -115,7 +115,7 @@ class Login(Resource):
                 }, 201
             return {"message": f"Could not verify user {auth.username}"}, 401
         except CustomException as e:
-            return {"message": str(e)}, e.status_code
+            return {"message": str(e.message)}, e.status_code
         except Exception as e:
             return abort(code=500, message=str(e))
 
@@ -140,7 +140,7 @@ class TokenRefresh(Resource):
             )
             return {"access_token": new_access_token}, 200
         except CustomException as e:
-            return {"message": str(e)}, e.status_code
+            return {"message": str(e.message)}, e.status_code
         except Exception as e:
             return abort(code=500, message=str(e))
 
@@ -176,6 +176,6 @@ class Register(Resource):
             user.save()
             return {"message": "User added"}, 201
         except CustomException as e:
-            return {"message": str(e)}, e.status_code
+            return {"message": str(e.message)}, e.status_code
         except Exception as e:
             return abort(code=500, message=str(e))

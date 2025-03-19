@@ -293,7 +293,7 @@ class CreateValidateTrialNetwork(Resource):
                     path=sites_handler.sites_local_directory
                 ):
                     remove_directory(path=sites_handler.sites_local_directory)
-            return {"message": str(e)}, e.status_code
+            return {"message": str(e.message)}, e.status_code
         except Exception as e:
             if trial_network and validate == "True":
                 trial_network.set_state(state="created")
@@ -328,7 +328,7 @@ class TrialNetworks(Resource):
                 ]
             }, 200
         except CustomException as e:
-            return {"message": str(e)}, e.status_code
+            return {"message": str(e.message)}, e.status_code
         except Exception as e:
             return abort(code=500, message=str(e))
 
@@ -359,7 +359,7 @@ class SpecificTrialNetwork(Resource):
                 }, 404
             return trial_network.to_dict_full(), 200
         except CustomException as e:
-            return {"message": str(e)}, e.status_code
+            return {"message": str(e.message)}, e.status_code
         except Exception as e:
             return abort(code=500, message=str(e))
 
@@ -413,13 +413,15 @@ class ActivateTrialNetwork(Resource):
             if state == "validated":
                 jenkins_handler = JenkinsHandler(trial_network=trial_network)
                 if not jenkins_deploy_pipeline:
-                    jenkins_deploy_pipeline = jenkins_handler.clone_pipeline(
-                        old_name=JenkinsSettings.JENKINS_DEPLOY_PIPELINE,
-                        new_name=JenkinsSettings.JENKINS_TNLCM_DIRECTORY
-                        + "/"
-                        + JenkinsSettings.JENKINS_DEPLOY_PIPELINE
-                        + "_"
-                        + trial_network.tn_id,
+                    jenkins_deploy_pipeline, jenkins_deploy_pipeline_url = (
+                        jenkins_handler.clone_pipeline(
+                            old_name=JenkinsSettings.JENKINS_DEPLOY_PIPELINE,
+                            new_name=JenkinsSettings.JENKINS_TNLCM_DIRECTORY
+                            + "/"
+                            + JenkinsSettings.JENKINS_DEPLOY_PIPELINE
+                            + "_"
+                            + trial_network.tn_id,
+                        )
                     )
                 sites_handler = SitesHandler(
                     https_url=trial_network.sites_https_url,
@@ -436,25 +438,22 @@ class ActivateTrialNetwork(Resource):
                         trial_network, site_available_components
                     )
                 trial_network.set_jenkins_deploy_pipeline(
-                    jenkins_deploy_pipeline=jenkins_deploy_pipeline
+                    jenkins_deploy_pipeline=jenkins_deploy_pipeline,
+                    jenkins_deploy_pipeline_url=jenkins_deploy_pipeline_url,
                 )
                 trial_network.set_state(state="activating")
                 trial_network.save()
                 TrialNetworkLogger(tn_id=tn_id).info(
-                    message="Trial network activating. In this transition, the trial network proceeds to the deployment of the components"
+                    message="Trial network activating. In this transition, the trial network proceeds to the deployment of the components defined in the descriptor"
                 )
                 jenkins_handler.deploy_trial_network()
-                report_path = join_path(
-                    trial_network.directory_path, f"{trial_network.tn_id}.md"
-                )
-                trial_network.set_report(file_path=report_path)
                 trial_network.set_state(state="activated")
                 trial_network.save()
                 TrialNetworkLogger(tn_id=tn_id).info(
                     message="Trial network activated. In this state, the trial network has been deployed and is ready to be used"
                 )
                 return {
-                    "message": f"Trial network with identifier {tn_id} activated. The trial network deployment generates a report file showing the information of the components that have been deployed. The report can be found in the directory {report_path}"
+                    "message": f"Trial network with identifier {tn_id} activated. The trial network deployment generates a report file showing the information of the components that have been deployed"
                 }, 200
             elif state == "failed-activation":
                 jenkins_handler = JenkinsHandler(trial_network=trial_network)
@@ -464,17 +463,13 @@ class ActivateTrialNetwork(Resource):
                     message="Trial network activating. In this transition, the trial network proceeds to the deployment of the components"
                 )
                 jenkins_handler.deploy_trial_network()
-                report_path = join_path(
-                    trial_network.directory_path, f"{trial_network.tn_id}.md"
-                )
-                trial_network.set_report(file_path=report_path)
                 trial_network.set_state(state="activated")
                 trial_network.save()
                 TrialNetworkLogger(tn_id=tn_id).info(
                     message="Trial network activated. In this state, the trial network has been deployed and is ready to be used"
                 )
                 return {
-                    "message": f"Trial network with identifier {tn_id} activated. The trial network deployment generates a report file showing the information of the components that have been deployed. The report can be found in the directory {report_path}"
+                    "message": f"Trial network with identifier {tn_id} activated. The trial network deployment generates a report file showing the information of the components that have been deployed"
                 }, 200
             elif state == "destroyed":
                 sites_handler = SitesHandler(
@@ -498,20 +493,15 @@ class ActivateTrialNetwork(Resource):
                     message="Trial network activating. In this transition, the trial network proceeds to the deployment of the components"
                 )
                 jenkins_handler.deploy_trial_network()
-                report_path = join_path(
-                    trial_network.directory_path, f"{trial_network.tn_id}.md"
-                )
-                trial_network.set_report(file_path=report_path)
                 trial_network.set_state(state="activated")
                 trial_network.save()
                 TrialNetworkLogger(tn_id=tn_id).info(
                     message="Trial network activated. In this state, the trial network has been deployed and is ready to be used"
                 )
                 return {
-                    "message": f"Trial network with identifier {tn_id} re-activated. The trial network deployment generates a report file showing the information of the components that have been deployed. The report can be found in the directory {report_path}"
+                    "message": f"Trial network with identifier {tn_id} re-activated. The trial network deployment generates a report file showing the information of the components that have been deployed"
                 }, 200
-            else:  # suspended
-                # TODO:
+            else:  # TODO: suspended
                 return {"message": "TODO: RESTART trial network suspended"}, 400
         except CustomException as e:
             trial_network.set_state(state="failed-activation")
@@ -519,7 +509,7 @@ class ActivateTrialNetwork(Resource):
             TrialNetworkLogger(tn_id=tn_id).info(
                 message="Trial network failed-activation. In this state, the trial network is waiting to be deployed"
             )
-            return {"message": str(e)}, e.status_code
+            return {"message": str(e.message)}, e.status_code
         except Exception as e:
             trial_network.set_state(state="failed-activation")
             trial_network.save()
@@ -585,16 +575,19 @@ class DestroyTrialNetwork(Resource):
                 trial_network=trial_network, library_handler=library_handler
             )
             if not jenkins_destroy_pipeline:
-                jenkins_destroy_pipeline = jenkins_handler.clone_pipeline(
-                    old_name=JenkinsSettings.JENKINS_DESTROY_PIPELINE,
-                    new_name=JenkinsSettings.JENKINS_TNLCM_DIRECTORY
-                    + "/"
-                    + JenkinsSettings.JENKINS_DESTROY_PIPELINE
-                    + "_"
-                    + trial_network.tn_id,
+                jenkins_destroy_pipeline, jenkins_destroy_pipeline_url = (
+                    jenkins_handler.clone_pipeline(
+                        old_name=JenkinsSettings.JENKINS_DESTROY_PIPELINE,
+                        new_name=JenkinsSettings.JENKINS_TNLCM_DIRECTORY
+                        + "/"
+                        + JenkinsSettings.JENKINS_DESTROY_PIPELINE
+                        + "_"
+                        + trial_network.tn_id,
+                    )
                 )
             trial_network.set_jenkins_destroy_pipeline(
-                jenkins_destroy_pipeline=jenkins_destroy_pipeline
+                jenkins_destroy_pipeline=jenkins_destroy_pipeline,
+                jenkins_destroy_pipeline_url=jenkins_destroy_pipeline_url,
             )
             trial_network.set_state(state="destroying")
             trial_network.save()
@@ -620,7 +613,7 @@ class DestroyTrialNetwork(Resource):
             TrialNetworkLogger(tn_id=tn_id).info(
                 message="Trial network failed-destruction. In this state, the trial network is waiting to be destroyed"
             )
-            return {"message": str(e)}, e.status_code
+            return {"message": str(e.message)}, e.status_code
         except Exception as e:
             trial_network.set_state(state="failed-destruction")
             trial_network.save()
@@ -672,7 +665,7 @@ class LibraryComponentsTrialNetwork(Resource):
             library_handler.repository_handler.git_checkout()
             return {"components": library_handler.get_components()}, 200
         except CustomException as e:
-            return {"message": str(e)}, e.status_code
+            return {"message": str(e.message)}, e.status_code
         except Exception as e:
             return abort(code=500, message=str(e))
 
@@ -716,7 +709,7 @@ class LibraryComponentTrialNetwork(Resource):
                 )
             }, 200
         except CustomException as e:
-            return {"message": str(e)}, e.status_code
+            return {"message": str(e.message)}, e.status_code
         except Exception as e:
             return abort(code=500, message=str(e))
 
@@ -753,7 +746,7 @@ class LogTrialNetwork(Resource):
             log_content = load_file(file_path=log_path)
             return {"log_content": log_content}, 200
         except CustomException as e:
-            return {"message": str(e)}, e.status_code
+            return {"message": str(e.message)}, e.status_code
         except Exception as e:
             return abort(code=500, message=str(e))
 
@@ -795,7 +788,7 @@ class DownloadLogTrialNetwork(Resource):
                 mimetype="application/octet-stream",
             )
         except CustomException as e:
-            return {"message": str(e)}, e.status_code
+            return {"message": str(e.message)}, e.status_code
         except Exception as e:
             return abort(code=500, message=str(e))
 
@@ -831,19 +824,17 @@ class PurgeTrialNetwork(Resource):
                 }, 400
             if state == "destroyed":
                 jenkins_handler = JenkinsHandler(trial_network=trial_network)
-                jenkins_handler.remove_pipeline(
-                    pipeline_name=trial_network.jenkins_deploy_pipeline
-                )
-                jenkins_handler.remove_pipeline(
-                    pipeline_name=trial_network.jenkins_destroy_pipeline
-                )
+                jenkins_deploy_pipeline = trial_network.get_jenkins_deploy_pipeline()
+                jenkins_handler.remove_pipeline(pipeline_name=jenkins_deploy_pipeline)
+                jenkins_destroy_pipeline = trial_network.get_jenkins_destroy_pipeline()
+                jenkins_handler.remove_pipeline(pipeline_name=jenkins_destroy_pipeline)
             remove_directory(path=trial_network.directory_path)
             trial_network.delete()
             return {
                 "message": f"Trial network with identifier {tn_id} has been purged. In this state, the trial network has been deleted and cannot be recovered"
             }, 200
         except CustomException as e:
-            return {"message": str(e)}, e.status_code
+            return {"message": str(e.message)}, e.status_code
         except Exception as e:
             return abort(code=500, message=str(e))
 
@@ -884,7 +875,7 @@ class ReportTrialNetwork(Resource):
             report_content = load_file(file_path=report_path)
             return {"report_content": report_content}, 200
         except CustomException as e:
-            return {"message": str(e)}, e.status_code
+            return {"message": str(e.message)}, e.status_code
         except Exception as e:
             return abort(code=500, message=str(e))
 
@@ -930,7 +921,7 @@ class DownloadReportTrialNetwork(Resource):
                 mimetype="application/octet-stream",
             )
         except CustomException as e:
-            return {"message": str(e)}, e.status_code
+            return {"message": str(e.message)}, e.status_code
         except Exception as e:
             return abort(code=500, message=str(e))
 
@@ -979,7 +970,7 @@ class UpdateTrialNetwork(Resource):
             trial_network.save()
             return trial_network.to_dict_created(), 200
         except CustomException as e:
-            return {"message": str(e)}, e.status_code
+            return {"message": str(e.message)}, e.status_code
         except Exception as e:
             return abort(code=500, message=str(e))
 
@@ -1031,7 +1022,7 @@ class UpdateTrialNetwork(Resource):
 #         except CustomException as e:
 #             trial_network.set_state(state="activated")
 #             trial_network.save()
-#             return {"message": str(e)}, e.status_code
+#             return {"message": str(e.message)}, e.status_code
 #         except Exception as e:
 #             trial_network.set_state(state="activated")
 #             trial_network.save()
