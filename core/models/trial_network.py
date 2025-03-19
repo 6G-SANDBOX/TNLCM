@@ -69,7 +69,6 @@ class TrialNetworkModel(Document):
     sites_https_url = StringField()
     sites_commit_id = StringField()
     deployment_site = StringField()
-    log = StringField()
     report = StringField(default="")
 
     meta = {
@@ -235,19 +234,6 @@ class TrialNetworkModel(Document):
             "build_params": build_params,
             "build_console": build_console,
             "build_file": build_file,
-        }
-
-    def set_jenkins_deploy_build_callback(
-        self, build_name: str, build_callback: Dict
-    ) -> None:
-        """
-        Set a callback for the build
-
-        :param build_name: name of the build, ``str``
-        :param build_callback: callback of the build, ``Dict``
-        """
-        self.jenkins_deploy["builds"][build_name] = {
-            "build_callback": build_callback,
         }
 
     def get_jenkins_destroy_pipeline(self) -> str:

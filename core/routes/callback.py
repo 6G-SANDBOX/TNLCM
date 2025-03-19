@@ -60,13 +60,13 @@ class Callback(Resource):
     #     location="json",
     #     help="Output of the component. It should be a string",
     # )
-    parser_post.add_argument(
-        "success",
-        type=str,
-        required=True,
-        location="json",
-        help="Success of the component. It should be a string",
-    )
+    # parser_post.add_argument(
+    #     "success",
+    #     type=str,
+    #     required=True,
+    #     location="json",
+    #     help="Success of the component. It should be a string",
+    # )
 
     @callback_namespace.errorhandler(PyJWTError)
     @callback_namespace.errorhandler(JWTExtendedException)
@@ -96,32 +96,32 @@ class Callback(Resource):
                 encoded_data=self.parser_post.parse_args()["markdown"]
             )
             # output = self.parser_post.parse_args()["output"]
-            success = self.parser_post.parse_args()["success"]
+            # success = self.parser_post.parse_args()["success"]
             entity_name = (
                 f"{component_type}-{custom_name}"
                 if custom_name != "None"
                 else component_type
             )
-            decoded_data = {
-                "tn_id": tn_id,
-                "component_type": component_type,
-                "custom_name": custom_name,
-                "endpoints": endpoints,
-                "markdown": markdown,
-                # "output": output,
-                "success": success,
-            }
+            # decoded_data = {
+            #     "tn_id": tn_id,
+            #     "component_type": component_type,
+            #     "custom_name": custom_name,
+            #     "endpoints": endpoints,
+            #     "markdown": markdown,
+            #     "output": output,
+            #     "success": success,
+            # }
 
             trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
             if not trial_network:
                 return {
                     "message": f"No trial network with the name {tn_id} in database"
                 }, 404
-            trial_network.set_jenkins_deploy_build_callback(
-                build_name=entity_name, build_callback=decoded_data
-            )
+            # trial_network.set_jenkins_deploy_build_callback(
+            #     build_name=entity_name, build_callback=decoded_data
+            # )
             report = trial_network.report
-            report += decoded_data["markdown"]
+            report += markdown
             trial_network.set_report(report=report)
             trial_network.save()
             TrialNetworkLogger(tn_id=trial_network.tn_id).info(
