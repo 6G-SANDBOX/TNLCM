@@ -144,8 +144,10 @@ if [[ "${CURRENT_VERSION}" == "0.4.5" && "${TARGET_VERSION}" == "0.4.6" ]]; then
 
     git -C ${BACKEND_PATH} checkout tags/"v${TARGET_VERSION}"
 
+    echo "Syncing backend dependencies"
     ${UV_BIN} --directory ${BACKEND_PATH} sync
 
+    echo "Remove unnecessary environment variables"
     sed -i '/^TNLCM_LOG_LEVEL=/d' "${BACKEND_DOTENV_FILE}"
     sed -i '/^TWO_FACTOR_AUTH=/d' "${BACKEND_DOTENV_FILE}"
     sed -i '/^MAIL_SERVER=/d' "${BACKEND_DOTENV_FILE}"
@@ -154,6 +156,8 @@ if [[ "${CURRENT_VERSION}" == "0.4.5" && "${TARGET_VERSION}" == "0.4.6" ]]; then
     sed -i '/^MAIL_USE_SSL=/d' "${BACKEND_DOTENV_FILE}"
     sed -i '/^MAIL_USERNAME=/d' "${BACKEND_DOTENV_FILE}"
     sed -i '/^MAIL_PASSWORD=/d' "${BACKEND_DOTENV_FILE}"
+
+    echo "Add new environment variables"
     {
         echo 'TNLCM_CONSOLE_LOG_LEVEL="INFO"'
         echo 'TRIAL_NETWORK_LOG_LEVEL="INFO"'
