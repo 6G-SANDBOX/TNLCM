@@ -160,10 +160,37 @@ if [[ "${CURRENT_VERSION}" == "0.4.5" && "${TARGET_VERSION}" == "0.4.6" ]]; then
         echo 'SITES_BRANCH="main"'
     } >> "${BACKEND_DOTENV_FILE}"
     
+    echo "Remove verification_token collection"
     mongosh --eval "
         db.getSiblingDB('${MONGO_DATABASE}').verification_token.drop();
     "
 
+    echo "Remove input and output fields from trial_network collection"
+    mongosh --eval "
+        db.getSiblingDB('${MONGO_DATABASE}').${TRIAL_NETWORK_COLLECTION}.updateMany({}, {
+            \$unset: {
+                input: '',
+                output: ''
+            }
+        });
+    "
+
+    echo "Rename jenkins_deploy_pipeline and jenkins_destroy_pipeline to jenkins_deploy and jenkins_destroy"
+    mongosh --eval "
+        db.getSiblingDB('${MONGO_DATABASE}').${TRIAL_NETWORK_COLLECTION}.updateMany({}, [
+            {
+                \$set: {
+                    jenkins_deploy: { pipeline_name: '\$jenkins_deploy_pipeline' },
+                    jenkins_destroy: { pipeline_name: '\$jenkins_destroy_pipeline' }
+                }
+            },
+            {
+                \$unset: ['jenkins_deploy_pipeline', 'jenkins_destroy_pipeline']
+            }
+        ]);
+    "
+
+    echo "Restart TNLCM Backend"
     systemctl restart tnlcm-backend.service
 
     echo "Upgrade to version ${TARGET_VERSION} completed"
