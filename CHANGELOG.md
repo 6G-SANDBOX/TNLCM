@@ -4,7 +4,6 @@
 
 ### Added
 
-- Hoppscotch directory, which contains a JSON file with collections of requests for the TNLCM API.
 - Namespace for handler 6G-Sandbox-Sites repository requests.
 - New endpoints to integrate TNLCM backend with frontend.
 - New variables `SITES_BRANCH` and `JENKINS_TNLCM_DIRECTORY` in `.env` file to set the branch of the 6G-Sandbox-Sites repository.
@@ -31,6 +30,7 @@
 - Collection `verification_token` from Mongo database.
 - Model `VerificationToken` from `models` directory.
 - Directory `callback` from `core` directory.
+- Variable `SITES_TOKEN` from `.env` file.
 
 ## [v0.4.5] - 2025-02-06
 
