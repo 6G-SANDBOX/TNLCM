@@ -204,6 +204,18 @@ class RepositoryHandler:
         command = f"git -C {self.github_local_directory} pull"
         run_command(command=command)
 
+    def git_reset_hard(self) -> None:
+        """
+        Reset the repository to the last commit
+        """
+        if not exist_directory(path=self.github_local_directory):
+            raise GitError(
+                message=f"Repository {self.github_local_directory} does not exist in local. Cannot reset the repository to the last commit",
+                status_code=404,
+            )
+        command = f"git -C {self.github_local_directory} reset --hard"
+        run_command(command=command)
+
     def git_sync_branches(self) -> None:
         """
         Sync the local and remote branches

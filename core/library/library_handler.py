@@ -75,6 +75,29 @@ class LibraryHandler:
             branches.remove("assets")
         return branches
 
+    def get_component(self, component_name: str) -> Dict:
+        """
+        Function to get the component type
+
+        :param component_name: the component type to get, ``str``
+        :return component: the component type, ``Dict``
+        :raise LibraryError:
+        """
+        component = {}
+        self.validate_component_available_library(component_name=component_name)
+        public_file_path = join_path(
+            self.library_local_directory, component_name, ".tnlcm", "public.yaml"
+        )
+        if not is_file(path=public_file_path):
+            raise LibraryError(
+                message=f"File {public_file_path} not found in {component_name} component in {self.library_reference_type} reference type and {self.library_reference_value} reference value",
+                status_code=404,
+            )
+        public_data = load_yaml(file_path=public_file_path)
+        if public_data:
+            component = public_data
+        return component
+
     def get_component_input(self, component_name: str) -> Dict:
         """
         Function to get the input part of the component types

@@ -39,13 +39,13 @@ class Callback(Resource):
         location="json",
         help="Custom name of the component. It should be a string",
     )
-    parser_post.add_argument(
-        "endpoints",
-        type="str",
-        required=False,
-        location="json",
-        help="Endpoints of the component. It should be a dictionary",
-    )
+    # parser_post.add_argument(
+    #     "endpoints",
+    #     type="str",
+    #     required=False,
+    #     location="json",
+    #     help="Endpoints of the component. It should be a dictionary",
+    # )
     parser_post.add_argument(
         "markdown",
         type=str,
@@ -59,13 +59,6 @@ class Callback(Resource):
     #     required=False,
     #     location="json",
     #     help="Output of the component. It should be a string",
-    # )
-    # parser_post.add_argument(
-    #     "success",
-    #     type=str,
-    #     required=True,
-    #     location="json",
-    #     help="Success of the component. It should be a string",
     # )
 
     @callback_namespace.errorhandler(PyJWTError)
@@ -89,37 +82,24 @@ class Callback(Resource):
             custom_name = decode_base64(
                 encoded_data=self.parser_post.parse_args()["custom_name"]
             )
-            endpoints = self.parser_post.parse_args()["endpoints"]
-            if endpoints:
-                endpoints = decode_base64(encoded_data=endpoints)
+            # endpoints = self.parser_post.parse_args()["endpoints"]
+            # if endpoints:
+            #     endpoints = decode_base64(encoded_data=endpoints)
             markdown = decode_base64(
                 encoded_data=self.parser_post.parse_args()["markdown"]
             )
             # output = self.parser_post.parse_args()["output"]
-            # success = self.parser_post.parse_args()["success"]
             entity_name = (
                 f"{component_type}-{custom_name}"
                 if custom_name != "None"
                 else component_type
             )
-            # decoded_data = {
-            #     "tn_id": tn_id,
-            #     "component_type": component_type,
-            #     "custom_name": custom_name,
-            #     "endpoints": endpoints,
-            #     "markdown": markdown,
-            #     "output": output,
-            #     "success": success,
-            # }
 
             trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
             if not trial_network:
                 return {
                     "message": f"No trial network with the name {tn_id} in database"
                 }, 404
-            # trial_network.set_jenkins_deploy_build_callback(
-            #     build_name=entity_name, build_callback=decoded_data
-            # )
             report = trial_network.report
             report += markdown
             trial_network.set_report(report=report)

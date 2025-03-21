@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 
 from conf.sites import SitesSettings
 from core.exceptions.exceptions_handler import SitesError
@@ -54,6 +54,21 @@ class SitesHandler:
             github_reference_type=self.sites_reference_type,
             github_reference_value=self.sites_reference_value,
         )
+
+    def get_available_components_names(self, deployment_site: str) -> List[str]:
+        """
+        Function to get all components available in the sites
+
+        :param deployment_site: directory of site, ``str``
+        :return: list of components available in the sites, ``List[str]``
+        """
+        available_components = []
+        site_available_components = self.get_site_available_components(
+            deployment_site=deployment_site
+        )
+        if site_available_components:
+            available_components = list(site_available_components.keys())
+        return available_components
 
     def get_site_available_components(self, deployment_site: str) -> Dict:
         """

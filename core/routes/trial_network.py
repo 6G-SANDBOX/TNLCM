@@ -8,7 +8,6 @@ from jwt.exceptions import PyJWTError
 from werkzeug.datastructures import FileStorage
 
 from conf.jenkins import JenkinsSettings
-from conf.sites import SitesSettings
 from core.auth.auth import get_current_user_from_jwt
 from core.exceptions.exceptions_handler import CustomException
 from core.jenkins.jenkins_handler import JenkinsHandler
@@ -25,7 +24,7 @@ from core.utils.os import (
     join_path,
     remove_directory,
 )
-from core.utils.parser import ansible_decrypt
+from core.utils.parser import ansible_decrypt, decode_base64
 
 trial_network_namespace = Namespace(
     name="trial-network",
@@ -91,6 +90,13 @@ class CreateValidateTrialNetwork(Resource):
         help="Directory inside the branch of the Sites repository",
     )
     parser_post.add_argument(
+        "deployment_site_token",
+        type=str,
+        required=False,
+        location="form",
+        help="Token in base64 to decrypt the core.yaml file from the deployment site",
+    )
+    parser_post.add_argument(
         "validate",
         type=str,
         required=True,
@@ -123,6 +129,9 @@ class CreateValidateTrialNetwork(Resource):
             ]
             sites_branch = self.parser_post.parse_args()["sites_branch"]
             deployment_site = self.parser_post.parse_args()["deployment_site"]
+            deployment_site_token = self.parser_post.parse_args()[
+                "deployment_site_token"
+            ]
             validate = self.parser_post.parse_args()["validate"]
 
             current_user = get_current_user_from_jwt(jwt_identity=get_jwt_identity())
@@ -228,10 +237,13 @@ class CreateValidateTrialNetwork(Resource):
                             trial_network.tn_id,
                         )
                     )
-                if not sites_branch or not deployment_site:
+                if not sites_branch or not deployment_site or not deployment_site_token:
                     return {
                         "message": "All parameters are required when validate=True"
                     }, 400
+                deployment_site_token = decode_base64(
+                    encoded_data=deployment_site_token
+                )
                 library_handler = LibraryHandler(
                     reference_type=library_reference_type,
                     reference_value=library_reference_value,
@@ -254,15 +266,15 @@ class CreateValidateTrialNetwork(Resource):
                 sites_handler.repository_handler.git_clone()
                 sites_handler.repository_handler.git_fetch_prune()
                 sites_handler.repository_handler.git_checkout()
+                sites_handler.validate_deployment_site(deployment_site=deployment_site)
                 ansible_decrypt(
                     data_path=join_path(
                         sites_handler.sites_local_directory,
                         deployment_site,
                         "core.yaml",
                     ),
-                    token=SitesSettings.SITES_TOKEN,
+                    token=deployment_site_token,
                 )
-                sites_handler.validate_deployment_site(deployment_site=deployment_site)
                 trial_network.set_sites_https_url(
                     sites_https_url=sites_handler.sites_https_url
                 )
@@ -374,6 +386,7 @@ class ActivateTrialNetwork(Resource):
         "jenkins_deploy_pipeline",
         type=str,
         required=False,
+        location="args",
         help=f"Name of the Jenkins pipeline used to deploy a trial network. It is optional. If not specified, pipeline will be created inside TNLCM folder in Jenkins with the name **{JenkinsSettings.JENKINS_DEPLOY_PIPELINE}_<tn_id>**. If specified, will be checked that it exists in Jenkins and that it has nothing queued to execute",
     )
 
@@ -435,7 +448,8 @@ class ActivateTrialNetwork(Resource):
                 resource_manager = ResourceManagerModel()
                 with tn_resource_manager_lock:
                     resource_manager.apply_resource_manager(
-                        trial_network, site_available_components
+                        trial_network=trial_network,
+                        site_available_components=site_available_components,
                     )
                 trial_network.set_jenkins_deploy_pipeline(
                     jenkins_deploy_pipeline=jenkins_deploy_pipeline,
@@ -529,6 +543,7 @@ class DestroyTrialNetwork(Resource):
         "jenkins_destroy_pipeline",
         type=str,
         required=False,
+        location="args",
         help=f"Name of the Jenkins pipeline used to destroy a trial network. It is optional. If not specified, pipeline will be created inside TNLCM folder in Jenkins with the name **{JenkinsSettings.JENKINS_DESTROY_PIPELINE}_<tn_id>**. If specified, will be checked that it exists in Jenkins and that it has nothing queued to execute",
     )
 
@@ -620,97 +635,6 @@ class DestroyTrialNetwork(Resource):
             TrialNetworkLogger(tn_id=tn_id).info(
                 message="Trial network failed-destruction. In this state, the trial network is waiting to be destroyed"
             )
-            return abort(code=500, message=str(e))
-
-
-@trial_network_namespace.param(
-    name="tn_id", type="str", description="Trial network identifier"
-)
-@trial_network_namespace.route("s/<string:tn_id>/library")
-class LibraryComponentsTrialNetwork(Resource):
-    @trial_network_namespace.doc(security="Bearer Auth")
-    @trial_network_namespace.errorhandler(PyJWTError)
-    @trial_network_namespace.errorhandler(JWTExtendedException)
-    @jwt_required()
-    def get(self, tn_id: str):
-        """
-        Retrieve the components associated to trial network
-        """
-        try:
-            current_user = get_current_user_from_jwt(jwt_identity=get_jwt_identity())
-            trial_network = TrialNetworkModel.objects(
-                user_created=current_user.username, tn_id=tn_id
-            ).first()
-            if current_user.role == "admin":
-                trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
-            if not trial_network:
-                return {
-                    "message": f"No trial network with identifier {tn_id} created by the user {current_user.username}"
-                }, 404
-            library_handler = LibraryHandler(
-                https_url=trial_network.library_https_url,
-                reference_type="branch",
-                reference_value="main",
-                directory_path=trial_network.directory_path,
-            )
-            library_handler.repository_handler.git_checkout()
-            library_handler.repository_handler.git_pull()
-            library_handler.repository_handler.git_fetch_prune()
-            library_handler = LibraryHandler(
-                https_url=trial_network.library_https_url,
-                reference_type="commit",
-                reference_value=trial_network.library_commit_id,
-                directory_path=trial_network.directory_path,
-            )
-            library_handler.repository_handler.git_checkout()
-            return {"components": library_handler.get_components()}, 200
-        except CustomException as e:
-            return {"message": str(e.message)}, e.status_code
-        except Exception as e:
-            return abort(code=500, message=str(e))
-
-
-@trial_network_namespace.param(
-    name="tn_id", type="str", description="Trial network identifier"
-)
-@trial_network_namespace.param(
-    name="component_name", type="str", description="Library component name"
-)
-@trial_network_namespace.route("s/<string:tn_id>/library/<string:component_name>")
-class LibraryComponentTrialNetwork(Resource):
-    @trial_network_namespace.doc(security="Bearer Auth")
-    @trial_network_namespace.errorhandler(PyJWTError)
-    @trial_network_namespace.errorhandler(JWTExtendedException)
-    @jwt_required()
-    def get(self, tn_id: str, component_name: str):
-        """
-        Retrieve the component information associated to trial network
-        """
-        try:
-            current_user = get_current_user_from_jwt(jwt_identity=get_jwt_identity())
-            trial_network = TrialNetworkModel.objects(
-                user_created=current_user.username, tn_id=tn_id
-            ).first()
-            if current_user.role == "admin":
-                trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
-            if not trial_network:
-                return {
-                    "message": f"No trial network with identifier {tn_id} created by the user {current_user.username}"
-                }, 404
-            library_handler = LibraryHandler(
-                https_url=trial_network.library_https_url,
-                reference_type="commit",
-                reference_value=trial_network.library_commit_id,
-                directory_path=trial_network.directory_path,
-            )
-            return {
-                "component": library_handler.get_component_input(
-                    component_name=component_name
-                )
-            }, 200
-        except CustomException as e:
-            return {"message": str(e.message)}, e.status_code
-        except Exception as e:
             return abort(code=500, message=str(e))
 
 
