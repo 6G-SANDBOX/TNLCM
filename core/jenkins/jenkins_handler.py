@@ -362,7 +362,6 @@ class JenkinsHandler:
         :param file: file to be passed to the Jenkins deployment pipeline, ``str``
         :raises JenkinsError:
         """
-        print(file)
         build_job_url = self.jenkins_client.build_job_url(
             name=pipeline_name,
             parameters=build_params,
