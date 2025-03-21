@@ -66,9 +66,6 @@ class JenkinsHandler:
             config = config.replace(old_name, new_name)
             config = config.replace(f"{new_name}.groovy", f"{old_name}.groovy")
             self.jenkins_client.create_job(name=new_name, config_xml=config)
-        TrialNetworkLogger(tn_id=self.trial_network.tn_id).info(
-            message=f"Pipeline {new_name} available in Jenkins for the trial network"
-        )
         pipeline_url = self.jenkins_client.get_job_info(name=new_name)["url"].replace(
             "http://localhost:8080", JenkinsSettings.JENKINS_URL
         )
@@ -355,3 +352,59 @@ class JenkinsHandler:
             and pipeline_name != JenkinsSettings.JENKINS_DESTROY_PIPELINE
         ):
             self.jenkins_client.delete_job(name=pipeline_name)
+
+    def trigger_pipeline(self, pipeline_name: str, build_params: Dict, file) -> None:
+        """
+        Trigger pipeline in Jenkins
+
+        :param pipeline_name: name of pipeline, ``str``
+        :param build_params: dictionary with the parameters for the Jenkins deployment pipeline, ``Dict``
+        :param file: file to be passed to the Jenkins deployment pipeline, ``str``
+        :raises JenkinsError:
+        """
+        print(file)
+        build_job_url = self.jenkins_client.build_job_url(
+            name=pipeline_name,
+            parameters=build_params,
+        )
+        stdout, stderr, rc = run_command(
+            command=f'curl -w "%{{http_code}}" -X POST "{build_job_url}" -u "{JenkinsSettings.JENKINS_USERNAME}:{JenkinsSettings.JENKINS_TOKEN}" --data-binary "@{file}"'
+        )
+        _, status_code = stdout[:-3].strip(), stdout[-3:]
+        if status_code != "201":
+            raise JenkinsError(
+                message=f"Error in the response received by Jenkins when trying to deploy the entity. Error received: {stderr}. Return code: {rc}",
+                status_code=status_code,
+            )
+        next_build_number = self.jenkins_client.get_job_info(name=pipeline_name)[
+            "nextBuildNumber"
+        ]
+        while not self.jenkins_client.get_job_info(name=pipeline_name)[
+            "lastCompletedBuild"
+        ]:
+            sleep(15)
+        while (
+            next_build_number
+            != self.jenkins_client.get_job_info(name=pipeline_name)[
+                "lastCompletedBuild"
+            ]["number"]
+        ):
+            sleep(15)
+        build_console_output = self.jenkins_client.get_build_console_output(
+            name=pipeline_name, number=next_build_number
+        )
+        if (
+            self.jenkins_client.get_job_info(name=pipeline_name)["lastSuccessfulBuild"][
+                "number"
+            ]
+            != next_build_number
+        ):
+            raise JenkinsError(
+                message=(
+                    f"Pipeline {pipeline_name} failed when trying to deploy the entity. Pipeline build console output:\n"
+                    "------------------------------------------------------------------------------------------------------------------\n"
+                    f"{build_console_output}"
+                    "------------------------------------------------------------------------------------------------------------------"
+                ),
+                status_code=500,
+            )
