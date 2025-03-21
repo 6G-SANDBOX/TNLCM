@@ -8,6 +8,7 @@ from jwt.exceptions import PyJWTError
 from werkzeug.datastructures import FileStorage
 
 from conf.jenkins import JenkinsSettings
+from conf.tnlcm import TnlcmSettings
 from core.auth.auth import get_current_user_from_jwt
 from core.exceptions.exceptions_handler import CustomException
 from core.jenkins.jenkins_handler import JenkinsHandler
@@ -1010,6 +1011,7 @@ class TriggerTrialNetwork(Resource):
                 "COMPONENT_TYPE": component_type,
                 "CUSTOM_NAME": custom_name,
                 "DEPLOYMENT_SITE": deployment_site,
+                "TNLCM_CALLBACK": TnlcmSettings.TNLCM_CALLBACK,
                 "LIBRARY_URL": library_url,
                 "LIBRARY_BRANCH": library_branch,
                 "SITES_URL": sites_url,
