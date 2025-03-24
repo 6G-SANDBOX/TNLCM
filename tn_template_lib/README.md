@@ -7,9 +7,9 @@
 > 
 > [**EXAMPLE**](https://github.com/6G-SANDBOX/6G-Library/blob/main/elcm/sample_tnlcm_descriptor.yaml)
 
-## [elcm](elcm.yaml)
+## [elcm_loadcore](elcm_loadcore.yaml)
 
-![elcm](https://github.com/6G-SANDBOX/6G-Library/blob/assets/elcm/elcm.png)
+<!-- ![elcm_loadcore](https://github.com/6G-SANDBOX/6G-Library/blob/assets/elcm/elcm.png) -->
 
 ### Components
 
