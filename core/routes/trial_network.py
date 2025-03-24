@@ -19,7 +19,6 @@ from core.sites.sites_handler import SitesHandler
 from core.utils.file import load_file, save_file
 from core.utils.os import (
     TRIAL_NETWORKS_PATH,
-    exist_directory,
     is_file,
     join_path,
     remove_directory,
