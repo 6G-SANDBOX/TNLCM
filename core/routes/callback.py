@@ -5,7 +5,6 @@ from jwt.exceptions import PyJWTError
 
 from conf.jenkins import JenkinsSettings
 from core.exceptions.exceptions_handler import CustomException
-from core.logs.log_handler import TrialNetworkLogger
 from core.models.trial_network import TrialNetworkModel
 from core.utils.parser import decode_base64
 
@@ -104,9 +103,6 @@ class Callback(Resource):
             report += markdown
             trial_network.set_report(report=report)
             trial_network.save()
-            TrialNetworkLogger(tn_id=trial_network.tn_id).info(
-                message=f"Results of the entity {entity_name} received by Jenkins saved successfully"
-            )
             return {
                 "message": f"Results of the entity {entity_name} received by Jenkins saved successfully"
             }, 200

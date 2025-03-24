@@ -84,24 +84,30 @@ class TrialNetworkLogger:
             file_handler.setFormatter(fmt=file_formatter)
             self.logger.addHandler(file_handler)
 
-    def _log(self, level, message):
+    def _log(self, level, message, lines_to_remove=0):
         if self.logger:
+            log_file_path = self.logger.handlers[0].baseFilename
+            if lines_to_remove > 0:
+                with open(log_file_path, "r") as log_file:
+                    lines = log_file.readlines()
+                with open(log_file_path, "w") as log_file:
+                    log_file.writelines(lines[: -(lines_to_remove + 1)])
             self.logger.log(level, message, extra={"tn_id": self.tn_id})
 
-    def critical(self, message: str) -> None:
-        self._log(logging.CRITICAL, message)
+    def critical(self, message: str, lines_to_remove: int = 0) -> None:
+        self._log(logging.CRITICAL, message, lines_to_remove)
 
-    def debug(self, message: str) -> None:
-        self._log(logging.DEBUG, message)
+    def debug(self, message: str, lines_to_remove: int = 0) -> None:
+        self._log(logging.DEBUG, message, lines_to_remove)
 
-    def error(self, message: str) -> None:
-        self._log(logging.ERROR, message)
+    def error(self, message: str, lines_to_remove: int = 0) -> None:
+        self._log(logging.ERROR, message, lines_to_remove)
 
-    def info(self, message: str) -> None:
-        self._log(logging.INFO, message)
+    def info(self, message: str, lines_to_remove: int = 0) -> None:
+        self._log(logging.INFO, message, lines_to_remove)
 
-    def warning(self, message: str) -> None:
-        self._log(logging.WARNING, message)
+    def warning(self, message: str, lines_to_remove: int = 0) -> None:
+        self._log(logging.WARNING, message, lines_to_remove)
 
 
 console_logger = ConsoleLogger()

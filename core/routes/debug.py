@@ -5,7 +5,6 @@ from jwt.exceptions import PyJWTError
 
 from core.auth.auth import get_current_user_from_jwt
 from core.exceptions.exceptions_handler import CustomException
-from core.jenkins.jenkins_handler import JenkinsHandler
 from core.library.library_handler import LibraryHandler
 from core.models.trial_network import TrialNetworkModel
 from core.sites.sites_handler import SitesHandler
@@ -184,45 +183,6 @@ class RemoveDebugEntityName(Resource):
             trial_network.deployed_descriptor = deployed_descriptor
             trial_network.save()
             return trial_network.to_dict_debug_entity_name(), 201
-        except CustomException as e:
-            return {"message": str(e.message)}, e.status_code
-        except Exception as e:
-            return abort(code=500, message=str(e))
-
-
-@debug_namespace.route("/jenkins/pipelines")
-class JenkinsPipelines(Resource):
-    @debug_namespace.doc(security="Bearer Auth")
-    @debug_namespace.errorhandler(PyJWTError)
-    @debug_namespace.errorhandler(JWTExtendedException)
-    @jwt_required()
-    def get(self):
-        """
-        Return pipelines stored in Jenkins
-        """
-        try:
-            jenkins_handler = JenkinsHandler()
-            return {"pipelines": jenkins_handler.get_all_pipelines()}, 200
-        except CustomException as e:
-            return {"message": str(e.message)}, e.status_code
-        except Exception as e:
-            return abort(code=500, message=str(e))
-
-
-@debug_namespace.route("/jenkins/pipeline/<string:pipeline_name>")
-class RemoveJenkinsPipeline(Resource):
-    @debug_namespace.doc(security="Bearer Auth")
-    @debug_namespace.errorhandler(PyJWTError)
-    @debug_namespace.errorhandler(JWTExtendedException)
-    @jwt_required()
-    def delete(self, pipeline_name: str):
-        """
-        Remove a pipeline stored in Jenkins
-        """
-        try:
-            jenkins_handler = JenkinsHandler()
-            jenkins_handler.remove_pipeline(pipeline_name=pipeline_name)
-            return {"message": f"Pipeline {pipeline_name} successfully removed"}, 200
         except CustomException as e:
             return {"message": str(e.message)}, e.status_code
         except Exception as e:

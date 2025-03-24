@@ -8,7 +8,6 @@ from jwt.exceptions import PyJWTError
 from werkzeug.datastructures import FileStorage
 
 from conf.jenkins import JenkinsSettings
-from conf.tnlcm import TnlcmSettings
 from core.auth.auth import get_current_user_from_jwt
 from core.exceptions.exceptions_handler import CustomException
 from core.jenkins.jenkins_handler import JenkinsHandler
@@ -17,7 +16,7 @@ from core.logs.log_handler import TrialNetworkLogger
 from core.models.resource_manager import ResourceManagerModel
 from core.models.trial_network import TrialNetworkModel
 from core.sites.sites_handler import SitesHandler
-from core.utils.file import load_file, save_file, save_yaml_file
+from core.utils.file import load_file, save_file
 from core.utils.os import (
     TRIAL_NETWORKS_DIRECTORY_PATH,
     exist_directory,
@@ -29,7 +28,7 @@ from core.utils.parser import ansible_decrypt, decode_base64
 
 trial_network_namespace = Namespace(
     name="trial-network",
-    description="Namespace for trial network status and management",
+    description="Namespace for trial network management",
     authorizations={
         "Bearer Auth": {
             "type": "apiKey",
@@ -886,155 +885,6 @@ class UpdateTrialNetwork(Resource):
             trial_network.set_raw_descriptor(file=descriptor_file)
             trial_network.save()
             return trial_network.to_dict_created(), 200
-        except CustomException as e:
-            return {"message": str(e.message)}, e.status_code
-        except Exception as e:
-            return abort(code=500, message=str(e))
-
-
-@trial_network_namespace.route("/trigger-pipeline")
-class TriggerTrialNetwork(Resource):
-    parser_post = reqparse.RequestParser()
-    parser_post.add_argument(
-        "tn_id",
-        type=str,
-        required=True,
-        location="form",
-        help="Trial network identifier. It is optional. If not specified, a random will be generated. If specified, it should begin with character and max length 15",
-    )
-    parser_post.add_argument(
-        "component_type",
-        type=str,
-        required=True,
-        location="form",
-        help="The type of component being deployed. This component must be developed in the 6G-Library",
-    )
-    parser_post.add_argument(
-        "custom_name",
-        type=str,
-        required=False,
-        location="form",
-        help="Custom name for the component inside the trial network",
-    )
-    parser_post.add_argument(
-        "deployment_site",
-        type=str,
-        required=True,
-        location="form",
-        help="The site where the component is to be deployed. It must be a directory inside the branch of the Sites repository",
-    )
-    parser_post.add_argument(
-        "library_url",
-        type=str,
-        required=True,
-        location="form",
-        default="https://github.com/6G-SANDBOX/6G-Library.git",
-        help="6G-Library repository HTTPS URL",
-    )
-    parser_post.add_argument(
-        "library_branch",
-        type=str,
-        required=True,
-        location="form",
-        default="refs/heads/develop",
-        help="You can specify a branch, commit or tag of the 6G-Library in which your component is developed. Valid inputs: `refs/heads/<branchName>`, `refs/tags/<tagName>` or `<commitId>`",
-    )
-    parser_post.add_argument(
-        "sites_branch",
-        type=str,
-        required=True,
-        location="form",
-        default="refs/heads/uma",
-        help="You can specify a branch, commit or tag of 6G-Sandbox-Sites with your platform. Valid inputs: `refs/heads/<branchName>`, `refs/tags/<tagName>` or `<commitId>`",
-    )
-    parser_post.add_argument(
-        "sites_url",
-        type=str,
-        required=True,
-        location="form",
-        default="https://github.com/6G-SANDBOX/6G-Sandbox-Sites.git",
-        help="6G-Sandbox-Sites repository HTTP URL",
-    )
-    parser_post.add_argument(
-        "debug",
-        type=str,
-        required=True,
-        location="form",
-        choices=["True", "False"],
-        help="Flag for debugging your component",
-    )
-    parser_post.add_argument(
-        "file",
-        location="files",
-        type=FileStorage,
-        required=True,
-        help="YAML file in which you must specify the mandatory fields from the input section of the public.yaml file of the component in the 6G-Library",
-    )
-
-    @trial_network_namespace.doc(security="Bearer Auth")
-    @trial_network_namespace.errorhandler(PyJWTError)
-    @trial_network_namespace.errorhandler(JWTExtendedException)
-    @jwt_required()
-    @trial_network_namespace.expect(parser_post)
-    def post(self):
-        """
-        Trigger pipeline to deploy a component using Jenkins
-        """
-        try:
-            tn_id = self.parser_post.parse_args()["tn_id"]
-            component_type = self.parser_post.parse_args()["component_type"]
-            custom_name = self.parser_post.parse_args()["custom_name"]
-            deployment_site = self.parser_post.parse_args()["deployment_site"]
-            library_url = self.parser_post.parse_args()["library_url"]
-            library_branch = self.parser_post.parse_args()["library_branch"]
-            sites_url = self.parser_post.parse_args()["sites_url"]
-            sites_branch = self.parser_post.parse_args()["sites_branch"]
-            debug = self.parser_post.parse_args()["debug"]
-            file = self.parser_post.parse_args()["file"]
-
-            current_user = get_current_user_from_jwt(jwt_identity=get_jwt_identity())
-            trial_network = TrialNetworkModel.objects(
-                user_created=current_user.username, tn_id=tn_id
-            ).first()
-            if current_user.role == "admin":
-                trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
-            if trial_network:
-                return {
-                    "message": f"Trial network with identifier {tn_id} already exists"
-                }, 400
-            if debug == "True":
-                debug = True
-            else:
-                debug = False
-            build_params = {
-                "TN_ID": tn_id,
-                "COMPONENT_TYPE": component_type,
-                "CUSTOM_NAME": custom_name,
-                "DEPLOYMENT_SITE": deployment_site,
-                "TNLCM_CALLBACK": TnlcmSettings.TNLCM_CALLBACK,
-                "LIBRARY_URL": library_url,
-                "LIBRARY_BRANCH": library_branch,
-                "SITES_URL": sites_url,
-                "SITES_BRANCH": sites_branch,
-                "DEBUG": debug,
-            }
-            jenkins_handler = JenkinsHandler()
-            pipeline_name, _ = jenkins_handler.clone_pipeline(
-                old_name=JenkinsSettings.JENKINS_DEPLOY_PIPELINE,
-                new_name=JenkinsSettings.JENKINS_TNLCM_DIRECTORY
-                + "/"
-                + JenkinsSettings.JENKINS_DEPLOY_PIPELINE
-                + "_"
-                + tn_id,
-            )
-            jenkins_handler.trigger_pipeline(
-                pipeline_name=pipeline_name,
-                build_params=build_params,
-                file=file,
-            )
-            return {
-                "message": f"Pipeline {pipeline_name} triggered to deploy component {component_type} in trial network {tn_id}"
-            }, 201
         except CustomException as e:
             return {"message": str(e.message)}, e.status_code
         except Exception as e:
