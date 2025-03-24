@@ -12,7 +12,7 @@ from core.models.trial_network import TrialNetworkModel
 from core.utils.cli import run_command
 from core.utils.file import save_yaml_file
 from core.utils.os import (
-    TEMP_DIRECTORY_PATH,
+    TEMP_PATH,
     join_path,
     remove_file,
 )
@@ -136,7 +136,7 @@ class JenkinsHandler:
                 debug = entity_data["debug"]
             entity_data_input = entity_data["input"]
             entity_input_file_path = join_path(
-                TEMP_DIRECTORY_PATH,
+                TEMP_PATH,
                 f"{self.trial_network.tn_id}_{entity_name}_input.yaml",
             )
             save_yaml_file(data=entity_data_input, file_path=entity_input_file_path)

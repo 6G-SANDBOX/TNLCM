@@ -18,7 +18,7 @@ from core.models.trial_network import TrialNetworkModel
 from core.sites.sites_handler import SitesHandler
 from core.utils.file import load_file, save_file
 from core.utils.os import (
-    TRIAL_NETWORKS_DIRECTORY_PATH,
+    TRIAL_NETWORKS_PATH,
     exist_directory,
     is_file,
     join_path,
@@ -163,7 +163,7 @@ class CreateValidateTrialNetwork(Resource):
                             trial_network.set_tn_id(size=3, tn_id=tn_id)
                         trial_network.set_directory_path(
                             directory_path=join_path(
-                                TRIAL_NETWORKS_DIRECTORY_PATH, trial_network.tn_id
+                                TRIAL_NETWORKS_PATH, trial_network.tn_id
                             )
                         )
                 else:
@@ -173,7 +173,7 @@ class CreateValidateTrialNetwork(Resource):
                         trial_network.set_tn_id(size=3, tn_id=tn_id)
                     trial_network.set_directory_path(
                         directory_path=join_path(
-                            TRIAL_NETWORKS_DIRECTORY_PATH, trial_network.tn_id
+                            TRIAL_NETWORKS_PATH, trial_network.tn_id
                         )
                     )
                 library_handler = LibraryHandler(
@@ -223,7 +223,7 @@ class CreateValidateTrialNetwork(Resource):
                             trial_network.set_tn_id(size=3, tn_id=tn_id)
                         trial_network.set_directory_path(
                             directory_path=join_path(
-                                TRIAL_NETWORKS_DIRECTORY_PATH,
+                                TRIAL_NETWORKS_PATH,
                                 trial_network.tn_id,
                             )
                         )
@@ -234,7 +234,7 @@ class CreateValidateTrialNetwork(Resource):
                         trial_network.set_tn_id(size=3)
                     trial_network.set_directory_path(
                         directory_path=join_path(
-                            TRIAL_NETWORKS_DIRECTORY_PATH,
+                            TRIAL_NETWORKS_PATH,
                             trial_network.tn_id,
                         )
                     )

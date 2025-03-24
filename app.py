@@ -14,8 +14,8 @@ from core.routes import (
     user_namespace,
 )
 from core.utils.os import (
-    TEMP_DIRECTORY_PATH,
-    TRIAL_NETWORKS_DIRECTORY_PATH,
+    TEMP_PATH,
+    TRIAL_NETWORKS_PATH,
     make_directory,
 )
 
@@ -35,8 +35,8 @@ api = Api(
     version="1.0",
 )
 
-make_directory(path=TEMP_DIRECTORY_PATH)
-make_directory(path=TRIAL_NETWORKS_DIRECTORY_PATH)
+make_directory(path=TEMP_PATH)
+make_directory(path=TRIAL_NETWORKS_PATH)
 
 api.add_namespace(ns=callback_namespace, path="/api/v1/callback")
 if FlaskConf.FLASK_ENV == "development":

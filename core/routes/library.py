@@ -154,7 +154,6 @@ class TrialNetworksTemplates(Resource):
         Retrieve trial networks templates
         """
         try:
-            # TODO:
             library_handler = LibraryHandler()
             library_handler.repository_handler.git_clone()
             library_handler.repository_handler.git_fetch_prune()

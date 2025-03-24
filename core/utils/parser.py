@@ -6,9 +6,7 @@ from ruamel.yaml import YAML
 from core.exceptions.exceptions_handler import Base64Error
 from core.utils.cli import run_command
 from core.utils.file import save_file
-from core.utils.os import TEMP_DIRECTORY_PATH, join_path
-
-SITES_TOKEN_PATH = join_path(TEMP_DIRECTORY_PATH, "sites_token")
+from core.utils.os import SITES_TOKEN_PATH
 
 
 def ansible_decrypt(data_path: str, token: str) -> None:

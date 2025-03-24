@@ -2,14 +2,15 @@ import os
 import shutil
 from typing import List
 
-CURRENT_DIRECTORY = os.getcwd()
-DOTENV_DEV_PATH = os.path.join(CURRENT_DIRECTORY, ".env.dev")
-DOTENV_PATH = os.path.join(CURRENT_DIRECTORY, ".env")
-PYPROJECT_TOML_PATH = os.path.join(CURRENT_DIRECTORY, "pyproject.toml")
-TEMP_DIRECTORY_PATH = os.path.join(CURRENT_DIRECTORY, ".temp")
-TRIAL_NETWORKS_DIRECTORY_PATH = os.path.join(
-    CURRENT_DIRECTORY, "core", "trial_networks"
-)
+PROJECT_PATH = os.getcwd()
+CORE_PATH = os.path.join(PROJECT_PATH, "core")
+SITES_PATH = os.path.join(CORE_PATH, "sites")
+TEMP_PATH = os.path.join(PROJECT_PATH, ".temp")
+DOTENV_DEV_PATH = os.path.join(PROJECT_PATH, ".env.dev")
+DOTENV_PATH = os.path.join(PROJECT_PATH, ".env")
+PYPROJECT_TOML_PATH = os.path.join(PROJECT_PATH, "pyproject.toml")
+SITES_TOKEN_PATH = os.path.join(SITES_PATH, "sites_token")
+TRIAL_NETWORKS_PATH = os.path.join(CORE_PATH, "trial_networks")
 
 
 def exist_directory(path: str) -> bool:

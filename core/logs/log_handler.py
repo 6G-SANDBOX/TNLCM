@@ -1,7 +1,7 @@
 import logging
 import sys
 
-from core.utils.os import TRIAL_NETWORKS_DIRECTORY_PATH, get_dotenv_var, join_path
+from core.utils.os import TRIAL_NETWORKS_PATH, get_dotenv_var, join_path
 
 LOG_LEVELS_AND_FORMATS = {
     "DEBUG": ("\x1b[38;21m", logging.DEBUG),
@@ -71,7 +71,7 @@ class TrialNetworkLogger:
     def __init__(self, tn_id: str):
         self.tn_id = tn_id
         log_file_name = f"{tn_id}.log"
-        log_file_path = join_path(TRIAL_NETWORKS_DIRECTORY_PATH, tn_id, log_file_name)
+        log_file_path = join_path(TRIAL_NETWORKS_PATH, tn_id, log_file_name)
         log_level_name = get_dotenv_var(key="TRIAL_NETWORK_LOG_LEVEL").upper()
 
         self.logger = logging.getLogger(name=tn_id)
