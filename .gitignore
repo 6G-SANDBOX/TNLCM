@@ -179,4 +179,7 @@ cython_debug/
 
 # TNLCM
 core/trial_networks/
-core/library/library/
+core/library/6G-library
+core/sites/6G-Sandbox-Sites
+.temp/
+temp/

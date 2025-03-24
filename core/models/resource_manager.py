@@ -1,97 +1,114 @@
+from typing import Dict
+
 from mongoengine import Document, IntField, StringField
 
-from core.exceptions.exceptions_handler import CustomResourceManagerException
+from core.exceptions.exceptions_handler import ResourceManagerError
+
 
 class ResourceManagerModel(Document):
-
     component = StringField(unique=True)
-    tn_id = StringField(max_length=15, unique=True)
     quantity = IntField()
-    ttl = StringField() # maybe FloatField
+    tn_id = StringField(max_length=15, unique=True)
 
     meta = {
         "db_alias": "tnlcm-database-alias",
         "collection": "resource_manager",
-        "description": "This collection manages resources"
+        "description": "This collection manages resources",
     }
 
-    def _sites_component_resources(self, component_type: str, site_available_components: dict) -> tuple[int, str]:
+    def tnlcm_component_resources(self, component_type: str) -> int:
+        """
+        Return the number of used instances of the component
+
+        :param component_type: type part of the descriptor file, ``str``
+        :return: number of used instances of the component, ``int``
+        """
+        tnlcm_component_resources = ResourceManagerModel.objects(
+            component=component_type
+        ).first()
+        quantity = 0
+        if tnlcm_component_resources:
+            quantity = tnlcm_component_resources.quantity
+        return quantity
+
+    def sites_component_resources(
+        self, component_type: str, site_available_components: Dict
+    ) -> int:
         """
         Return component resources from Sites repository
-        
+
         :param component_type: type part of the descriptor file, ``str``
-        :param site_available_components: dictionary with all information of all components available on a site, ``dict``
-        :return: tuple containing the quantity (int) and the ttl (str)
+        :param site_available_components: dictionary with all information of all components available on a site, ``Dict``
+        :return:
         """
         sites_component_resources = site_available_components[component_type]
         quantity = 0
-        ttl = ""
         if sites_component_resources and "quantity" in sites_component_resources:
             quantity = sites_component_resources["quantity"]
-        if sites_component_resources and "ttl" in sites_component_resources:
-            ttl = sites_component_resources["ttl"]
-        return quantity, ttl
-    
-    def _tnlcm_component_resources(self, component_type: str) -> tuple[int, str]:
-        """
-        Return component information used by TNLCM
-        
-        :param component_type: type part of the descriptor file, ``str``
-        :return: tuple containing the quantity (int) and the ttl (str)
-        """
-        tnlcm_component_resources = ResourceManagerModel.objects(component=component_type).first()
-        quantity = 0
-        ttl = ""
-        if tnlcm_component_resources:
-            quantity = tnlcm_component_resources["quantity"]
-            ttl = tnlcm_component_resources["ttl"]
-        return quantity, ttl
+        return quantity
 
-    def apply_resource_manager(self, trial_network, site_available_components: dict) -> None:
+    def apply_resource_manager(
+        self, trial_network, site_available_components: Dict
+    ) -> None:
         """
         Apply resource manager to check availability resource
 
         :param trial_network: model of the trial network, ``TrialNetworkModel``
-        :param site_available_components: dictionary with all information of all components available on a site, ``dict``
-        :raise CustomResourceManagerException:
+        :param site_available_components: dictionary with all information of all components available on a site, ``Dict``
+        :raise ResourceManagerError:
         """
-        tn_descriptor = trial_network.sorted_descriptor["trial_network"]
-        for _, entity_data in tn_descriptor.items():
+        sorted_descriptor = trial_network.sorted_descriptor["trial_network"]
+        for _, entity_data in sorted_descriptor.items():
             component_type = entity_data["type"]
-            sites_component_quantity, sites_component_ttl = self._sites_component_resources(component_type, site_available_components)
+            sites_component_quantity = self.sites_component_resources(
+                component_type=component_type,
+                site_available_components=site_available_components,
+            )
             if sites_component_quantity > 0:
-                tnlcm_quantity, _ = self._tnlcm_component_resources(component_type)
+                tnlcm_quantity = self.tnlcm_component_resources(
+                    component_type=component_type
+                )
                 if sites_component_quantity == tnlcm_quantity:
-                    raise CustomResourceManagerException(f"Component {component_type} is not available on the {trial_network.deployment_site} platform", 400)
-                tnlcm_component_resources = ResourceManagerModel.objects(component=component_type).first()
+                    raise ResourceManagerError(
+                        message=f"Component {component_type} has reached the maximum number of instances",
+                        status_code=400,
+                    )
+                tnlcm_component_resources = ResourceManagerModel.objects(
+                    component=component_type
+                ).first()
                 if not tnlcm_component_resources:
-                    tnlcm_component_resources = ResourceManagerModel(component=component_type, tn_id=trial_network.tn_id, quantity=1, ttl=sites_component_ttl)
+                    tnlcm_component_resources = ResourceManagerModel(
+                        component=component_type,
+                        tn_id=trial_network.tn_id,
+                        quantity=1,
+                    )
                 else:
                     tnlcm_component_resources.quantity += 1
                 tnlcm_component_resources.save()
-    
+
     def release_resource_manager(self, trial_network) -> None:
         """
         Release resources when destroy or suspend trial network
 
         :param trial_network: model of the trial network, ``TrialNetworkModel``
         """
-        tn_descriptor = trial_network.sorted_descriptor["trial_network"]
-        for _, entity_data in tn_descriptor.items():
+        sorted_descriptor = trial_network.sorted_descriptor["trial_network"]
+        for _, entity_data in sorted_descriptor.items():
             component_type = entity_data["type"]
-            tnlcm_component_resources = ResourceManagerModel.objects(component=component_type).first()
-            if tnlcm_component_resources:
+            tnlcm_component_resources = ResourceManagerModel.objects(
+                component=component_type
+            ).first()
+            if tnlcm_component_resources and tnlcm_component_resources.quantity > 0:
                 tnlcm_component_resources.quantity -= 1
-                if tnlcm_component_resources.quantity == 0:
-                    tnlcm_component_resources.delete()
                 tnlcm_component_resources.save()
-            
-    def to_dict(self) -> dict:
+            if tnlcm_component_resources and tnlcm_component_resources.quantity == 0:
+                tnlcm_component_resources.delete()
+
+    def to_dict(self) -> Dict:
         return {
             "tn_id": self.tn_id,
             "component": self.component,
             "quantity": self.quantity,
-            "ttl": self.ttl
         }
 
     def __repr__(self) -> str:

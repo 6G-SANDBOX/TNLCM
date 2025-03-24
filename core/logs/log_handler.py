@@ -1,15 +1,16 @@
 import logging
 import sys
 
-from core.utils.os_handler import get_dotenv_var, join_path
+from core.utils.os import TRIAL_NETWORKS_DIRECTORY_PATH, get_dotenv_var, join_path
 
 LOG_LEVELS_AND_FORMATS = {
     "DEBUG": ("\x1b[38;21m", logging.DEBUG),
     "INFO": ("\x1b[38;5;39m", logging.INFO),
     "WARNING": ("\x1b[38;5;226m", logging.WARNING),
     "ERROR": ("\x1b[38;5;196m", logging.ERROR),
-    "CRITICAL": ("\x1b[31;1m", logging.CRITICAL)
+    "CRITICAL": ("\x1b[31;1m", logging.CRITICAL),
 }
+
 
 class CustomFormatter(logging.Formatter):
     """
@@ -25,107 +26,88 @@ class CustomFormatter(logging.Formatter):
     def format(self, record):
         log_color, _ = LOG_LEVELS_AND_FORMATS[record.levelname]
         log_fmt = log_color + self.fmt + self.reset
-        formatter = logging.Formatter(log_fmt)
-        return formatter.format(record)
+        formatter = logging.Formatter(fmt=log_fmt)
+        return formatter.format(record=record)
 
-class ConsoleHandler:
+
+class ConsoleLogger:
     def __init__(self):
         log_format = "[%(asctime)s] - [%(process)d] - [%(levelname)s] - %(message)s"
-        log_level_name = get_dotenv_var(key="TNLCM_LOG_LEVEL").upper()
+        log_level_name = get_dotenv_var(key="TNLCM_CONSOLE_LOG_LEVEL").upper()
         _, log_level = LOG_LEVELS_AND_FORMATS[log_level_name]
 
-        console_formatter = CustomFormatter(log_format)
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(log_level)
-        console_handler.setFormatter(console_formatter)
+        console_formatter = CustomFormatter(fmt=log_format)
+        console_handler = logging.StreamHandler(stream=sys.stdout)
+        console_handler.setLevel(level=log_level)
+        console_handler.setFormatter(fmt=console_formatter)
 
-        self.logger = logging.getLogger("TNLCM")
+        self.logger = logging.getLogger(name="TNLCM")
         self.logger.propagate = False
-        self.logger.setLevel(log_level)
-        self.logger.addHandler(console_handler)
-    
-    def debug(self, message):
-        if self.logger:
-            self.logger.debug(message)
-    
-    def info(self, message):
-        if self.logger:
-            self.logger.info(message)
+        self.logger.setLevel(level=log_level)
+        self.logger.addHandler(hdlr=console_handler)
 
-    def warning(self, message):
+    def critical(self, message: str) -> None:
         if self.logger:
-            self.logger.warning(message)
+            self.logger.critical(msg=message)
 
-    def error(self, message):
+    def debug(self, message: str) -> None:
         if self.logger:
-            self.logger.error(message)
-    
-    def critical(self, message):
+            self.logger.debug(msg=message)
+
+    def error(self, message: str) -> None:
         if self.logger:
-            self.logger.critical(message)
+            self.logger.error(msg=message)
 
-    def close(self):
-        logging.shutdown()
-        self.logger = None
+    def info(self, message: str) -> None:
+        if self.logger:
+            self.logger.info(msg=message)
 
-class TnLogHandler:
+    def warning(self, message: str) -> None:
+        if self.logger:
+            self.logger.warning(msg=message)
+
+
+class TrialNetworkLogger:
     def __init__(self, tn_id: str):
-        from conf.tnlcm import TnlcmSettings
+        self.tn_id = tn_id
         log_file_name = f"{tn_id}.log"
-        log_file_path = join_path(TnlcmSettings.TRIAL_NETWORKS_DIRECTORY, tn_id, log_file_name)
+        log_file_path = join_path(TRIAL_NETWORKS_DIRECTORY_PATH, tn_id, log_file_name)
+        log_level_name = get_dotenv_var(key="TRIAL_NETWORK_LOG_LEVEL").upper()
 
-        self.logger = logging.getLogger(tn_id)
-        self.logger.setLevel(logging.INFO)
-        
-        log_format = "[%(asctime)s] - [%(process)d] - [%(levelname)s] - %(message)s"
-        file_formatter = logging.Formatter(log_format)
-        file_handler = logging.FileHandler(log_file_path)
-        file_handler.setFormatter(file_formatter)
-        self.logger.addHandler(file_handler)
+        self.logger = logging.getLogger(name=tn_id)
+        self.logger.setLevel(level=log_level_name)
 
-    def debug(self, message):
+        if not self.logger.hasHandlers():
+            log_format = "[%(asctime)s] - [%(process)d] - [%(levelname)s] - [%(tn_id)s] - %(message)s"
+            file_formatter = logging.Formatter(fmt=log_format)
+            file_handler = logging.FileHandler(filename=log_file_path)
+            file_handler.setFormatter(fmt=file_formatter)
+            self.logger.addHandler(file_handler)
+
+    def _log(self, level, message, lines_to_remove=0):
         if self.logger:
-            self.logger.debug(message)
-    
-    def info(self, message):
-        if self.logger:
-            self.logger.info(message)
+            log_file_path = self.logger.handlers[0].baseFilename
+            if lines_to_remove > 0:
+                with open(log_file_path, "r") as log_file:
+                    lines = log_file.readlines()
+                with open(log_file_path, "w") as log_file:
+                    log_file.writelines(lines[: -(lines_to_remove + 1)])
+            self.logger.log(level, message, extra={"tn_id": self.tn_id})
 
-    def warning(self, message):
-        if self.logger:
-            self.logger.warning(message)
+    def critical(self, message: str, lines_to_remove: int = 0) -> None:
+        self._log(logging.CRITICAL, message, lines_to_remove)
 
-    def error(self, message):
-        if self.logger:
-            self.logger.error(message)
-    
-    def critical(self, message):
-        if self.logger:
-            self.logger.critical(message)
+    def debug(self, message: str, lines_to_remove: int = 0) -> None:
+        self._log(logging.DEBUG, message, lines_to_remove)
 
-    @staticmethod
-    def get_logger(tn_id):
-        return logging.getLogger(tn_id)
+    def error(self, message: str, lines_to_remove: int = 0) -> None:
+        self._log(logging.ERROR, message, lines_to_remove)
 
-    # @staticmethod
-    # def get_log_content(tn_id):
-    #     log_file_path = os.path.join(TnlcmSettings.TRIAL_NETWORKS_DIRECTORY, tn_id, f"{tn_id}.log")
-    #     with open(log_file_path, "rb") as log_file:
-    #         return log_file.read()
-    
-    # @staticmethod
-    # def get_last_log_line(tn_id):
-    #     log_file_path = os.path.join(TnlcmSettings.TRIAL_NETWORKS_DIRECTORY, tn_id, f"{tn_id}.log")
-    #     if not os.path.isfile(log_file_path):
-    #         return f"Log file for TN ID {tn_id} not found."
+    def info(self, message: str, lines_to_remove: int = 0) -> None:
+        self._log(logging.INFO, message, lines_to_remove)
 
-    #     with open(log_file_path, "r") as log_file:
-    #         lines = log_file.readlines()
-    #         return lines[-1].strip() if lines else "No log entries found."
+    def warning(self, message: str, lines_to_remove: int = 0) -> None:
+        self._log(logging.WARNING, message, lines_to_remove)
 
-    def close(self):
-        logging.shutdown()
-        self.logger = None
-        self.log_file = None
 
-tnlcm_log_handler = ConsoleHandler()
+console_logger = ConsoleLogger()
