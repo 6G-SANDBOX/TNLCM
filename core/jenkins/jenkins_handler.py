@@ -151,7 +151,7 @@ class JenkinsHandler:
                 name=jenkins_deploy_pipeline
             )["nextBuildNumber"]
             stdout, stderr, rc = run_command(
-                command=f'curl -w "%{{http_code}}" -X POST "{build_job_url}" -u "{JenkinsSettings.JENKINS_USERNAME}:{JenkinsSettings.JENKINS_TOKEN}" --data-binary "@{entity_input_file_path}"'
+                command=f'curl -w "%{{http_code}}" -X POST "{build_job_url}" -u "{JenkinsSettings.JENKINS_USERNAME}:{JenkinsSettings.JENKINS_TOKEN}" -F "FILE=@{entity_input_file_path};type=text/yaml"'
             )
             remove_file(path=entity_input_file_path)
             TrialNetworkLogger(tn_id=self.trial_network.tn_id).info(
