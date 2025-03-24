@@ -118,7 +118,6 @@ class CreateValidateTrialNetwork(Resource):
         - If `validate=False`: `descriptor`, `library_reference_type` and `library_reference_value` are required, `tn_id` is optional.
         """
         trial_network = None
-        sites_handler = None
         try:
             tn_id = self.parser_post.parse_args()["tn_id"]
             descriptor_file = self.parser_post.parse_args()["descriptor"]
@@ -145,6 +144,10 @@ class CreateValidateTrialNetwork(Resource):
                         if trial_network.user_created != current_user.username:
                             return {
                                 "message": f"Trial network with identifier {trial_network.tn_id} was not created by the user {current_user.username}"
+                            }, 400
+                        if trial_network.state != "created":
+                            return {
+                                "message": f"Trial network with identifier {trial_network.tn_id} is not possible to create. Only trial networks with status created can be created. Current status: {trial_network.state}"
                             }, 400
                         library_handler = LibraryHandler(
                             reference_type="branch",
@@ -206,6 +209,10 @@ class CreateValidateTrialNetwork(Resource):
                             return {
                                 "message": f"Trial network with identifier {trial_network.tn_id} was not created by the user {current_user.username}"
                             }, 400
+                        if trial_network.state != "created":
+                            return {
+                                "message": f"Trial network with identifier {trial_network.tn_id} is not possible to validate. Only trial networks with status created can be validated. Current status: {trial_network.state}"
+                            }, 400
                         library_handler = LibraryHandler(
                             reference_type="branch",
                             reference_value="main",
@@ -265,6 +272,7 @@ class CreateValidateTrialNetwork(Resource):
                     directory_path=trial_network.directory_path,
                 )
                 sites_handler.repository_handler.git_clone()
+                sites_handler.repository_handler.git_reset_hard()
                 sites_handler.repository_handler.git_fetch_prune()
                 sites_handler.repository_handler.git_checkout()
                 sites_handler.validate_deployment_site(deployment_site=deployment_site)
@@ -302,19 +310,11 @@ class CreateValidateTrialNetwork(Resource):
             if trial_network and validate == "True":
                 trial_network.set_state(state="created")
                 trial_network.save()
-                if sites_handler and exist_directory(
-                    path=sites_handler.sites_local_directory
-                ):
-                    remove_directory(path=sites_handler.sites_local_directory)
             return {"message": str(e.message)}, e.status_code
         except Exception as e:
             if trial_network and validate == "True":
                 trial_network.set_state(state="created")
                 trial_network.save()
-                if sites_handler and exist_directory(
-                    path=sites_handler.sites_local_directory
-                ):
-                    remove_directory(path=sites_handler.sites_local_directory)
             return abort(code=500, message=str(e))
 
 
