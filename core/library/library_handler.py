@@ -10,6 +10,7 @@ from core.utils.os import (
     is_file,
     join_path,
     list_dirs_no_hidden,
+    list_files_no_hidden,
 )
 
 LIBRARY_PATH = join_path(
@@ -84,7 +85,7 @@ class LibraryHandler:
         :raise LibraryError:
         """
         component = {}
-        self.validate_component_available_library(component_name=component_name)
+        self.is_component_library(component_name=component_name)
         public_file_path = join_path(
             self.library_local_directory, component_name, ".tnlcm", "public.yaml"
         )
@@ -162,7 +163,40 @@ class LibraryHandler:
                 components.append(component)
         return sorted(components)
 
-    def validate_component_available_library(self, component_name: str) -> None:
+    def get_trial_networks_templates_component(self, component_name: str) -> Dict:
+        """
+        Function to get the trial networks template of the component type
+
+        :param component_name: the component type to get the trial networks template, ``str``
+        :return trial_networks_templates: the trial networks template, ``Dict``
+        :raise LibraryError:
+        """
+        trial_networks_templates = {}
+        component_path = join_path(self.library_local_directory, component_name)
+        component_templates = []
+        for file in list_files_no_hidden(path=component_path):
+            if file.startswith("sample_tnlcm_descriptor"):
+                file_path = join_path(component_path, file)
+                file_content = load_yaml(file_path=file_path)
+                component_templates.append(file_content)
+        trial_networks_templates[component_name] = component_templates
+        return trial_networks_templates
+
+    def get_trial_networks_templates(self) -> Dict:
+        """
+        Function to get the trial networks templates
+
+        :return trial_networks_templates: the trial networks templates, ``Dict``
+        """
+        components = self.get_components()
+        trial_networks_templates = {}
+        for component in components:
+            trial_networks_templates[component] = (
+                self.get_trial_networks_templates_component(component_name=component)
+            )
+        return trial_networks_templates
+
+    def is_component_library(self, component_name: str) -> None:
         """
         Function to check if component in the descriptor are in the library
 
