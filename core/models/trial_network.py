@@ -629,9 +629,7 @@ class TrialNetworkModel(Document):
                         message=f"Trial network descriptor entity {entity_name} does not match with the union of component type and name which is {component_type}-{name}",
                         status_code=422,
                     )
-            library_handler.validate_component_available_library(
-                component_name=component_type
-            )
+            library_handler.is_component_library(component_name=component_type)
             sites_handler.validate_component_available_site(
                 deployment_site=self.deployment_site, component_name=component_type
             )

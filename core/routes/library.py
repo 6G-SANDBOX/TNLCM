@@ -126,9 +126,7 @@ class Component(Resource):
                 reference_value=reference_value,
             )
             library_handler.repository_handler.git_checkout()
-            library_handler.validate_component_available_library(
-                component_name=component_name
-            )
+            library_handler.is_component_library(component_name=component_name)
             component_input = library_handler.get_component(
                 component_name=component_name
             )
@@ -170,6 +168,49 @@ class TrialNetworksTemplates(Resource):
             return {
                 "trial_networks_templates": library_handler.get_trial_networks_templates()
             }, 200
+        except CustomException as e:
+            return {"message": str(e.message)}, e.status_code
+        except Exception as e:
+            return abort(code=500, message=str(e))
+
+
+@library_namespace.param(
+    name="reference_type",
+    enum=LIBRARY_REFERENCES_TYPES,
+    description="Library reference type",
+)
+@library_namespace.param(
+    name="reference_value", type="str", description="Library reference value"
+)
+@library_namespace.param(
+    name="component_name", type="str", description="Library component name"
+)
+@library_namespace.route(
+    "/<string:reference_type>/<string:reference_value>/trial-networks-templates/<string:component_name>"
+)
+class TrialNetworksTemplatesComponent(Resource):
+    def get(self, reference_type: str, reference_value: str, component_name: str):
+        """
+        Retrieve trial networks templates component
+        """
+        try:
+            library_handler = LibraryHandler()
+            library_handler.repository_handler.git_clone()
+            library_handler.repository_handler.git_fetch_prune()
+            library_handler.repository_handler.git_checkout()
+            library_handler.repository_handler.git_pull()
+            library_handler = LibraryHandler(
+                reference_type=reference_type,
+                reference_value=reference_value,
+            )
+            library_handler.repository_handler.git_checkout()
+            library_handler.is_component_library(component_name=component_name)
+            trial_networks_templates_component = (
+                library_handler.get_trial_networks_templates_component(
+                    component_name=component_name
+                )
+            )
+            return {"trial_networks_templates": trial_networks_templates_component}, 200
         except CustomException as e:
             return {"message": str(e.message)}, e.status_code
         except Exception as e:
