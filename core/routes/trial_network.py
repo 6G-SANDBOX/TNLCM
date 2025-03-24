@@ -118,6 +118,7 @@ class CreateValidateTrialNetwork(Resource):
         - If `validate=False`: `descriptor`, `library_reference_type` and `library_reference_value` are required, `tn_id` is optional.
         """
         trial_network = None
+        sites_handler = None
         try:
             tn_id = self.parser_post.parse_args()["tn_id"]
             descriptor_file = self.parser_post.parse_args()["descriptor"]

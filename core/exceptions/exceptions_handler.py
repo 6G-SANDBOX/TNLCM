@@ -42,6 +42,18 @@ class CliError(CustomException):
         )
 
 
+class Base64Error(CustomException):
+    """Base class for Base64 related errors"""
+
+    def __init__(self, message: str) -> None:
+        """
+        Constructor
+
+        :param message: error message, ``str``
+        """
+        super().__init__(message=message, status_code=500)
+
+
 class FileNotFoundError(CustomException):
     """Error thrown when the file is not found"""
 
