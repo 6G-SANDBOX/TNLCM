@@ -1,7 +1,4 @@
-# Result: pass
-# Platform: UMA, ATHENS, BERLIN, OULU
 trial_network:
-
   tn_init:
     type: "tn_init"
     dependencies: []

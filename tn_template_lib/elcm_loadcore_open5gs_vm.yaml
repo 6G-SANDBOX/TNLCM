@@ -1,3 +1,4 @@
+title: "tn_init / vm_kvm-ubuntu22_04 / elcm-exp / vnet-n2 / open5gs_vm-core / loadcore_agent-dn / loadcore_agent-gnb"
 trial_network:
   tn_init:
     type: "tn_init"
