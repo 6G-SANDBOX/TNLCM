@@ -149,6 +149,7 @@ if [[ "${CURRENT_VERSION}" == "0.4.5" && "${TARGET_VERSION}" == "0.4.6" ]]; then
 
     echo "Remove unnecessary environment variables"
     sed -i '/^TNLCM_LOG_LEVEL=/d' "${BACKEND_DOTENV_FILE}"
+    sed -i '/^SITES_TOKEN=/d' "${BACKEND_DOTENV_FILE}"
     sed -i '/^TWO_FACTOR_AUTH=/d' "${BACKEND_DOTENV_FILE}"
     sed -i '/^MAIL_SERVER=/d' "${BACKEND_DOTENV_FILE}"
     sed -i '/^MAIL_PORT=/d' "${BACKEND_DOTENV_FILE}"
