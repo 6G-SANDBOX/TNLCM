@@ -10,6 +10,7 @@ from core.utils.os import (
     is_file,
     join_path,
     list_dirs_no_hidden,
+    list_files_no_hidden,
 )
 
 LIBRARY_PATH = join_path(
@@ -161,6 +162,25 @@ class LibraryHandler:
             ) and not component.startswith("."):
                 components.append(component)
         return sorted(components)
+
+    def get_trial_networks_templates(self) -> Dict:
+        """
+        Function to get the trial networks templates
+
+        :return trial_networks_templates: the trial networks templates, ``Dict``
+        """
+        components = self.get_components()
+        trial_networks_templates = {}
+        for component in components:
+            component_path = join_path(self.library_local_directory, component)
+            component_templates = []
+            for file in list_files_no_hidden(path=component_path):
+                if file.startswith("sample_tnlcm_descriptor"):
+                    file_path = join_path(component_path, file)
+                    file_content = load_yaml(file_path=file_path)
+                    component_templates.append(file_content)
+            trial_networks_templates[component] = component_templates
+        return trial_networks_templates
 
     def validate_component_available_library(self, component_name: str) -> None:
         """

@@ -74,7 +74,7 @@ def join_path(*args) -> str:
 
 def list_dirs_no_hidden(path: str) -> List[str]:
     """
-    List the files and directories in the directory
+    List the directories in the directory
 
     :param path: the path to the directory, ``str``
     :return: the list of files and directories, ``List[str]``
@@ -86,6 +86,20 @@ def list_dirs_no_hidden(path: str) -> List[str]:
         ):
             directories.append(directory)
     return sorted(directories)
+
+
+def list_files_no_hidden(path: str) -> List[str]:
+    """
+    List the files in the directory
+
+    :param path: the path to the directory, ``str``
+    :return: the list of files, ``List[str]``
+    """
+    files = []
+    for file in os.listdir(path=path):
+        if is_file(path=join_path(path, file)) and not file.startswith("."):
+            files.append(file)
+    return sorted(files)
 
 
 def make_directory(path: str) -> None:
