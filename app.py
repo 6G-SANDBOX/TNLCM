@@ -29,7 +29,7 @@ init_db()
 
 api = Api(
     app=app,
-    description="[[6G-SANDBOX] TNLCM](https://github.com/6G-SANDBOX/TNLCM)",
+    description="https://github.com/6G-SANDBOX/TNLCM",
     doc="/",
     title="Trial Network Lifecycle Manager - TNLCM",
     version="1.0",
