@@ -423,100 +423,51 @@ class ActivateTrialNetwork(Resource):
                 return {
                     "message": f"Trial network with identifier {tn_id} is not possible to activate. Only trial networks with status validated, failed-activation or destroyed can be activated. Current status: {state}"
                 }, 400
-            if state == "validated":
-                jenkins_handler = JenkinsHandler(trial_network=trial_network)
-                if not jenkins_deploy_pipeline:
-                    jenkins_deploy_pipeline, jenkins_deploy_pipeline_url = (
-                        jenkins_handler.clone_pipeline(
-                            old_name=JenkinsSettings.JENKINS_DEPLOY_PIPELINE,
-                            new_name=JenkinsSettings.JENKINS_TNLCM_DIRECTORY
-                            + "/"
-                            + JenkinsSettings.JENKINS_DEPLOY_PIPELINE
-                            + "_"
-                            + trial_network.tn_id,
-                        )
+            jenkins_handler = JenkinsHandler(trial_network=trial_network)
+            if not jenkins_deploy_pipeline:
+                jenkins_deploy_pipeline, jenkins_deploy_pipeline_url = (
+                    jenkins_handler.clone_pipeline(
+                        old_name=JenkinsSettings.JENKINS_DEPLOY_PIPELINE,
+                        new_name=JenkinsSettings.JENKINS_TNLCM_DIRECTORY
+                        + "/"
+                        + JenkinsSettings.JENKINS_DEPLOY_PIPELINE
+                        + "_"
+                        + trial_network.tn_id,
                     )
-                sites_handler = SitesHandler(
-                    https_url=trial_network.sites_https_url,
-                    reference_type="commit",
-                    reference_value=trial_network.sites_commit_id,
-                    directory_path=trial_network.directory_path,
                 )
-                site_available_components = sites_handler.get_site_available_components(
-                    deployment_site=trial_network.deployment_site
+            sites_handler = SitesHandler(
+                https_url=trial_network.sites_https_url,
+                reference_type="commit",
+                reference_value=trial_network.sites_commit_id,
+                directory_path=trial_network.directory_path,
+            )
+            site_available_components = sites_handler.get_site_available_components(
+                deployment_site=trial_network.deployment_site
+            )
+            resource_manager = ResourceManagerModel()
+            with tn_resource_manager_lock:
+                resource_manager.apply_resource_manager(
+                    trial_network=trial_network,
+                    site_available_components=site_available_components,
                 )
-                resource_manager = ResourceManagerModel()
-                with tn_resource_manager_lock:
-                    resource_manager.apply_resource_manager(
-                        trial_network=trial_network,
-                        site_available_components=site_available_components,
-                    )
-                trial_network.set_jenkins_deploy_pipeline(
-                    jenkins_deploy_pipeline=jenkins_deploy_pipeline,
-                    jenkins_deploy_pipeline_url=jenkins_deploy_pipeline_url,
-                )
-                trial_network.set_state(state="activating")
-                trial_network.save()
-                TrialNetworkLogger(tn_id=tn_id).info(
-                    message="Trial network activating. In this transition, the trial network proceeds to the deployment of the components defined in the descriptor"
-                )
-                jenkins_handler.deploy_trial_network()
-                trial_network.set_state(state="activated")
-                trial_network.save()
-                TrialNetworkLogger(tn_id=tn_id).info(
-                    message="Trial network activated. In this state, the trial network has been deployed and is ready to be used"
-                )
-                return {
-                    "message": f"Trial network with identifier {tn_id} activated. The trial network deployment generates a report file showing the information of the components that have been deployed"
-                }, 200
-            elif state == "failed-activation":
-                jenkins_handler = JenkinsHandler(trial_network=trial_network)
-                trial_network.set_state(state="activating")
-                trial_network.save()
-                TrialNetworkLogger(tn_id=tn_id).info(
-                    message="Trial network activating. In this transition, the trial network proceeds to the deployment of the components"
-                )
-                jenkins_handler.deploy_trial_network()
-                trial_network.set_state(state="activated")
-                trial_network.save()
-                TrialNetworkLogger(tn_id=tn_id).info(
-                    message="Trial network activated. In this state, the trial network has been deployed and is ready to be used"
-                )
-                return {
-                    "message": f"Trial network with identifier {tn_id} activated. The trial network deployment generates a report file showing the information of the components that have been deployed"
-                }, 200
-            elif state == "destroyed":
-                sites_handler = SitesHandler(
-                    https_url=trial_network.sites_https_url,
-                    reference_type="commit",
-                    reference_value=trial_network.sites_commit_id,
-                    directory_path=trial_network.directory_path,
-                )
-                site_available_components = sites_handler.get_site_available_components(
-                    deployment_site=trial_network.deployment_site
-                )
-                resource_manager = ResourceManagerModel()
-                with tn_resource_manager_lock:
-                    resource_manager.apply_resource_manager(
-                        trial_network, site_available_components
-                    )
-                jenkins_handler = JenkinsHandler(trial_network=trial_network)
-                trial_network.set_state(state="activating")
-                trial_network.save()
-                TrialNetworkLogger(tn_id=tn_id).info(
-                    message="Trial network activating. In this transition, the trial network proceeds to the deployment of the components"
-                )
-                jenkins_handler.deploy_trial_network()
-                trial_network.set_state(state="activated")
-                trial_network.save()
-                TrialNetworkLogger(tn_id=tn_id).info(
-                    message="Trial network activated. In this state, the trial network has been deployed and is ready to be used"
-                )
-                return {
-                    "message": f"Trial network with identifier {tn_id} re-activated. The trial network deployment generates a report file showing the information of the components that have been deployed"
-                }, 200
-            else:  # TODO: suspended
-                return {"message": "TODO: RESTART trial network suspended"}, 400
+            trial_network.set_jenkins_deploy_pipeline(
+                jenkins_deploy_pipeline=jenkins_deploy_pipeline,
+                jenkins_deploy_pipeline_url=jenkins_deploy_pipeline_url,
+            )
+            trial_network.set_state(state="activating")
+            trial_network.save()
+            TrialNetworkLogger(tn_id=tn_id).info(
+                message="Trial network activating. In this transition, the trial network proceeds to the deployment of the components defined in the descriptor"
+            )
+            jenkins_handler.deploy_trial_network()
+            trial_network.set_state(state="activated")
+            trial_network.save()
+            TrialNetworkLogger(tn_id=tn_id).info(
+                message="Trial network activated. In this state, the trial network has been deployed and is ready to be used"
+            )
+            return {
+                "message": f"Trial network with identifier {tn_id} activated. The trial network deployment generates a report file showing the information of the components that have been deployed"
+            }, 200
         except CustomException as e:
             trial_network.set_state(state="failed-activation")
             trial_network.save()
