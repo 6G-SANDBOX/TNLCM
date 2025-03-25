@@ -12,7 +12,7 @@ from flask_restx import Namespace, Resource, abort, reqparse
 from jwt.exceptions import PyJWTError
 
 from core.auth.auth import get_current_user_from_jwt
-from core.exceptions.exceptions_handler import CustomException
+from core.exceptions.exceptions import CustomException
 from core.models.user import UserModel
 
 EXP_MINUTES_ACCESS_TOKEN = 10080  # one week

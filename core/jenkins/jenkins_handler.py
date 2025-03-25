@@ -1,11 +1,11 @@
 from time import sleep
 from typing import Dict, List, Tuple
 
-from jenkins import Jenkins, JenkinsException
+from jenkins import Jenkins
 
 from conf.jenkins import JenkinsSettings
 from conf.tnlcm import TnlcmSettings
-from core.exceptions.exceptions_handler import JenkinsError
+from core.exceptions.exceptions import JenkinsError
 from core.library.library_handler import LibraryHandler
 from core.logs.log_handler import TrialNetworkLogger
 from core.models.trial_network import TrialNetworkModel
@@ -33,18 +33,12 @@ class JenkinsHandler:
         """
         self.trial_network = trial_network
         self.library_handler = library_handler
-        try:
-            self.jenkins_client = Jenkins(
-                url=JenkinsSettings.JENKINS_URL,
-                username=JenkinsSettings.JENKINS_USERNAME,
-                password=JenkinsSettings.JENKINS_PASSWORD,
-            )
-            self.jenkins_client.get_whoami()
-        except JenkinsException:
-            raise JenkinsError(
-                message=f"Failed when trying to connect to Jenkins. Check the connection settings. Configuration used: {JenkinsSettings.JENKINS_URL}, {JenkinsSettings.JENKINS_USERNAME} and {JenkinsSettings.JENKINS_PASSWORD}",
-                status_code=500,
-            )
+        self.jenkins_client = Jenkins(
+            url=JenkinsSettings.JENKINS_URL,
+            username=JenkinsSettings.JENKINS_USERNAME,
+            password=JenkinsSettings.JENKINS_PASSWORD,
+        )
+        self.jenkins_client.get_whoami()
 
     def clone_pipeline(self, old_name: str, new_name: str) -> Tuple[str, str]:
         """
@@ -102,7 +96,7 @@ class JenkinsHandler:
         if custom_name:
             parameters["CUSTOM_NAME"] = custom_name
             TrialNetworkLogger(tn_id=self.trial_network.tn_id).info(
-                message=f"Declare parameters for the deployment of the entity name {custom_name}"
+                message=f"Declare parameters for the deployment of the entity name {component_type}-{custom_name}"
             )
         else:
             TrialNetworkLogger(tn_id=self.trial_network.tn_id).info(

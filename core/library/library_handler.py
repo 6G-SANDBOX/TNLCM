@@ -1,8 +1,8 @@
 from typing import Dict, List
 
 from conf.library import LibrarySettings
-from core.exceptions.exceptions_handler import LibraryError
-from core.repository.repository_handler import RepositoryHandler
+from core.exceptions.exceptions import LibraryError
+from core.libs.git import Git
 from core.utils.file import load_yaml
 from core.utils.os import (
     get_absolute_path,
@@ -56,7 +56,7 @@ class LibraryHandler:
         else:
             self.library_reference_type = "branch"
             self.library_reference_value = LibrarySettings.LIBRARY_BRANCH
-        self.repository_handler = RepositoryHandler(
+        self.git_client = Git(
             github_https_url=self.library_https_url,
             github_repository_name=self.library_repository_name,
             github_local_directory=self.library_local_directory,
@@ -65,13 +65,13 @@ class LibraryHandler:
         )
         self.library_commit_id = None
 
-    def git_branches(self) -> List[str]:
+    def branches(self) -> List[str]:
         """
         Function to get the branches of the Library
 
         :return branches: the branches of the Library, ``List[str]``
         """
-        branches = self.repository_handler.git_branches()
+        branches = self.git_client.branches()
         if "assets" in branches:
             branches.remove("assets")
         return branches

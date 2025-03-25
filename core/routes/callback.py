@@ -4,7 +4,7 @@ from flask_restx import Namespace, Resource, abort, reqparse
 from jwt.exceptions import PyJWTError
 
 from conf.jenkins import JenkinsSettings
-from core.exceptions.exceptions_handler import CustomException
+from core.exceptions.exceptions import CustomException
 from core.models.trial_network import TrialNetworkModel
 from core.utils.parser import decode_base64
 

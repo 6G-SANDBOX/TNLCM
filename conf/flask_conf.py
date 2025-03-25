@@ -1,4 +1,4 @@
-from core.exceptions.exceptions_handler import InvalidEnvVarError
+from core.exceptions.exceptions import InvalidEnvVarError
 from core.logs.log_handler import console_logger
 from core.utils.os import get_dotenv_var
 

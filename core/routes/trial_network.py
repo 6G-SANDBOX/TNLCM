@@ -9,7 +9,7 @@ from werkzeug.datastructures import FileStorage
 
 from conf.jenkins import JenkinsSettings
 from core.auth.auth import get_current_user_from_jwt
-from core.exceptions.exceptions_handler import CustomException
+from core.exceptions.exceptions import CustomException
 from core.jenkins.jenkins_handler import JenkinsHandler
 from core.library.library_handler import LIBRARY_REFERENCES_TYPES, LibraryHandler
 from core.logs.log_handler import TrialNetworkLogger
@@ -153,9 +153,9 @@ class CreateValidateTrialNetwork(Resource):
                             reference_value="main",
                             directory_path=trial_network.directory_path,
                         )
-                        library_handler.repository_handler.git_clone()
-                        library_handler.repository_handler.git_checkout()
-                        library_handler.repository_handler.git_pull()
+                        library_handler.git_client.clone()
+                        library_handler.git_client.checkout()
+                        library_handler.git_client.pull()
                     else:
                         trial_network = TrialNetworkModel()
                         trial_network.set_user_created(
@@ -183,13 +183,13 @@ class CreateValidateTrialNetwork(Resource):
                     reference_value=library_reference_value,
                     directory_path=trial_network.directory_path,
                 )
-                library_handler.repository_handler.git_clone()
-                library_handler.repository_handler.git_checkout()
+                library_handler.git_client.clone()
+                library_handler.git_client.checkout()
                 trial_network.set_library_https_url(
                     library_https_url=library_handler.library_https_url
                 )
                 trial_network.set_library_commit_id(
-                    library_commit_id=library_handler.repository_handler.git_last_commit_id()
+                    library_commit_id=library_handler.git_client.get_last_commit_id()
                 )
                 trial_network.set_raw_descriptor(file=descriptor_file)
                 trial_network.set_state(state="created")
@@ -217,9 +217,9 @@ class CreateValidateTrialNetwork(Resource):
                             reference_value="main",
                             directory_path=trial_network.directory_path,
                         )
-                        library_handler.repository_handler.git_clone()
-                        library_handler.repository_handler.git_checkout()
-                        library_handler.repository_handler.git_pull()
+                        library_handler.git_client.clone()
+                        library_handler.git_client.checkout()
+                        library_handler.git_client.pull()
                     else:
                         trial_network = TrialNetworkModel()
                         trial_network.set_user_created(
@@ -256,13 +256,13 @@ class CreateValidateTrialNetwork(Resource):
                     reference_value=library_reference_value,
                     directory_path=trial_network.directory_path,
                 )
-                library_handler.repository_handler.git_clone()
-                library_handler.repository_handler.git_checkout()
+                library_handler.git_client.clone()
+                library_handler.git_client.checkout()
                 trial_network.set_library_https_url(
                     library_https_url=library_handler.library_https_url
                 )
                 trial_network.set_library_commit_id(
-                    library_commit_id=library_handler.repository_handler.git_last_commit_id()
+                    library_commit_id=library_handler.git_client.get_last_commit_id()
                 )
                 trial_network.set_raw_descriptor(file=descriptor_file)
                 sites_handler = SitesHandler(
@@ -270,10 +270,10 @@ class CreateValidateTrialNetwork(Resource):
                     reference_value=sites_branch,
                     directory_path=trial_network.directory_path,
                 )
-                sites_handler.repository_handler.git_clone()
-                sites_handler.repository_handler.git_reset_hard()
-                sites_handler.repository_handler.git_fetch_prune()
-                sites_handler.repository_handler.git_checkout()
+                sites_handler.git_client.clone()
+                sites_handler.git_client.reset_hard()
+                sites_handler.git_client.fetch_prune()
+                sites_handler.git_client.checkout()
                 sites_handler.validate_deployment_site(deployment_site=deployment_site)
                 ansible_decrypt(
                     data_path=join_path(
@@ -287,7 +287,7 @@ class CreateValidateTrialNetwork(Resource):
                     sites_https_url=sites_handler.sites_https_url
                 )
                 trial_network.set_sites_commit_id(
-                    sites_commit_id=sites_handler.repository_handler.git_last_commit_id()
+                    sites_commit_id=sites_handler.git_client.get_last_commit_id()
                 )
                 trial_network.set_deployment_site(deployment_site=deployment_site)
                 trial_network.set_state(state="validating")
@@ -423,100 +423,51 @@ class ActivateTrialNetwork(Resource):
                 return {
                     "message": f"Trial network with identifier {tn_id} is not possible to activate. Only trial networks with status validated, failed-activation or destroyed can be activated. Current status: {state}"
                 }, 400
-            if state == "validated":
-                jenkins_handler = JenkinsHandler(trial_network=trial_network)
-                if not jenkins_deploy_pipeline:
-                    jenkins_deploy_pipeline, jenkins_deploy_pipeline_url = (
-                        jenkins_handler.clone_pipeline(
-                            old_name=JenkinsSettings.JENKINS_DEPLOY_PIPELINE,
-                            new_name=JenkinsSettings.JENKINS_TNLCM_DIRECTORY
-                            + "/"
-                            + JenkinsSettings.JENKINS_DEPLOY_PIPELINE
-                            + "_"
-                            + trial_network.tn_id,
-                        )
+            jenkins_handler = JenkinsHandler(trial_network=trial_network)
+            if not jenkins_deploy_pipeline:
+                jenkins_deploy_pipeline, jenkins_deploy_pipeline_url = (
+                    jenkins_handler.clone_pipeline(
+                        old_name=JenkinsSettings.JENKINS_DEPLOY_PIPELINE,
+                        new_name=JenkinsSettings.JENKINS_TNLCM_DIRECTORY
+                        + "/"
+                        + JenkinsSettings.JENKINS_DEPLOY_PIPELINE
+                        + "_"
+                        + trial_network.tn_id,
                     )
-                sites_handler = SitesHandler(
-                    https_url=trial_network.sites_https_url,
-                    reference_type="commit",
-                    reference_value=trial_network.sites_commit_id,
-                    directory_path=trial_network.directory_path,
                 )
-                site_available_components = sites_handler.get_site_available_components(
-                    deployment_site=trial_network.deployment_site
+            sites_handler = SitesHandler(
+                https_url=trial_network.sites_https_url,
+                reference_type="commit",
+                reference_value=trial_network.sites_commit_id,
+                directory_path=trial_network.directory_path,
+            )
+            site_available_components = sites_handler.get_site_available_components(
+                deployment_site=trial_network.deployment_site
+            )
+            resource_manager = ResourceManagerModel()
+            with tn_resource_manager_lock:
+                resource_manager.apply_resource_manager(
+                    trial_network=trial_network,
+                    site_available_components=site_available_components,
                 )
-                resource_manager = ResourceManagerModel()
-                with tn_resource_manager_lock:
-                    resource_manager.apply_resource_manager(
-                        trial_network=trial_network,
-                        site_available_components=site_available_components,
-                    )
-                trial_network.set_jenkins_deploy_pipeline(
-                    jenkins_deploy_pipeline=jenkins_deploy_pipeline,
-                    jenkins_deploy_pipeline_url=jenkins_deploy_pipeline_url,
-                )
-                trial_network.set_state(state="activating")
-                trial_network.save()
-                TrialNetworkLogger(tn_id=tn_id).info(
-                    message="Trial network activating. In this transition, the trial network proceeds to the deployment of the components defined in the descriptor"
-                )
-                jenkins_handler.deploy_trial_network()
-                trial_network.set_state(state="activated")
-                trial_network.save()
-                TrialNetworkLogger(tn_id=tn_id).info(
-                    message="Trial network activated. In this state, the trial network has been deployed and is ready to be used"
-                )
-                return {
-                    "message": f"Trial network with identifier {tn_id} activated. The trial network deployment generates a report file showing the information of the components that have been deployed"
-                }, 200
-            elif state == "failed-activation":
-                jenkins_handler = JenkinsHandler(trial_network=trial_network)
-                trial_network.set_state(state="activating")
-                trial_network.save()
-                TrialNetworkLogger(tn_id=tn_id).info(
-                    message="Trial network activating. In this transition, the trial network proceeds to the deployment of the components"
-                )
-                jenkins_handler.deploy_trial_network()
-                trial_network.set_state(state="activated")
-                trial_network.save()
-                TrialNetworkLogger(tn_id=tn_id).info(
-                    message="Trial network activated. In this state, the trial network has been deployed and is ready to be used"
-                )
-                return {
-                    "message": f"Trial network with identifier {tn_id} activated. The trial network deployment generates a report file showing the information of the components that have been deployed"
-                }, 200
-            elif state == "destroyed":
-                sites_handler = SitesHandler(
-                    https_url=trial_network.sites_https_url,
-                    reference_type="commit",
-                    reference_value=trial_network.sites_commit_id,
-                    directory_path=trial_network.directory_path,
-                )
-                site_available_components = sites_handler.get_site_available_components(
-                    deployment_site=trial_network.deployment_site
-                )
-                resource_manager = ResourceManagerModel()
-                with tn_resource_manager_lock:
-                    resource_manager.apply_resource_manager(
-                        trial_network, site_available_components
-                    )
-                jenkins_handler = JenkinsHandler(trial_network=trial_network)
-                trial_network.set_state(state="activating")
-                trial_network.save()
-                TrialNetworkLogger(tn_id=tn_id).info(
-                    message="Trial network activating. In this transition, the trial network proceeds to the deployment of the components"
-                )
-                jenkins_handler.deploy_trial_network()
-                trial_network.set_state(state="activated")
-                trial_network.save()
-                TrialNetworkLogger(tn_id=tn_id).info(
-                    message="Trial network activated. In this state, the trial network has been deployed and is ready to be used"
-                )
-                return {
-                    "message": f"Trial network with identifier {tn_id} re-activated. The trial network deployment generates a report file showing the information of the components that have been deployed"
-                }, 200
-            else:  # TODO: suspended
-                return {"message": "TODO: RESTART trial network suspended"}, 400
+            trial_network.set_jenkins_deploy_pipeline(
+                jenkins_deploy_pipeline=jenkins_deploy_pipeline,
+                jenkins_deploy_pipeline_url=jenkins_deploy_pipeline_url,
+            )
+            trial_network.set_state(state="activating")
+            trial_network.save()
+            TrialNetworkLogger(tn_id=tn_id).info(
+                message="Trial network activating. In this transition, the trial network proceeds to the deployment of the components defined in the descriptor"
+            )
+            jenkins_handler.deploy_trial_network()
+            trial_network.set_state(state="activated")
+            trial_network.save()
+            TrialNetworkLogger(tn_id=tn_id).info(
+                message="Trial network activated. In this state, the trial network has been deployed and is ready to be used"
+            )
+            return {
+                "message": f"Trial network with identifier {tn_id} activated. The trial network deployment generates a report file showing the information of the components that have been deployed"
+            }, 200
         except CustomException as e:
             trial_network.set_state(state="failed-activation")
             trial_network.save()

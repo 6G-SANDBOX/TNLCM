@@ -5,11 +5,11 @@ from random import choice
 from string import ascii_lowercase, digits
 from typing import Dict, List
 
-from mongoengine import DateTimeField, DictField, Document, StringField
+from mongoengine import BooleanField, DateTimeField, DictField, Document, StringField
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 
-from core.exceptions.exceptions_handler import TrialNetworkError
+from core.exceptions.exceptions import TrialNetworkError
 from core.utils.os import make_directory
 from core.utils.parser import yaml_to_dict
 
@@ -70,6 +70,7 @@ class TrialNetworkModel(Document):
     sites_commit_id = StringField()
     deployment_site = StringField()
     report = StringField(default="")
+    resource_manager = BooleanField(default=False)
 
     meta = {
         "db_alias": "tnlcm-database-alias",
