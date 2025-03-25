@@ -37,7 +37,6 @@ class JenkinsHandler:
             url=JenkinsSettings.JENKINS_URL,
             username=JenkinsSettings.JENKINS_USERNAME,
             password=JenkinsSettings.JENKINS_PASSWORD,
-            token=JenkinsSettings.JENKINS_TOKEN,
         )
         self.jenkins_client.get_whoami()
 
