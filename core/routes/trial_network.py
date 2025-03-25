@@ -189,7 +189,7 @@ class CreateValidateTrialNetwork(Resource):
                     library_https_url=library_handler.library_https_url
                 )
                 trial_network.set_library_commit_id(
-                    library_commit_id=library_handler.git_client.last_commit_id()
+                    library_commit_id=library_handler.git_client.get_last_commit_id()
                 )
                 trial_network.set_raw_descriptor(file=descriptor_file)
                 trial_network.set_state(state="created")
@@ -262,7 +262,7 @@ class CreateValidateTrialNetwork(Resource):
                     library_https_url=library_handler.library_https_url
                 )
                 trial_network.set_library_commit_id(
-                    library_commit_id=library_handler.git_client.last_commit_id()
+                    library_commit_id=library_handler.git_client.get_last_commit_id()
                 )
                 trial_network.set_raw_descriptor(file=descriptor_file)
                 sites_handler = SitesHandler(
@@ -287,7 +287,7 @@ class CreateValidateTrialNetwork(Resource):
                     sites_https_url=sites_handler.sites_https_url
                 )
                 trial_network.set_sites_commit_id(
-                    sites_commit_id=sites_handler.git_client.last_commit_id()
+                    sites_commit_id=sites_handler.git_client.get_last_commit_id()
                 )
                 trial_network.set_deployment_site(deployment_site=deployment_site)
                 trial_network.set_state(state="validating")
