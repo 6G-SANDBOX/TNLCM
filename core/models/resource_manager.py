@@ -57,34 +57,37 @@ class ResourceManagerModel(Document):
         :param site_available_components: dictionary with all information of all components available on a site, ``Dict``
         :raise ResourceManagerError:
         """
-        sorted_descriptor = trial_network.sorted_descriptor["trial_network"]
-        for _, entity_data in sorted_descriptor.items():
-            component_type = entity_data["type"]
-            sites_component_quantity = self.sites_component_resources(
-                component_type=component_type,
-                site_available_components=site_available_components,
-            )
-            if sites_component_quantity > 0:
-                tnlcm_quantity = self.tnlcm_component_resources(
-                    component_type=component_type
+        if not trial_network.resource_manager:
+            sorted_descriptor = trial_network.sorted_descriptor["trial_network"]
+            for _, entity_data in sorted_descriptor.items():
+                component_type = entity_data["type"]
+                sites_component_quantity = self.sites_component_resources(
+                    component_type=component_type,
+                    site_available_components=site_available_components,
                 )
-                if sites_component_quantity == tnlcm_quantity:
-                    raise ResourceManagerError(
-                        message=f"Component {component_type} has reached the maximum number of instances",
-                        status_code=400,
+                if sites_component_quantity > 0:
+                    tnlcm_quantity = self.tnlcm_component_resources(
+                        component_type=component_type
                     )
-                tnlcm_component_resources = ResourceManagerModel.objects(
-                    component=component_type
-                ).first()
-                if not tnlcm_component_resources:
-                    tnlcm_component_resources = ResourceManagerModel(
-                        component=component_type,
-                        tn_id=trial_network.tn_id,
-                        quantity=1,
-                    )
-                else:
-                    tnlcm_component_resources.quantity += 1
-                tnlcm_component_resources.save()
+                    if sites_component_quantity == tnlcm_quantity:
+                        raise ResourceManagerError(
+                            message=f"Component {component_type} has reached the maximum number of instances",
+                            status_code=400,
+                        )
+                    tnlcm_component_resources = ResourceManagerModel.objects(
+                        component=component_type
+                    ).first()
+                    if not tnlcm_component_resources:
+                        tnlcm_component_resources = ResourceManagerModel(
+                            component=component_type,
+                            tn_id=trial_network.tn_id,
+                            quantity=1,
+                        )
+                    else:
+                        tnlcm_component_resources.quantity += 1
+                    tnlcm_component_resources.save()
+        trial_network.resource_manager = True
+        trial_network.save()
 
     def release_resource_manager(self, trial_network) -> None:
         """
@@ -103,6 +106,8 @@ class ResourceManagerModel(Document):
                 tnlcm_component_resources.save()
             if tnlcm_component_resources and tnlcm_component_resources.quantity == 0:
                 tnlcm_component_resources.delete()
+        trial_network.resource_manager = False
+        trial_network.save()
 
     def to_dict(self) -> Dict:
         return {
