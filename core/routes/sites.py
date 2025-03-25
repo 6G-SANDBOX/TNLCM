@@ -4,7 +4,7 @@ from flask_restx import Namespace, Resource, abort, reqparse
 from jwt.exceptions import PyJWTError
 
 from core.auth.auth import get_current_user_from_jwt
-from core.exceptions.exceptions_handler import CustomException
+from core.exceptions.exceptions import CustomException
 from core.sites.sites_handler import SitesHandler
 from core.utils.os import join_path, list_dirs_no_hidden
 from core.utils.parser import ansible_decrypt, decode_base64
@@ -31,12 +31,12 @@ class Branches(Resource):
         """
         try:
             sites_handler = SitesHandler()
-            sites_handler.repository_handler.git_clone()
-            sites_handler.repository_handler.git_reset_hard()
-            sites_handler.repository_handler.git_fetch_prune()
-            sites_handler.repository_handler.git_checkout()
-            sites_handler.repository_handler.git_pull()
-            return {"sites": sites_handler.repository_handler.git_branches()}, 200
+            sites_handler.git_client.clone()
+            sites_handler.git_client.reset_hard()
+            sites_handler.git_client.fetch_prune()
+            sites_handler.git_client.checkout()
+            sites_handler.git_client.pull()
+            return {"sites": sites_handler.git_client.branches()}, 200
         except CustomException as e:
             return {"message": str(e.message)}, e.status_code
         except Exception as e:
@@ -56,11 +56,11 @@ class BranchDirectories(Resource):
             sites_handler = SitesHandler(
                 reference_type="branch", reference_value=branch
             )
-            sites_handler.repository_handler.git_clone()
-            sites_handler.repository_handler.git_reset_hard()
-            sites_handler.repository_handler.git_fetch_prune()
-            sites_handler.repository_handler.git_checkout()
-            sites_handler.repository_handler.git_pull()
+            sites_handler.git_client.clone()
+            sites_handler.git_client.reset_hard()
+            sites_handler.git_client.fetch_prune()
+            sites_handler.git_client.checkout()
+            sites_handler.git_client.pull()
             return {
                 "deployment_sites": list_dirs_no_hidden(
                     path=sites_handler.sites_local_directory
@@ -109,11 +109,11 @@ class ComponentsAvailable(Resource):
             sites_handler = SitesHandler(
                 reference_type="branch", reference_value=branch
             )
-            sites_handler.repository_handler.git_clone()
-            sites_handler.repository_handler.git_reset_hard()
-            sites_handler.repository_handler.git_fetch_prune()
-            sites_handler.repository_handler.git_checkout()
-            sites_handler.repository_handler.git_pull()
+            sites_handler.git_client.clone()
+            sites_handler.git_client.reset_hard()
+            sites_handler.git_client.fetch_prune()
+            sites_handler.git_client.checkout()
+            sites_handler.git_client.pull()
             sites_handler.validate_deployment_site(deployment_site=deployment_site)
             ansible_decrypt(
                 data_path=join_path(

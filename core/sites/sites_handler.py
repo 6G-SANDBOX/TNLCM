@@ -1,8 +1,8 @@
 from typing import Dict, List
 
 from conf.sites import SitesSettings
-from core.exceptions.exceptions_handler import SitesError
-from core.repository.repository_handler import RepositoryHandler
+from core.exceptions.exceptions import SitesError
+from core.libs.git import Git
 from core.utils.file import load_yaml
 from core.utils.os import exist_directory, get_absolute_path, is_file, join_path
 
@@ -47,7 +47,7 @@ class SitesHandler:
         else:
             self.sites_reference_type = "branch"
             self.sites_reference_value = SitesSettings.SITES_BRANCH
-        self.repository_handler = RepositoryHandler(
+        self.git_client = Git(
             github_https_url=self.sites_https_url,
             github_repository_name=self.sites_repository_name,
             github_local_directory=self.sites_local_directory,

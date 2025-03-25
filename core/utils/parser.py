@@ -3,7 +3,7 @@ from typing import Dict
 
 from ruamel.yaml import YAML
 
-from core.exceptions.exceptions_handler import Base64Error
+from core.exceptions.exceptions import Base64Error
 from core.utils.cli import run_command
 from core.utils.file import save_file
 from core.utils.os import SITES_TOKEN_PATH

@@ -1,11 +1,11 @@
 from typing import List
 
-from core.exceptions.exceptions_handler import GitError
+from core.exceptions.exceptions import GitError
 from core.utils.cli import run_command
 from core.utils.os import exist_directory, join_path, remove_directory
 
 
-class RepositoryHandler:
+class Git:
     def __init__(
         self,
         github_https_url: str,
@@ -37,9 +37,12 @@ class RepositoryHandler:
                 old="https://", new=f"https://{github_token}@"
             )
 
-    def git_add(self) -> None:
+    def add(self) -> None:
         """
         Add files to the staging area
+
+        :param options: options to add files to the staging area, ``str``
+        :raise GitError:
         """
         if not exist_directory(path=self.github_local_directory):
             raise GitError(
@@ -48,11 +51,12 @@ class RepositoryHandler:
             )
         run_command(command=f"git -C {self.github_local_directory} add -A")
 
-    def git_branches(self) -> List[str]:
+    def branches(self) -> List[str]:
         """
         Get the list of local and remotes branches in the repository
 
         :return: the list of branches, ``List[str]``
+        :raise GitError:
         """
         if not exist_directory(path=self.github_local_directory):
             raise GitError(
@@ -72,9 +76,11 @@ class RepositoryHandler:
 
         return sorted(branches)
 
-    def git_checkout(self) -> None:
+    def checkout(self) -> None:
         """
         Checkout the specified branch, tag or commit
+
+        :raise GitError:
         """
         if not exist_directory(path=self.github_local_directory):
             raise GitError(
@@ -84,9 +90,11 @@ class RepositoryHandler:
         command = f"git -C {self.github_local_directory} checkout {self.github_reference_value} --"
         run_command(command=command)
 
-    def git_clean_fd(self) -> None:
+    def clean_fd(self) -> None:
         """
         Clean the repository
+
+        :raise GitError:
         """
         if not exist_directory(path=self.github_local_directory):
             raise GitError(
@@ -96,9 +104,9 @@ class RepositoryHandler:
         command = f"git -C {self.github_local_directory} clean -fd"
         run_command(command=command)
 
-    def git_clone(self) -> None:
+    def clone(self) -> None:
         """
-        Clone a GitHub repository to the specified path`
+        Clone a GitHub repository to the specified path
         """
         if exist_directory(path=self.github_local_directory) and not exist_directory(
             join_path(self.github_local_directory, ".git")
@@ -108,9 +116,12 @@ class RepositoryHandler:
             command = f"git clone {self.github_https_url} {self.github_local_directory}"
             run_command(command=command)
 
-    def git_commit(self, message: str) -> None:
+    def commit(self, message: str) -> None:
         """
         Commit the changes to the repository
+
+        :param message: message of the commit, ``str``
+        :raise GitError:
         """
         if not exist_directory(path=self.github_local_directory):
             raise GitError(
@@ -120,9 +131,9 @@ class RepositoryHandler:
         command = f'git -C {self.github_local_directory} commit -m "{message}"'
         run_command(command=command)
 
-    def git_commits(self) -> List[str]:
+    def commits(self) -> List[str]:
         """
-        Git commits
+        Get the list of commits in the repository
 
         :return: list with all commits, ``List[str]``
         :raise GitError:
@@ -136,11 +147,12 @@ class RepositoryHandler:
         stdout, _, _ = run_command(command=command)
         return stdout.strip().split("\n") if stdout.strip() else []
 
-    def git_current_branch(self) -> str:
+    def current_branch(self) -> str:
         """
         Get the current branch of the repository
 
         :return: the current branch, ``str``
+        :raise GitError:
         """
         if not exist_directory(path=self.github_local_directory):
             raise GitError(
@@ -151,11 +163,12 @@ class RepositoryHandler:
         stdout, _, _ = run_command(command=command)
         return stdout.strip()
 
-    def git_detect_changes(self) -> bool:
+    def detect_changes(self) -> bool:
         """
         Detect changes in the repository
 
         :return: True if there are changes, False otherwise, ``bool``
+        :raise GitError:
         """
         if not exist_directory(path=self.github_local_directory):
             raise GitError(
@@ -165,9 +178,11 @@ class RepositoryHandler:
         command = f"git -C {self.github_local_directory} status --porcelain"
         return bool(run_command(command=command))
 
-    def git_fetch_prune(self) -> None:
+    def fetch_prune(self) -> None:
         """
         Fetch the changes from the remote repository and prune the deleted branches
+
+        :raise GitError:
         """
         if not exist_directory(path=self.github_local_directory):
             raise GitError(
@@ -177,11 +192,12 @@ class RepositoryHandler:
         command = f"git -C {self.github_local_directory} fetch --prune"
         run_command(command=command)
 
-    def git_last_commit_id(self) -> str:
+    def get_last_commit_id(self) -> str:
         """
         Get the last commit of the repository
 
         :return: the last commit, ``str``
+        :raise GitError:
         """
         if not exist_directory(path=self.github_local_directory):
             raise GitError(
@@ -192,9 +208,11 @@ class RepositoryHandler:
         stdout, _, _ = run_command(command=command)
         return stdout.strip()
 
-    def git_pull(self) -> None:
+    def pull(self) -> None:
         """
         Pull the changes from the remote repository
+
+        :raise GitError:
         """
         if not exist_directory(path=self.github_local_directory):
             raise GitError(
@@ -204,9 +222,11 @@ class RepositoryHandler:
         command = f"git -C {self.github_local_directory} pull"
         run_command(command=command)
 
-    def git_reset_hard(self) -> None:
+    def reset_hard(self) -> None:
         """
         Reset the repository to the last commit
+
+        :raise GitError:
         """
         if not exist_directory(path=self.github_local_directory):
             raise GitError(
@@ -216,9 +236,11 @@ class RepositoryHandler:
         command = f"git -C {self.github_local_directory} reset --hard"
         run_command(command=command)
 
-    def git_sync_branches(self) -> None:
+    def sync_branches(self) -> None:
         """
         Sync the local and remote branches
+
+        :raise GitError:
         """
         if not exist_directory(path=self.github_local_directory):
             raise GitError(
@@ -228,9 +250,9 @@ class RepositoryHandler:
         command = f"git -C {self.github_local_directory} branch -vv | grep ': gone]' | awk '{{print $1}}' | xargs -r git -C {self.github_local_directory} branch -D"
         run_command(command=command)
 
-    def git_tags(self) -> List[str]:
+    def tags(self) -> List[str]:
         """
-        Git tags
+        Get the list of tags in the repository
 
         :return: list with all tags, ``List[str]``
         :raise GitError:

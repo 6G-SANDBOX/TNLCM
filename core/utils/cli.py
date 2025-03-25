@@ -1,7 +1,7 @@
 import subprocess
 from typing import Tuple
 
-from core.exceptions.exceptions_handler import CliError
+from core.exceptions.exceptions import CliError
 
 
 def run_command(command: str) -> Tuple[str, str, int]:

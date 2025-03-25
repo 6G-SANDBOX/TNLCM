@@ -9,7 +9,7 @@ from mongoengine import DateTimeField, DictField, Document, StringField
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 
-from core.exceptions.exceptions_handler import TrialNetworkError
+from core.exceptions.exceptions import TrialNetworkError
 from core.utils.os import make_directory
 from core.utils.parser import yaml_to_dict
 

@@ -4,7 +4,7 @@ from flask_restx import Namespace, Resource, abort
 from jwt.exceptions import PyJWTError
 
 from core.auth.auth import get_current_user_from_jwt
-from core.exceptions.exceptions_handler import CustomException
+from core.exceptions.exceptions import CustomException
 from core.library.library_handler import LibraryHandler
 from core.models.trial_network import TrialNetworkModel
 from core.sites.sites_handler import SitesHandler
@@ -56,7 +56,7 @@ class UpdateCommitLibrary(Resource):
                 reference_value=trial_network.library_commit_id,
                 directory_path=trial_network.directory_path,
             )
-            library_handler.repository_handler.git_checkout()
+            library_handler.git_client.checkout()
             return trial_network.to_dict_debug_commit_id(), 201
         except CustomException as e:
             return {"message": str(e.message)}, e.status_code
@@ -97,7 +97,7 @@ class UpdateCommitSites(Resource):
                 reference_value=trial_network.library_commit_id,
                 directory_path=trial_network.directory_path,
             )
-            sites_handler.repository_handler.git_checkout()
+            sites_handler.git_client.checkout()
             return trial_network.to_dict_debug_commit_id(), 201
         except CustomException as e:
             return {"message": str(e.message)}, e.status_code

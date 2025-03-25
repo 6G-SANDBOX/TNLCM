@@ -9,7 +9,7 @@ from werkzeug.datastructures import FileStorage
 
 from conf.jenkins import JenkinsSettings
 from core.auth.auth import get_current_user_from_jwt
-from core.exceptions.exceptions_handler import CustomException
+from core.exceptions.exceptions import CustomException
 from core.jenkins.jenkins_handler import JenkinsHandler
 from core.library.library_handler import LIBRARY_REFERENCES_TYPES, LibraryHandler
 from core.logs.log_handler import TrialNetworkLogger
@@ -153,9 +153,9 @@ class CreateValidateTrialNetwork(Resource):
                             reference_value="main",
                             directory_path=trial_network.directory_path,
                         )
-                        library_handler.repository_handler.git_clone()
-                        library_handler.repository_handler.git_checkout()
-                        library_handler.repository_handler.git_pull()
+                        library_handler.git_client.clone()
+                        library_handler.git_client.checkout()
+                        library_handler.git_client.pull()
                     else:
                         trial_network = TrialNetworkModel()
                         trial_network.set_user_created(
@@ -183,13 +183,13 @@ class CreateValidateTrialNetwork(Resource):
                     reference_value=library_reference_value,
                     directory_path=trial_network.directory_path,
                 )
-                library_handler.repository_handler.git_clone()
-                library_handler.repository_handler.git_checkout()
+                library_handler.git_client.clone()
+                library_handler.git_client.checkout()
                 trial_network.set_library_https_url(
                     library_https_url=library_handler.library_https_url
                 )
                 trial_network.set_library_commit_id(
-                    library_commit_id=library_handler.repository_handler.git_last_commit_id()
+                    library_commit_id=library_handler.git_client.last_commit_id()
                 )
                 trial_network.set_raw_descriptor(file=descriptor_file)
                 trial_network.set_state(state="created")
@@ -217,9 +217,9 @@ class CreateValidateTrialNetwork(Resource):
                             reference_value="main",
                             directory_path=trial_network.directory_path,
                         )
-                        library_handler.repository_handler.git_clone()
-                        library_handler.repository_handler.git_checkout()
-                        library_handler.repository_handler.git_pull()
+                        library_handler.git_client.clone()
+                        library_handler.git_client.checkout()
+                        library_handler.git_client.pull()
                     else:
                         trial_network = TrialNetworkModel()
                         trial_network.set_user_created(
@@ -256,13 +256,13 @@ class CreateValidateTrialNetwork(Resource):
                     reference_value=library_reference_value,
                     directory_path=trial_network.directory_path,
                 )
-                library_handler.repository_handler.git_clone()
-                library_handler.repository_handler.git_checkout()
+                library_handler.git_client.clone()
+                library_handler.git_client.checkout()
                 trial_network.set_library_https_url(
                     library_https_url=library_handler.library_https_url
                 )
                 trial_network.set_library_commit_id(
-                    library_commit_id=library_handler.repository_handler.git_last_commit_id()
+                    library_commit_id=library_handler.git_client.last_commit_id()
                 )
                 trial_network.set_raw_descriptor(file=descriptor_file)
                 sites_handler = SitesHandler(
@@ -270,10 +270,10 @@ class CreateValidateTrialNetwork(Resource):
                     reference_value=sites_branch,
                     directory_path=trial_network.directory_path,
                 )
-                sites_handler.repository_handler.git_clone()
-                sites_handler.repository_handler.git_reset_hard()
-                sites_handler.repository_handler.git_fetch_prune()
-                sites_handler.repository_handler.git_checkout()
+                sites_handler.git_client.clone()
+                sites_handler.git_client.reset_hard()
+                sites_handler.git_client.fetch_prune()
+                sites_handler.git_client.checkout()
                 sites_handler.validate_deployment_site(deployment_site=deployment_site)
                 ansible_decrypt(
                     data_path=join_path(
@@ -287,7 +287,7 @@ class CreateValidateTrialNetwork(Resource):
                     sites_https_url=sites_handler.sites_https_url
                 )
                 trial_network.set_sites_commit_id(
-                    sites_commit_id=sites_handler.repository_handler.git_last_commit_id()
+                    sites_commit_id=sites_handler.git_client.last_commit_id()
                 )
                 trial_network.set_deployment_site(deployment_site=deployment_site)
                 trial_network.set_state(state="validating")

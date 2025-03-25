@@ -4,7 +4,7 @@ from typing import Dict
 from ruamel.yaml import YAML
 from ruamel.yaml.scalarstring import DoubleQuotedScalarString
 
-from core.exceptions.exceptions_handler import FileNotFoundError
+from core.exceptions.exceptions import FileNotFoundError
 from core.utils.os import is_file
 
 

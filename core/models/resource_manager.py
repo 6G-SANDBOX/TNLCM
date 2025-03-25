@@ -2,7 +2,7 @@ from typing import Dict
 
 from mongoengine import Document, IntField, StringField
 
-from core.exceptions.exceptions_handler import ResourceManagerError
+from core.exceptions.exceptions import ResourceManagerError
 
 
 class ResourceManagerModel(Document):

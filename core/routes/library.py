@@ -1,6 +1,6 @@
 from flask_restx import Namespace, Resource, abort
 
-from core.exceptions.exceptions_handler import CustomException
+from core.exceptions.exceptions import CustomException
 from core.library.library_handler import LIBRARY_REFERENCES_TYPES, LibraryHandler
 
 library_namespace = Namespace(
@@ -39,18 +39,16 @@ class ReferenceType(Resource):
                     "message": f"Library reference type {reference_type} is not valid"
                 }, 400
             library_handler = LibraryHandler()
-            library_handler.repository_handler.git_clone()
-            library_handler.repository_handler.git_fetch_prune()
-            library_handler.repository_handler.git_checkout()
-            library_handler.repository_handler.git_pull()
+            library_handler.git_client.clone()
+            library_handler.git_client.fetch_prune()
+            library_handler.git_client.checkout()
+            library_handler.git_client.pull()
             if reference_type == "branch":
-                library_reference_value = library_handler.git_branches()
+                library_reference_value = library_handler.branches()
             elif reference_type == "tag":
-                library_reference_value = library_handler.repository_handler.git_tags()
+                library_reference_value = library_handler.git_client.tags()
             else:
-                library_reference_value = (
-                    library_handler.repository_handler.git_commits()
-                )
+                library_reference_value = library_handler.git_client.commits()
             return {f"{reference_type}": library_reference_value}, 200
         except CustomException as e:
             return {"message": str(e.message)}, e.status_code
@@ -74,15 +72,15 @@ class Components(Resource):
         """
         try:
             library_handler = LibraryHandler()
-            library_handler.repository_handler.git_clone()
-            library_handler.repository_handler.git_fetch_prune()
-            library_handler.repository_handler.git_checkout()
-            library_handler.repository_handler.git_pull()
+            library_handler.git_client.clone()
+            library_handler.git_client.fetch_prune()
+            library_handler.git_client.checkout()
+            library_handler.git_client.pull()
             library_handler = LibraryHandler(
                 reference_type=reference_type,
                 reference_value=reference_value,
             )
-            library_handler.repository_handler.git_checkout()
+            library_handler.git_client.checkout()
             components = library_handler.get_components()
             return {"components": components}, 200
         except CustomException as e:
@@ -117,15 +115,15 @@ class Component(Resource):
         """
         try:
             library_handler = LibraryHandler()
-            library_handler.repository_handler.git_clone()
-            library_handler.repository_handler.git_fetch_prune()
-            library_handler.repository_handler.git_checkout()
-            library_handler.repository_handler.git_pull()
+            library_handler.git_client.clone()
+            library_handler.git_client.fetch_prune()
+            library_handler.git_client.checkout()
+            library_handler.git_client.pull()
             library_handler = LibraryHandler(
                 reference_type=reference_type,
                 reference_value=reference_value,
             )
-            library_handler.repository_handler.git_checkout()
+            library_handler.git_client.checkout()
             library_handler.is_component_library(component_name=component_name)
             component_input = library_handler.get_component(
                 component_name=component_name
@@ -155,15 +153,15 @@ class TrialNetworksTemplates(Resource):
         """
         try:
             library_handler = LibraryHandler()
-            library_handler.repository_handler.git_clone()
-            library_handler.repository_handler.git_fetch_prune()
-            library_handler.repository_handler.git_checkout()
-            library_handler.repository_handler.git_pull()
+            library_handler.git_client.clone()
+            library_handler.git_client.fetch_prune()
+            library_handler.git_client.checkout()
+            library_handler.git_client.pull()
             library_handler = LibraryHandler(
                 reference_type=reference_type,
                 reference_value=reference_value,
             )
-            library_handler.repository_handler.git_checkout()
+            library_handler.git_client.checkout()
             return {
                 "trial_networks_templates": library_handler.get_trial_networks_templates()
             }, 200
@@ -194,15 +192,15 @@ class TrialNetworksTemplatesComponent(Resource):
         """
         try:
             library_handler = LibraryHandler()
-            library_handler.repository_handler.git_clone()
-            library_handler.repository_handler.git_fetch_prune()
-            library_handler.repository_handler.git_checkout()
-            library_handler.repository_handler.git_pull()
+            library_handler.git_client.clone()
+            library_handler.git_client.fetch_prune()
+            library_handler.git_client.checkout()
+            library_handler.git_client.pull()
             library_handler = LibraryHandler(
                 reference_type=reference_type,
                 reference_value=reference_value,
             )
-            library_handler.repository_handler.git_checkout()
+            library_handler.git_client.checkout()
             library_handler.is_component_library(component_name=component_name)
             trial_networks_templates_component = (
                 library_handler.get_trial_networks_templates_component(
