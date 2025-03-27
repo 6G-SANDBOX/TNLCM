@@ -27,7 +27,7 @@ def get_absolute_path(__file__) -> str:
     """
     Absolute path
 
-    :param path: path to convert to absolute, ``str``
+    :param __file__: the file, ``str``
     :return: absolute path, ``str``
     """
     return os.path.dirname(os.path.abspath(__file__))
