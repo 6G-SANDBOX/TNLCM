@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased] - XXXX-XX-XX
+## [v0.5.0] - 2025-03-28
 
 ### Added
 
@@ -288,7 +288,7 @@
 
 - Frontend implementation.
 
-[Unreleased]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.5...HEAD
+[v0.5.0]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.5...v0.5.0
 [v0.4.5]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.4...v0.4.5
 [v0.4.4]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.3...v0.4.4
 [v0.4.3]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.2...v0.4.3
