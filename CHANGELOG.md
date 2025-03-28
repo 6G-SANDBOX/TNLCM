@@ -17,6 +17,7 @@
 - Upgrade script with new steps.
 - Document `.env.template` file with new variables.
 - Move `cli` to `utils`.
+- Rename directory `tn_template_lib` to `sample_descriptors`.
 
 ### Fixed
 
