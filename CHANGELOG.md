@@ -1,6 +1,6 @@
 # Changelog
 
-## [v0.5.0] - 2025-03-28
+## [v0.5.0] - 2025-03-31
 
 ### Added
 
@@ -18,6 +18,7 @@
 - Document `.env.template` file with new variables.
 - Move `cli` to `utils`.
 - Rename directory `tn_template_lib` to `sample_descriptors`.
+- Number of workers depends on the number of cores of the machine.
 
 ### Fixed
 

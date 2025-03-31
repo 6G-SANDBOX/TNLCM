@@ -1,3 +1,5 @@
+import multiprocessing
+
 from conf.tnlcm import TnlcmSettings
 from core.logs.log_handler import console_logger
 from core.utils.os import get_dotenv_var
@@ -12,7 +14,7 @@ bind = f"0.0.0.0:{TnlcmSettings.TNLCM_PORT}"
 timeout = get_dotenv_var(key="GUNICORN_TIMEOUT")
 
 # Number of worker processes to handle requests
-workers = get_dotenv_var(key="GUNICORN_WORKERS")
+workers = multiprocessing.cpu_count() * 2 + 1
 
 # WSGI entry point for the application
 wsgi_app = "app:app"
