@@ -17,4 +17,4 @@ class LibrarySettings:
         "LIBRARY_REPOSITORY_NAME": LIBRARY_REPOSITORY_NAME,
     }
 
-    console_logger.info(f"Load Library configuration: {config_dict}")
+    console_logger.info(message=f"Load Library configuration: {config_dict}")

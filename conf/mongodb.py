@@ -41,4 +41,4 @@ class MongoDBSettings:
         "VCAP_APP_HOST": VCAP_APP_HOST,
     }
 
-    console_logger.info(f"Load MongoDB configuration: {config_dict}")
+    console_logger.info(message=f"Load MongoDB configuration: {config_dict}")
