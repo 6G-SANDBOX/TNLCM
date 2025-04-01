@@ -143,7 +143,7 @@ if [[ "${CURRENT_VERSION}" == "0.4.5" && "${TARGET_VERSION}" == "0.5.0" ]]; then
     echo "Starting upgrade from ${CURRENT_VERSION} to ${TARGET_VERSION}..."
 
     apt install -y ansible-core
-    
+
     git -C ${BACKEND_PATH} checkout tags/"v${TARGET_VERSION}"
 
     echo "Syncing backend dependencies"
@@ -170,11 +170,11 @@ if [[ "${CURRENT_VERSION}" == "0.4.5" && "${TARGET_VERSION}" == "0.5.0" ]]; then
     echo "Insert new values for the next variables in the .env"
     read -r -p "Branch of the sites repository. SITES_BRANCH: " SITES_BRANCH
     read -r -p "Directory inside of the branch of the sites repository. SITES_DEPLOYMENT_SITE: " SITES_DEPLOYMENT_SITE
-    read -r -p "Token to decrypt the yaml from the deployment site. SITE_DEPLOYMENT_SITE_TOKEN: " SITE_DEPLOYMENT_SITE_TOKEN
+    read -r -p "Token to decrypt the yaml from the deployment site. SITES_DEPLOYMENT_SITE_TOKEN: " SITES_DEPLOYMENT_SITE_TOKEN
     {
         echo "SITES_BRANCH=${SITES_BRANCH}"
         echo "SITES_DEPLOYMENT_SITE=${SITES_DEPLOYMENT_SITE}"
-        echo "SITE_DEPLOYMENT_SITE_TOKEN=${SITE_DEPLOYMENT_SITE_TOKEN}"
+        echo "SITES_DEPLOYMENT_SITE_TOKEN=${SITES_DEPLOYMENT_SITE_TOKEN}"
     } >> "${BACKEND_DOTENV_FILE}"
 
     
