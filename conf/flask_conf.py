@@ -43,4 +43,4 @@ class FlaskConf(object):
         "TRIAL_NETWORK_LOG_LEVEL": TRIAL_NETWORK_LOG_LEVEL,
     }
 
-    console_logger.info(f"Load Flask configuration: {config_dict}")
+    console_logger.info(message=f"Load Flask configuration: {config_dict}")

@@ -34,4 +34,4 @@ class TnlcmSettings:
         "TNLCM_CALLBACK": TNLCM_CALLBACK,
     }
 
-    console_logger.info(f"Load TNLCM configuration: {config_dict}")
+    console_logger.info(message=f"Load TNLCM configuration: {config_dict}")

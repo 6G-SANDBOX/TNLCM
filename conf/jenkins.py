@@ -42,4 +42,4 @@ class JenkinsSettings:
         "JENKINS_USERNAME": JENKINS_USERNAME,
     }
 
-    console_logger.info(f"Load Jenkins configuration: {config_dict}")
+    console_logger.info(message=f"Load Jenkins configuration: {config_dict}")

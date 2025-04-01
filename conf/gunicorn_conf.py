@@ -26,4 +26,4 @@ config_dict = {
     "WORKERS": workers,
 }
 
-console_logger.info(f"Load gunicorn configuration: {config_dict}")
+console_logger.info(message=f"Load gunicorn configuration: {config_dict}")
