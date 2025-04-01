@@ -142,6 +142,8 @@ if [[ "${CURRENT_VERSION}" == "0.4.5" && "${TARGET_VERSION}" == "0.5.0" ]]; then
 
     echo "Starting upgrade from ${CURRENT_VERSION} to ${TARGET_VERSION}..."
 
+    apt install -y ansible-core
+    
     git -C ${BACKEND_PATH} checkout tags/"v${TARGET_VERSION}"
 
     echo "Syncing backend dependencies"
