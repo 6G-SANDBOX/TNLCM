@@ -150,7 +150,6 @@ if [[ "${CURRENT_VERSION}" == "0.4.5" && "${TARGET_VERSION}" == "0.5.0" ]]; then
     echo "Remove unnecessary environment variables"
     sed -i '/^TNLCM_LOG_LEVEL=/d' "${BACKEND_DOTENV_FILE}"
     sed -i '/^GUNICORN_WORKERS=/d' "${BACKEND_DOTENV_FILE}"
-    sed -i '/^SITES_TOKEN=/d' "${BACKEND_DOTENV_FILE}"
     sed -i '/^TWO_FACTOR_AUTH=/d' "${BACKEND_DOTENV_FILE}"
     sed -i '/^MAIL_SERVER=/d' "${BACKEND_DOTENV_FILE}"
     sed -i '/^MAIL_PORT=/d' "${BACKEND_DOTENV_FILE}"
@@ -163,8 +162,19 @@ if [[ "${CURRENT_VERSION}" == "0.4.5" && "${TARGET_VERSION}" == "0.5.0" ]]; then
     {
         echo 'TNLCM_CONSOLE_LOG_LEVEL="INFO"'
         echo 'TRIAL_NETWORK_LOG_LEVEL="INFO"'
-        echo 'SITES_BRANCH="main"'
+        echo 'JENKINS_TNLCM_DIRECTORY="TNLCM"'
     } >> "${BACKEND_DOTENV_FILE}"
+
+    echo "Insert new values for the next variables in the .env"
+    read -r -p "Branch of the sites repository. SITES_BRANCH: " SITES_BRANCH
+    read -r -p "Directory inside of the branch of the sites repository. SITES_DEPLOYMENT_SITE: " SITES_DEPLOYMENT_SITE
+    read -r -p "Token to decrypt the yaml from the deployment site. SITE_DEPLOYMENT_SITE_TOKEN: " SITE_DEPLOYMENT_SITE_TOKEN
+    {
+        echo "SITES_BRANCH=${SITES_BRANCH}"
+        echo "SITES_DEPLOYMENT_SITE=${SITES_DEPLOYMENT_SITE}"
+        echo "SITE_DEPLOYMENT_SITE_TOKEN=${SITE_DEPLOYMENT_SITE_TOKEN}"
+    } >> "${BACKEND_DOTENV_FILE}"
+
     
     echo "Remove verification_token collection"
     mongosh --eval "

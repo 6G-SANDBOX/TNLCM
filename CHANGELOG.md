@@ -6,7 +6,7 @@
 
 - Namespace for handler 6G-Sandbox-Sites repository requests.
 - New endpoints to integrate TNLCM backend with frontend.
-- New variables `SITES_BRANCH` and `JENKINS_TNLCM_DIRECTORY` in `.env` file to set the branch of the 6G-Sandbox-Sites repository.
+- New variables `SITES_BRANCH`, `SITES_DEPLOYMENT_SITE`, `SITE_DEPLOYMENT_SITE_TOKEN` and `JENKINS_TNLCM_DIRECTORY` in `.env` file to set the branch of the 6G-Sandbox-Sites repository.
 - In the callback route accept requests only from Jenkins.
 
 ### Changed

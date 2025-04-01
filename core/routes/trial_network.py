@@ -8,6 +8,7 @@ from jwt.exceptions import PyJWTError
 from werkzeug.datastructures import FileStorage
 
 from conf.jenkins import JenkinsSettings
+from conf.sites import SitesSettings
 from core.auth.auth import get_current_user_from_jwt
 from core.exceptions.exceptions import CustomException
 from core.jenkins.jenkins_handler import JenkinsHandler
@@ -40,6 +41,173 @@ trial_network_namespace = Namespace(
 
 tn_id_lock = Lock()
 tn_resource_manager_lock = Lock()
+
+
+@trial_network_namespace.route("/legacy")
+class ValidateTrialNetwork(Resource):
+    parser_post = reqparse.RequestParser()
+    parser_post.add_argument(
+        "tn_id",
+        type=str,
+        required=False,
+        location="form",
+        help="Trial network identifier. It is optional. If not specified, a random will be generated. If specified, it should begin with character and max length 15",
+    )
+    parser_post.add_argument(
+        "descriptor",
+        location="files",
+        type=FileStorage,
+        required=True,
+        help="Trial network descriptor file",
+    )
+    parser_post.add_argument(
+        "library_reference_type",
+        type=str,
+        required=True,
+        location="form",
+        choices=LIBRARY_REFERENCES_TYPES,
+        help="Type of the Library reference",
+    )
+    parser_post.add_argument(
+        "library_reference_value",
+        type=str,
+        required=True,
+        location="form",
+        help="Value of the Library reference type",
+    )
+
+    @trial_network_namespace.doc(security="Bearer Auth")
+    @trial_network_namespace.errorhandler(PyJWTError)
+    @trial_network_namespace.errorhandler(JWTExtendedException)
+    @jwt_required()
+    @trial_network_namespace.expect(parser_post)
+    def post(self):
+        """
+        Validate trial network
+        """
+        trial_network = None
+        try:
+            tn_id = self.parser_post.parse_args()["tn_id"]
+            descriptor_file = self.parser_post.parse_args()["descriptor"]
+            library_reference_type = self.parser_post.parse_args()[
+                "library_reference_type"
+            ]
+            library_reference_value = self.parser_post.parse_args()[
+                "library_reference_value"
+            ]
+
+            current_user = get_current_user_from_jwt(jwt_identity=get_jwt_identity())
+            if tn_id:
+                trial_network = TrialNetworkModel.objects(
+                    user_created=current_user.username, tn_id=tn_id
+                ).first()
+                if trial_network:
+                    if trial_network.user_created != current_user.username:
+                        return {
+                            "message": f"Trial network with identifier {trial_network.tn_id} was not created by the user {current_user.username}"
+                        }, 400
+                    if trial_network.state != "created":
+                        return {
+                            "message": f"Trial network with identifier {trial_network.tn_id} is not possible to validate. Only trial networks with status created can be validated. Current status: {trial_network.state}"
+                        }, 400
+                    library_handler = LibraryHandler(
+                        reference_type="branch",
+                        reference_value="main",
+                        directory_path=trial_network.directory_path,
+                    )
+                    library_handler.git_client.clone()
+                    library_handler.git_client.checkout()
+                    library_handler.git_client.pull()
+                else:
+                    trial_network = TrialNetworkModel()
+                    trial_network.set_user_created(user_created=current_user.username)
+                    with tn_id_lock:
+                        trial_network.set_tn_id(size=3, tn_id=tn_id)
+                    trial_network.set_directory_path(
+                        directory_path=join_path(
+                            TRIAL_NETWORKS_PATH,
+                            trial_network.tn_id,
+                        )
+                    )
+            else:
+                trial_network = TrialNetworkModel()
+                trial_network.set_user_created(user_created=current_user.username)
+                with tn_id_lock:
+                    trial_network.set_tn_id(size=3)
+                trial_network.set_directory_path(
+                    directory_path=join_path(
+                        TRIAL_NETWORKS_PATH,
+                        trial_network.tn_id,
+                    )
+                )
+            library_handler = LibraryHandler(
+                reference_type=library_reference_type,
+                reference_value=library_reference_value,
+                directory_path=trial_network.directory_path,
+            )
+            library_handler.git_client.clone()
+            library_handler.git_client.checkout()
+            trial_network.set_library_https_url(
+                library_https_url=library_handler.library_https_url
+            )
+            trial_network.set_library_commit_id(
+                library_commit_id=library_handler.git_client.get_last_commit_id()
+            )
+            trial_network.set_raw_descriptor(file=descriptor_file)
+            sites_handler = SitesHandler(
+                reference_type="branch",
+                reference_value=SitesSettings.SITES_BRANCH,
+                directory_path=trial_network.directory_path,
+            )
+            sites_handler.git_client.clone()
+            sites_handler.git_client.reset_hard()
+            sites_handler.git_client.fetch_prune()
+            sites_handler.git_client.checkout()
+            sites_handler.validate_deployment_site(
+                deployment_site=SitesSettings.SITES_DEPLOYMENT_SITE
+            )
+            ansible_decrypt(
+                data_path=join_path(
+                    sites_handler.sites_local_directory,
+                    SitesSettings.SITES_DEPLOYMENT_SITE,
+                    "core.yaml",
+                ),
+                token=SitesSettings.SITES_DEPLOYMENT_SITE_TOKEN,
+            )
+            trial_network.set_sites_https_url(
+                sites_https_url=sites_handler.sites_https_url
+            )
+            trial_network.set_sites_commit_id(
+                sites_commit_id=sites_handler.git_client.get_last_commit_id()
+            )
+            trial_network.set_deployment_site(
+                deployment_site=SitesSettings.SITES_DEPLOYMENT_SITE
+            )
+            trial_network.set_state(state="validating")
+            trial_network.save()
+            TrialNetworkLogger(tn_id=tn_id).info(
+                message="Trial network validating. In this transition, the trial network descriptor is going to be validated"
+            )
+            trial_network.validate_descriptor(
+                library_handler=library_handler, sites_handler=sites_handler
+            )
+            trial_network.set_sorted_descriptor()
+            trial_network.set_state(state="validated")
+            trial_network.save()
+            TrialNetworkLogger(tn_id=tn_id).info(
+                message="Trial network validated. In this state, the trial network descriptor has been validated and is ready to be deployed"
+            )
+            return trial_network.to_dict_created_validated(), 201
+        except CustomException as e:
+            if trial_network:
+                trial_network.set_state(state="created")
+                trial_network.save()
+            return {"message": str(e.message)}, e.status_code
+        except Exception as e:
+            if trial_network:
+                trial_network.set_state(state="created")
+                trial_network.save()
+            return abort(code=500, message=str(e))
 
 
 @trial_network_namespace.route("")
