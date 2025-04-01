@@ -138,7 +138,7 @@ fi
 
 CURRENT_VERSION=$(grep -oP 'version = "\K[^"]+' ${BACKEND_PATH}/pyproject.toml)
 
-if [[ "${CURRENT_VERSION}" == "0.4.5" && "${TARGET_VERSION}" == "0.4.6" ]]; then
+if [[ "${CURRENT_VERSION}" == "0.4.5" && "${TARGET_VERSION}" == "0.5.0" ]]; then
 
     echo "Starting upgrade from ${CURRENT_VERSION} to ${TARGET_VERSION}..."
 
