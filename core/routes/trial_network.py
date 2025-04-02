@@ -84,7 +84,7 @@ class CreateValidateTrialNetworkSpecificSite(Resource):
     @trial_network_namespace.expect(parser_post)
     def post(self):
         """
-        Create or validate trial network using site specified in .env
+        Create or validate trial network using site specified in backend environment
         """
         trial_network = None
         try:
@@ -280,7 +280,7 @@ class CreateValidateTrialNetwork(Resource):
     @trial_network_namespace.expect(parser_post)
     def post(self):
         """
-        Create or validate trial network
+        Create or validate trial network using site specified in frontend environment
 
         - If `validate=True`: **all parameters are required**.
         - If `validate=False`: `descriptor`, `library_reference_type` and `library_reference_value` are required, `tn_id` is optional.
