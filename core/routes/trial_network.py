@@ -43,8 +43,9 @@ tn_id_lock = Lock()
 tn_resource_manager_lock = Lock()
 
 
+# CHANGE: will be deprecated
 @trial_network_namespace.route("/legacy")
-class ValidateTrialNetwork(Resource):
+class CreateValidateTrialNetworkSpecificSite(Resource):
     parser_post = reqparse.RequestParser()
     parser_post.add_argument(
         "tn_id",
@@ -83,7 +84,7 @@ class ValidateTrialNetwork(Resource):
     @trial_network_namespace.expect(parser_post)
     def post(self):
         """
-        Validate trial network
+        Create or validate trial network using site specified in .env
         """
         trial_network = None
         try:
