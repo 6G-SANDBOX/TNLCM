@@ -159,12 +159,14 @@ if [[ "${CURRENT_VERSION}" == "0.4.5" && "${TARGET_VERSION}" == "0.5.0" ]]; then
     sed -i '/^MAIL_USE_SSL=/d' "${BACKEND_DOTENV_FILE}"
     sed -i '/^MAIL_USERNAME=/d' "${BACKEND_DOTENV_FILE}"
     sed -i '/^MAIL_PASSWORD=/d' "${BACKEND_DOTENV_FILE}"
+    sed -i '/^TNLCM_CALLBACK=/d' "${BACKEND_DOTENV_FILE}"
 
     echo "Add new environment variables"
     {
         echo 'TNLCM_CONSOLE_LOG_LEVEL="INFO"'
         echo 'TRIAL_NETWORK_LOG_LEVEL="INFO"'
         echo 'JENKINS_TNLCM_DIRECTORY="TNLCM"'
+        echo "TNLCM_CALLBACK=\"http://\${TNLCM_HOST}:\${TNLCM_PORT}/api/v1/callback\""
     } >> "${BACKEND_DOTENV_FILE}"
 
     echo "Insert new values for the next variables in the .env"
