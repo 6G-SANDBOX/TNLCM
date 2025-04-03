@@ -24,7 +24,7 @@ from core.utils.os import (
     join_path,
     remove_directory,
 )
-from core.utils.parser import ansible_decrypt
+from core.utils.parser import ansible_decrypt, decode_base64
 
 trial_network_namespace = Namespace(
     name="trial-network",
@@ -43,7 +43,6 @@ tn_id_lock = Lock()
 tn_resource_manager_lock = Lock()
 
 
-# CHANGE: will be deprecated
 @trial_network_namespace.route("/legacy")
 class CreateValidateTrialNetworkSpecificSite(Resource):
     parser_post = reqparse.RequestParser()
@@ -262,7 +261,7 @@ class CreateValidateTrialNetwork(Resource):
         type=str,
         required=False,
         location="form",
-        help="Token to decrypt the core.yaml file from the deployment site",
+        help="Token in base64 to decrypt the core.yaml file from the deployment site",
     )
     parser_post.add_argument(
         "validate",
@@ -417,9 +416,9 @@ class CreateValidateTrialNetwork(Resource):
                     return {
                         "message": "All parameters are required when validate=True"
                     }, 400
-                # deployment_site_token = decode_base64(
-                #     encoded_data=deployment_site_token
-                # )
+                deployment_site_token = decode_base64(
+                    encoded_data=deployment_site_token
+                )
                 library_handler = LibraryHandler(
                     reference_type=library_reference_type,
                     reference_value=library_reference_value,

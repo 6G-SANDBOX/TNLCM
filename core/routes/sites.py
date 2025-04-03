@@ -1,3 +1,4 @@
+from flask import request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_jwt_extended.exceptions import JWTExtendedException
 from flask_restx import Namespace, Resource, abort, reqparse
@@ -7,7 +8,7 @@ from core.auth.auth import get_current_user_from_jwt
 from core.exceptions.exceptions import CustomException
 from core.sites.sites_handler import SitesHandler
 from core.utils.os import join_path, list_dirs_no_hidden
-from core.utils.parser import ansible_decrypt
+from core.utils.parser import ansible_decrypt, decode_base64
 
 sites_namespace = Namespace(
     name="sites",
@@ -82,11 +83,11 @@ class BranchDirectories(Resource):
 class ComponentsAvailable(Resource):
     parser_get = reqparse.RequestParser()
     parser_get.add_argument(
-        "deployment_site_token",
+        "Deployment-Site-Token",
         type=str,
         required=True,
-        help="Deployment site token in base64 to decrypt the core.yaml file",
-        location="args",
+        help="Token in base64 to decrypt the core.yaml file from the deployment site",
+        location="headers",
     )
 
     @sites_namespace.doc(security="Bearer Auth")
@@ -99,12 +100,9 @@ class ComponentsAvailable(Resource):
         Retrieve components available in a site
         """
         try:
-            # deployment_site_token = decode_base64(
-            #     encoded_data=self.parser_get.parse_args()["deployment_site_token"]
-            # )
-            deployment_site_token = self.parser_get.parse_args()[
-                "deployment_site_token"
-            ]
+            deployment_site_token = decode_base64(
+                encoded_data=request.headers["Deployment-Site-Token"]
+            )
 
             current_user = get_current_user_from_jwt(jwt_identity=get_jwt_identity())
             if not current_user:
