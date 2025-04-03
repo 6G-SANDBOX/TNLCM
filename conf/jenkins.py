@@ -28,7 +28,7 @@ class JenkinsSettings:
     if not JENKINS_USERNAME:
         missing_variables.append("JENKINS_USERNAME")
     if missing_variables:
-        raise UndefinedEnvVarError(missing_variables)
+        raise UndefinedEnvVarError(missing_variables=missing_variables)
 
     config_dict = {
         "JENKINS_DESTROY_PIPELINE": JENKINS_DESTROY_PIPELINE,
