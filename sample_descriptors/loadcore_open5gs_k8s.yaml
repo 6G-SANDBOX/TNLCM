@@ -47,7 +47,7 @@ trial_network:
     type: "loadcore_agent"
     name: "dn"
     dependencies:
-    - "vnet-internal"
+      - "vnet-internal"
     input:
       one_loadcore_agent_networks:
         - "tn_vxlan"
@@ -56,7 +56,7 @@ trial_network:
     type: "loadcore_agent"
     name: "gnb"
     dependencies:
-    - "vnet-internal"
+      - "vnet-internal"
     input:
       one_loadcore_agent_networks:
         - "tn_vxlan"

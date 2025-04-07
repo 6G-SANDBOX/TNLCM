@@ -9,7 +9,10 @@
 <!-- [![MIT License][license-shield]][license-url] -->
 <!-- [![LinkedIn][linkedin-shield]][linkedin-url] -->
 
-<a href="https://github.com/6G-SANDBOX/TNLCM"><img src="images/logo.png" width="100" title="TNLCM"></a>
+<a href="https://github.com/6G-SANDBOX/TNLCM">
+  <img src="https://6g-sandbox.eu/wp-content/uploads/2023/01/6g-sandbox-logo-2-300x138.jpg" alt="6G-SANDBOX" title="TNLCM" width="200" />
+</a>
+
 
 [![TNLCM][tnlcm-badge]][tnlcm-url]
 
