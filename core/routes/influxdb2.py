@@ -33,6 +33,7 @@ class Buckets(Resource):
         """
         Get InfluxDB2 buckets
         """
+        client = None
         try:
             current_user = get_current_user_from_jwt(jwt_identity=get_jwt_identity())
             client = InfluxDBWrapper(
@@ -55,6 +56,9 @@ class Buckets(Resource):
             return {"message": str(e.message)}, e.status_code
         except Exception as e:
             return abort(code=500, message=str(e))
+        finally:
+            if client:
+                client.close()
 
 
 @influxdb2_namespace.param(
@@ -72,6 +76,7 @@ class Measurements(Resource):
         """
         Get InfluxDB2 measurements
         """
+        client = None
         try:
             current_user = get_current_user_from_jwt(jwt_identity=get_jwt_identity())
             client = InfluxDBWrapper(
@@ -98,3 +103,6 @@ class Measurements(Resource):
             return {"message": str(e.message)}, e.status_code
         except Exception as e:
             return abort(code=500, message=str(e))
+        finally:
+            if client:
+                client.close()

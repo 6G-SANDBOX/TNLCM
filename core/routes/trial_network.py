@@ -1115,6 +1115,8 @@ class TrasnferMeasurement(Resource):
         """
         Transfer measurement from one bucket to another
         """
+        source_client = None
+        destination_client = None
         try:
             current_user = get_current_user_from_jwt(jwt_identity=get_jwt_identity())
             trial_network = TrialNetworkModel.objects(
@@ -1168,3 +1170,8 @@ class TrasnferMeasurement(Resource):
             return {"message": str(e.message)}, e.status_code
         except Exception as e:
             return abort(code=500, message=str(e))
+        finally:
+            if source_client:
+                source_client.close_client()
+            if destination_client:
+                destination_client.close_client()
