@@ -39,7 +39,7 @@ class Buckets(Resource):
             client = InfluxDBWrapper(
                 url=InfluxDB2Settings.INFLUXDB_URL,
                 token=InfluxDB2Settings.INFLUXDB_TOKEN,
-                org=InfluxDB2Settings.INFLUXDB_ORGANIZATION,
+                org=InfluxDB2Settings.INFLUXDB_ORG,
             )
             if current_user.role != "admin":
                 trial_networks = TrialNetworkModel.objects(
@@ -82,7 +82,7 @@ class Measurements(Resource):
             client = InfluxDBWrapper(
                 url=InfluxDB2Settings.INFLUXDB_URL,
                 token=InfluxDB2Settings.INFLUXDB_TOKEN,
-                org=InfluxDB2Settings.INFLUXDB_ORGANIZATION,
+                org=InfluxDB2Settings.INFLUXDB_ORG,
             )
             if current_user.role != "admin":
                 trial_networks = TrialNetworkModel.objects(

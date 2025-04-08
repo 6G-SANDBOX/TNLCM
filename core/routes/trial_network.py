@@ -1148,7 +1148,7 @@ class TrasnferMeasurement(Resource):
                 }, 404
             destination_url = InfluxDB2Settings.INFLUXDB_URL
             destination_token = InfluxDB2Settings.INFLUXDB_TOKEN
-            destination_org = InfluxDB2Settings.INFLUXDB_ORGANIZATION
+            destination_org = InfluxDB2Settings.INFLUXDB_ORG
             destination_client = InfluxDBWrapper(
                 url=destination_url,
                 token=destination_token,

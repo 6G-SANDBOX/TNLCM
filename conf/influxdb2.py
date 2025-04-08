@@ -11,15 +11,15 @@ class InfluxDB2Settings:
     INFLUXDB_HOST = get_dotenv_var(key="INFLUXDB_HOST")
     INFLUXDB_PORT = get_dotenv_var(key="INFLUXDB_PORT")
     INFLUXDB_URL = get_dotenv_var(key="INFLUXDB_URL")
-    INFLUXDB_ORGANIZATION = get_dotenv_var(key="INFLUXDB_ORGANIZATION")
+    INFLUXDB_ORG = get_dotenv_var(key="INFLUXDB_ORG")
     INFLUXDB_TOKEN = get_dotenv_var(key="INFLUXDB_TOKEN")
     INFLUXDB_BUCKET = get_dotenv_var(key="INFLUXDB_BUCKET")
 
     missing_variables = []
     if not INFLUXDB_HOST:
         missing_variables.append("INFLUXDB_HOST")
-    if not INFLUXDB_ORGANIZATION:
-        missing_variables.append("INFLUXDB_ORGANIZATION")
+    if not INFLUXDB_ORG:
+        missing_variables.append("INFLUXDB_ORG")
     if not INFLUXDB_TOKEN:
         missing_variables.append("INFLUXDB_TOKEN")
     if not INFLUXDB_BUCKET:
@@ -31,7 +31,7 @@ class InfluxDB2Settings:
         "INFLUXDB_HOST": INFLUXDB_HOST,
         "INFLUXDB_PORT": INFLUXDB_PORT,
         "INFLUXDB_URL": INFLUXDB_URL,
-        "INFLUXDB_ORGANIZATION": INFLUXDB_ORGANIZATION,
+        "INFLUXDB_ORG": INFLUXDB_ORG,
         "INFLUXDB_TOKEN": INFLUXDB_TOKEN,
         "INFLUXDB_BUCKET": INFLUXDB_BUCKET,
     }
