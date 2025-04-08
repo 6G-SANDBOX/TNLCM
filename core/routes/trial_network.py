@@ -7,12 +7,14 @@ from flask_restx import Namespace, Resource, abort, reqparse
 from jwt.exceptions import PyJWTError
 from werkzeug.datastructures import FileStorage
 
+from conf.influxdb2 import InfluxDB2Settings
 from conf.jenkins import JenkinsSettings
 from conf.sites import SitesSettings
 from core.auth.auth import get_current_user_from_jwt
 from core.exceptions.exceptions import CustomException
 from core.jenkins.jenkins_handler import JenkinsHandler
 from core.library.library_handler import LIBRARY_REFERENCES_TYPES, LibraryHandler
+from core.libs.influxdb2 import InfluxDBWrapper
 from core.logs.log_handler import TrialNetworkLogger
 from core.models.resource_manager import ResourceManagerModel
 from core.models.trial_network import TrialNetworkModel
@@ -1063,3 +1065,106 @@ class UpdateTrialNetwork(Resource):
 #             trial_network.set_state(state="activated")
 #             trial_network.save()
 #             return abort(code=500, message=str(e))
+
+
+@trial_network_namespace.route("s/<string:tn_id>/transfer-meaasurement")
+class TrasnferMeasurement(Resource):
+    parser_post = reqparse.RequestParser()
+    parser_post.add_argument(
+        "measurement",
+        type=str,
+        required=True,
+        location="json",
+        help="Name of the measurement",
+    )
+    parser_post.add_argument(
+        "source_bucket",
+        type=str,
+        required=True,
+        location="json",
+        help="Name of the bucket",
+    )
+    parser_post.add_argument(
+        "source_org",
+        type=str,
+        required=True,
+        location="json",
+        help="Organization name",
+    )
+    parser_post.add_argument(
+        "source_token",
+        type=str,
+        required=True,
+        location="json",
+        help="InfluxDB token",
+    )
+    parser_post.add_argument(
+        "source_url",
+        type=str,
+        required=True,
+        location="json",
+        help="InfluxDB URL",
+    )
+
+    @trial_network_namespace.doc(security="Bearer Auth")
+    @trial_network_namespace.errorhandler(PyJWTError)
+    @trial_network_namespace.errorhandler(JWTExtendedException)
+    @jwt_required()
+    @trial_network_namespace.expect(parser_post)
+    def post(self, tn_id: str):
+        """
+        Transfer measurement from one bucket to another
+        """
+        try:
+            current_user = get_current_user_from_jwt(jwt_identity=get_jwt_identity())
+            trial_network = TrialNetworkModel.objects(
+                user_created=current_user.username, tn_id=tn_id
+            ).first()
+            if current_user.role == "admin":
+                trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
+            if not trial_network:
+                return {
+                    "message": f"No trial network with identifier {tn_id} created by the user {current_user.username}"
+                }, 404
+            measurement = self.parser_post.parse_args()["measurement"]
+            source_bucket = self.parser_post.parse_args()["source_bucket"]
+            source_org = self.parser_post.parse_args()["source_org"]
+            source_token = self.parser_post.parse_args()["source_token"]
+            source_url = self.parser_post.parse_args()["source_url"]
+            source_client = InfluxDBWrapper(
+                url=source_url,
+                token=source_token,
+                org=source_org,
+            )
+            if source_bucket not in source_client.get_all_buckets():
+                return {"message": f"Bucket {source_bucket} not found"}, 404
+            if measurement not in source_client.get_all_measurements(
+                bucket=source_bucket
+            ):
+                return {
+                    "message": f"Measurement {measurement} not found in bucket {source_bucket}"
+                }, 404
+            destination_url = InfluxDB2Settings.INFLUXDB_URL
+            destination_token = InfluxDB2Settings.INFLUXDB_TOKEN
+            destination_org = InfluxDB2Settings.INFLUXDB_ORGANIZATION
+            destination_client = InfluxDBWrapper(
+                url=destination_url,
+                token=destination_token,
+                org=destination_org,
+            )
+            if tn_id not in destination_client.get_all_buckets():
+                destination_client.create_bucket(bucket=tn_id)
+            tables = source_client.query_data(
+                query=f'from(bucket: "{source_bucket}") |> range(start: 0) |> filter(fn: (r) => r._measurement == "{measurement}")'
+            )
+            destination_client.transfer_measurement(
+                tables=tables,
+                destination_bucket=tn_id,
+            )
+            source_client.close_client()
+            destination_client.close_client()
+            return {"message": "Measurement transferred successfully"}, 200
+        except CustomException as e:
+            return {"message": str(e.message)}, e.status_code
+        except Exception as e:
+            return abort(code=500, message=str(e))
