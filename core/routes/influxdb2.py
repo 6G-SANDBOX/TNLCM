@@ -6,7 +6,7 @@ from jwt.exceptions import PyJWTError
 from conf.influxdb2 import InfluxDB2Settings
 from core.auth.auth import get_current_user_from_jwt
 from core.exceptions.exceptions import CustomException
-from core.libs.influxdb2 import InfluxDBWrapper
+from core.influxdb2.influxdb2_handler import InfluxDB2Handler
 from core.models.trial_network import TrialNetworkModel
 
 influxdb2_namespace = Namespace(
@@ -33,10 +33,10 @@ class Buckets(Resource):
         """
         Get InfluxDB2 buckets
         """
-        client = None
+        influxdb2_handler = None
         try:
             current_user = get_current_user_from_jwt(jwt_identity=get_jwt_identity())
-            client = InfluxDBWrapper(
+            influxdb2_handler = InfluxDB2Handler(
                 url=InfluxDB2Settings.INFLUXDB_URL,
                 token=InfluxDB2Settings.INFLUXDB_TOKEN,
                 org=InfluxDB2Settings.INFLUXDB_ORG,
@@ -47,18 +47,18 @@ class Buckets(Resource):
                 )
                 buckets = []
                 for trial_network in trial_networks:
-                    if trial_network.tn_id in client.get_all_buckets():
+                    if trial_network.tn_id in influxdb2_handler.get_all_buckets():
                         buckets.append(trial_network.tn_id)
                 return {"buckets": buckets}, 200
             else:
-                return {"buckets": client.get_all_buckets()}, 200
+                return {"buckets": influxdb2_handler.get_all_buckets()}, 200
         except CustomException as e:
             return {"message": str(e.message)}, e.status_code
         except Exception as e:
             return abort(code=500, message=str(e))
         finally:
-            if client:
-                client.close()
+            if influxdb2_handler:
+                influxdb2_handler.close_client()
 
 
 @influxdb2_namespace.param(
@@ -76,10 +76,10 @@ class Measurements(Resource):
         """
         Get InfluxDB2 measurements
         """
-        client = None
+        influxdb2_handler = None
         try:
             current_user = get_current_user_from_jwt(jwt_identity=get_jwt_identity())
-            client = InfluxDBWrapper(
+            influxdb2_handler = InfluxDB2Handler(
                 url=InfluxDB2Settings.INFLUXDB_URL,
                 token=InfluxDB2Settings.INFLUXDB_TOKEN,
                 org=InfluxDB2Settings.INFLUXDB_ORG,
@@ -92,17 +92,25 @@ class Measurements(Resource):
                     trial_network.tn_id for trial_network in trial_networks
                 ]:
                     return {"message": "Unauthorized"}, 403
-                if bucket not in client.get_all_buckets():
+                if bucket not in influxdb2_handler.get_all_buckets():
                     return {"message": f"Bucket {bucket} not found"}, 404
-                return {"measurements": client.get_all_measurements(bucket=bucket)}, 200
+                return {
+                    "measurements": influxdb2_handler.get_all_measurements(
+                        bucket=bucket
+                    )
+                }, 200
             else:
-                if bucket not in client.get_all_buckets():
+                if bucket not in influxdb2_handler.get_all_buckets():
                     return {"message": f"Bucket {bucket} not found"}, 404
-                return {"measurements": client.get_all_measurements(bucket=bucket)}, 200
+                return {
+                    "measurements": influxdb2_handler.get_all_measurements(
+                        bucket=bucket
+                    )
+                }, 200
         except CustomException as e:
             return {"message": str(e.message)}, e.status_code
         except Exception as e:
             return abort(code=500, message=str(e))
         finally:
-            if client:
-                client.close()
+            if influxdb2_handler:
+                influxdb2_handler.close_client()

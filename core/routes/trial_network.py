@@ -12,9 +12,9 @@ from conf.jenkins import JenkinsSettings
 from conf.sites import SitesSettings
 from core.auth.auth import get_current_user_from_jwt
 from core.exceptions.exceptions import CustomException
+from core.influxdb2.influxdb2_handler import InfluxDB2Handler
 from core.jenkins.jenkins_handler import JenkinsHandler
 from core.library.library_handler import LIBRARY_REFERENCES_TYPES, LibraryHandler
-from core.libs.influxdb2 import InfluxDBWrapper
 from core.logs.log_handler import TrialNetworkLogger
 from core.models.resource_manager import ResourceManagerModel
 from core.models.trial_network import TrialNetworkModel
@@ -1133,7 +1133,7 @@ class TrasnferMeasurement(Resource):
             source_org = self.parser_post.parse_args()["source_org"]
             source_token = self.parser_post.parse_args()["source_token"]
             source_url = self.parser_post.parse_args()["source_url"]
-            source_client = InfluxDBWrapper(
+            source_client = InfluxDB2Handler(
                 url=source_url,
                 token=source_token,
                 org=source_org,
@@ -1149,7 +1149,7 @@ class TrasnferMeasurement(Resource):
             destination_url = InfluxDB2Settings.INFLUXDB_URL
             destination_token = InfluxDB2Settings.INFLUXDB_TOKEN
             destination_org = InfluxDB2Settings.INFLUXDB_ORG
-            destination_client = InfluxDBWrapper(
+            destination_client = InfluxDB2Handler(
                 url=destination_url,
                 token=destination_token,
                 org=destination_org,

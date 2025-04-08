@@ -4,7 +4,7 @@ from influxdb_client.client.influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import Point
 
 
-class InfluxDBWrapper:
+class InfluxDB2Handler:
     """
     InfluxDB client
     """
@@ -13,13 +13,13 @@ class InfluxDBWrapper:
         self.url = url
         self.token = token
         self.org = org
-        self.client = InfluxDBClient(url=url, token=token, org=org)
+        self.influxdb2_client = InfluxDBClient(url=url, token=token, org=org)
 
     def close_client(self):
         """
         Close the InfluxDB client
         """
-        self.client.close()
+        self.influxdb2_client.close()
 
     def create_bucket(self, bucket: str) -> str:
         """
@@ -28,7 +28,7 @@ class InfluxDBWrapper:
         :param bucket: name of the bucket to create, ``str``
         :return: name of the created bucket, ``str``
         """
-        buckets_api = self.client.buckets_api()
+        buckets_api = self.influxdb2_client.buckets_api()
         bucket = buckets_api.create_bucket(bucket_name=bucket)
         return bucket
 
@@ -39,7 +39,8 @@ class InfluxDBWrapper:
         :return: list of bucket names, ``List[str]``
         """
         return [
-            bucket.name for bucket in self.client.buckets_api().find_buckets().buckets
+            bucket.name
+            for bucket in self.influxdb2_client.buckets_api().find_buckets().buckets
         ]
 
     def get_all_measurements(self, bucket: str) -> List[str]:
@@ -90,7 +91,7 @@ class InfluxDBWrapper:
         :param query: query to execute
         :return: query results
         """
-        return self.client.query_api().query(query=query)
+        return self.influxdb2_client.query_api().query(query=query)
 
     def write_data(self, bucket: str, org: str, point: Point) -> None:
         """
@@ -100,7 +101,7 @@ class InfluxDBWrapper:
         :param org: name of the organization, ``str``
         :param point: point to write, ``Point``
         """
-        self.client.write_api().write(
+        self.influxdb2_client.write_api().write(
             bucket=bucket,
             org=org,
             record=point,

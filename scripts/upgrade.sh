@@ -216,3 +216,7 @@ if [[ "${CURRENT_VERSION}" == "0.4.5" && "${TARGET_VERSION}" == "0.5.0" ]]; then
     echo "Upgrade to version ${TARGET_VERSION} completed"
 
 fi
+
+# TODO: unreleased
+# update venv
+# add influxdb variables in .env
