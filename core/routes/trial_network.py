@@ -185,7 +185,7 @@ class CreateValidateTrialNetworkSpecificSite(Resource):
             )
             trial_network.set_state(state="validating")
             trial_network.save()
-            TrialNetworkLogger(tn_id=tn_id).info(
+            TrialNetworkLogger(tn_id=trial_network.tn_id).info(
                 message="Trial network validating. In this transition, the trial network descriptor is going to be validated"
             )
             trial_network.validate_descriptor(
@@ -194,7 +194,7 @@ class CreateValidateTrialNetworkSpecificSite(Resource):
             trial_network.set_sorted_descriptor()
             trial_network.set_state(state="validated")
             trial_network.save()
-            TrialNetworkLogger(tn_id=tn_id).info(
+            TrialNetworkLogger(tn_id=trial_network.tn_id).info(
                 message="Trial network validated. In this state, the trial network descriptor has been validated and is ready to be deployed"
             )
             return trial_network.to_dict_created_validated(), 201
