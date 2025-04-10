@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.5.1] - 2025-04-10
+
+### Fixed
+
+- Bug creating logs when a trial network is validated.
+
 ## [v0.5.0] - 2025-03-31
 
 ### Added
@@ -289,6 +295,7 @@
 
 - Frontend implementation.
 
+[v0.5.1]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.5.0...v0.5.1
 [v0.5.0]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.5...v0.5.0
 [v0.4.5]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.4...v0.4.5
 [v0.4.4]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.3...v0.4.4

@@ -216,3 +216,20 @@ if [[ "${CURRENT_VERSION}" == "0.4.5" && "${TARGET_VERSION}" == "0.5.0" ]]; then
     echo "Upgrade to version ${TARGET_VERSION} completed"
 
 fi
+
+CURRENT_VERSION=$(grep -oP 'version = "\K[^"]+' ${BACKEND_PATH}/pyproject.toml)
+
+if [[ "${CURRENT_VERSION}" == "0.5.0" && "${TARGET_VERSION}" == "0.5.1" ]]; then
+
+    echo "Starting upgrade from ${CURRENT_VERSION} to ${TARGET_VERSION}..."
+
+    git -C ${BACKEND_PATH} checkout tags/"v${TARGET_VERSION}"
+
+    echo "Syncing backend dependencies"
+    ${UV_BIN} --directory ${BACKEND_PATH} sync
+
+    echo "Restart TNLCM Backend"
+    systemctl restart tnlcm-backend.service
+
+    echo "Upgrade to version ${TARGET_VERSION} completed"
+fi
