@@ -362,7 +362,7 @@ class CreateValidateTrialNetwork(Resource):
                 trial_network.set_raw_descriptor(file=descriptor_file)
                 trial_network.set_state(state="created")
                 trial_network.save()
-                TrialNetworkLogger(tn_id=tn_id).info(
+                TrialNetworkLogger(tn_id=trial_network.tn_id).info(
                     message="Trial network created. In this state, the trial network has not been validated and cannot be deployed"
                 )
                 return trial_network.to_dict_created(), 201
