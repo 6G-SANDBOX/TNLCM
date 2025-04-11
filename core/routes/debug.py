@@ -52,6 +52,14 @@ class UpdateCommitLibrary(Resource):
             trial_network.save()
             library_handler = LibraryHandler(
                 https_url=trial_network.library_https_url,
+                reference_type="branch",
+                reference_value="main",
+                directory_path=trial_network.directory_path,
+            )
+            library_handler.git_client.checkout()
+            library_handler.git_client.pull()
+            library_handler = LibraryHandler(
+                https_url=trial_network.library_https_url,
                 reference_type="commit",
                 reference_value=trial_network.library_commit_id,
                 directory_path=trial_network.directory_path,
@@ -89,8 +97,16 @@ class UpdateCommitSites(Resource):
             ).first()
             if current_user.role == "admin":
                 trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
-            trial_network.set_sites_commit_id(commit_id)
+            trial_network.set_sites_commit_id(sites_commit_id=commit_id)
             trial_network.save()
+            sites_handler = SitesHandler(
+                https_url=trial_network.sites_https_url,
+                reference_type="branch",
+                reference_value="main",
+                directory_path=trial_network.directory_path,
+            )
+            sites_handler.git_client.checkout()
+            sites_handler.git_client.pull()
             sites_handler = SitesHandler(
                 https_url=trial_network.sites_https_url,
                 reference_type="commit",
@@ -163,7 +179,7 @@ class RemoveDebugEntityName(Resource):
     @jwt_required()
     def post(self, tn_id: str, entity_name: str):
         """
-        REmove debug: true to the specified entity name
+        Remove debug: true to the specified entity name
         """
         try:
             current_user = get_current_user_from_jwt(jwt_identity=get_jwt_identity())
