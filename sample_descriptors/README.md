@@ -12,7 +12,8 @@
 ![elcm_loadcore](https://github.com/6G-SANDBOX/6G-Library/blob/assets/elcm/elcm.png)
 
 * tn_init
-* vm_kvm
+* influxdb
+* grafana
 * elcm
 * vnet
 * open5gs_vm
