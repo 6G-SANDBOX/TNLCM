@@ -2,11 +2,12 @@
 name = "tnlcm"
 version = "0.5.1"
 description = "TNLCM has been designed as a modular application, with the intention of making certain components easily replaceable or extended, while minimizing the effect of changes in other parts of the application."
-readme = "docs/README.md"
+readme = "README.md"
 requires-python = ">=3.13"
 authors = [{ name = "Carlos Andreo", email = "c.andreo@uma.es" }]
 
-dependencies = [
+[dependency-groups]
+prod = [
   "Flask==3.1.0",
   "Flask-Cors==5.0.1",
   "flask-restx==1.3.0",
@@ -18,3 +19,9 @@ dependencies = [
   "ruamel.yaml==0.18.10",
   "Werkzeug==3.1.3",
 ]
+lint = [
+  "ruff==0.11.6",
+]
+
+[tool.uv]
+default-groups = ["prod"]
