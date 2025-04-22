@@ -218,6 +218,10 @@ class JenkinsHandler:
                 f"{build_console_output}"
                 "------------------------------------------------------------------------------------------------------------------"
             )
+            TrialNetworkLogger(tn_id=self.trial_network.tn_id).info(
+                message=build_console_output,
+                lines_to_remove=build_console_num_lines_aux,
+            )
             if (
                 self.jenkins_client.get_job_info(name=jenkins_deploy_pipeline)[
                     "lastSuccessfulBuild"
@@ -228,10 +232,6 @@ class JenkinsHandler:
                     message=(f"{build_console_output}"),
                     status_code=500,
                 )
-            TrialNetworkLogger(tn_id=self.trial_network.tn_id).info(
-                message=build_console_output,
-                lines_to_remove=build_console_num_lines_aux,
-            )
             self.trial_network.set_jenkins_deploy_build(
                 build_name=entity_name,
                 build_number=next_build_number,
