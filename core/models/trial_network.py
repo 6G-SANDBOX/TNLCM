@@ -398,24 +398,17 @@ class TrialNetworkModel(Document):
         :param input_type: type of the input, ``str``
         :param input_value: value of the input, ``str``
         """
-        if input_value == "tn_vxlan":
-            if "tn_init" not in self.raw_descriptor["trial_network"]:
-                raise TrialNetworkError(
-                    message="Trial network descriptor entity tn_vxlan is not allowed without entity tn_init",
-                    status_code=422,
-                )
-        else:
-            if input_value not in self.raw_descriptor["trial_network"]:
-                raise TrialNetworkError(
-                    message=f"Trial network descriptor entity {input_value} not found",
-                    status_code=422,
-                )
-            type_component = self.raw_descriptor["trial_network"][input_value]["type"]
-            if type_component not in input_type:
-                raise TrialNetworkError(
-                    message=f"Trial network descriptor entity {input_value} has to be of type {type_component}",
-                    status_code=422,
-                )
+        if input_value not in self.raw_descriptor["trial_network"]:
+            raise TrialNetworkError(
+                message=f"Trial network descriptor entity {input_value} not found",
+                status_code=422,
+            )
+        type_component = self.raw_descriptor["trial_network"][input_value]["type"]
+        if type_component not in input_type:
+            raise TrialNetworkError(
+                message=f"Trial network descriptor entity {input_value} has to be of type {type_component}",
+                status_code=422,
+            )
 
     def _isinstance_list(self, input_type: str, input_value: List) -> None:
         """
