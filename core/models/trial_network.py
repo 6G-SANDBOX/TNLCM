@@ -57,7 +57,7 @@ class TrialNetworkModel(Document):
     user_created = StringField(max_length=100)
     tn_id = StringField(max_length=15, unique=True)
     state = StringField(max_length=50)
-    date_created_utc = DateTimeField(default=datetime.now(timezone.utc))
+    date_created_utc = DateTimeField(default=lambda: datetime.now(timezone.utc))
     directory_path = StringField()
     raw_descriptor = DictField(default={})
     sorted_descriptor = DictField(default={})
