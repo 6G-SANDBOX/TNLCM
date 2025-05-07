@@ -19,16 +19,6 @@
 * open5gs_vm
 * loadcore_agent
 
-## [loadcore_open5gs_k8s](loadcore_open5gs_k8s.yaml)
-
-![loadcore_open5gs_k8s](https://github.com/6G-SANDBOX/6G-Library/blob/assets/loadcore/loadcore_open5gs_k8s.png)
-
-* tn_init
-* vnet
-* oneKE
-* open5gs_k8s
-* loadcore_agent
-
 ## [loadcore_open5gs_vm](loadcore_open5gs_vm.yaml)
 
 ![loadcore_open5gs_vm](https://github.com/6G-SANDBOX/6G-Library/blob/assets/loadcore/loadcore_open5gs_vm.png)
@@ -45,28 +35,8 @@
 * tn_init
 * vnet
 * oneKE
-* open5gs_k8s
+* open5gs_vm
 * nokia_radio
 * stf_ue
-
-## [ueransim_split_open5gs_k8s](./ueransim_split_open5gs_k8s.yaml)
-
-![ueransim_split_open5gs_k8s](https://github.com/6G-SANDBOX/6G-Library/blob/assets/ueransim/ueransim_split_open5gs_k8s.png)
-
-* tn_init
-* vnet
-* oneKE
-* open5gs_k8s
-* ueransim (gnb and ue separated)
-
-## [ueransim_both_open5gs_k8s](./ueransim_both_open5gs_k8s.yaml)
-
-![ueransim_both_open5gs_k8s](https://github.com/6G-SANDBOX/6G-Library/blob/assets/ueransim/ueransim_both_open5gs_k8s.png)
-
-* tn_init
-* vnet
-* oneKE
-* open5gs_k8s
-* ueransim (all in one)
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
