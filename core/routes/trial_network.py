@@ -24,7 +24,7 @@ from core.utils.os import (
     join_path,
     remove_directory,
 )
-from core.utils.parser import ansible_decrypt, decode_base64
+from core.utils.parser import ansible_decrypt
 
 trial_network_namespace = Namespace(
     name="trial-network",

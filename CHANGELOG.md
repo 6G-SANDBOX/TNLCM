@@ -1,10 +1,14 @@
 # Changelog
 
-## [unreleased] - XXXX-XX-XX
+## [v0.5.2] - 2025-05-16
 
 ### Fixed
 
 - Accept `tn_vxlan` and `tn_bastion` as components in the trial network descriptor.
+
+### Removed
+
+- Sites token in base64 format.
 
 ## [v0.5.1] - 2025-04-10
 
@@ -301,7 +305,7 @@
 
 - Frontend implementation.
 
-[unreleased]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.5.1...HEAD
+[v0.5.2]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.5.1...v0.5.2
 [v0.5.1]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.5.0...v0.5.1
 [v0.5.0]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.5...v0.5.0
 [v0.4.5]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.4...v0.4.5
