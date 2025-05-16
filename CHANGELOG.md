@@ -6,6 +6,10 @@
 
 - Accept `tn_vxlan` and `tn_bastion` as components in the trial network descriptor.
 
+### Removed
+
+- Sites token in base64 format.
+
 ## [v0.5.1] - 2025-04-10
 
 ### Fixed
