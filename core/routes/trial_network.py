@@ -261,7 +261,7 @@ class CreateValidateTrialNetwork(Resource):
         type=str,
         required=False,
         location="form",
-        help="Token in base64 to decrypt the core.yaml file from the deployment site",
+        help="Token to decrypt the core.yaml file from the deployment site",
     )
     parser_post.add_argument(
         "validate",
@@ -416,9 +416,9 @@ class CreateValidateTrialNetwork(Resource):
                     return {
                         "message": "All parameters are required when validate=True"
                     }, 400
-                deployment_site_token = decode_base64(
-                    encoded_data=deployment_site_token
-                )
+                # deployment_site_token = decode_base64(
+                #     encoded_data=deployment_site_token
+                # )
                 library_handler = LibraryHandler(
                     reference_type=library_reference_type,
                     reference_value=library_reference_value,

@@ -100,9 +100,7 @@ class ComponentsAvailable(Resource):
         Retrieve components available in a site
         """
         try:
-            deployment_site_token = decode_base64(
-                encoded_data=request.headers["Deployment-Site-Token"]
-            )
+            deployment_site_token = request.headers["Deployment-Site-Token"]
             current_user = get_current_user_from_jwt(jwt_identity=get_jwt_identity())
             if not current_user:
                 return {"message": "User not found"}, 404
