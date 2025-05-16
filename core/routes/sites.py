@@ -8,7 +8,7 @@ from core.auth.auth import get_current_user_from_jwt
 from core.exceptions.exceptions import CustomException
 from core.sites.sites_handler import SitesHandler
 from core.utils.os import join_path, list_dirs_no_hidden
-from core.utils.parser import ansible_decrypt, decode_base64
+from core.utils.parser import ansible_decrypt
 
 sites_namespace = Namespace(
     name="sites",
