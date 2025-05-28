@@ -9,7 +9,7 @@
 
 ## [elcm_loadcore_open5gs_vm](elcm_loadcore_open5gs_vm.yaml)
 
-![elcm_loadcore](https://github.com/6G-SANDBOX/6G-Library/blob/assets/elcm/elcm.png)
+![elcm_loadcore](https://raw.githubusercontent.com/6G-SANDBOX/6G-Library/assets/elcm/elcm.png)
 
 * tn_init
 * influxdb
@@ -21,7 +21,7 @@
 
 ## [loadcore_open5gs_vm](loadcore_open5gs_vm.yaml)
 
-![loadcore_open5gs_vm](https://github.com/6G-SANDBOX/6G-Library/blob/assets/loadcore/loadcore_open5gs_vm.png)
+![loadcore_open5gs_vm](https://raw.githubusercontent.com/6G-SANDBOX/6G-Library/assets/loadcore/loadcore_open5gs_vm.png)
 
 * tn_init
 * vnet
@@ -30,7 +30,7 @@
 
 ## [nokia_radio](./nokia_radio.yaml)
 
-![nokia_radio](https://github.com/6G-SANDBOX/6G-Library/blob/assets/nokia_radio/nokia_radio.png)
+![nokia_radio](https://raw.githubusercontent.com/6G-SANDBOX/6G-Library/assets/nokia_radio/nokia_radio.png)
 
 * tn_init
 * vnet
