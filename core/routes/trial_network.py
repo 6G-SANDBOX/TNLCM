@@ -18,6 +18,7 @@ from core.models.resource_manager import ResourceManagerModel
 from core.models.trial_network import TrialNetworkModel
 from core.sites.sites_handler import SitesHandler
 from core.utils.file import load_file, save_file
+from core.library.report_generator import ReportGenerator
 from core.utils.os import (
     TRIAL_NETWORKS_PATH,
     is_file,
@@ -954,6 +955,67 @@ class DownloadReportTrialNetwork(Resource):
                 as_attachment=True,
                 download_name=file_name,
                 mimetype="application/octet-stream",
+            )
+        except CustomException as e:
+            return {"message": str(e.message)}, e.status_code
+        except Exception as e:
+            return abort(code=500, message=str(e))
+
+
+@trial_network_namespace.param(
+    name="tn_id", type="str", description="Trial network identifier"
+)
+@trial_network_namespace.route("s/<string:tn_id>/report/download-pdf")
+class DownloadReportTrialNetwork(Resource):
+    @trial_network_namespace.doc(security="Bearer Auth")
+    @trial_network_namespace.errorhandler(PyJWTError)
+    @trial_network_namespace.errorhandler(JWTExtendedException)
+    @jwt_required()
+    def get(self, tn_id: str):
+        """
+        Download report generated after trial network deployment as markdown file
+        """
+        try:
+            current_user = get_current_user_from_jwt(jwt_identity=get_jwt_identity())
+            trial_network = TrialNetworkModel.objects(
+                user_created=current_user.username, tn_id=tn_id
+            ).first()
+            if current_user.role == "admin":
+                trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
+            if not trial_network:
+                return {
+                    "message": f"No trial network with identifier {tn_id} created by the user {current_user.username}"
+                }, 404
+            if trial_network.state != "activated":
+                return {
+                    "message": f"Trial network with identifier {tn_id} is not possible to download the report. Only trial networks with status activated can download the report. Current status: {trial_network.state}"
+                }, 400
+            report = trial_network.report
+            file_name = f"{trial_network.tn_id}.md"
+            report_path = join_path(trial_network.directory_path, file_name)
+        
+            report_generator = ReportGenerator()
+            
+            report_generator.generate_cover(trial_network.tn_id, trial_network.date_created_utc.strftime("%Y-%m-%d"), "core/library/report/cover.pdf")
+
+            file_name_pdf = f"{trial_network.tn_id}.pdf"
+            report_path_pdf = join_path(trial_network.directory_path, file_name_pdf)    
+            
+            report_generator.markdown_to_pdf(
+                input_file=report_path,
+                output_file=report_path_pdf
+            )
+
+            report_generator.create_watermark("core/library/report/watermark.pdf")
+            report_generator.apply_watermark(report_path_pdf, "core/library/report/watermark.pdf")
+
+            report_generator.join_pdfs(["core/library/report/cover.pdf", report_path_pdf], report_path_pdf)
+            
+            return send_file(
+                path_or_file=report_path_pdf,
+                as_attachment=True,
+                download_name=file_name_pdf,
+                mimetype="application/pdf",
             )
         except CustomException as e:
             return {"message": str(e.message)}, e.status_code
