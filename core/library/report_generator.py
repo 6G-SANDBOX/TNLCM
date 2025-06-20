@@ -1,14 +1,15 @@
-from reportlab.lib.pagesizes import A4
-from reportlab.pdfgen import canvas
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.lib.units import cm
-import jinja2
 import json
+import os
+
+import jinja2
 import markdown2
 import pdfkit
-import os
 from pypdf import PdfReader, PdfWriter
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import cm
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfgen import canvas
 
 # Constants for the report generation
 TEMPLATES_DIR = "/root/TNLCM/core/library/report/templates/"
@@ -32,7 +33,7 @@ class ReportGenerator:
 
         # A4 = 595x891
         PAGE_WIDTH = A4[0]
-        PAGE_HEIGHT = A4[1]
+        # PAGE_HEIGHT = A4[1]
 
         # Draw the title
         cover.drawString(100, 750, "Trial Network Report")
