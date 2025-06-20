@@ -13,12 +13,12 @@ from core.auth.auth import get_current_user_from_jwt
 from core.exceptions.exceptions import CustomException
 from core.jenkins.jenkins_handler import JenkinsHandler
 from core.library.library_handler import LIBRARY_REFERENCES_TYPES, LibraryHandler
+from core.library.report_generator import ReportGenerator
 from core.logs.log_handler import TrialNetworkLogger
 from core.models.resource_manager import ResourceManagerModel
 from core.models.trial_network import TrialNetworkModel
 from core.sites.sites_handler import SitesHandler
 from core.utils.file import load_file, save_file
-from core.library.report_generator import ReportGenerator
 from core.utils.os import (
     TRIAL_NETWORKS_PATH,
     is_file,
@@ -966,7 +966,7 @@ class DownloadReportTrialNetwork(Resource):
     name="tn_id", type="str", description="Trial network identifier"
 )
 @trial_network_namespace.route("s/<string:tn_id>/report/download-pdf")
-class DownloadReportTrialNetwork(Resource):
+class DownloadReportTrialNetworkPdf(Resource):
     @trial_network_namespace.doc(security="Bearer Auth")
     @trial_network_namespace.errorhandler(PyJWTError)
     @trial_network_namespace.errorhandler(JWTExtendedException)
@@ -990,7 +990,7 @@ class DownloadReportTrialNetwork(Resource):
                 return {
                     "message": f"Trial network with identifier {tn_id} is not possible to download the report. Only trial networks with status activated can download the report. Current status: {trial_network.state}"
                 }, 400
-            report = trial_network.report
+            # report = trial_network.report
             file_name = f"{trial_network.tn_id}.md"
             report_path = join_path(trial_network.directory_path, file_name)
         
