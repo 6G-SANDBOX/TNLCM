@@ -37,8 +37,8 @@ Trial Network Lifecycle Manager (TNLCM) is a tool developed in Python designed t
 <!-- Urls, Shields and Badges -->
 [tnlcm-badge]: https://img.shields.io/github/v/release/6G-SANDBOX/TNLCM?label=TNLCM&color=blue
 [tnlcm-url]: https://github.com/6G-SANDBOX/TNLCM/releases/latest
-[python-badge]: https://img.shields.io/badge/Python-3.13.4-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB
-[python-url]: https://www.python.org/downloads/release/python-3134/
+[python-badge]: https://img.shields.io/badge/Python-3.13.5-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB
+[python-url]: https://www.python.org/downloads/release/python-3135/
 [flask-badge]: https://img.shields.io/badge/Flask-3.1.1-brightgreen?style=for-the-badge&logo=flask&logoColor=white&labelColor=000000
 [flask-url]: https://flask.palletsprojects.com/en/stable/
 [mongodb-badge]: https://img.shields.io/badge/MongoDB-8.0-green?style=for-the-badge&logo=mongodb&logoColor=white&labelColor=47A248
