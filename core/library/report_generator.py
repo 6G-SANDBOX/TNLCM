@@ -14,12 +14,12 @@ from pypdf import PdfReader, PdfWriter
 TEMPLATES_DIR = "/root/TNLCM/core/library/report/templates/"
 CSS_FILENAME = TEMPLATES_DIR + "style.css"
 # The cover image for the report
-COVER_IMAGE = "/root/TNLCM/core/library/report/opennebula.png"
+COVER_IMAGE = "/root/TNLCM/core/library/report/sandbox.png"
 # The font file for Georgia
 FONT_FILENAME = "/root/TNLCM/core/library/report/fonts/georgia/georgia.ttf"
 FONT_NAME = "Georgia"
 # The watermark image for the report
-WATERMARK_IMAGE = "/root/TNLCM/core/library/report/opennebula-25.png"
+WATERMARK_IMAGE = "/root/TNLCM/core/library/report/sandbox-25.png"
 
 
 class ReportGenerator:
@@ -50,15 +50,15 @@ class ReportGenerator:
         cover.save()
 
     def create_watermark(self, output_file, image_path=WATERMARK_IMAGE):
-        print("Creating watermark at:", output_file)
+        # print("Creating watermark at:", output_file)
         c = canvas.Canvas(output_file, pagesize=A4)
         width, height = A4
-        print("Page size:", width, height)
+        # print("Page size:", width, height)
         # Position and opacity settings
         c.saveState()
         c.translate(width / 2.0, height / 2.0)
         c.rotate(0)
-        c.drawImage(image_path, -3*cm, -1*cm, width=6*cm, height=3*cm, mask='auto')
+        c.drawImage(image_path, -2*cm, -1*cm, width=4.5*cm, height=4.5*cm, mask='auto')
         c.restoreState()
         c.save()
 
@@ -67,14 +67,14 @@ class ReportGenerator:
 
         files = []
         if isinstance(input_pdf, str):
-            print("processing single input file:", input_pdf)
+            # print("processing single input file:", input_pdf)
             files.append(input_pdf)
         if isinstance(input_pdf, list):
             print("processing multiple input files:", input_pdf)
             files = input_pdf
 
         for file in files:
-            print("Processing file:", file)
+            # print("Processing file:", file)
             output_pdf = file
             reader = PdfReader(file)
             writer = PdfWriter()
