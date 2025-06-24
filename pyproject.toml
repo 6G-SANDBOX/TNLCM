@@ -14,7 +14,7 @@ prod = [
   "Flask-JWT-Extended==4.7.1",
   "gunicorn==23.0.0",
   "mongoengine==0.29.1",
-  "python-dotenv==1.1.0",
+  "python-dotenv==1.1.1",
   "python-jenkins==1.8.2",
   "ruamel.yaml==0.18.14",
   "Werkzeug==3.1.3",
