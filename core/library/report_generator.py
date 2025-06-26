@@ -10,18 +10,9 @@ from reportlab.lib.units import cm
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
+from core.utils.os import TEMPLATES_DIR, CSS_FILENAME, COVER_IMAGE, FONT_FILENAME, WATERMARK_IMAGE
 
-# Constants for the report generation
-TEMPLATES_DIR = "/root/TNLCM/core/library/report/templates/"
-CSS_FILENAME = TEMPLATES_DIR + "style.css"
-# The cover image for the report
-COVER_IMAGE = "/root/TNLCM/core/library/report/sandbox.png"
-# The font file for Georgia
-FONT_FILENAME = "/root/TNLCM/core/library/report/fonts/georgia/georgia.ttf"
 FONT_NAME = "Georgia"
-# The watermark image for the report
-WATERMARK_IMAGE = "/root/TNLCM/core/library/report/sandbox-25.png"
-
 
 class ReportGenerator:
     def generate_cover(self, title, date, output_file):
