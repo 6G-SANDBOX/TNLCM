@@ -10,7 +10,14 @@ from reportlab.lib.units import cm
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
-from core.utils.os import TEMPLATES_DIR, CSS_FILENAME, COVER_IMAGE, FONT_FILENAME, WATERMARK_IMAGE
+
+from core.utils.os import (
+    COVER_IMAGE,
+    CSS_FILENAME,
+    FONT_FILENAME,
+    TEMPLATES_DIR,
+    WATERMARK_IMAGE,
+)
 
 FONT_NAME = "Georgia"
 
