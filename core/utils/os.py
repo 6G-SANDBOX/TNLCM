@@ -11,7 +11,12 @@ DOTENV_PATH = os.path.join(PROJECT_PATH, ".env")
 PYPROJECT_TOML_PATH = os.path.join(PROJECT_PATH, "pyproject.toml")
 SITES_TOKEN_PATH = os.path.join(SITES_PATH, "sites_token")
 TRIAL_NETWORKS_PATH = os.path.join(CORE_PATH, "trial_networks")
-
+REPORT_DIR = os.path.join(CORE_PATH, "library/report")
+TEMPLATES_DIR = os.path.join(REPORT_DIR, "templates")
+CSS_FILENAME = os.path.join(TEMPLATES_DIR, "style.css")
+COVER_IMAGE = os.path.join(REPORT_DIR, "sandbox.png")
+FONT_FILENAME = os.path.join(REPORT_DIR, "fonts/georgia/georgia.ttf")
+WATERMARK_IMAGE = os.path.join(REPORT_DIR, "sandbox-25.png")
 
 def exist_directory(path: str) -> bool:
     """
