@@ -21,7 +21,7 @@ def ansible_decrypt(data_path: str, token: str) -> None:
         data=token,
     )
     run_command(
-        command=f"ansible-vault decrypt {data_path} --vault-password={SITES_TOKEN_PATH}"
+        command=f"ansible-vault decrypt {data_path} --vault-password-file={SITES_TOKEN_PATH}"
     )
 
 
@@ -37,7 +37,7 @@ def ansible_encrypt(data_path: str, token: str) -> None:
         data=token,
     )
     run_command(
-        command=f"ansible-vault encrypt {data_path} --vault-password={SITES_TOKEN_PATH}"
+        command=f"ansible-vault encrypt {data_path} --vault-password-file={SITES_TOKEN_PATH}"
     )
 
 
