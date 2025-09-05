@@ -25,7 +25,7 @@ prod = [
   "pdfkit==1.0.0",
 ]
 lint = [
-  "ruff==0.12.11",
+  "ruff==0.12.12",
 ]
 
 [tool.uv]
