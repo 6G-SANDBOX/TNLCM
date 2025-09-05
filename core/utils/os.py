@@ -17,6 +17,8 @@ CSS_FILENAME = os.path.join(TEMPLATES_DIR, "style.css")
 COVER_IMAGE = os.path.join(REPORT_DIR, "sandbox.png")
 FONT_FILENAME = os.path.join(REPORT_DIR, "fonts/georgia/georgia.ttf")
 WATERMARK_IMAGE = os.path.join(REPORT_DIR, "sandbox-25.png")
+COVER_PDF = os.path.join(REPORT_DIR, "cover.pdf")
+WATERMARK_PDF = os.path.join(REPORT_DIR, "watermark.pdf")
 
 def exist_directory(path: str) -> bool:
     """

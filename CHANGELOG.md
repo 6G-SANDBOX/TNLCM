@@ -1,12 +1,12 @@
 # Changelog
 
-## [unreleased] - 2025-09-XX
+## [v1.0.0] - 2025-09-05
 
 ### Added
 
 - New namespace `influxdb2` for handler InfluxDB requests.
+- New endpoint for exporting the report file in PDF format.
 
-### Changed
 ## [v0.5.2] - 2025-05-16
 
 ### Fixed
@@ -312,7 +312,7 @@
 
 - Frontend implementation.
 
-[unreleased]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.5.2...HEAD
+[v1.0.0]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.5.2...v1.0.0
 [v0.5.2]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.5.1...v0.5.2
 [v0.5.1]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.5.0...v0.5.1
 [v0.5.0]: https://github.com/6G-SANDBOX/TNLCM/compare/v0.4.5...v0.5.0
