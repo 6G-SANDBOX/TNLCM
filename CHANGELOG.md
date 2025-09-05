@@ -1,12 +1,12 @@
 # Changelog
 
-## [unreleased] - 2025-09-XX
+## [1.0.0] - 2025-09-05
 
 ### Added
 
 - New namespace `influxdb2` for handler InfluxDB requests.
+- New endpoint for exporting the report file in PDF format.
 
-### Changed
 ## [v0.5.2] - 2025-05-16
 
 ### Fixed

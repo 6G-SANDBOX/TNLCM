@@ -251,6 +251,34 @@ if [[ "${CURRENT_VERSION}" == "0.5.1" && "${TARGET_VERSION}" == "0.5.2" ]]; then
     echo "Upgrade to version ${TARGET_VERSION} completed"
 fi
 
-# TODO: unreleased
-# update venv
-# add influxdb variables in .env
+CURRENT_VERSION=$(grep -oP 'version = "\K[^"]+' ${BACKEND_PATH}/pyproject.toml)
+
+if [[ "${CURRENT_VERSION}" == "0.5.2" && "${TARGET_VERSION}" == "1.0.0" ]]; then
+
+    echo "Starting upgrade from ${CURRENT_VERSION} to ${TARGET_VERSION}..."
+
+    git -C ${BACKEND_PATH} checkout tags/"v${TARGET_VERSION}"
+
+    echo "Update uv"
+    ${UV_BIN} self update
+
+    echo "Syncing backend dependencies"
+    ${UV_BIN} --directory ${BACKEND_PATH} sync
+
+    echo "Insert new values for the next variables in the .env"
+    read -r -p "InfluxDB host for InfluxDB server. INFLUXDB_HOST: " INFLUXDB_HOST
+    read -r -p "InfluxDB organization for InfluxDB server. INFLUXDB_ORG: " INFLUXDB_ORG
+    read -r -p "InfluxDB token for InfluxDB server. INFLUXDB_TOKEN: " INFLUXDB_TOKEN
+    read -r -p "InfluxDB bucket for InfluxDB server. INFLUXDB_BUCKET: " INFLUXDB_BUCKET
+    {
+        echo "INFLUXDB_HOST=${INFLUXDB_HOST}"
+        echo "INFLUXDB_ORG=${INFLUXDB_ORG}"
+        echo "INFLUXDB_TOKEN=${INFLUXDB_TOKEN}"
+        echo "INFLUXDB_BUCKET=${INFLUXDB_BUCKET}"
+    } >> "${BACKEND_DOTENV_FILE}"
+
+    echo "Restart TNLCM Backend"
+    systemctl restart tnlcm-backend.service
+
+    echo "Upgrade to version ${TARGET_VERSION} completed"
+fi
