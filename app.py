@@ -8,6 +8,7 @@ from core.database.database import init_db
 from core.routes import (
     callback_namespace,
     debug_namespace,
+    influxdb2_namespace,
     library_namespace,
     sites_namespace,
     trial_network_namespace,
@@ -41,6 +42,7 @@ make_directory(path=TRIAL_NETWORKS_PATH)
 api.add_namespace(ns=callback_namespace, path="/api/v1/callback")
 if FlaskConf.FLASK_ENV == "development":
     api.add_namespace(ns=debug_namespace, path="/api/v1/debug")
+api.add_namespace(ns=influxdb2_namespace, path="/api/v1/influxdb2")
 api.add_namespace(ns=library_namespace, path="/api/v1/library")
 api.add_namespace(ns=sites_namespace, path="/api/v1/sites")
 api.add_namespace(ns=trial_network_namespace, path="/api/v1/trial-network")
