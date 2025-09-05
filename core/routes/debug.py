@@ -32,14 +32,14 @@ debug_namespace = Namespace(
 @debug_namespace.route(
     "/trial-networks/<string:tn_id>/library/commits/<string:commit_id>"
 )
-class UpdateCommitLibrary(Resource):
+class ChangeCommitLibrary(Resource):
     @debug_namespace.doc(security="Bearer Auth")
     @debug_namespace.errorhandler(PyJWTError)
     @debug_namespace.errorhandler(JWTExtendedException)
     @jwt_required()
     def post(self, tn_id: str, commit_id: str):
         """
-        Update the Library commit associated with the trial network
+        Change the Library commit associated with the trial network
         """
         try:
             current_user = get_current_user_from_jwt(jwt_identity=get_jwt_identity())
@@ -50,6 +50,14 @@ class UpdateCommitLibrary(Resource):
                 trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
             trial_network.set_library_commit_id(library_commit_id=commit_id)
             trial_network.save()
+            library_handler = LibraryHandler(
+                https_url=trial_network.library_https_url,
+                reference_type="branch",
+                reference_value="main",
+                directory_path=trial_network.directory_path,
+            )
+            library_handler.git_client.checkout()
+            library_handler.git_client.pull()
             library_handler = LibraryHandler(
                 https_url=trial_network.library_https_url,
                 reference_type="commit",
@@ -73,14 +81,14 @@ class UpdateCommitLibrary(Resource):
 @debug_namespace.route(
     "/trial-networks/<string:tn_id>/sites/commits/<string:commit_id>"
 )
-class UpdateCommitSites(Resource):
+class ChangeCommitSites(Resource):
     @debug_namespace.doc(security="Bearer Auth")
     @debug_namespace.errorhandler(PyJWTError)
     @debug_namespace.errorhandler(JWTExtendedException)
     @jwt_required()
     def post(self, tn_id: str, commit_id: str):
         """
-        Update the Sites commit associated with the trial network
+        Change the Sites commit associated with the trial network
         """
         try:
             current_user = get_current_user_from_jwt(jwt_identity=get_jwt_identity())
@@ -89,8 +97,18 @@ class UpdateCommitSites(Resource):
             ).first()
             if current_user.role == "admin":
                 trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
-            trial_network.set_sites_commit_id(commit_id)
+            trial_network.set_sites_commit_id(sites_commit_id=commit_id)
             trial_network.save()
+            sites_handler = SitesHandler(
+                https_url=trial_network.sites_https_url,
+                reference_type="branch",
+                reference_value="main",
+                directory_path=trial_network.directory_path,
+            )
+            sites_handler.git_client.reset_hard()
+            sites_handler.git_client.fetch_prune()
+            sites_handler.git_client.checkout()
+            sites_handler.git_client.pull()
             sites_handler = SitesHandler(
                 https_url=trial_network.sites_https_url,
                 reference_type="commit",
@@ -163,7 +181,7 @@ class RemoveDebugEntityName(Resource):
     @jwt_required()
     def post(self, tn_id: str, entity_name: str):
         """
-        REmove debug: true to the specified entity name
+        Remove debug: true to the specified entity name
         """
         try:
             current_user = get_current_user_from_jwt(jwt_identity=get_jwt_identity())

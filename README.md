@@ -13,7 +13,6 @@
   <img src="https://6g-sandbox.eu/wp-content/uploads/2023/01/6g-sandbox-logo-2-300x138.jpg" alt="6G-SANDBOX" title="TNLCM" width="200" />
 </a>
 
-
 [![TNLCM][tnlcm-badge]][tnlcm-url]
 
 [Documentation](https://6g-sandbox.github.io/docs/category/tnlcm) • [Report Error](https://github.com/6G-SANDBOX/TNLCM/issues/new?assignees=&labels=&projects=&template=bug_report.md) • [Feature Request](https://github.com/6G-SANDBOX/TNLCM/issues/new?assignees=&labels=&projects=&template=feature_request.md) 
@@ -38,9 +37,9 @@ Trial Network Lifecycle Manager (TNLCM) is a tool developed in Python designed t
 <!-- Urls, Shields and Badges -->
 [tnlcm-badge]: https://img.shields.io/github/v/release/6G-SANDBOX/TNLCM?label=TNLCM&color=blue
 [tnlcm-url]: https://github.com/6G-SANDBOX/TNLCM/releases/latest
-[python-badge]: https://img.shields.io/badge/Python-3.13.2-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB
-[python-url]: https://www.python.org/downloads/release/python-3132/
-[flask-badge]: https://img.shields.io/badge/Flask-3.1.0-brightgreen?style=for-the-badge&logo=flask&logoColor=white&labelColor=000000
+[python-badge]: https://img.shields.io/badge/Python-3.13.7-blue?style=for-the-badge&logo=python&logoColor=white&labelColor=3776AB
+[python-url]: https://www.python.org/downloads/release/python-3137/
+[flask-badge]: https://img.shields.io/badge/Flask-3.1.2-brightgreen?style=for-the-badge&logo=flask&logoColor=white&labelColor=000000
 [flask-url]: https://flask.palletsprojects.com/en/stable/
 [mongodb-badge]: https://img.shields.io/badge/MongoDB-8.0-green?style=for-the-badge&logo=mongodb&logoColor=white&labelColor=47A248
 [mongodb-url]: https://www.mongodb.com/

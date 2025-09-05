@@ -57,7 +57,7 @@ class TrialNetworkModel(Document):
     user_created = StringField(max_length=100)
     tn_id = StringField(max_length=15, unique=True)
     state = StringField(max_length=50)
-    date_created_utc = DateTimeField(default=datetime.now(timezone.utc))
+    date_created_utc = DateTimeField(default=lambda: datetime.now(timezone.utc))
     directory_path = StringField()
     raw_descriptor = DictField(default={})
     sorted_descriptor = DictField(default={})
@@ -399,7 +399,10 @@ class TrialNetworkModel(Document):
         :param input_value: value of the input, ``str``
         """
         if input_value == "tn_vxlan":
-            if "tn_init" not in self.raw_descriptor["trial_network"]:
+            if (
+                "tn_init" not in self.raw_descriptor["trial_network"]
+                and "tn_vxlan" not in self.raw_descriptor["trial_network"]
+            ):
                 raise TrialNetworkError(
                     message="Trial network descriptor entity tn_vxlan is not allowed without entity tn_init",
                     status_code=422,

@@ -8,7 +8,7 @@ from core.auth.auth import get_current_user_from_jwt
 from core.exceptions.exceptions import CustomException
 from core.sites.sites_handler import SitesHandler
 from core.utils.os import join_path, list_dirs_no_hidden
-from core.utils.parser import ansible_decrypt, decode_base64
+from core.utils.parser import ansible_decrypt
 
 sites_namespace = Namespace(
     name="sites",
@@ -100,10 +100,7 @@ class ComponentsAvailable(Resource):
         Retrieve components available in a site
         """
         try:
-            deployment_site_token = decode_base64(
-                encoded_data=request.headers["Deployment-Site-Token"]
-            )
-
+            deployment_site_token = request.headers["Deployment-Site-Token"]
             current_user = get_current_user_from_jwt(jwt_identity=get_jwt_identity())
             if not current_user:
                 return {"message": "User not found"}, 404

@@ -15,6 +15,7 @@ from core.exceptions.exceptions import CustomException
 from core.influxdb2.influxdb2_handler import InfluxDB2Handler
 from core.jenkins.jenkins_handler import JenkinsHandler
 from core.library.library_handler import LIBRARY_REFERENCES_TYPES, LibraryHandler
+from core.library.report_generator import ReportGenerator
 from core.logs.log_handler import TrialNetworkLogger
 from core.models.resource_manager import ResourceManagerModel
 from core.models.trial_network import TrialNetworkModel
@@ -26,7 +27,7 @@ from core.utils.os import (
     join_path,
     remove_directory,
 )
-from core.utils.parser import ansible_decrypt, decode_base64
+from core.utils.parser import ansible_decrypt
 
 trial_network_namespace = Namespace(
     name="trial-network",
@@ -187,7 +188,7 @@ class CreateValidateTrialNetworkSpecificSite(Resource):
             )
             trial_network.set_state(state="validating")
             trial_network.save()
-            TrialNetworkLogger(tn_id=tn_id).info(
+            TrialNetworkLogger(tn_id=trial_network.tn_id).info(
                 message="Trial network validating. In this transition, the trial network descriptor is going to be validated"
             )
             trial_network.validate_descriptor(
@@ -196,7 +197,7 @@ class CreateValidateTrialNetworkSpecificSite(Resource):
             trial_network.set_sorted_descriptor()
             trial_network.set_state(state="validated")
             trial_network.save()
-            TrialNetworkLogger(tn_id=tn_id).info(
+            TrialNetworkLogger(tn_id=trial_network.tn_id).info(
                 message="Trial network validated. In this state, the trial network descriptor has been validated and is ready to be deployed"
             )
             return trial_network.to_dict_created_validated(), 201
@@ -263,7 +264,7 @@ class CreateValidateTrialNetwork(Resource):
         type=str,
         required=False,
         location="form",
-        help="Token in base64 to decrypt the core.yaml file from the deployment site",
+        help="Token to decrypt the core.yaml file from the deployment site",
     )
     parser_post.add_argument(
         "validate",
@@ -364,7 +365,7 @@ class CreateValidateTrialNetwork(Resource):
                 trial_network.set_raw_descriptor(file=descriptor_file)
                 trial_network.set_state(state="created")
                 trial_network.save()
-                TrialNetworkLogger(tn_id=tn_id).info(
+                TrialNetworkLogger(tn_id=trial_network.tn_id).info(
                     message="Trial network created. In this state, the trial network has not been validated and cannot be deployed"
                 )
                 return trial_network.to_dict_created(), 201
@@ -418,9 +419,9 @@ class CreateValidateTrialNetwork(Resource):
                     return {
                         "message": "All parameters are required when validate=True"
                     }, 400
-                deployment_site_token = decode_base64(
-                    encoded_data=deployment_site_token
-                )
+                # deployment_site_token = decode_base64(
+                #     encoded_data=deployment_site_token
+                # )
                 library_handler = LibraryHandler(
                     reference_type=library_reference_type,
                     reference_value=library_reference_value,
@@ -956,6 +957,67 @@ class DownloadReportTrialNetwork(Resource):
                 as_attachment=True,
                 download_name=file_name,
                 mimetype="application/octet-stream",
+            )
+        except CustomException as e:
+            return {"message": str(e.message)}, e.status_code
+        except Exception as e:
+            return abort(code=500, message=str(e))
+
+
+@trial_network_namespace.param(
+    name="tn_id", type="str", description="Trial network identifier"
+)
+@trial_network_namespace.route("s/<string:tn_id>/report/download-pdf")
+class DownloadReportTrialNetworkPdf(Resource):
+    @trial_network_namespace.doc(security="Bearer Auth")
+    @trial_network_namespace.errorhandler(PyJWTError)
+    @trial_network_namespace.errorhandler(JWTExtendedException)
+    @jwt_required()
+    def get(self, tn_id: str):
+        """
+        Download report generated after trial network deployment as markdown file
+        """
+        try:
+            current_user = get_current_user_from_jwt(jwt_identity=get_jwt_identity())
+            trial_network = TrialNetworkModel.objects(
+                user_created=current_user.username, tn_id=tn_id
+            ).first()
+            if current_user.role == "admin":
+                trial_network = TrialNetworkModel.objects(tn_id=tn_id).first()
+            if not trial_network:
+                return {
+                    "message": f"No trial network with identifier {tn_id} created by the user {current_user.username}"
+                }, 404
+            if trial_network.state != "activated":
+                return {
+                    "message": f"Trial network with identifier {tn_id} is not possible to download the report. Only trial networks with status activated can download the report. Current status: {trial_network.state}"
+                }, 400
+            # report = trial_network.report
+            file_name = f"{trial_network.tn_id}.md"
+            report_path = join_path(trial_network.directory_path, file_name)
+        
+            report_generator = ReportGenerator()
+            
+            report_generator.generate_cover(trial_network.tn_id, trial_network.date_created_utc.strftime("%Y-%m-%d"), "core/library/report/cover.pdf")
+
+            file_name_pdf = f"{trial_network.tn_id}.pdf"
+            report_path_pdf = join_path(trial_network.directory_path, file_name_pdf)    
+            
+            report_generator.markdown_to_pdf(
+                input_file=report_path,
+                output_file=report_path_pdf
+            )
+
+            report_generator.create_watermark("core/library/report/watermark.pdf")
+            report_generator.apply_watermark(report_path_pdf, "core/library/report/watermark.pdf")
+
+            report_generator.join_pdfs(["core/library/report/cover.pdf", report_path_pdf], report_path_pdf)
+            
+            return send_file(
+                path_or_file=report_path_pdf,
+                as_attachment=True,
+                download_name=file_name_pdf,
+                mimetype="application/pdf",
             )
         except CustomException as e:
             return {"message": str(e.message)}, e.status_code

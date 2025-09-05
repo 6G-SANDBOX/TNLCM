@@ -1,31 +1,50 @@
 trial_network:
-  tn_init:
-    type: "tn_init"
+  tn_vxlan:
+    type: "tn_vxlan"
     dependencies: []
     input: {}
-  vm_kvm-ubuntu22_04:
-    type: "vm_kvm"
-    name: "ubuntu22_04"
+  tn_bastion:
+    type: "tn_bastion"
     dependencies:
-      - "tn_init"
+      - "tn_vxlan"
+    input: {}
+  influxdb-v2:
+    type: "influxdb"
+    name: "v2"
+    dependencies:
+      - "tn_vxlan"
+      - "tn_bastion"
     input:
-      one_vm_kvm_size: "small" # extra_large, large, medium, small, very_small
+      one_influxdb_version: "2.7.11"
+      one_influxdb_user: "admin"
+      one_influxdb_password: "adminadmin"
+      one_influxdb_org: "testing"
+      one_influxdb_bucket: "testing"
+      one_influxdb_token: "default-token-testing"
+  grafana-v11:
+    type: "grafana"
+    name: "v11"
+    dependencies:
+      - "tn_vxlan"
+      - "tn_bastion"
+    input:
+      one_grafana_version: "11.6.0"
+      one_grafana_password: "adminadmin"
   elcm-exp:
     type: "elcm"
     name: "exp"
-    dependencies: 
-      - "tn_init"
+    dependencies:
+      - "influxdb-v2"
+      - "grafana-v11"
     input:
-      one_elcm_influxdb_user: "admin"
-      one_elcm_influxdb_password: "adminadmin"
-      one_elcm_influxdb_org: "elcmorg"
-      one_elcm_influxdb_bucket: "elcmbucket"
-      one_elcm_grafana_password: "adminadmin"
+      one_elcm_influxdb: "influxdb-v2"
+      one_elcm_grafana: "grafana-v11"
   vnet-n2:
     type: "vnet"
     name: "n2"
     dependencies: 
-      - "tn_init"
+      - "tn_vxlan"
+      - "tn_bastion"
     input:
       one_vnet_first_ip: "10.10.10.1"
       one_vnet_netmask: 24
@@ -36,7 +55,8 @@ trial_network:
     type: "open5gs_vm"
     name: "core"
     dependencies:
-      - "tn_init"
+      - "tn_vxlan"
+      - "tn_bastion"
       - "vnet-n2"
       # - "vnet-n3"
     input:
@@ -62,6 +82,8 @@ trial_network:
     type: "loadcore_agent"
     name: "dn"
     dependencies:
+      - "tn_vxlan"
+      - "tn_bastion"
       - "vnet-n2"
     input:
       one_loadcore_agent_networks:
@@ -71,6 +93,8 @@ trial_network:
     type: "loadcore_agent"
     name: "gnb"
     dependencies:
+      - "tn_vxlan"
+      - "tn_bastion"
       - "vnet-n2"
     input:
       one_loadcore_agent_networks:

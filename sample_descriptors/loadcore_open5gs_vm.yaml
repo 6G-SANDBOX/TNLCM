@@ -1,13 +1,19 @@
 trial_network:
-  tn_init:
-    type: "tn_init"
+  tn_vxlan:
+    type: "tn_vxlan"
     dependencies: []
+    input: {}
+  tn_bastion:
+    type: "tn_bastion"
+    dependencies:
+      - "tn_vxlan"
     input: {}
   vnet-n2:
     type: "vnet"
     name: "n2"
-    dependencies: 
-      - "tn_init"
+    dependencies:
+      - "tn_vxlan"
+      - "tn_bastion"
     input:
       one_vnet_first_ip: "10.10.10.1"
       one_vnet_netmask: 24
@@ -29,7 +35,8 @@ trial_network:
     type: "open5gs_vm"
     name: "core"
     dependencies:
-      - "tn_init"
+      - "tn_vxlan"
+      - "tn_bastion"
       - "vnet-n2"
       # - "vnet-n3"
     input:
@@ -55,6 +62,8 @@ trial_network:
     type: "loadcore_agent"
     name: "dn"
     dependencies:
+      - "tn_vxlan"
+      - "tn_bastion"
       - "vnet-n2"
     input:
       one_loadcore_agent_networks:
