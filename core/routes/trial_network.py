@@ -22,7 +22,9 @@ from core.models.trial_network import TrialNetworkModel
 from core.sites.sites_handler import SitesHandler
 from core.utils.file import load_file, save_file
 from core.utils.os import (
+    COVER_PDF,
     TRIAL_NETWORKS_PATH,
+    WATERMARK_PDF,
     is_file,
     join_path,
     remove_directory,
@@ -992,13 +994,14 @@ class DownloadReportTrialNetworkPdf(Resource):
                 return {
                     "message": f"Trial network with identifier {tn_id} is not possible to download the report. Only trial networks with status activated can download the report. Current status: {trial_network.state}"
                 }, 400
-            # report = trial_network.report
+            report = trial_network.report
             file_name = f"{trial_network.tn_id}.md"
             report_path = join_path(trial_network.directory_path, file_name)
-        
+            save_file(data=report, file_path=report_path)
+
             report_generator = ReportGenerator()
             
-            report_generator.generate_cover(trial_network.tn_id, trial_network.date_created_utc.strftime("%Y-%m-%d"), "core/library/report/cover.pdf")
+            report_generator.generate_cover(trial_network.tn_id, trial_network.date_created_utc.strftime("%Y-%m-%d"), COVER_PDF)
 
             file_name_pdf = f"{trial_network.tn_id}.pdf"
             report_path_pdf = join_path(trial_network.directory_path, file_name_pdf)    
@@ -1008,11 +1011,11 @@ class DownloadReportTrialNetworkPdf(Resource):
                 output_file=report_path_pdf
             )
 
-            report_generator.create_watermark("core/library/report/watermark.pdf")
-            report_generator.apply_watermark(report_path_pdf, "core/library/report/watermark.pdf")
+            report_generator.create_watermark(WATERMARK_PDF)
+            report_generator.apply_watermark(report_path_pdf, WATERMARK_PDF)
 
-            report_generator.join_pdfs(["core/library/report/cover.pdf", report_path_pdf], report_path_pdf)
-            
+            report_generator.join_pdfs([COVER_PDF, report_path_pdf], report_path_pdf)
+
             return send_file(
                 path_or_file=report_path_pdf,
                 as_attachment=True,
