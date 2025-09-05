@@ -259,6 +259,9 @@ if [[ "${CURRENT_VERSION}" == "0.5.2" && "${TARGET_VERSION}" == "1.0.0" ]]; then
 
     git -C ${BACKEND_PATH} checkout tags/"v${TARGET_VERSION}"
 
+    echo "Install wkhtmltopdf"
+    apt-get install -y wkhtmltopdf
+
     echo "Update uv"
     ${UV_BIN} self update
 
