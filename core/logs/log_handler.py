@@ -1,7 +1,7 @@
 import logging
 import sys
 
-from core.utils.os import TRIAL_NETWORKS_PATH, get_dotenv_var, make_directory, join_path
+from core.utils.os import TRIAL_NETWORKS_PATH, get_dotenv_var, join_path, make_directory
 
 LOG_LEVELS_AND_FORMATS = {
     "DEBUG": ("\x1b[38;21m", logging.DEBUG),
