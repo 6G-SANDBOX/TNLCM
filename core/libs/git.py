@@ -109,7 +109,7 @@ class Git:
         Clone a GitHub repository to the specified path
         """
         if exist_directory(path=self.github_local_directory) and not exist_directory(
-            join_path(self.github_local_directory, ".git")
+            path=join_path(self.github_local_directory, ".git")
         ):
             remove_directory(path=self.github_local_directory)
         if not exist_directory(path=self.github_local_directory):
