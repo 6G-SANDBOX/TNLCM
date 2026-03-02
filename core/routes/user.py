@@ -15,7 +15,7 @@ from core.auth.auth import get_current_user_from_jwt
 from core.exceptions.exceptions import CustomException
 from core.models.user import UserModel
 
-EXP_MINUTES_ACCESS_TOKEN = 10080  # one week
+EXP_MINUTES_ACCESS_TOKEN = 1440  # one day
 EXP_DAYS_REFRESH_TOKEN = 730
 
 user_namespace = Namespace(
