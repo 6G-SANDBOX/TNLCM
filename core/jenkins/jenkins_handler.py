@@ -222,12 +222,10 @@ class JenkinsHandler:
                 message=build_console_output,
                 lines_to_remove=build_console_num_lines_aux,
             )
-            if (
-                self.jenkins_client.get_job_info(name=jenkins_deploy_pipeline)[
-                    "lastSuccessfulBuild"
-                ]["number"]
-                != next_build_number
-            ):
+            last_successful = self.jenkins_client.get_job_info(
+                name=jenkins_deploy_pipeline
+            )["lastSuccessfulBuild"]
+            if last_successful is None or last_successful["number"] != next_build_number:
                 raise JenkinsError(
                     message=(f"{build_console_output}"),
                     status_code=500,
@@ -359,12 +357,10 @@ class JenkinsHandler:
             f"{build_console_output}"
             "------------------------------------------------------------------------------------------------------------------"
         )
-        if (
-            self.jenkins_client.get_job_info(name=jenkins_destroy_pipeline)[
-                "lastSuccessfulBuild"
-            ]["number"]
-            != next_build_number
-        ):
+        last_successful = self.jenkins_client.get_job_info(
+            name=jenkins_destroy_pipeline
+        )["lastSuccessfulBuild"]
+        if last_successful is None or last_successful["number"] != next_build_number:
             raise JenkinsError(
                 message=(f"{build_console_output}"),
                 status_code=500,
